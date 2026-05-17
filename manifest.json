@@ -1,0 +1,20 @@
+{
+  "name": "DonorGram",
+  "short_name": "DonorGram",
+  "start_url": "/Dono/",
+  "display": "standalone",
+  "theme_color": "#667eea",
+  "background_color": "#1a1a2e",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192x192?text=DG",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://via.placeholder.com/512x512?text=DG",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
