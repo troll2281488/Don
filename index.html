@@ -13,8 +13,7 @@
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
         body{background:#1a1a2e;height:100vh;display:flex;align-items:center;justify-content:center;padding:8px;position:fixed;width:100%}
         @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-        @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-        @keyframes recording{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.1);opacity:0.7}}
+        @keyframes recording{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
         .app{width:100%;height:100%;max-width:900px;background:#fff;border-radius:28px;overflow:hidden;display:flex;box-shadow:0 25px 50px rgba(0,0,0,0.3)}
         .sidebar{width:100%;background:#fff;display:flex;flex-direction:column}
         .main-area{width:100%;background:#f8fafd;display:flex;flex-direction:column;position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:10;transform:translateX(100%);transition:transform 0.3s}
@@ -40,7 +39,7 @@
         .back-btn{width:42px;height:42px;border-radius:12px;border:none;background:transparent;color:#667eea;font-size:20px;cursor:pointer}
         .chat-info{flex:1;display:flex;align-items:center;gap:12px;cursor:pointer}
         .chat-avatar-small{width:40px;height:40px;border-radius:12px;background:#667eea;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:18px}
-        .messages-container{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:8px;background:#f8fafd;background-size:cover;background-position:center}
+        .messages-container{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:8px;background:#f8fafd;background-size:cover;background-position:center;background-repeat:no-repeat}
         .message{display:flex;animation:fadeIn 0.2s;position:relative}.message-sent{justify-content:flex-end}
         .message-bubble{max-width:75%;padding:10px 14px;border-radius:18px;font-size:14px;line-height:1.4;word-break:break-word;position:relative}
         .message-received .message-bubble{background:#fff;border-bottom-left-radius:5px;box-shadow:0 1px 3px rgba(0,0,0,0.05)}
@@ -85,6 +84,7 @@
         .sticker{font-size:32px;cursor:pointer;padding:6px;border-radius:12px;background:#f0f4ff;transition:0.2s}
         .sticker:hover{transform:scale(1.1);background:#e0e8ff}
         .profile-avatar-big{width:80px;height:80px;border-radius:20px;background:#667eea;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:32px;font-weight:bold}
+        .custom-bg-btn{background:#667eea;color:#fff;margin-top:10px;padding:12px;border-radius:12px;text-align:center;cursor:pointer}
     </style>
 </head>
 <body>
@@ -149,7 +149,10 @@
 <div class="modal" id="pollModal"><div class="modal-content"><div class="modal-header"><h3>📊 Опрос</h3><button id="closePollModal">&times;</button></div><input type="text" id="pollQuestion" placeholder="Вопрос"><div id="pollOptions"><input type="text" class="poll-opt" placeholder="Вариант 1" style="margin-bottom:8px"><input type="text" class="poll-opt" placeholder="Вариант 2" style="margin-bottom:8px"></div><button class="icon-btn" id="addPollOption" style="width:100%;padding:10px"><i class="fas fa-plus"></i> Добавить вариант</button><button class="login-btn" id="createPollConfirmBtn" style="margin-top:12px">Создать опрос</button></div></div>
 <div class="modal" id="profileModal"><div class="modal-content"><div class="modal-header"><h3 id="profileTitle">👤 Профиль</h3><button id="closeProfileModal">&times;</button></div><div class="profile-avatar-big" id="profileAvatar">U</div><div id="profileInfo"><p><strong>Имя:</strong> <span id="profileName"></span></p><p><strong>Статус:</strong> <span id="profileBio"></span></p><p><strong>Аватар:</strong> <span id="profileAvatarText"></span></p></div><button id="editProfileBtn" class="login-btn" style="margin-top:12px;display:none">✏️ Редактировать</button></div></div>
 <div class="modal" id="editProfileModal"><div class="modal-content"><div class="modal-header"><h3>✏️ Редактировать профиль</h3><button id="closeEditModal">&times;</button></div><input type="text" id="editName" placeholder="Имя"><input type="text" id="editAvatar" placeholder="Аватар (2 буквы)" maxlength="2" style="margin-top:8px"><input type="text" id="editBio" placeholder="Статус" style="margin-top:8px"><input type="password" id="editPass" placeholder="Пароль для подтверждения" style="margin-top:8px"><button class="login-btn" id="saveProfileBtn">Сохранить</button></div></div>
-<div class="modal" id="backgroundModal"><div class="modal-content"><div class="modal-header"><h3>🎨 Обои чата</h3><button id="closeBgModal">&times;</button></div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px"><div style="aspect-ratio:1;background:#f8fafd;border-radius:12px;cursor:pointer" data-bg="#f8fafd"></div><div style="aspect-ratio:1;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:12px;cursor:pointer" data-bg="linear-gradient(135deg,#667eea,#764ba2)"></div><div style="aspect-ratio:1;background:linear-gradient(45deg,#ff9a9e,#fad0c4);border-radius:12px;cursor:pointer" data-bg="linear-gradient(45deg,#ff9a9e,#fad0c4)"></div><div style="aspect-ratio:1;background:#1a1a2e;border-radius:12px;cursor:pointer" data-bg="#1a1a2e"></div></div></div></div>
+
+<!-- Меню фона с реальной установкой своего фото -->
+<div class="modal" id="backgroundModal"><div class="modal-content"><div class="modal-header"><h3>🎨 Обои чата</h3><button id="closeBgModal">&times;</button></div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px"><div style="aspect-ratio:1;background:#f8fafd;border-radius:12px;cursor:pointer;border:1px solid #ddd" data-bg="#f8fafd"></div><div style="aspect-ratio:1;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:12px;cursor:pointer" data-bg="linear-gradient(135deg,#667eea,#764ba2)"></div><div style="aspect-ratio:1;background:linear-gradient(45deg,#ff9a9e,#fad0c4);border-radius:12px;cursor:pointer" data-bg="linear-gradient(45deg,#ff9a9e,#fad0c4)"></div><div style="aspect-ratio:1;background:#1a1a2e;border-radius:12px;cursor:pointer" data-bg="#1a1a2e"></div></div><div class="custom-bg-btn" id="customBgBtn">🖼 Своё фото из галереи</div></div></div>
+
 <div class="modal" id="stickerModal"><div class="modal-content"><div class="modal-header"><h3>😎 Стикеры</h3><button id="closeStickerModal">&times;</button></div><div class="sticker-pack" id="stickerPack"></div></div></div>
 <div class="image-viewer" id="imageViewer"><button class="close-btn" onclick="closeImageViewer()">✕</button><img id="viewedImage" src=""></div>
 
@@ -177,12 +180,10 @@ function formatTime(ts){return ts?new Date(ts).toLocaleTimeString([],{hour:'2-di
 function fileToBase64(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f);});}
 function scrollToBottom(){setTimeout(()=>{const c=$('messagesContainer');if(c)c.scrollTop=c.scrollHeight;},100);}
 
-// Голосовые
 async function startRecording(){try{const s=await navigator.mediaDevices.getUserMedia({audio:true});mediaRecorder=new MediaRecorder(s,{mimeType:'audio/webm'});audioChunks=[];mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data);};mediaRecorder.onstop=async()=>{pendingMedia={type:'audio',url:await fileToBase64(new Blob(audioChunks,{type:'audio/webm'}))};sendMessage();s.getTracks().forEach(t=>t.stop());};mediaRecorder.start();isRecording=true;$('micBtn').classList.add('recording');$('micBtn').innerHTML='<i class="fas fa-stop"></i>';showToast('🎙️ Запись...');}catch(e){showToast('❌ Нет доступа к микрофону');}}
 function stopRecording(){if(mediaRecorder&&isRecording){mediaRecorder.stop();isRecording=false;$('micBtn').classList.remove('recording');$('micBtn').innerHTML='<i class="fas fa-microphone"></i>';}}
 function toggleRecording(){isRecording?stopRecording():startRecording();}
 
-// Отправка сообщений
 async function sendMessage(){
     const input=$('messageInput');let text=input?input.value.trim():'';
     if(selectedSticker){text=selectedSticker;selectedSticker=null;}
@@ -209,7 +210,6 @@ async function sendMessage(){
     scrollToBottom();
 }
 
-// Ответ, редактирование, копирование, закрепление, удаление
 function setReply(id,txt,sender){replyTo={id,txt,sender};$('replyPreview').style.display='flex';$('replyText').innerText=`↩ ${sender}: ${(txt||'').substring(0,60)}`;$('messageInput').focus();}
 function cancelReply(){replyTo=null;$('replyPreview').style.display='none';}
 async function editMessage(){const newText=prompt('Редактировать:',selectedMessageText);if(newText&&newText!==selectedMessageText){await db.ref(`messages/${currentChat}/${selectedMessageId}`).update({text:newText,edited:true});showToast('✅ Сообщение изменено');}closeModal('messageMenuModal');}
@@ -218,7 +218,6 @@ async function pinMessage(){if(selectedMessageId&&currentChat){await db.ref(`pin
 async function deleteMessage(){if(!selectedMessageId||!currentChat)return;await db.ref(`messages/${currentChat}/${selectedMessageId}`).remove();showToast('🗑 Удалено');closeModal('messageMenuModal');}
 async function clearChat(){if(!currentChat||!confirm('Очистить всю историю?'))return;await db.ref(`messages/${currentChat}`).remove();messageCache[currentChat]={};closeModal('chatMenuModal');showToast('✅ История очищена');}
 
-// Опросы
 function showPollModal(){$('pollQuestion').value='';document.querySelectorAll('.poll-opt').forEach((el,i)=>{if(i<2)el.value='';else el.remove();});$('pollModal').classList.add('show');}
 function addPollOption(){const el=document.createElement('input');el.type='text';el.className='poll-opt';el.placeholder=`Вариант ${document.querySelectorAll('.poll-opt').length+1}`;el.style.marginBottom='8px';$('pollOptions').appendChild(el);}
 async function createPoll(){
@@ -231,12 +230,10 @@ async function createPoll(){
 function votePoll(chatId,msgId,optIdx){const uid=currentUser.id;db.ref(`messages/${chatId}/${msgId}/mediaUrl`).transaction(url=>{if(!url)return;try{const p=JSON.parse(url);if(Object.values(p.options).some(o=>o.voters&&o.voters[uid]))return;if(!p.options[optIdx].voters)p.options[optIdx].voters={};p.options[optIdx].voters[uid]=true;p.options[optIdx].votes=(p.options[optIdx].votes||0)+1;return JSON.stringify(p);}catch(e){return;}});}
 function renderPoll(chatId,msgId,data){try{const p=JSON.parse(data);const uid=currentUser.id;const total=p.options.reduce((s,o)=>s+(o.votes||0),0)||1;let h=`<div class="poll-container"><b>${esc(p.question)}</b>`;p.options.forEach((o,i)=>{const v=o.votes||0;const pct=Math.round((v/total)*100);const hasVoted=o.voters&&o.voters[uid];h+=`<div class="poll-option ${hasVoted?'voted':''}" onclick="votePoll('${chatId}','${msgId}',${i})"><span>${esc(o.text)}</span><span>${pct}% (${v})</span></div><div class="poll-bar" style="width:${pct}%"></div>`;});h+=`</div>`;return h;}catch(e){return'<i>Ошибка опроса</i>';}}
 
-// Стикеры
 let selectedSticker=null;
 function showStickerModal(){ $('stickerModal').classList.add('show'); }
 function renderStickers(){const container=$('stickerPack');container.innerHTML=stickers.map(s=>`<div class="sticker" data-sticker="${esc(s)}">${s}</div>`).join('');document.querySelectorAll('.sticker').forEach(el=>el.onclick=()=>{selectedSticker=el.dataset.sticker;$('stickerModal').classList.remove('show');if(currentChat)sendMessage();});}
 
-// Профили
 async function showProfile(uid){
     const user=state.users[uid];if(!user)return;
     $('profileTitle').innerText=uid===currentUser.id?'👤 Мой профиль':`👤 ${user.name||uid}`;
@@ -252,7 +249,6 @@ async function showProfile(uid){
 function openEditProfile(){ $('editName').value=currentUser.name; $('editAvatar').value=currentUser.avatar||''; $('editBio').value=currentUser.bio||''; $('editPass').value=''; $('editProfileModal').classList.add('show');}
 async function saveProfile(){const pass=$('editPass').value;if(pass!==currentUser.password){showToast('❌ Неверный пароль');return;}currentUser.name=$('editName').value.trim()||currentUser.name;currentUser.avatar=$('editAvatar').value.trim().slice(0,2).toUpperCase()||currentUser.avatar;currentUser.bio=$('editBio').value.trim();await db.ref(`users/${currentUser.id}`).update({name:currentUser.name,avatar:currentUser.avatar,bio:currentUser.bio});$('userName').innerText=currentUser.name;$('userAvatar').innerText=currentUser.avatar;closeModal('editProfileModal');showToast('✅ Профиль обновлён');}
 
-// Чаты и сообщения
 async function openChat(chatId){
     if(messagesListener&&currentChat)db.ref(`messages/${currentChat}`).off();
     currentChat=chatId;cancelReply();
@@ -289,13 +285,38 @@ async function renderMessages(msgs,chatId){
     document.querySelectorAll('.message-menu').forEach(el=>{el.onclick=e=>{e.stopPropagation();selectedMessageId=el.dataset.id;selectedMessageText=el.dataset.text;selectedMessageSender=el.dataset.sender;const isOwn=selectedMessageSender===currentUser.id;$('editMsgBtn').style.display=isOwn?'flex':'none';$('replyMsgBtn').style.display='flex';$('copyMsgBtn').style.display='flex';$('pinMsgBtn').style.display='flex';$('deleteMsgBtn').style.display='flex';$('replyMsgBtn').onclick=()=>{const b=document.getElementById('msg_'+selectedMessageId)?.querySelector('.message-bubble');const t=b?.innerText||'';const s=b?.querySelector('b')?.innerText.replace(':','')||'';setReply(selectedMessageId,t,s);closeModal('messageMenuModal');};$('editMsgBtn').onclick=editMessage;$('copyMsgBtn').onclick=copyMessage;$('pinMsgBtn').onclick=pinMessage;$('deleteMsgBtn').onclick=deleteMessage;$('messageMenuModal').classList.add('show');};});
 }
 
-// Остальные функции
 function renderChats(){const list=$('chatsList');const st=($('chatSearch')?.value||'').toLowerCase();let chats=Object.entries(state.userChats).map(([id,c])=>({id,...c}));chats=chats.filter(c=>{if(c.type==='private'){const o=Object.keys(c.participants||{}).find(id=>id!==currentUser.id);if(!o||!state.users[o])return false;return!st||(state.users[o]?.name||'').toLowerCase().includes(st);}return!st||(c.name||'').toLowerCase().includes(st);});chats.sort((a,b)=>(pinnedChats[b.id]?1:0)-(pinnedChats[a.id]?1:0)||(b.lastMessageTime||0)-(a.lastMessageTime||0));list.innerHTML=chats.map(c=>{let name=c.name||'Чат',av='?';if(c.type==='private'){const o=Object.keys(c.participants||{}).find(id=>id!==currentUser.id);const u=state.users[o];name=u?.name||o;av=u?.avatar||name[0]?.toUpperCase()||'?';}else if(c.type==='notes'){name='⭐ Избранное';av='⭐';}else if(c.type==='group')av='👥';const badge=c.unreadCount?`<span class="badge">${c.unreadCount}</span>`:'';const pin=pinnedChats[c.id]?'<span class="pinned-badge">📌</span>':'';return `<div class="chat-item" onclick="openChat('${c.id}')"><div class="chat-avatar ${c.type==='group'?'group-avatar':''}">${esc(av)}</div><div class="chat-content"><div class="chat-name">${esc(name)} ${pin} ${badge}</div><div class="chat-last">${esc(c.lastMessage||'Нет сообщений')}</div></div></div>`;}).join('');}
 function loadData(){db.ref('users').on('value',s=>{state.users=s.val()||{};renderChats();const cnt=Object.keys(state.users).length;if($('userCount'))$('userCount').innerText=`${cnt}/${MAX}`;});db.ref('userChats/'+currentUser.id).on('value',s=>{state.userChats=s.val()||{};renderChats();});db.ref('chats').on('value',s=>{state.chats=s.val()||{};});db.ref(`forceLogout/${currentUser.id}`).on('value',s=>{if(s.exists()){showToast('⚠️ Заблокирован');logout();}});}
 function togglePinChat(){if(!currentChat)return;pinnedChats[currentChat]=!pinnedChats[currentChat];localStorage.setItem('pinned',JSON.stringify(pinnedChats));renderChats();$('pinChatBtn').innerHTML=`<i class="fas fa-thumbtack" style="color:${pinnedChats[currentChat]?'#ff9500':'#667eea'}"></i>`;}
 function toggleDarkMode(){darkMode=!darkMode;document.querySelector('.app').style.filter=darkMode?'invert(0.9) hue-rotate(180deg)':'none';localStorage.setItem('darkMode',darkMode?'1':'0');}
-function applyWallpaper(){const bg=chatWallpapers[currentChat];if(bg){$('messagesContainer').style.background=bg;$('messagesContainer').style.backgroundImage='none';}else{$('messagesContainer').style.background='#f8fafd';}}
+function applyWallpaper(){const bg=chatWallpapers[currentChat];if(bg && bg.startsWith('url')){$('messagesContainer').style.backgroundImage=bg;$('messagesContainer').style.backgroundSize='cover';$('messagesContainer').style.backgroundPosition='center';}else if(bg){$('messagesContainer').style.background=bg;$('messagesContainer').style.backgroundImage='none';}else{$('messagesContainer').style.background='#f8fafd';$('messagesContainer').style.backgroundImage='none';}}
 function setBg(bg){if(currentChat){chatWallpapers[currentChat]=bg;localStorage.setItem('wallpapers',JSON.stringify(chatWallpapers));applyWallpaper();}closeModal('backgroundModal');}
+
+// РАБОЧАЯ ФУНКЦИЯ ДЛЯ СВОЕГО ФОНА
+function setCustomBackground(){
+    const input=document.createElement('input');
+    input.type='file';
+    input.accept='image/*';
+    input.onchange=function(e){
+        if(e.target.files && e.target.files[0]){
+            const file=e.target.files[0];
+            const reader=new FileReader();
+            reader.onload=function(ev){
+                const bgImage='url('+ev.target.result+')';
+                if(currentChat){
+                    chatWallpapers[currentChat]=bgImage;
+                    localStorage.setItem('wallpapers',JSON.stringify(chatWallpapers));
+                    applyWallpaper();
+                    showToast('🖼 Свой фон установлен!');
+                    closeModal('backgroundModal');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+    input.click();
+}
+
 function selectPhoto(){closeModal('attachMenu');$('photoInput').click();}
 function selectVideo(){closeModal('attachMenu');$('videoInput').click();}
 function viewImage(url){$('viewedImage').src=url;$('imageViewer').classList.add('show');}
@@ -310,7 +331,6 @@ function closeModal(id){$(id)?.classList.remove('show');}
 function logout(){if(confirm('Выйти?')){if(currentUser)db.ref('users/'+currentUser.id).update({status:'offline'});localStorage.clear();location.reload();}}
 async function doLogin(){const name=$('loginName').value.trim(),pass=$('loginPassword').value;let avatar=($('loginAvatar').value.trim()||name.substring(0,2)).toUpperCase().slice(0,2);if(!name||!pass){showToast('❌ Введите данные');return;}const users=(await db.ref('users').once('value')).val()||{};const userSnap=await db.ref('users/'+name).once('value');if(userSnap.exists()){const u=userSnap.val();if(u.password!==pass){showToast('❌ Неверный пароль');return;}if(u.blocked){showToast('❌ Заблокирован');return;}currentUser={id:name,name:u.name,avatar:u.avatar,password:pass,bio:u.bio||''};await db.ref(`users/${name}`).update({status:'online',lastLogin:Date.now()});}else{if(Object.keys(users).length>=50){showToast('❌ Лимит 50');return;}await db.ref('users/'+name).set({name,avatar,password:pass,createdAt:Date.now(),status:'online',blocked:false,bio:''});currentUser={id:name,name,avatar,password:pass,bio:''};}localStorage.setItem('dg_user',JSON.stringify(currentUser));$('loginScreen').style.display='none';$('mainApp').style.display='block';$('userName').innerText=currentUser.name;$('userAvatar').innerText=currentUser.avatar;loadData();}
 
-// Инициализация
 document.addEventListener('DOMContentLoaded',async()=>{
     const snap=await db.ref('settings').once('value');if(!snap.exists()||!snap.val().maxUsers)await db.ref('settings').set({maxUsers:50,version:'1.0.0'});MAX=(snap.val()?.maxUsers)||50;
     db.ref('users').on('value',s=>{const cnt=Object.keys(s.val()||{}).length;if($('userCount'))$('userCount').innerText=`${cnt}/${MAX}`;});
@@ -324,10 +344,24 @@ document.addEventListener('DOMContentLoaded',async()=>{
     $('closeUsersModal').onclick=()=>closeModal('usersModal');$('closeGroupModal').onclick=()=>closeModal('groupModal');$('createGroupBtn').onclick=createGroup;
     $('closeProfileModal').onclick=()=>closeModal('profileModal');$('closeEditModal').onclick=()=>closeModal('editProfileModal');$('saveProfileBtn').onclick=saveProfile;$('myProfileBtn').onclick=()=>showProfile(currentUser?.id);
     $('closeBgModal').onclick=()=>closeModal('backgroundModal');document.querySelectorAll('#backgroundModal [data-bg]').forEach(el=>el.onclick=()=>setBg(el.dataset.bg));
+    const customBgBtn=$('customBgBtn');if(customBgBtn)customBgBtn.onclick=setCustomBackground;
     $('closePollModal').onclick=()=>closeModal('pollModal');$('addPollOption').onclick=addPollOption;$('createPollConfirmBtn').onclick=createPoll;
     $('closeStickerModal').onclick=()=>closeModal('stickerModal');renderStickers();
     $('photoInput').onchange=async e=>{if(e.target.files[0]){pendingMedia={type:'photo',url:await fileToBase64(e.target.files[0])};sendMessage();}e.target.value='';};
     $('videoInput').onchange=async e=>{if(e.target.files[0]){pendingMedia={type:'video',url:await fileToBase64(e.target.files[0])};sendMessage();}e.target.value='';};
+    
+    // ПЕРЕХВАТ СИСТЕМНОЙ КНОПКИ "НАЗАД" (ТРЕУГОЛЬНИК ВНИЗУ)
+    document.addEventListener('backbutton', function(e) {
+        e.preventDefault();
+        if(document.getElementById('mainArea').classList.contains('active')) {
+            goBack();
+            showToast('🏠 Выход в главное меню');
+        } else {
+            // Если хочешь выходить из приложения - раскомментируй:
+            // navigator.app.exitApp();
+        }
+    }, false);
+    
     const saved=localStorage.getItem('dg_user');if(saved){try{currentUser=JSON.parse(saved);const chk=await db.ref('users/'+currentUser.id).once('value');if(chk.exists()&&!chk.val().blocked){$('loginScreen').style.display='none';$('mainApp').style.display='block';$('userName').innerText=currentUser.name;$('userAvatar').innerText=currentUser.avatar;await db.ref('users/'+currentUser.id).update({status:'online'});loadData();applyWallpaper();showToast('✅ С возвращением!');}else localStorage.removeItem('dg_user');}catch(e){localStorage.clear();}}
 });
 </script>
