@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>✨ DonorGram Pro</title>
+    <title>✨ DonorGram Pro + 3D Галерея</title>
     <link rel="manifest" href="manifest.json">
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
@@ -115,6 +116,23 @@
         .coin-rain{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:10000;overflow:hidden}
         .coin{position:absolute;font-size:32px;animation:fallCoin linear forwards}
         @keyframes fallCoin{0%{transform:translateY(-20vh) rotate(0deg);opacity:1}100%{transform:translateY(120vh) rotate(360deg);opacity:0}}
+        
+        /* 3D ИГРА */
+        .game-fullscreen{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:10000;display:none;flex-direction:column}
+        .game-fullscreen.show{display:flex}
+        .game-canvas{flex:1;width:100%}
+        .game-exit-btn{position:absolute;top:20px;right:20px;background:rgba(0,0,0,0.7);color:white;border:none;border-radius:30px;padding:10px 20px;font-size:16px;cursor:pointer;z-index:10001}
+        .game-controls-hint{position:absolute;bottom:20px;left:20px;background:rgba(0,0,0,0.6);color:white;padding:8px 15px;border-radius:20px;font-size:12px;z-index:10001;pointer-events:none}
+        .game-dpad{position:fixed;bottom:30px;left:30px;width:140px;height:140px;display:none;z-index:10001}
+        .game-dpad-btn{position:absolute;background:rgba(0,0,0,0.7);border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:28px;color:white;cursor:pointer;border-radius:10px;width:50px;height:50px}
+        .game-dpad-up{top:0;left:50%;transform:translateX(-50%)}
+        .game-dpad-down{bottom:0;left:50%;transform:translateX(-50%)}
+        .game-dpad-left{left:0;top:50%;transform:translateY(-50%)}
+        .game-dpad-right{right:0;top:50%;transform:translateY(-50%)}
+        .game-buttons{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:10001}
+        .game-btn{background:rgba(0,0,0,0.7);color:#00ff00;border:1px solid #00ff00;border-radius:20px;padding:10px 20px;font-size:14px;cursor:pointer}
+        .game-btn.delete{color:#ff4444;border-color:#ff4444}
+        @media (max-width:768px){.game-dpad{display:block}.game-controls-hint{display:none}}
     </style>
 </head>
 <body>
@@ -180,7 +198,8 @@
 
 <div class="modal" id="profileModal"><div class="modal-content"><div class="modal-header"><h3 id="profileTitle">👤 Профиль</h3><button id="closeProfileModal">&times;</button></div><div class="profile-avatar-big" id="profileAvatar">U</div><div id="profileInfo"><p><strong>Имя:</strong> <span id="profileName"></span></p><p><strong>Статус:</strong> <span id="profileBio"></span></p><p><strong>Аватар:</strong> <span id="profileAvatarText"></span></p></div><button id="editProfileBtn" class="login-btn" style="margin-top:12px;display:none">✏️ Редактировать</button>
 <button id="settingsBtn" class="login-btn" style="margin-top:8px;background:#1a1a2e">⚙️ Настройки</button>
-<button id="donorXbetBtn" class="login-btn" style="margin-top:8px;background:linear-gradient(135deg,#ff0066,#ffaa00)">🎰 DONOR XBET JACKPOT</button></div></div>
+<button id="donorXbetBtn" class="login-btn" style="margin-top:8px;background:linear-gradient(135deg,#ff0066,#ffaa00)">🎰 DONOR XBET JACKPOT</button>
+<button id="startGameBtn" class="login-btn" style="margin-top:8px;background:linear-gradient(135deg,#00cc66,#009944)">🎮 3D ГАЛЕРЕЯ</button></div></div>
 
 <div class="modal" id="settingsModal"><div class="modal-content"><div class="modal-header"><h3>⚙️ Настройки</h3><button id="closeSettingsModal">&times;</button></div><div class="settings-item"><span class="settings-label">🌙 Тёмная тема</span><label class="switch"><input type="checkbox" id="darkModeSwitch"><span class="slider"></span></label></div><div class="settings-item"><span class="settings-label">🔔 Уведомления</span><label class="switch"><input type="checkbox" id="notificationsSwitch" checked><span class="slider"></span></label></div><div class="settings-item"><span class="settings-label">🔊 Звук сообщений</span><label class="switch"><input type="checkbox" id="soundSwitch" checked><span class="slider"></span></label></div><div class="settings-item"><span class="settings-label">📳 Виброотклик</span><label class="switch"><input type="checkbox" id="vibrationSwitch" checked><span class="slider"></span></label></div><div class="settings-item"><span class="settings-label">💾 Автосохранение медиа</span><label class="switch"><input type="checkbox" id="autoSaveSwitch" checked><span class="slider"></span></label></div></div></div>
 
@@ -193,6 +212,24 @@
 <!-- Просмотрщик фото и видео -->
 <div class="image-viewer" id="imageViewer"><button class="close-btn" onclick="closeImageViewer()">✕</button><img id="viewedImage" src=""><div class="viewer-buttons"><button class="save-media-btn" id="saveImageViewerBtn">💾 СОХРАНИТЬ</button></div></div>
 <div class="video-viewer" id="videoViewer"><button class="close-btn" onclick="closeVideoViewer()">✕</button><video id="viewedVideo" controls></video><div class="viewer-buttons"><button class="save-media-btn" id="saveVideoViewerBtn">💾 СОХРАНИТЬ ВИДЕО</button></div></div>
+
+<!-- 3D ИГРА -->
+<div class="game-fullscreen" id="gameFullscreen">
+    <button class="game-exit-btn" id="gameExitBtn"><i class="fas fa-times"></i> Выйти</button>
+    <div class="game-controls-hint">🖱️ Мышь/WASD - движение | 📱 Палец по экрану для поворота</div>
+    <canvas id="gameCanvas" class="game-canvas"></canvas>
+    <div class="game-dpad" id="gameDpad">
+        <div class="game-dpad-btn game-dpad-up" id="gameBtnUp">▲</div>
+        <div class="game-dpad-btn game-dpad-down" id="gameBtnDown">▼</div>
+        <div class="game-dpad-btn game-dpad-left" id="gameBtnLeft">◀</div>
+        <div class="game-dpad-btn game-dpad-right" id="gameBtnRight">▶</div>
+    </div>
+    <div class="game-buttons">
+        <button class="game-btn" id="addPhotoGameBtn">📷 Добавить фото</button>
+        <button class="game-btn delete" id="deletePhotoGameBtn">🗑 Удалить фото</button>
+    </div>
+</div>
+<input type="file" id="wallPhotoInput" accept="image/*" style="display:none">
 
 <script>
 const firebaseConfig = {
@@ -217,6 +254,14 @@ let xbetCurrentBet = 10;
 let xbetAutoActive = false;
 const xbetSymbols = ['🔷', '💎', '🍒', '7️⃣', '⭐', '🔥', '💰'];
 const xbetJackpots = [1000000, 500000, 200000, 100000];
+
+// 3D ИГРА переменные
+let gameScene, gameCamera, gameRenderer;
+let gameActive = false;
+let gameX = 0, gameZ = 0;
+let gameAngle = 0;
+let gameMoveForward=false, gameMoveBack=false, gameMoveLeft=false, gameMoveRight=false;
+let wallPhotoMesh = null;
 
 function $(id){return document.getElementById(id);}
 function showToast(m){const t=document.createElement('div');t.className='toast';t.innerHTML=m;document.body.appendChild(t);setTimeout(()=>t.remove(),3000);}
@@ -352,6 +397,151 @@ function xbetAutoSpin() {
     step();
 }
 
+// 3D ИГРА ФУНКЦИИ
+function initGame3D() {
+    if(gameScene) return;
+    const canvas = document.getElementById('gameCanvas');
+    gameScene = new THREE.Scene();
+    gameScene.background = new THREE.Color(0x1a472a);
+    gameCamera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    gameCamera.position.y = 1.6;
+    gameRenderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    gameRenderer.setSize(window.innerWidth, window.innerHeight);
+    gameRenderer.shadowMap.enabled = true;
+    
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(30, 30), new THREE.MeshStandardMaterial({ color: 0x3a7a3a }));
+    ground.rotation.x = -Math.PI/2; ground.position.y = -0.5; ground.receiveShadow = true;
+    gameScene.add(ground);
+    const grid = new THREE.GridHelper(30, 15, 0x88ff88, 0x226622);
+    grid.position.y = -0.4;
+    gameScene.add(grid);
+    
+    const wallMat = new THREE.MeshStandardMaterial({ color: 0x8B7355 });
+    const frontWall = new THREE.Mesh(new THREE.BoxGeometry(14, 7, 0.5), wallMat);
+    frontWall.position.set(0, 3, -10);
+    frontWall.castShadow = true;
+    gameScene.add(frontWall);
+    
+    const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.5, 7, 20), wallMat);
+    leftWall.position.set(-10, 3, 0); leftWall.castShadow = true;
+    gameScene.add(leftWall);
+    const rightWall = new THREE.Mesh(new THREE.BoxGeometry(0.5, 7, 20), wallMat);
+    rightWall.position.set(10, 3, 0); rightWall.castShadow = true;
+    gameScene.add(rightWall);
+    
+    const ambient = new THREE.AmbientLight(0x404060);
+    gameScene.add(ambient);
+    const dirLight = new THREE.DirectionalLight(0xfff5e6, 1);
+    dirLight.position.set(5, 10, 5);
+    dirLight.castShadow = true;
+    gameScene.add(dirLight);
+}
+
+function createWallPhoto(imageUrl){
+    if(wallPhotoMesh) gameScene.remove(wallPhotoMesh);
+    const texture = new THREE.Texture();
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.onload = () => {
+        texture.image = img;
+        texture.needsUpdate = true;
+        const material = new THREE.MeshStandardMaterial({ map: texture });
+        const geometry = new THREE.BoxGeometry(12, 6, 0.1);
+        wallPhotoMesh = new THREE.Mesh(geometry, material);
+        wallPhotoMesh.position.set(0, 3, -9.7);
+        wallPhotoMesh.castShadow = true;
+        gameScene.add(wallPhotoMesh);
+    };
+    img.src = imageUrl;
+}
+
+function loadUserPhoto(){
+    if(!currentUser) return;
+    db.ref(`wallPhoto/${currentUser.id}`).once('value', (snap) => {
+        const url = snap.val();
+        if(url) createWallPhoto(url);
+    });
+}
+
+function addPhotoToWall(base64){
+    db.ref(`wallPhoto/${currentUser.id}`).set(base64).then(() => {
+        createWallPhoto(base64);
+        showToast('✅ Фото добавлено на стену!');
+    });
+}
+
+function deletePhotoFromWall(){
+    db.ref(`wallPhoto/${currentUser.id}`).remove().then(() => {
+        if(wallPhotoMesh) gameScene.remove(wallPhotoMesh);
+        wallPhotoMesh = null;
+        showToast('🗑 Фото удалено со стены');
+    });
+}
+
+function selectPhotoForWall(){
+    const input = document.getElementById('wallPhotoInput');
+    input.onchange = async (e) => {
+        if(e.target.files && e.target.files[0]){
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = async (ev) => { addPhotoToWall(ev.target.result); };
+            reader.readAsDataURL(file);
+        }
+        input.value = '';
+    };
+    input.click();
+}
+
+function updateGameMovement(){
+    if(!gameActive) return;
+    let speed = 4;
+    let dx=0, dz=0;
+    if(gameMoveForward) dz-=1;
+    if(gameMoveBack) dz+=1;
+    if(gameMoveLeft) dx-=1;
+    if(gameMoveRight) dx+=1;
+    if(dx!==0 || dz!==0){
+        let len = Math.hypot(dx,dz);
+        dx/=len; dz/=len;
+        let newX = gameX + (dx*Math.cos(gameAngle) + dz*Math.sin(gameAngle)) * speed * 0.016;
+        let newZ = gameZ + (dz*Math.cos(gameAngle) - dx*Math.sin(gameAngle)) * speed * 0.016;
+        if(Math.abs(newX)<8 && Math.abs(newZ)<8){
+            gameX = newX;
+            gameZ = newZ;
+        }
+    }
+}
+
+function animateGame(){
+    requestAnimationFrame(animateGame);
+    if(gameActive){
+        updateGameMovement();
+        gameCamera.position.x = gameX;
+        gameCamera.position.z = gameZ;
+        gameCamera.position.y = 1.6;
+        gameCamera.rotation.order = 'YXZ';
+        gameCamera.rotation.y = gameAngle;
+        gameCamera.rotation.x = 0;
+    }
+    if(gameRenderer && gameScene && gameCamera) gameRenderer.render(gameScene, gameCamera);
+}
+
+function startGame3D(){
+    const gameDiv = document.getElementById('gameFullscreen');
+    gameDiv.classList.add('show');
+    gameActive = true;
+    gameX = 0; gameZ = 0; gameAngle = 0;
+    gameMoveForward=false; gameMoveBack=false; gameMoveLeft=false; gameMoveRight=false;
+    initGame3D();
+    animateGame();
+    loadUserPhoto();
+}
+
+function stopGame3D(){
+    gameActive = false;
+    document.getElementById('gameFullscreen').classList.remove('show');
+}
+
 // Остальной DonorGram код
 async function startRecording(){try{const s=await navigator.mediaDevices.getUserMedia({audio:true});mediaRecorder=new MediaRecorder(s,{mimeType:'audio/webm'});audioChunks=[];mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data);};mediaRecorder.onstop=async()=>{pendingMedia={type:'audio',url:await fileToBase64(new Blob(audioChunks,{type:'audio/webm'}))};sendMessage();s.getTracks().forEach(t=>t.stop());};mediaRecorder.start();isRecording=true;$('micBtn').classList.add('recording');$('micBtn').innerHTML='<i class="fas fa-stop"></i>';showToast('🎙️ Запись...');}catch(e){showToast('❌ Нет доступа к микрофону');}}
 function stopRecording(){if(mediaRecorder&&isRecording){mediaRecorder.stop();isRecording=false;$('micBtn').classList.remove('recording');$('micBtn').innerHTML='<i class="fas fa-microphone"></i>';}}
@@ -426,6 +616,48 @@ document.addEventListener('DOMContentLoaded',async()=>{
     $('xbetAutoSpinBtn').onclick=xbetAutoSpin;
     $('xbetMaxBet').onclick=()=>{xbetCurrentBet=Math.min(100,xbetBalance);document.querySelectorAll('[data-xbet]').forEach(b=>b.classList.remove('active'));$('xbetMessage').innerHTML=`Ставка ${xbetCurrentBet}$`;};
     document.querySelectorAll('[data-xbet]').forEach(btn=>{btn.onclick=()=>{xbetCurrentBet=parseInt(btn.dataset.xbet);document.querySelectorAll('[data-xbet]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');$('xbetMessage').innerHTML=`Ставка ${xbetCurrentBet}$`;};});
+    
+    // 3D ИГРА
+    $('startGameBtn').onclick=()=>{$('profileModal').classList.remove('show');startGame3D();};
+    $('gameExitBtn').onclick=stopGame3D;
+    $('addPhotoGameBtn').onclick=selectPhotoForWall;
+    $('deletePhotoGameBtn').onclick=()=>{if(confirm('Удалить фото со стены?'))deletePhotoFromWall();};
+    
+    // Управление игрой
+    const gameUp = document.getElementById('gameBtnUp');
+    const gameDown = document.getElementById('gameBtnDown');
+    const gameLeft = document.getElementById('gameBtnLeft');
+    const gameRight = document.getElementById('gameBtnRight');
+    if(gameUp){
+        gameUp.addEventListener('touchstart', (e) => { e.preventDefault(); gameMoveForward = true; });
+        gameUp.addEventListener('touchend', (e) => { e.preventDefault(); gameMoveForward = false; });
+        gameUp.addEventListener('mousedown', () => { gameMoveForward = true; });
+        gameUp.addEventListener('mouseup', () => { gameMoveForward = false; });
+    }
+    if(gameDown){
+        gameDown.addEventListener('touchstart', (e) => { e.preventDefault(); gameMoveBack = true; });
+        gameDown.addEventListener('touchend', (e) => { e.preventDefault(); gameMoveBack = false; });
+        gameDown.addEventListener('mousedown', () => { gameMoveBack = true; });
+        gameDown.addEventListener('mouseup', () => { gameMoveBack = false; });
+    }
+    if(gameLeft){
+        gameLeft.addEventListener('touchstart', (e) => { e.preventDefault(); gameMoveLeft = true; });
+        gameLeft.addEventListener('touchend', (e) => { e.preventDefault(); gameMoveLeft = false; });
+        gameLeft.addEventListener('mousedown', () => { gameMoveLeft = true; });
+        gameLeft.addEventListener('mouseup', () => { gameMoveLeft = false; });
+    }
+    if(gameRight){
+        gameRight.addEventListener('touchstart', (e) => { e.preventDefault(); gameMoveRight = true; });
+        gameRight.addEventListener('touchend', (e) => { e.preventDefault(); gameMoveRight = false; });
+        gameRight.addEventListener('mousedown', () => { gameMoveRight = true; });
+        gameRight.addEventListener('mouseup', () => { gameMoveRight = false; });
+    }
+    
+    let lastTouchX = 0, rotating = false;
+    document.addEventListener('mousemove', (e) => { if(!gameActive) return; gameAngle -= e.movementX * 0.005; });
+    document.addEventListener('touchstart', (e) => { if(!gameActive) return; if(e.target.classList && (e.target.classList.contains('game-dpad-btn') || e.target.id === 'addPhotoGameBtn' || e.target.id === 'deletePhotoGameBtn')) return; rotating = true; lastTouchX = e.touches[0].clientX; });
+    document.addEventListener('touchmove', (e) => { if(!rotating || !gameActive) return; const delta = e.touches[0].clientX - lastTouchX; gameAngle -= delta * 0.008; lastTouchX = e.touches[0].clientX; });
+    document.addEventListener('touchend', () => { rotating = false; });
     
     // Настройки
     $('settingsBtn').onclick=()=>{$('profileModal').classList.remove('show');$('settingsModal').classList.add('show');};
