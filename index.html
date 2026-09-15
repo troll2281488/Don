@@ -30,6 +30,27 @@ body{background:#1a1a2e;height:100vh;display:flex;align-items:center;justify-con
 .event-banner.rain{background:linear-gradient(90deg,#00ffcc,#0088ff);color:#000}
 .event-banner.instant{background:linear-gradient(90deg,#ffd700,#00ff00);color:#000;animation:livePulse 1.2s infinite}
 .event-banner .ev-timer{background:rgba(0,0,0,.3);padding:2px 8px;border-radius:10px;font-size:11px}
+
+/* ===== POPUP УВЕДОМЛЕНИЯ О СООБЩЕНИЯХ ===== */
+@keyframes notifIn{from{transform:translateY(-120%) scale(.9);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+@keyframes notifOut{from{transform:translateY(0) scale(1);opacity:1}to{transform:translateY(-120%) scale(.9);opacity:0}}
+.notif-container{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:99999;width:92%;max-width:440px;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.notif{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);color:#fff;border-radius:18px;padding:12px 14px;display:flex;gap:12px;align-items:center;box-shadow:0 12px 40px rgba(0,0,0,.5),0 0 0 1px rgba(102,126,234,.3);cursor:pointer;pointer-events:auto;animation:notifIn .35s cubic-bezier(.34,1.56,.64,1);transition:transform .15s;border-left:4px solid #667eea;position:relative;overflow:hidden}
+.notif:hover{transform:scale(1.02)}
+.notif.hide{animation:notifOut .3s forwards}
+.notif-avatar{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;flex-shrink:0;background-size:cover;background-position:center;position:relative}
+.notif-avatar .n-badge{position:absolute;top:-6px;right:-6px;background:#ff3b30;color:#fff;border-radius:50%;min-width:20px;height:20px;padding:0 5px;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #16213e}
+.notif-content{flex:1;min-width:0}
+.notif-name{font-weight:800;font-size:14px;margin-bottom:2px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.notif-text{font-size:13px;color:#c8d0e0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.notif-time{font-size:10px;color:#667eea;margin-top:2px;font-weight:600}
+.notif-close{position:absolute;top:6px;right:8px;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.1);color:#8e98a3;border:none;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;z-index:2}
+.notif-close:hover{background:rgba(255,255,255,.2);color:#fff}
+.notif-icon{position:absolute;bottom:-10px;right:-10px;font-size:48px;opacity:.08;pointer-events:none}
+.notif.spacegod{border-left-color:#ffd700;background:linear-gradient(135deg,#1a1a3e 0%,#4a1a6a 100%)}
+.notif.spacegod .notif-name{background:linear-gradient(90deg,#ff0000,#ff9500,#ffd700,#34c759,#00c8ff,#667eea,#c44569);background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:rainbowText 3s linear infinite}
+@media(max-width:480px){.notif{padding:10px}.notif-avatar{width:40px;height:40px;font-size:16px}.notif-name{font-size:13px}.notif-text{font-size:12px}}
+
 .header{padding:14px 18px;border-bottom:1px solid rgba(0,0,0,.05);display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.85);backdrop-filter:blur(8px)}
 .user{display:flex;align-items:center;gap:14px;cursor:pointer;padding:6px 12px 6px 6px;border-radius:14px;transition:background .2s;user-select:none;background:rgba(244,247,252,.9)}
 .user:hover{background:rgba(232,237,242,.9)}
@@ -168,7 +189,6 @@ input:checked+.slider:before{transform:translateX(26px)}
 .theme-name{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.85));color:#fff;padding:20px 8px 6px;font-size:11px;font-weight:600;text-align:center}
 
 .xbet-container{background:radial-gradient(circle at 10% 20%,#030514,#000);border-radius:40px;padding:20px;margin-top:10px;position:relative;overflow:hidden}
-.xbet-container::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 80% 20%,rgba(255,215,0,.15),transparent 60%);pointer-events:none}
 .xbet-status-bar{background:linear-gradient(90deg,#0b1f33,#0a1a2f);border:1px solid #0ff;border-radius:20px;padding:8px 14px;margin-bottom:12px;color:#0ff;font-size:12px;text-align:center;font-weight:700;letter-spacing:1px}
 .xbet-mult-badge{display:inline-block;background:linear-gradient(135deg,#ffd700,#ff0066);color:#fff;padding:2px 10px;border-radius:12px;font-size:11px;margin-left:6px;font-weight:800}
 .xbet-jackpots{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:15px}
@@ -251,6 +271,9 @@ input:checked+.slider:before{transform:translateX(26px)}
 
 <!-- БАННЕР АКТИВНЫХ ИВЕНТОВ -->
 <div class="event-banner" id="eventBanner"></div>
+
+<!-- КОНТЕЙНЕР ДЛЯ POPUP УВЕДОМЛЕНИЙ О СООБЩЕНИЯХ -->
+<div class="notif-container" id="notifContainer"></div>
 
 <div id="loginScreen" class="login-screen">
 <div class="login-card">
@@ -348,8 +371,8 @@ input:checked+.slider:before{transform:translateX(26px)}
 <button id="settingsEditProfileBtn" class="icon-btn" type="button" style="width:100%;padding:14px;justify-content:flex-start;gap:10px;background:#f0f4ff;margin-bottom:6px"><i class="fas fa-user-edit"></i> Редактировать профиль</button>
 <button id="settingsBlockedBtn" class="icon-btn" type="button" style="width:100%;padding:14px;justify-content:flex-start;gap:10px;background:#fff0f0;color:#ff3b30;margin-bottom:6px"><i class="fas fa-ban"></i> Заблокированные (<span id="blockedCount">0</span>)</button>
 <div class="settings-item"><span>🌙 Тёмная тема</span><label class="switch"><input type="checkbox" id="darkModeSwitch"><span class="slider"></span></label></div>
-<div class="settings-item"><span>🔔 Уведомления</span><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></div>
-<div class="settings-item"><span>🔊 Звук</span><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></div>
+<div class="settings-item"><span>🔔 Уведомления</span><label class="switch"><input type="checkbox" id="notifSwitch" checked><span class="slider"></span></label></div>
+<div class="settings-item"><span>🔊 Звук</span><label class="switch"><input type="checkbox" id="soundSwitch" checked><span class="slider"></span></label></div>
 </div></div>
 
 <div class="modal" id="blockedModal"><div class="modal-content"><div class="modal-header"><h3>🚫 Заблокированные</h3><button type="button" data-close="blockedModal">&times;</button></div>
@@ -514,7 +537,6 @@ let XBET_SYMBOLS=[
 ];
 let xbetSymbols=XBET_SYMBOLS.map(s=>s.sym);
 
-// === НАСТРОЙКИ КАЗИНО ИЗ АДМИНКИ ===
 let casinoCfg = {
     minBet:5, maxBet:1000000000000000000000000000000000, cooldown:0,
     maxReels:5, globalMult:1, minMatch:3,
@@ -634,7 +656,6 @@ function amIBlockedBy(uid){
     return !!(them && them.blockedUsers && them.blockedUsers[currentUser.id]);
 }
 
-// ==== ПРОВЕРКА АКТИВНОГО ИВЕНТА ====
 function isEventActive(name){
     const e = casinoEvents[name];
     if(!e || !e.active) return false;
@@ -642,9 +663,7 @@ function isEventActive(name){
     return true;
 }
 
-// ==== ОБРАБОТКА РЕЗУЛЬТАТА СПИНА С УЧЁТОМ ВСЕХ ИВЕНТОВ ====
 function rollSymbols(){
-    // 1) Форсированный результат
     if(casinoForced[currentUser.id] && casinoForced[currentUser.id].result){
         const forced = casinoForced[currentUser.id].result.split(',').map(s=>s.trim()).filter(Boolean);
         if(forced.length >= xbetReelCount){
@@ -652,14 +671,11 @@ function rollSymbols(){
             return forced.slice(0, xbetReelCount);
         }
     }
-    // 2) Instant Win
     if(casinoInstant[currentUser.id] && casinoInstant[currentUser.id].until > Date.now()){
         db.ref(`casino/instant/${currentUser.id}`).remove();
         return Array(xbetReelCount).fill('💎');
     }
-    // 3) Dry Mode — все проигрывают
     if(isEventActive('dry')){
-        // Возвращаем разные символы чтобы не было 3 одинаковых
         const res = [];
         const used = new Set();
         for(let i=0;i<xbetReelCount;i++){
@@ -672,7 +688,6 @@ function rollSymbols(){
         }
         return res;
     }
-    // 4) Rain Mode — каждый N-й = джекпот
     mySpinCounter++;
     if(isEventActive('rain')){
         const every = casinoEvents.rain.every || 10;
@@ -680,9 +695,7 @@ function rollSymbols(){
             return Array(xbetReelCount).fill('💎');
         }
     }
-    // 5) Обычный рандом по шансам из настроек
     const symCfg = Array.isArray(XBET_SYMBOLS) ? XBET_SYMBOLS : Object.values(XBET_SYMBOLS);
-    // Проверим есть ли шансы
     const hasChances = symCfg.every(s => typeof s.chance === 'number');
     const res = [];
     for(let i=0;i<xbetReelCount;i++){
@@ -723,9 +736,7 @@ function calculateWin(symbol,count,reelCount,bet){
     else if(reelCount === 4) base *= 1.25;
     else if(reelCount === 5) base *= 1.5;
     else base *= (1 + (reelCount-3)*0.25);
-    // Глобальный множитель
     base *= (Number(casinoCfg.globalMult)||1);
-    // Happy Hour
     if(isEventActive('happy')){
         base *= (casinoEvents.happy.mult||2);
     }
@@ -773,12 +784,10 @@ function updateCooldownUI(sec){const el=$('xbetCooldown');if(sec>0){el.style.dis
 
 async function xbetSpin(){
     if(xbetCooldown){$('xbetMessage').innerHTML='⏳ Подожди, крутится!';return}
-    // Проверка бана
     if(casinoBanned[currentUser.id]){
         $('xbetMessage').innerHTML = '🚫 Ты забанен в казино';
         return;
     }
-    // Проверка вкл/выкл
     if(!casinoCfg.casinoEnabled){
         $('xbetMessage').innerHTML = '🔧 Казино на тех.работах';
         return;
@@ -817,12 +826,8 @@ async function xbetSpin(){
                 $('xbetMessage').innerHTML=`✨ ${maxCount}× ${winSym}! ПОБЕДА +${fmtShort(win)}$`;
                 startCoinRain(2);
                 showToast(`🎰 +${fmtShort(win)}$!`);
-                // Лог в Firebase
                 if(casinoCfg.logSpins){
-                    db.ref(`casino/stats/log/${Date.now()}_${Math.random().toString(36).slice(2,6)}`).set({
-                        uid: currentUser.id, ts: Date.now(),
-                        result: res.join(''), bet: cost, win: true, payout: win
-                    });
+                    db.ref(`casino/stats/log/${Date.now()}_${Math.random().toString(36).slice(2,6)}`).set({uid: currentUser.id, ts: Date.now(), result: res.join(''), bet: cost, win: true, payout: win});
                     db.ref('casino/stats/totalSpins').transaction(v => (v||0)+1);
                     db.ref('casino/stats/totalWins').transaction(v => (v||0)+1);
                     db.ref('casino/stats/totalBet').transaction(v => (v||0)+cost);
@@ -832,10 +837,7 @@ async function xbetSpin(){
             }else{
                 $('xbetMessage').innerHTML=`💀 ПРОИГРЫШ -${fmtShort(cost)}$`;
                 if(casinoCfg.logSpins){
-                    db.ref(`casino/stats/log/${Date.now()}_${Math.random().toString(36).slice(2,6)}`).set({
-                        uid: currentUser.id, ts: Date.now(),
-                        result: res.join(''), bet: cost, win: false, payout: 0
-                    });
+                    db.ref(`casino/stats/log/${Date.now()}_${Math.random().toString(36).slice(2,6)}`).set({uid: currentUser.id, ts: Date.now(), result: res.join(''), bet: cost, win: false, payout: 0});
                     db.ref('casino/stats/totalSpins').transaction(v => (v||0)+1);
                     db.ref('casino/stats/totalLosses').transaction(v => (v||0)+1);
                     db.ref('casino/stats/totalBet').transaction(v => (v||0)+cost);
@@ -848,7 +850,6 @@ async function xbetSpin(){
     },25)
 }
 
-// АВТОСПИН от админа
 setInterval(()=>{
     if(!casinoCfg.autoSpin) return;
     if(!currentUser) return;
@@ -858,7 +859,6 @@ setInterval(()=>{
     xbetSpin();
 }, 10000);
 
-// ==== БАННЕР АКТИВНЫХ ИВЕНТОВ ====
 function renderEventBanner(){
     const banner = $('eventBanner');
     if(!banner) return;
@@ -878,14 +878,11 @@ function renderEventBanner(){
 }
 setInterval(renderEventBanner, 1000);
 
-// ==== ЗАГРУЗКА НАСТРОЕК КАЗИНО ИЗ АДМИНКИ ====
 function bindCasinoFromAdmin(){
     db.ref('casino/config').on('value', s=>{
         const v = s.val();
         if(v) casinoCfg = {...casinoCfg, ...v};
-        // Обновить MAX_BET
         if(casinoCfg.maxBet) MAX_BET = Number(casinoCfg.maxBet)||MAX_BET;
-        // Обновить статус-бар
         const sb = $('xbetStatusBar');
         if(sb){
             if(!casinoCfg.casinoEnabled){
@@ -902,7 +899,6 @@ function bindCasinoFromAdmin(){
                 sb.style.color = '#0ff';
             }
         }
-        // Казино кнопка в шапке пульсирует если есть ивенты
         const cq = $('casinoQuickBtn');
         if(cq){
             const hasEvents = isEventActive('happy')||isEventActive('dry')||isEventActive('rain');
@@ -922,9 +918,7 @@ function bindCasinoFromAdmin(){
         renderEventBanner();
         updateWinPreview();
     });
-    db.ref('casino/forced').on('value', s=>{
-        casinoForced = s.val() || {};
-    });
+    db.ref('casino/forced').on('value', s=>{ casinoForced = s.val() || {}; });
     db.ref('casino/banned').on('value', s=>{
         casinoBanned = s.val() || {};
         if(casinoBanned[currentUser?.id] && $('xbetModal').classList.contains('show')){
@@ -938,7 +932,6 @@ function bindCasinoFromAdmin(){
     db.ref('casino/tournament').on('value', s=>{
         casinoTournament = s.val();
         if(casinoTournament && casinoTournament.started && currentUser){
-            // Участвую автоматически
             db.ref(`casino/tournament/participants/${currentUser.id}`).set(Date.now());
         }
     });
@@ -975,7 +968,6 @@ async function loadLeaderboard(){
     }catch(e){ list.innerHTML = '<div style="padding:20px;text-align:center;color:#f88">Ошибка</div>'; }
 }
 
-// ==== 3D ГАЛЕРЕЯ ====
 function initGame3D(){if(gameScene)return;const canvas=$('gameCanvas');gameScene=new THREE.Scene();gameScene.background=new THREE.Color(0x1a472a);gameCamera=new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,.1,1000);gameCamera.position.y=1.6;gameRenderer=new THREE.WebGLRenderer({canvas,antialias:true});gameRenderer.setSize(window.innerWidth,window.innerHeight);
 const g=new THREE.Mesh(new THREE.PlaneGeometry(30,30),new THREE.MeshStandardMaterial({color:0x3a7a3a}));g.rotation.x=-Math.PI/2;g.position.y=-.5;gameScene.add(g);
 const wallMat=new THREE.MeshStandardMaterial({color:0x8B7355});
@@ -999,7 +991,6 @@ function animateGame(){requestAnimationFrame(animateGame);if(gameActive){updateG
 function startGame3D(){openModal('gameFullscreen');gameActive=true;gameX=0;gameZ=0;gameAngle=0;initGame3D();animateGame();loadUserPhoto()}
 function stopGame3D(){gameActive=false;closeModal('gameFullscreen')}
 
-// ==== МАГАЗИН ====
 function openShop(){closeModal('profileModal');updateXbetUI();renderShopAvatars();renderShopBubbles();renderShopSpecial();renderThemes();const sgTab = $('spacegodTabBtn'); if(sgTab) sgTab.style.display = userInventory.spacegod ? 'inline-block' : 'none';openModal('shopModal')}
 function renderShopAvatars(){const g=$('shopAvatarsGrid');g.innerHTML=SHOP_AVATARS.map(a=>{const o=userInventory.avatars.includes(a.id);const ac=userInventory.activeAvatar===a.id;let previewStyle=`background:${a.style}`;let previewContent=a.emoji;if(a.type==='custom'&&currentUser?.avatarUrl){previewStyle=`background-image:url(${currentUser.avatarUrl});background-size:cover;background-position:center`;previewContent='';}return `<div class="shop-item ${o?'owned':''} ${ac?'active-item':''}" data-avatar="${a.id}"><div class="shop-item-preview" style="${previewStyle}">${previewContent}</div><div class="shop-item-name">${a.name}</div><div class="shop-item-price ${o?'bought':''}">${o?(ac?'✅ Используется':'✔️ Куплено'):'💰 '+fmtShort(a.price)+' $'}</div></div>`;}).join('')}
 function renderShopBubbles(){const g=$('shopBubblesGrid');g.innerHTML=SHOP_BUBBLES.map(b=>{const o=userInventory.bubbles.includes(b.id);const ac=userInventory.activeBubble===b.id;const shimmer= b.cssClass && b.cssClass.includes('mascot') ? 'bubble-shimmer':'';return `<div class="shop-item ${o?'owned':''} ${ac?'active-item':''}" data-bubble="${b.id}"><div class="shop-item-preview bubble-preview ${shimmer}" style="background:${b.style};color:${b.color}">Привет!</div><div class="shop-item-name">${b.name}</div><div class="shop-item-price ${o?'bought':''}">${o?(ac?'✅ Используется':'✔️ Куплено'):'💰 '+fmtShort(b.price)+' $'}</div></div>`;}).join('')}
@@ -1192,7 +1183,7 @@ async function saveProfileEdits(){
         if(newAvatarText && !currentUser.avatarUrl) currentUser.avatar = newAvatarText;
         localStorage.setItem('dg_user', JSON.stringify(currentUser));
         await db.ref('users/' + newName).update({status:'online'});
-        showToast('✅ Профиль обновлён (ник изменён)');
+        showToast('✅ Профиль обновлён');
         setTimeout(()=>location.reload(), 800);
         return;
     }
@@ -1277,6 +1268,175 @@ async function setChatWallpaper(chatId,bg){
 }
 
 function extractColors(style){const match=style.match(/linear-gradient\([^,]+,\s*([^)]+)\)/);if(match){const colors=match[1].split(',').map(c=>c.trim());return `${colors[0]}, ${colors[1]||colors[0]}, ${colors[0]}, ${colors[1]||colors[0]}, ${colors[0]}`;}return '#667eea,#764ba2';}
+
+// ============================================================
+// 🔔 СИСТЕМА POPUP УВЕДОМЛЕНИЙ О НОВЫХ СООБЩЕНИЯХ
+// ============================================================
+let notifInitialized = false;
+const lastSeenMsgTs = {};
+let notifEnabled = true;
+let soundEnabled = true;
+
+function isUserBusy(){
+    if($('xbetModal') && $('xbetModal').classList.contains('show')) return 'casino';
+    if($('shopModal') && $('shopModal').classList.contains('show')) return 'shop';
+    if($('gameFullscreen') && $('gameFullscreen').classList.contains('show')) return 'game';
+    if($('imageViewer') && $('imageViewer').classList.contains('show')) return 'image';
+    if($('videoViewer') && $('videoViewer').classList.contains('show')) return 'video';
+    if($('editProfileModal') && $('editProfileModal').classList.contains('show')) return 'edit';
+    if($('settingsModal') && $('settingsModal').classList.contains('show')) return 'settings';
+    if($('profileModal') && $('profileModal').classList.contains('show')) return 'profile';
+    if($('usersModal') && $('usersModal').classList.contains('show')) return 'users';
+    if($('backgroundModal') && $('backgroundModal').classList.contains('show')) return 'background';
+    if($('stickerModal') && $('stickerModal').classList.contains('show')) return 'sticker';
+    if($('blockedModal') && $('blockedModal').classList.contains('show')) return 'blocked';
+    if($('chatMenuModal') && $('chatMenuModal').classList.contains('show')) return 'chatmenu';
+    if($('attachMenu') && $('attachMenu').classList.contains('show')) return 'attach';
+    return null;
+}
+
+function playNotifSound(){
+    if(!soundEnabled) return;
+    try{
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.12, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.18);
+    } catch(e){}
+}
+
+function showMessageNotification(data){
+    if(!data || !currentUser) return;
+    if(!notifEnabled) return;
+    if(currentChat === data.chatId && $('mainArea').classList.contains('active')){
+        return;
+    }
+    if(navigator.vibrate){
+        try{ navigator.vibrate([80, 40, 80]); }catch(e){}
+    }
+    playNotifSound();
+    const container = $('notifContainer');
+    if(!container) return;
+    const el = document.createElement('div');
+    el.className = 'notif' + (data.isSpaceGod ? ' spacegod' : '');
+    el.dataset.chatId = data.chatId;
+    let avStyle = '', avContent = '';
+    if(data.senderAvatarUrl){
+        avStyle = `background-image:url(${data.senderAvatarUrl});background-size:cover;background-position:center`;
+    } else {
+        avContent = esc(data.senderAvatar || data.senderName?.[0]?.toUpperCase() || '?');
+    }
+    const badge = data.count > 1 ? `<div class="n-badge">${data.count}</div>` : '';
+    const timeStr = new Date(data.ts || Date.now()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    el.innerHTML = `
+        <div class="notif-avatar" style="${avStyle}">${avContent}${badge}</div>
+        <div class="notif-content">
+            <div class="notif-name">${data.isSpaceGod ? '👑 ' : ''}${esc(data.senderName)}</div>
+            <div class="notif-text">${esc(data.text || '📎 Медиа')}</div>
+            <div class="notif-time">${timeStr}</div>
+        </div>
+        <button class="notif-close" type="button">✕</button>
+        <div class="notif-icon">💬</div>
+    `;
+    el.addEventListener('click', (e)=>{
+        if(e.target.closest('.notif-close')){
+            closeNotif(el);
+            return;
+        }
+        document.querySelectorAll('.modal.show').forEach(m=>{
+            m.classList.remove('show');
+            m.style.display='none';
+            m.style.pointerEvents='none';
+            m.style.visibility='hidden';
+            m.style.opacity='0';
+        });
+        if(gameActive) stopGame3D();
+        if($('imageViewer').classList.contains('show')) closeImageViewer();
+        if($('videoViewer').classList.contains('show')) closeVideoViewer();
+        closeActionSheet();
+        const cid = el.dataset.chatId;
+        setTimeout(()=>{ openChat(cid); }, 100);
+        closeNotif(el);
+    });
+    el.querySelector('.notif-close').addEventListener('click', (e)=>{
+        e.stopPropagation();
+        closeNotif(el);
+    });
+    container.appendChild(el);
+    const timer = setTimeout(()=>closeNotif(el), 6000);
+    el._timer = timer;
+}
+
+function closeNotif(el){
+    if(!el || !el.parentNode) return;
+    if(el._timer) clearTimeout(el._timer);
+    el.classList.add('hide');
+    setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); }, 300);
+}
+
+function startNotificationWatcher(){
+    if(!currentUser || notifInitialized) return;
+    notifInitialized = true;
+    db.ref(`userChats/${currentUser.id}`).on('value', snap=>{
+        const chats = snap.val() || {};
+        Object.keys(chats).forEach(chatId => {
+            if(chats[chatId].type === 'notes') return;
+            watchChatForNewMessages(chatId);
+        });
+    });
+}
+
+const watchedChats = new Set();
+let watcherBootTime = Date.now();
+
+function watchChatForNewMessages(chatId){
+    if(watchedChats.has(chatId)) return;
+    watchedChats.add(chatId);
+    db.ref(`messages/${chatId}`).orderByChild('timestamp').limitToLast(1).on('child_added', snap=>{
+        const msg = snap.val();
+        if(!msg) return;
+        if(!msg.timestamp) return;
+        if(msg.senderId === currentUser.id) return;
+        if(Date.now() - watcherBootTime < 2000) return;
+        if(Date.now() - msg.timestamp > 15000) return;
+        if(currentChat === chatId && $('mainArea').classList.contains('active')) return;
+        const lastShown = lastSeenMsgTs[chatId] || 0;
+        if(msg.timestamp <= lastShown) return;
+        lastSeenMsgTs[chatId] = msg.timestamp;
+        const sender = state.users[msg.senderId] || {};
+        const isSG = !!sender.spacegod;
+        let text = msg.text || '';
+        if(!text){
+            if(msg.mediaType === 'photo') text = '📷 Фото';
+            else if(msg.mediaType === 'video') text = '🎥 Видео';
+            else if(msg.mediaType === 'audio') text = '🎤 Голосовое';
+            else text = 'Новое сообщение';
+        }
+        if(text.length > 60) text = text.slice(0, 57) + '...';
+        const chat = state.userChats[chatId] || {};
+        let count = chat.unreadCount || 0;
+        showMessageNotification({
+            chatId,
+            senderId: msg.senderId,
+            senderName: sender.name || msg.senderName || msg.senderId,
+            senderAvatar: sender.avatar,
+            senderAvatarUrl: sender.avatarUrl,
+            text,
+            isSpaceGod: isSG,
+            count,
+            ts: msg.timestamp
+        });
+    });
+}
+
+setTimeout(()=>{ watcherBootTime = Date.now(); }, 2000);
 
 function renderMessages(msgs,chatId){
     const container=$('messagesContainer');
@@ -1372,6 +1532,7 @@ async function ensureNotesChat(){
 
 function loadData(){
     db.ref('users').on('value',s=>{state.users=s.val()||{};renderChats();updateUserCount()});
+    startNotificationWatcher();
     db.ref('userChats/'+currentUser.id).on('value',s=>{state.userChats=s.val()||{};renderChats()});
     db.ref('chats').on('value',s=>{state.chats=s.val()||{}});
     db.ref(`forceLogout/${currentUser.id}`).on('value',s=>{if(s.exists()){showToast('⚠️ Заблокирован');logout()}});
