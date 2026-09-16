@@ -155,9 +155,9 @@ body{background:#1a1a2e;height:100vh;display:flex;align-items:center;justify-con
 .edited-mark{font-size:10px;opacity:.75;font-style:italic}
 
 /* ⚡ СТАТУС ПРОЧИТАНО */
-.read-status{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;margin-left:6px;vertical-align:middle;opacity:.85}
+.read-status{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;margin-left:6px;vertical-align:middle;opacity:.9}
 .read-status .rs-icon{font-size:11px;line-height:1}
-.read-status.sent .rs-icon{opacity:.5}
+.read-status.sent{color:#9ca3af}
 .read-status.delivered{color:#9ca3af}
 .read-status.read{color:#22c55e;opacity:1;text-shadow:0 0 4px rgba(34,197,94,.4)}
 .message-sent .message-bubble .read-status.sent{color:rgba(255,255,255,.7)}
@@ -614,15 +614,15 @@ input:checked+.slider:before{transform:translateX(26px)}
 <button data-xbet="1000000000" class="xbet-bet-btn" type="button">1МЛРД</button>
 <button data-xbet="1000000000000" class="xbet-bet-btn" type="button">1ТРЛН</button>
 <button data-xbet="1000000000000000" class="xbet-bet-btn" type="button">1КВДР</button>
-<button data-xbet="1000000000000000000" class="xbet-bet-btn" type="button">1КВНТ</button>
-<button data-xbet="1000000000000000000000" class="xbet-bet-btn" type="button">1СКСТ</button>
-<button data-xbet="1000000000000000000000000" class="xbet-bet-btn" type="button">1СЕПТ</button>
-<button data-xbet="1000000000000000000000000000" class="xbet-bet-btn" type="button">1ОКТ</button>
-<button data-xbet="1000000000000000000000000000000" class="xbet-bet-btn" type="button">1НОН</button>
-<button data-xbet="1000000000000000000000000000000000" class="xbet-bet-btn" type="button">1ДЕЦ</button>
-<button data-xbet="1000000000000000000000000000000000000" class="xbet-bet-btn" type="button">1УНДЕЦ</button>
-<button data-xbet="1e100" class="xbet-bet-btn" type="button">1ГУГОЛ</button>
-<button id="xbetCustomBetBtn" class="xbet-bet-btn" type="button" style="background:linear-gradient(135deg,#ff0066,#ffaa00);color:#fff">✏️ Своя</button>
+<button data-xbet="1e18" class="xbet-bet-btn" type="button">1КВНТ</button>
+<button data-xbet="1e21" class="xbet-bet-btn" type="button">1СКСТ</button>
+<button data-xbet="1e24" class="xbet-bet-btn" type="button">1СЕПТ</button>
+<button data-xbet="1e27" class="xbet-bet-btn" type="button">1ОКТ</button>
+<button data-xbet="1e30" class="xbet-bet-btn" type="button">1НОН</button>
+<button data-xbet="1e33" class="xbet-bet-btn" type="button">1ДЕЦ</button>
+<button data-xbet="1e36" class="xbet-bet-btn" type="button">1УНДЕЦ</button>
+<button data-xbet="1e100" class="xbet-bet-btn" type="button" style="background:linear-gradient(135deg,#ff0066,#ffaa00);color:#fff">1ГУГОЛ</button>
+<button id="xbetCustomBetBtn" class="xbet-bet-btn" type="button" style="background:linear-gradient(135deg,#00ff88,#00aaff);color:#000">✏️ Своя</button>
 </div>
 <div class="xbet-win-preview" id="xbetWinPreview"></div>
 <button class="xbet-spin-btn" id="xbetSpinBtn" type="button">🎰 SPIN</button>
@@ -677,7 +677,6 @@ const db=firebase.database();
 let MAX=50,currentUser=null,currentChat=null,pendingMedia=null,messagesListener=null,isRecording=false,messageCache={};
 let isSendingMessage=false;
 let editingMessageId=null;
-let longPressTimer=null;
 let currentActionMessage=null;
 let currentProfileUid=null;
 let blockedUsers={};
@@ -686,8 +685,8 @@ let selectedMessageIds=new Set();
 let pinnedMessage=null;
 let hiddenMessages={};
 let suppressActionSheetUntil = 0;
-// ⚡ Хранилище readBy для чатов: { chatId: { messageId: { uid: timestamp } } }
 let chatReadBy = {};
+let readByListener = null;
 const state={users:{},chats:{},userChats:{}};
 const stickers=['😀','😂','🥰','😎','🤔','😭','🔥','❤️','🎉','👍','🍕','🐱','🐶','⭐','💀','👀','🤣','😍','😱','🥳','🚀','🌌','🌈','💫','👑'];
 let selectedSticker=null;
@@ -698,7 +697,7 @@ let profileMatrixInterval = null;
 let hackerOwner = null;
 
 let xbetCurrentBet=100000,xbetReelCount=3,xbetCooldown=false;
-let MAX_BET=1e100;
+const MAX_BET = 1e100;
 let XBET_SYMBOLS=[{sym:'💎',mult:100000},{sym:'🔷',mult:50000},{sym:'💰',mult:25000},{sym:'⭐',mult:15000},{sym:'🔥',mult:10000},{sym:'7️⃣',mult:8000},{sym:'🍒',mult:5000}];
 let xbetSymbols=XBET_SYMBOLS.map(s=>s.sym);
 let casinoCfg = { minBet:5, maxBet:1e100, cooldown:0, maxReels:5, globalMult:1, minMatch:3, casinoEnabled:true, jackpotEnabled:true, coinRain:true, logSpins:true, welcomeBonus:true, autoSpin:false };
@@ -863,7 +862,6 @@ function getSpacegodType(uid){
     if(u?.spacegodDisabled) return null;
     return u?.spacegodType || null;
 }
-function isSpaceGod(uid){ return !!getSpacegodType(uid); }
 function isBlocked(uid){ return !!blockedUsers[uid]; }
 function amIBlockedBy(uid){
     const them = state.users[uid];
@@ -876,29 +874,32 @@ function isEventActive(name){
     return true;
 }
 
-// ⚡ ФУНКЦИЯ ПОЛУЧЕНИЯ СТАТУСА ПРОЧИТАНО
+// ⚡ СТАТУС ПРОЧИТАНО С ВРЕМЕНЕМ
 function getReadStatus(msgId, msgSenderId){
-    if(msgSenderId !== currentUser.id) return null; // статус показываем только у своих
+    if(msgSenderId !== currentUser.id) return null;
     const msgs = chatReadBy[currentChat] || {};
     const reads = msgs[msgId] || {};
     const readers = Object.keys(reads);
-    if(readers.length === 0){
-        // Проверим, может собеседник онлайн — значит доставлено
-        const chat = state.userChats[currentChat];
-        if(chat && chat.type === 'private'){
-            const otherId = Object.keys(chat.participants||{}).find(id=>id!==currentUser.id);
-            const other = state.users[otherId];
-            if(other && other.status === 'online') return 'delivered';
-        }
-        return 'sent';
+    if(readers.length > 0){
+        const ts = Math.max(...readers.map(u => reads[u]));
+        return {status:'read', ts};
     }
-    return 'read';
+    const chat = state.userChats[currentChat];
+    if(chat && chat.type === 'private'){
+        const otherId = Object.keys(chat.participants||{}).find(id=>id!==currentUser.id);
+        const other = state.users[otherId];
+        if(other && other.status === 'online') return {status:'delivered'};
+    }
+    return {status:'sent'};
 }
 function getReadStatusHtml(msgId, msgSenderId){
     const st = getReadStatus(msgId, msgSenderId);
     if(!st) return '';
-    if(st === 'read') return '<span class="read-status read"><span class="rs-icon">✓✓</span> прочитано</span>';
-    if(st === 'delivered') return '<span class="read-status delivered"><span class="rs-icon">✓✓</span> доставлено</span>';
+    if(st.status === 'read'){
+        const timeStr = st.ts ? new Date(st.ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
+        return `<span class="read-status read"><span class="rs-icon">✓✓</span> прочитано${timeStr ? ' в ' + timeStr : ''}</span>`;
+    }
+    if(st.status === 'delivered') return '<span class="read-status delivered"><span class="rs-icon">✓✓</span> доставлено</span>';
     return '<span class="read-status sent"><span class="rs-icon">✓</span> отправлено</span>';
 }
 
@@ -950,7 +951,7 @@ function calculateWin(symbol,count,reelCount,bet){
 }
 function updateWinPreview(){
     document.querySelectorAll('#xbetJackpotPreview .xbet-jackpot').forEach(el=>{
-        const sym=el.dataset.sym; const mult=getSymbolMult(sym); const val=Math.floor(mult*xbetCurrentBet/100);
+        const sym=el.dataset.sym; const mult=getSymbolMult(sym); const val=mult*xbetCurrentBet/100;
         const v=el.querySelector('.jv'); if(v)v.textContent=fmtShort(val);
     });
     const preview=$('xbetWinPreview');
@@ -959,7 +960,7 @@ function updateWinPreview(){
         let extra = '';
         if(casinoCfg.globalMult && casinoCfg.globalMult !== 1) extra += ` | Множитель: x${casinoCfg.globalMult}`;
         if(isEventActive('happy')) extra += ` | 🎉 x${casinoEvents.happy.mult}`;
-        const diamond3=Math.floor(getSymbolMult('💎')*xbetCurrentBet/100*(casinoCfg.globalMult||1));
+        const diamond3=getSymbolMult('💎')*xbetCurrentBet/100*(casinoCfg.globalMult||1);
         let txt=`💰 Ставка: <b>${fmtShort(xbetCurrentBet)}$</b> | Барабанов: <b>${xbetReelCount}</b> | Итого: <b>${fmtShort(xbetCurrentBet*xbetReelCount)}$</b>${extra}<br>`;
         txt+=`🏆 3 💎: <b>${fmtShort(diamond3)}$</b>`;
         preview.innerHTML=txt;
@@ -984,9 +985,10 @@ async function xbetSpin(){
     if(casinoBanned[currentUser.id]){ $('xbetMessage').innerHTML = '🚫 Забанен'; return; }
     if(!casinoCfg.casinoEnabled){ $('xbetMessage').innerHTML = '🔧 Тех.работы'; return; }
     const cost = xbetCurrentBet * xbetReelCount;
-    if(userInventory.balance < cost){ $('xbetMessage').innerHTML=`❌ Нужно ${fmtShort(cost)}$`; return; }
+    const balNum = Number(userInventory.balance) || 0;
+    if(balNum < cost){ $('xbetMessage').innerHTML=`❌ Нужно ${fmtShort(cost)}$`; return; }
     xbetCooldown=true;$('xbetSpinBtn').disabled=true;$('xbetSpinBtn').innerText='⏳ КРУТИМ...';
-    userInventory.balance -= cost;
+    userInventory.balance = balNum - cost;
     await persistBalance();
     $('xbetMessage').innerHTML=`💸 Ставка: ${fmtShort(cost)}$`;
     const reels=[];for(let i=1;i<=xbetReelCount;i++)reels.push($('xbetReel'+i));
@@ -1006,8 +1008,8 @@ async function xbetSpin(){
             let winSym=null,maxCount=0;
             for(const s in counts){if(counts[s]>maxCount&&counts[s]>=3){maxCount=counts[s];winSym=s}}
             if(winSym){
-                const win=Math.floor(calculateWin(winSym,maxCount,xbetReelCount,xbetCurrentBet));
-                userInventory.balance += win;
+                const win=calculateWin(winSym,maxCount,xbetReelCount,xbetCurrentBet);
+                userInventory.balance = (Number(userInventory.balance)||0) + win;
                 await persistBalance();
                 $('xbetMessage').innerHTML=`✨ ${maxCount}× ${winSym}! +${fmtShort(win)}$`;
                 startCoinRain(2); showToast(`🎰 +${fmtShort(win)}$!`);
@@ -1048,7 +1050,6 @@ function bindCasinoFromAdmin(){
     if(_casinoBound) return; _casinoBound = true;
     db.ref('casino/config').on('value', s=>{
         const v = s.val(); if(v) casinoCfg = {...casinoCfg, ...v};
-        if(casinoCfg.maxBet) MAX_BET = Number(casinoCfg.maxBet)||MAX_BET;
         const sb = $('xbetStatusBar');
         if(sb){
             if(!casinoCfg.casinoEnabled){ sb.innerHTML = '🔧 ТЕХ.РАБОТЫ'; sb.style.background = 'linear-gradient(90deg,#3a0000,#8b0000)'; sb.style.borderColor = '#ff3b30'; sb.style.color = '#ff8080'; }
@@ -1758,18 +1759,24 @@ async function saveProfileEdits(){
     showToast('✅ Сохранено');
 }
 
-// ⚡ ОТМЕТИТЬ СООБЩЕНИЯ КАК ПРОЧИТАННЫЕ
+// ⚡ ОТМЕТИТЬ ПРОЧИТАНО (с дебаунсом чтобы не лагало)
+const _markReadTimers = {};
+function markChatAsReadDebounced(chatId){
+    if(_markReadTimers[chatId]) clearTimeout(_markReadTimers[chatId]);
+    _markReadTimers[chatId] = setTimeout(()=>{ markChatAsRead(chatId); }, 400);
+}
 async function markChatAsRead(chatId){
-    if(!currentUser) return;
+    if(!currentUser || !chatId) return;
     try{
-        const snap = await db.ref(`messages/${chatId}`).once('value');
-        const msgs = snap.val() || {};
+        const msgs = messageCache[chatId] || {};
         const updates = {};
         const now = Date.now();
         let count = 0;
         for(const msgId in msgs){
             const m = msgs[msgId];
             if(!m || m.senderId === currentUser.id) continue;
+            const alreadyRead = chatReadBy[chatId]?.[msgId]?.[currentUser.id];
+            if(alreadyRead) continue;
             updates[`readBy/${chatId}/${msgId}/${currentUser.id}`] = now;
             count++;
         }
@@ -1819,25 +1826,24 @@ async function openChat(chatId){
     else $('messagesContainer').innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Загрузка...</p></div>';
     applyChatWallpaper(chatId);
 
-    // ⚡ Слушатель readBy для этого чата
+    // ⚡ Слушатель readBy — точечное обновление без перебора всего DOM
     readByListener = db.ref(`readBy/${chatId}`).on('value', snap=>{
         chatReadBy[chatId] = snap.val() || {};
-        // Обновляем статусы у своих сообщений
-        const container = $('messagesContainer');
-        if(!container) return;
         const msgs = messageCache[chatId] || {};
-        container.querySelectorAll('.message').forEach(el=>{
-            const mid = el.dataset.msgid;
+        // Обновляем только те сообщения, у которых что-то изменилось
+        for(const mid in msgs){
             const m = msgs[mid];
-            if(!m || m.senderId !== currentUser.id) return;
-            let rsEl = el.querySelector('.read-status');
+            if(!m || m.senderId !== currentUser.id) continue;
+            const el = document.getElementById('msg_' + mid);
+            if(!el) continue;
             const newHtml = getReadStatusHtml(mid, m.senderId);
-            if(rsEl){ rsEl.outerHTML = newHtml; }
+            const existing = el.querySelector('.read-status');
+            if(existing){ if(existing.outerHTML !== newHtml) existing.outerHTML = newHtml; }
             else if(newHtml){
                 const timeEl = el.querySelector('.message-time');
-                if(timeEl) timeEl.insertAdjacentHTML('beforeend', ' ' + newHtml);
+                if(timeEl && !timeEl.querySelector('.read-status')) timeEl.insertAdjacentHTML('beforeend', ' ' + newHtml);
             }
-        });
+        }
     });
 
     messagesListener = db.ref(`messages/${chatId}`).orderByChild('timestamp').limitToLast(100).on('value', snap=>{
@@ -1846,8 +1852,8 @@ async function openChat(chatId){
         messageCache[chatId]=msgs;
         if(!hadCache || lastRenderChatId !== chatId) renderMessages(msgs, chatId);
         else appendNewMessages(msgs, chatId);
-        // ⚡ Помечаем прочитанными все сообщения собеседника
-        markChatAsRead(chatId);
+        // ⚡ Помечаем прочитанным с задержкой (чтобы не спамить Firebase)
+        markChatAsReadDebounced(chatId);
     });
     try{
         const hiddenSnap = await db.ref(`hidden/${currentUser.id}/${chatId}`).once('value');
@@ -1855,8 +1861,7 @@ async function openChat(chatId){
     }catch(e){ hiddenMessages[chatId] = {}; }
     db.ref(`pinned/${chatId}`).on('value', snap=>{ pinnedMessage = snap.val(); renderPinned(); });
     if(chat.unreadCount){ db.ref(`userChats/${currentUser.id}/${chatId}/unreadCount`).set(0); }
-    // Первый раз помечаем сразу
-    markChatAsRead(chatId);
+    markChatAsReadDebounced(chatId);
 }
 
 async function applyChatWallpaper(chatId){
@@ -1894,11 +1899,8 @@ async function applyChatWallpaper(chatId){
 }
 async function setChatWallpaper(chatId,bg){ if(!currentUser||!chatId)return; await db.ref(`wallpapers/${currentUser.id}/${chatId}`).set(bg); applyChatWallpaper(chatId); }
 
-function extractColors(style){const match=style.match(/linear-gradient\([^,]+,\s*([^)]+)\)/);if(match){const colors=match[1].split(',').map(c=>c.trim());return `${colors[0]}, ${colors[1]||colors[0]}, ${colors[0]}, ${colors[1]||colors[0]}, ${colors[0]}`;}return '#667eea,#764ba2';}
-
 const renderedMessages = new Set();
 let lastRenderChatId = null;
-let readByListener = null;
 
 function buildMessageEl(m){
     let media='';
@@ -1924,7 +1926,6 @@ function buildMessageEl(m){
     const senderHtml = t
         ? `<span class="crown-icon">👑</span><b class="${cls}" style="cursor:pointer" data-user="${m.senderId}">${esc(senderName)}</b>`
         : `<b style="cursor:pointer" data-user="${m.senderId}">${esc(senderName)}</b>`;
-    // ⚡ Статус прочитано (только для своих)
     const readHtml = isSent ? getReadStatusHtml(m.id, m.senderId) : '';
     div.innerHTML=`<div class="select-check"></div><div class="message-bubble ${bubbleClass}">${forwardedMark}${!isSent?senderHtml+' ':''}${m.text?esc(m.text):''}${media}<div class="message-time">${formatTime(m.timestamp)}${editedMark}${readHtml ? ' ' + readHtml : ''}</div></div>`;
     return div;
@@ -2016,7 +2017,7 @@ function bindNotifSettings(){
     const pb = $('notifPermBtn');
     if(pb){ pb.onclick = async ()=>{ const ok = await requestPushPermission(); if(ok){ showToast('🔔 Уведомления включены'); } else { showToast('❌ Отказано'); } $('notifPermBar').classList.remove('show'); }; }
 }
-// ⚡ ГРОМКИЙ ЗВУК УВЕДОМЛЕНИЙ
+// ⚡ МАКСИМАЛЬНО ГРОМКИЙ ЗВУК (square wave, 0.85 громкость, длинный)
 function playNotifSound(){
     if(!soundEnabled) return;
     try{
@@ -2025,32 +2026,42 @@ function playNotifSound(){
         const ctx = new Ctx();
         if(ctx.state === 'suspended'){ try{ ctx.resume(); }catch(e){} }
         const now = ctx.currentTime;
+        // Компрессор чтобы было громче и чище
+        const comp = ctx.createDynamicsCompressor();
+        comp.threshold.setValueAtTime(-20, now);
+        comp.knee.setValueAtTime(10, now);
+        comp.ratio.setValueAtTime(12, now);
+        comp.attack.setValueAtTime(0.003, now);
+        comp.release.setValueAtTime(0.25, now);
+        comp.connect(ctx.destination);
+        // Тройной громкий сигнал пилообразной волной
         const tones = [
-            {f:1046, t:0.00, d:0.20, v:0.55},
-            {f:1318, t:0.15, d:0.20, v:0.55},
-            {f:1568, t:0.30, d:0.35, v:0.55}
+            {f:1046, t:0.00, d:0.22, v:0.85},
+            {f:1318, t:0.16, d:0.22, v:0.85},
+            {f:1568, t:0.32, d:0.40, v:0.85}
         ];
         tones.forEach(t=>{
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
-            osc.type = 'sine';
+            osc.type = 'square';
             osc.frequency.setValueAtTime(t.f, now + t.t);
             gain.gain.setValueAtTime(0, now + t.t);
-            gain.gain.linearRampToValueAtTime(t.v, now + t.t + 0.01);
+            gain.gain.linearRampToValueAtTime(t.v, now + t.t + 0.015);
+            gain.gain.linearRampToValueAtTime(t.v, now + t.t + t.d - 0.05);
             gain.gain.exponentialRampToValueAtTime(0.001, now + t.t + t.d);
             osc.connect(gain);
-            gain.connect(ctx.destination);
+            gain.connect(comp);
             osc.start(now + t.t);
-            osc.stop(now + t.t + t.d + 0.02);
+            osc.stop(now + t.t + t.d + 0.05);
         });
-        setTimeout(()=>{ try{ ctx.close(); }catch(e){} }, 1500);
+        setTimeout(()=>{ try{ ctx.close(); }catch(e){} }, 2000);
     } catch(e){ console.warn('sound err', e); }
 }
 function showMessageNotification(data){
     if(!data || !currentUser) return;
     if(!notifEnabled) return;
     if(currentChat === data.chatId && $('mainArea').classList.contains('active') && !document.hidden) return;
-    vibrate([300, 100, 300, 100, 400]);
+    vibrate([400, 150, 400, 150, 500]);
     playNotifSound();
     if(document.hidden || !$('mainArea').classList.contains('active')){
         showSystemNotification((data.isSpaceGod ? '👑 ' : '') + (data.senderName || 'Новое сообщение'), data.text || '📎 Медиа', data.senderAvatarUrl || null, 'chat-' + data.chatId);
@@ -2307,7 +2318,7 @@ function setupPresence(){
     setInterval(() => { if(currentUser && document.visibilityState === 'visible'){ myLastSeenRef.set(Date.now()); } }, 30000);
 }
 
-// ⚡ НОВАЯ ЛОГИКА ТАПОВ:
+// ⚡ ЛОГИКА ТАПОВ:
 // - ДВОЙНОЙ ТАП → режим выделения
 // - ДОЛГОЕ УДЕРЖАНИЕ (500мс) → меню действий
 // - ОДИНОЧНЫЙ ТАП → ничего
@@ -2401,7 +2412,6 @@ function attachLongPressHandlers(){
 
     container.addEventListener('touchcancel', ()=>{ clearLongPress(); });
 
-    // Desktop mouse
     let mouseDownTime = 0;
     let mouseDownMsgId = null;
     let mouseTimer = null;
@@ -2519,21 +2529,34 @@ document.addEventListener('click',function(e){
     if(closest('.shop-item')&&closest('.shop-item').dataset.bubble){buyOrSelectBubble(closest('.shop-item').dataset.bubble);return}
     if(closest('.shop-item')&&closest('.shop-item').dataset.special){buySpecial(closest('.shop-item').dataset.special);return}
     if(closest('[data-xbet]')){
-        const b=closest('[data-xbet]'); xbetCurrentBet=parseFloat(b.dataset.xbet)||parseInt(b.dataset.xbet);
-        document.querySelectorAll('[data-xbet]').forEach(x=>x.classList.remove('active')); b.classList.add('active');
+        const b=closest('[data-xbet]');
+        const raw = b.dataset.xbet;
+        const val = raw.includes('e') ? parseFloat(raw) : parseFloat(raw);
+        if(!val || val <= 0){ showToast('❌ Ошибка ставки'); return; }
+        xbetCurrentBet = val;
+        document.querySelectorAll('[data-xbet]').forEach(x=>x.classList.remove('active'));
+        b.classList.add('active');
         updateWinPreview();
         $('xbetMessage').innerHTML=`Ставка ${fmtShort(xbetCurrentBet)}$ × ${xbetReelCount} = ${fmtShort(xbetCurrentBet*xbetReelCount)}$`;
         return;
     }
     if(closest('#xbetCustomBetBtn')){
         e.preventDefault();
-        const input=prompt('Введи ставку:','5000'); if(input===null)return;
-        const val=parseFloat(input.replace(/\s/g,''));
-        if(!val||val<10||val>MAX_BET){showToast(`❌ От 10 до ${fmtShort(MAX_BET)}`);return}
-        xbetCurrentBet=val;
+        const input=prompt('Введи ставку (можно 1e100, 5e50 и т.п.):','5000');
+        if(input===null) return;
+        const cleaned = input.replace(/\s/g,'').replace(/,/g,'.');
+        const val = parseFloat(cleaned);
+        if(!val || !isFinite(val) || val < 10 || val > MAX_BET){
+            showToast(`❌ От 10 до ${fmtShort(MAX_BET)} (можно 1e100)`);
+            return;
+        }
+        xbetCurrentBet = val;
         document.querySelectorAll('[data-xbet],#xbetCustomBetBtn').forEach(x=>x.classList.remove('active'));
-        closest('#xbetCustomBetBtn').classList.add('active'); closest('#xbetCustomBetBtn').innerText='✏️ '+fmtShort(val);
-        updateWinPreview(); return;
+        const btn = closest('#xbetCustomBetBtn');
+        btn.classList.add('active');
+        btn.innerText='✏️ '+fmtShort(val);
+        updateWinPreview();
+        return;
     }
     if(closest('[data-count]')&&closest('[data-count]').dataset.count){
         const b=closest('[data-count]'); document.querySelectorAll('.xbet-count-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active');
