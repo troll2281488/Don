@@ -18,7 +18,6 @@ body{background:#1a1a2e;height:100vh;display:flex;align-items:center;justify-con
 @keyframes auraCosmos{0%,100%{box-shadow:0 0 0 3px rgba(100,80,255,.95),0 0 20px rgba(150,80,255,.8),0 0 30px rgba(60,100,255,.7)}50%{box-shadow:0 0 0 3px rgba(150,80,255,.95),0 0 25px rgba(60,100,255,.9),0 0 40px rgba(100,80,255,.8)}}
 @keyframes auraMint{0%,100%{box-shadow:0 0 0 3px rgba(0,255,157,.95),0 0 20px rgba(125,255,176,.8),0 0 30px rgba(0,255,213,.6)}50%{box-shadow:0 0 0 3px rgba(125,255,176,.95),0 0 25px rgba(0,255,213,.9),0 0 40px rgba(0,255,157,.8)}}
 @keyframes hackerGlow{0%,100%{box-shadow:0 0 0 3px rgba(0,255,65,.9),0 0 20px rgba(0,255,65,.8),0 0 30px rgba(0,255,65,.6)}50%{box-shadow:0 0 0 3px rgba(0,255,65,1),0 0 30px rgba(0,255,65,1),0 0 50px rgba(0,255,65,.7)}}
-@keyframes hackerText{0%,100%{text-shadow:0 0 4px #00ff41,0 0 8px #00ff41}50%{text-shadow:0 0 8px #00ff41,0 0 16px #00ff41,0 0 24px #00ff41}}
 @keyframes bubbleShimmer{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 @keyframes bgShift{0%{background-position:0% 0%}50%{background-position:100% 100%}100%{background-position:0% 0%}}
 @keyframes buyFlash{0%{box-shadow:0 0 0 0 rgba(255,215,0,.7)}50%{box-shadow:0 0 30px 15px rgba(255,215,0,.3)}100%{box-shadow:0 0 0 0 rgba(255,215,0,0)}}
@@ -33,7 +32,6 @@ body{background:#1a1a2e;height:100vh;display:flex;align-items:center;justify-con
 .sidebar.animated-bg{animation:bgShift 12s ease infinite}
 .sidebar.matrix-mode{background:#000}
 .sidebar.matrix-mode::before{content:"";position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent 0,transparent 8px,rgba(0,255,65,.15) 8px,rgba(0,255,65,.15) 9px);pointer-events:none;z-index:0}
-.sidebar.matrix-mode::after{content:"01001010 11001 00101010 010110 1010110 0101 101010 1100100 1010 110100 10110 01100 11001 11010 00101";position:absolute;top:0;left:0;right:0;color:#00ff41;font-family:'Courier New',monospace;font-size:11px;line-height:1.4;opacity:.25;white-space:pre-wrap;word-break:break-all;padding:20px;pointer-events:none;z-index:1;text-shadow:0 0 5px #00ff41}
 .sidebar-overlay{position:absolute;inset:0;background:rgba(255,255,255,0);pointer-events:none;z-index:2;transition:background .4s}
 .sidebar > *:not(.sidebar-overlay){position:relative;z-index:3}
 .main-area{width:100%;background:#f8fafd;display:flex;flex-direction:column;position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:10;transform:translateX(100%);transition:transform .2s}
@@ -77,7 +75,7 @@ body{background:#1a1a2e;height:100vh;display:flex;align-items:center;justify-con
 .header.sg-spacemint .icon-btn{background:rgba(0,255,157,.25);color:#b0ffd0}
 .header.sg-spacemint .user-info h3,.header.sg-spacemint .user-info p{color:#fff}
 .header.sg-hacker{background:#000;border-bottom:2px solid #00ff41;box-shadow:0 4px 20px rgba(0,255,65,.5);position:relative;overflow:hidden}
-.header.sg-hacker::before{content:"01001010 11001 00101010 010110 1010110 0101 101010 1100100 1010 110100 10110 01100 11001 11010 00101";position:absolute;top:0;left:0;right:0;color:#00ff41;font-family:'Courier New',monospace;font-size:9px;line-height:1.2;letter-spacing:1px;opacity:.35;white-space:nowrap;overflow:hidden;padding:4px;pointer-events:none;text-shadow:0 0 4px #00ff41}
+.header.sg-hacker::before{content:"01001010 11001 00101010 010110 1010110 0101 101010 1100100 1010 110100";position:absolute;top:0;left:0;right:0;color:#00ff41;font-family:'Courier New',monospace;font-size:9px;line-height:1.2;letter-spacing:1px;opacity:.35;white-space:nowrap;overflow:hidden;padding:4px;pointer-events:none}
 .header.sg-hacker > *{position:relative;z-index:2}
 .header.sg-hacker .user{background:rgba(0,255,65,.15);border:1px solid rgba(0,255,65,.5)}
 .header.sg-hacker .icon-btn{background:rgba(0,255,65,.15);color:#00ff41;border:1px solid rgba(0,255,65,.5);text-shadow:0 0 4px #00ff41}
@@ -144,6 +142,10 @@ body{background:#1a1a2e;height:100vh;display:flex;align-items:center;justify-con
 .message-received .message-bubble{background:#fff;border-bottom-left-radius:5px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
 .message-sent .message-bubble{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-bottom-right-radius:5px}
 
+.message-bubble img,.message-bubble video{cursor:pointer;pointer-events:auto!important;transition:transform .15s}
+.message-bubble img:hover,.message-bubble video:hover{transform:scale(1.02)}
+.message-bubble audio{pointer-events:auto!important;cursor:default;width:100%;max-width:200px}
+
 .bubble-spacegod{background:linear-gradient(90deg,#ff0000,#ff9500,#ffd700,#34c759,#00c8ff,#667eea,#c44569,#ff0000)!important;background-size:300% 100%!important;animation:bubbleShimmer 3s linear infinite!important;color:#fff!important;font-weight:700!important;box-shadow:0 0 12px rgba(255,200,0,.9),0 0 24px rgba(255,0,180,.6),0 0 36px rgba(0,200,255,.5)!important;border:1.5px solid rgba(255,220,100,.9)!important}
 .bubble-spacecosmos{background:linear-gradient(90deg,#050014,#2a0055,#1a0050,#0a1a6a,#2a0055,#050014)!important;background-size:300% 100%!important;animation:bubbleShimmer 4s linear infinite!important;color:#d8b8ff!important;font-weight:700!important;border:1.5px solid rgba(150,80,255,.9)!important;box-shadow:0 0 14px rgba(120,60,255,.9),0 0 28px rgba(80,120,255,.6)!important}
 .bubble-spacemint{background:linear-gradient(90deg,#003a20,#006640,#00cc80,#006640,#003a20)!important;background-size:300% 100%!important;animation:bubbleShimmer 4s linear infinite!important;color:#b0ffd0!important;font-weight:700!important;border:1.5px solid rgba(0,255,157,.9)!important;box-shadow:0 0 14px rgba(0,255,157,.9),0 0 28px rgba(0,255,213,.6)!important}
@@ -151,14 +153,30 @@ body{background:#1a1a2e;height:100vh;display:flex;align-items:center;justify-con
 
 .message-time{font-size:10px;opacity:.8;margin-top:4px}
 .edited-mark{font-size:10px;opacity:.75;font-style:italic}
-.message-bubble img,.message-bubble video{pointer-events:auto!important;cursor:pointer}
-.message-bubble audio{pointer-events:auto!important}
+
+/* ⚡ СТАТУС ПРОЧИТАНО */
+.read-status{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;margin-left:6px;vertical-align:middle;opacity:.85}
+.read-status .rs-icon{font-size:11px;line-height:1}
+.read-status.sent .rs-icon{opacity:.5}
+.read-status.delivered{color:#9ca3af}
+.read-status.read{color:#22c55e;opacity:1;text-shadow:0 0 4px rgba(34,197,94,.4)}
+.message-sent .message-bubble .read-status.sent{color:rgba(255,255,255,.7)}
+.message-sent .message-bubble .read-status.delivered{color:rgba(255,255,255,.85)}
+.message-sent .message-bubble .read-status.read{color:#4ade80;text-shadow:0 0 5px rgba(74,222,128,.8)}
+.bubble-spacegod .read-status.read{color:#fff700;text-shadow:0 0 6px #fff700,0 0 10px #ff9500}
+.bubble-spacegod .read-status.delivered{color:#ffe066}
+.bubble-spacecosmos .read-status.read{color:#7cffa0;text-shadow:0 0 6px #7cffa0}
+.bubble-spacecosmos .read-status.delivered{color:#b8a8ff}
+.bubble-spacemint .read-status.read{color:#a0ffd0;text-shadow:0 0 6px #a0ffd0}
+.bubble-spacemint .read-status.delivered{color:#80ffc0}
+.bubble-hacker .read-status.read{color:#00ff41;text-shadow:0 0 6px #00ff41,0 0 12px #00ff41}
+.bubble-hacker .read-status.delivered{color:#00cc33}
 
 .message .select-check{
     position:absolute;top:50%;transform:translateY(-50%);
     width:26px;height:26px;border-radius:50%;background:#fff;border:2px solid #667eea;
     display:none;align-items:center;justify-content:center;z-index:10;
-    box-shadow:0 2px 8px rgba(0,0,0,.15);transition:all .15s;
+    box-shadow:0 2px 8px rgba(0,0,0,.15);transition:all .15s;cursor:pointer;
 }
 .message-sent .select-check{left:-34px}
 .message-received .select-check{right:-34px}
@@ -199,43 +217,13 @@ body{background:#1a1a2e;height:100vh;display:flex;align-items:center;justify-con
 .modal-content.sg-spacecosmos h3,.modal-content.sg-spacecosmos p,.modal-content.sg-spacecosmos strong,.modal-content.sg-spacecosmos span,.modal-content.sg-spacecosmos div{color:#fff}
 .modal-content.sg-spacemint{background:linear-gradient(135deg,#001a10,#003320,#005030,#003320,#001a10);background-size:300% 300%;animation:bgShift 12s ease infinite;color:#fff;border:3px solid #00ff9d;box-shadow:0 0 30px rgba(0,255,157,.7)}
 .modal-content.sg-spacemint h3,.modal-content.sg-spacemint p,.modal-content.sg-spacemint strong,.modal-content.sg-spacemint span,.modal-content.sg-spacemint div{color:#fff}
-/* HACKER modal — с canvas внутри */
-.modal-content.sg-hacker{
-    background:#000;
-    color:#00ff41;
-    border:3px solid #00ff41;
-    box-shadow:0 0 40px rgba(0,255,65,.7);
-    font-family:'Courier New',monospace;
-    position:relative;
-    overflow:hidden;
-}
-.modal-content.sg-hacker::before{
-    content:"01001010 11001 00101010 010110 1010110 0101 101010 1100100 1010 110100";
-    position:absolute;top:0;left:0;right:0;color:#00ff41;font-family:'Courier New',monospace;font-size:10px;line-height:1.4;letter-spacing:1px;opacity:.15;white-space:pre-wrap;word-break:break-all;padding:14px;pointer-events:none;z-index:0
-}
-
-/* ⚡ МАТРИЦА ВНУТРИ МОДАЛКИ */
-.modal-matrix-canvas{
-    position:absolute !important;
-    top:0 !important;
-    left:0 !important;
-    width:100% !important;
-    height:100% !important;
-    z-index:0 !important;
-    pointer-events:none !important;
-    opacity:.4 !important;
-    border-radius:22px !important;
-}
-/* ⚡ Всё содержимое модалки — выше canvas */
-.modal-content.sg-hacker > *:not(.modal-matrix-canvas){
-    position:relative;
-    z-index:3;
-}
-.modal-content.sg-hacker h3,.modal-content.sg-hacker p,.modal-content.sg-hacker strong,
-.modal-content.sg-hacker span,.modal-content.sg-hacker div{color:#00ff41!important;text-shadow:0 0 5px rgba(0,255,65,.8)}
+.modal-content.sg-hacker{background:#000;color:#00ff41;border:3px solid #00ff41;box-shadow:0 0 40px rgba(0,255,65,.7);font-family:'Courier New',monospace;position:relative;overflow:hidden}
+.modal-content.sg-hacker::before{content:"01001010 11001 00101010 010110 1010110 0101 101010 1100100 1010 110100";position:absolute;top:0;left:0;right:0;color:#00ff41;font-family:'Courier New',monospace;font-size:10px;line-height:1.4;letter-spacing:1px;opacity:.15;white-space:pre-wrap;word-break:break-all;padding:14px;pointer-events:none;z-index:0}
+.modal-matrix-canvas{position:absolute !important;top:0 !important;left:0 !important;width:100% !important;height:100% !important;z-index:0 !important;pointer-events:none !important;opacity:.4 !important;border-radius:22px !important}
+.modal-content.sg-hacker > *:not(.modal-matrix-canvas){position:relative;z-index:3}
+.modal-content.sg-hacker h3,.modal-content.sg-hacker p,.modal-content.sg-hacker strong,.modal-content.sg-hacker span,.modal-content.sg-hacker div{color:#00ff41!important;text-shadow:0 0 5px rgba(0,255,65,.8)}
 .modal-content.sg-hacker .modal-header button{color:#00ff41;text-shadow:0 0 6px #00ff41}
 .modal-content.sg-hacker input,.modal-content.sg-hacker textarea{background:rgba(0,255,65,.08);color:#00ff41;border:1px solid rgba(0,255,65,.5);font-family:'Courier New',monospace}
-.modal-content.sg-hacker input::placeholder{color:rgba(0,255,65,.5)}
 
 .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .modal-header button{background:none;border:none;font-size:26px;cursor:pointer;color:#8e98a3;line-height:1;padding:0 8px}
@@ -251,7 +239,7 @@ body{background:#1a1a2e;height:100vh;display:flex;align-items:center;justify-con
 .user-card-avatar.hacker{box-shadow:0 0 0 2px rgba(0,255,65,.95),0 0 15px rgba(0,255,65,.8)}
 .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:12px 22px;border-radius:36px;z-index:10000;animation:fadeIn .25s;max-width:90%;text-align:center}
 .group-avatar{background:linear-gradient(135deg,#34c759,#28a745)!important}
-audio,img,video{max-width:200px;max-height:300px;border-radius:10px;margin-top:6px;cursor:pointer;object-fit:cover}
+audio,img,video{max-width:200px;max-height:300px;border-radius:10px;margin-top:6px;object-fit:cover}
 .profile-avatar-big{width:80px;height:80px;border-radius:20px;background:#667eea;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:32px;font-weight:bold;background-size:cover;background-position:center;position:relative;cursor:pointer}
 .profile-avatar-big.spacegod{box-shadow:0 0 0 4px rgba(255,215,0,.9),0 0 25px rgba(255,0,255,.7);animation:auraGlow 2s ease-in-out infinite}
 .profile-avatar-big.spacecosmos{box-shadow:0 0 0 4px rgba(120,90,255,.9),0 0 25px rgba(150,80,255,.8);animation:auraCosmos 2s ease-in-out infinite}
@@ -626,6 +614,14 @@ input:checked+.slider:before{transform:translateX(26px)}
 <button data-xbet="1000000000" class="xbet-bet-btn" type="button">1МЛРД</button>
 <button data-xbet="1000000000000" class="xbet-bet-btn" type="button">1ТРЛН</button>
 <button data-xbet="1000000000000000" class="xbet-bet-btn" type="button">1КВДР</button>
+<button data-xbet="1000000000000000000" class="xbet-bet-btn" type="button">1КВНТ</button>
+<button data-xbet="1000000000000000000000" class="xbet-bet-btn" type="button">1СКСТ</button>
+<button data-xbet="1000000000000000000000000" class="xbet-bet-btn" type="button">1СЕПТ</button>
+<button data-xbet="1000000000000000000000000000" class="xbet-bet-btn" type="button">1ОКТ</button>
+<button data-xbet="1000000000000000000000000000000" class="xbet-bet-btn" type="button">1НОН</button>
+<button data-xbet="1000000000000000000000000000000000" class="xbet-bet-btn" type="button">1ДЕЦ</button>
+<button data-xbet="1000000000000000000000000000000000000" class="xbet-bet-btn" type="button">1УНДЕЦ</button>
+<button data-xbet="1e100" class="xbet-bet-btn" type="button">1ГУГОЛ</button>
 <button id="xbetCustomBetBtn" class="xbet-bet-btn" type="button" style="background:linear-gradient(135deg,#ff0066,#ffaa00);color:#fff">✏️ Своя</button>
 </div>
 <div class="xbet-win-preview" id="xbetWinPreview"></div>
@@ -689,6 +685,9 @@ let selectMode=false;
 let selectedMessageIds=new Set();
 let pinnedMessage=null;
 let hiddenMessages={};
+let suppressActionSheetUntil = 0;
+// ⚡ Хранилище readBy для чатов: { chatId: { messageId: { uid: timestamp } } }
+let chatReadBy = {};
 const state={users:{},chats:{},userChats:{}};
 const stickers=['😀','😂','🥰','😎','🤔','😭','🔥','❤️','🎉','👍','🍕','🐱','🐶','⭐','💀','👀','🤣','😍','😱','🥳','🚀','🌌','🌈','💫','👑'];
 let selectedSticker=null;
@@ -699,10 +698,10 @@ let profileMatrixInterval = null;
 let hackerOwner = null;
 
 let xbetCurrentBet=100000,xbetReelCount=3,xbetCooldown=false;
-let MAX_BET=1000000000000000000000000000000000;
+let MAX_BET=1e100;
 let XBET_SYMBOLS=[{sym:'💎',mult:100000},{sym:'🔷',mult:50000},{sym:'💰',mult:25000},{sym:'⭐',mult:15000},{sym:'🔥',mult:10000},{sym:'7️⃣',mult:8000},{sym:'🍒',mult:5000}];
 let xbetSymbols=XBET_SYMBOLS.map(s=>s.sym);
-let casinoCfg = { minBet:5, maxBet:1000000000000000000000000000000000, cooldown:0, maxReels:5, globalMult:1, minMatch:3, casinoEnabled:true, jackpotEnabled:true, coinRain:true, logSpins:true, welcomeBonus:true, autoSpin:false };
+let casinoCfg = { minBet:5, maxBet:1e100, cooldown:0, maxReels:5, globalMult:1, minMatch:3, casinoEnabled:true, jackpotEnabled:true, coinRain:true, logSpins:true, welcomeBonus:true, autoSpin:false };
 let casinoEvents={},casinoForced={},casinoBanned={},casinoInstant={},casinoTournament=null,mySpinCounter=0;
 
 const SHOP_AVATARS=[
@@ -732,10 +731,10 @@ const SHOP_BUBBLES=[
 {id:'multra',name:'👑 УЛЬТРА премиум',price:1000000000,cssClass:'bubble-mascot-ultra',style:'linear-gradient(135deg,#1a1a3e,#4a1a6a)',color:'#ffd700'}
 ];
 const SHOP_SPECIAL=[
-{id:'spacegod',name:'🌈 SPACEGOD',price:1000000000000000,desc:'Радужный ник + Корона + Аура',emoji:'🌈',cls:'spacegod',nameCls:'rainbow-name'},
-{id:'spacecosmos',name:'🌌 SPACEGOD COSMOS',price:1000000000000000,desc:'Космос + Неон',emoji:'🌌',cls:'spacecosmos',nameCls:'rainbow-cosmos'},
-{id:'spacemint',name:'💚 SPACEGOD MINT',price:1000000000000000,desc:'Мятный неон + Аура',emoji:'💚',cls:'spacemint',nameCls:'rainbow-mint'},
-{id:'hacker',name:'💻 SPACEGOD HACKER',price:1000000000000000000000000000000000,desc:'Матрица 0/1 + Зелёный неон. ТОЛЬКО 1 ВЛАДЕЛЕЦ!',emoji:'💻',cls:'hacker',nameCls:'rainbow-hacker',unique:true}
+{id:'spacegod',name:'🌈 SPACEGOD',price:1e15,desc:'Радужный ник + Корона + Аура',emoji:'🌈',cls:'spacegod',nameCls:'rainbow-name'},
+{id:'spacecosmos',name:'🌌 SPACEGOD COSMOS',price:1e15,desc:'Космос + Неон',emoji:'🌌',cls:'spacecosmos',nameCls:'rainbow-cosmos'},
+{id:'spacemint',name:'💚 SPACEGOD MINT',price:1e15,desc:'Мятный неон + Аура',emoji:'💚',cls:'spacemint',nameCls:'rainbow-mint'},
+{id:'hacker',name:'💻 SPACEGOD HACKER',price:1e99,desc:'Матрица 0/1 + Зелёный неон. ТОЛЬКО 1 ВЛАДЕЛЕЦ!',emoji:'💻',cls:'hacker',nameCls:'rainbow-hacker',unique:true}
 ];
 const SG_BUBBLES=[
 {id:'bubble-spacegod',name:'🌈 Радужный пузырь',sgId:'spacegod',cssClass:'bubble-spacegod'},
@@ -767,22 +766,58 @@ function $(id){return document.getElementById(id)}
 function showToast(m){const t=document.createElement('div');t.className='toast';t.innerHTML=m;document.body.appendChild(t);setTimeout(()=>t.remove(),3500)}
 function esc(s){if(!s)return'';return String(s).replace(/[&<>]/g,m=>m==='&'?'&amp;':m==='<'?'&lt;':m==='>'?'&gt;':'')}
 function formatTime(ts){return ts?new Date(ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):''}
+
 function fmtNum(n){ n = Number(n) || 0; return n.toLocaleString('ru-RU').replace(/,/g, ' '); }
+
+// ⚡ РАСШИРЕННАЯ ШКАЛА ДО ГУГОЛА (10^100)
 function fmtShort(n){
     n = Number(n) || 0; const abs = Math.abs(n);
-    if(abs >= 1e33) return (n/1e33).toFixed(abs>=1e34?0:1).replace(/\.0$/,'')+'ДЕЦ';
-    if(abs >= 1e30) return (n/1e30).toFixed(abs>=1e31?0:1).replace(/\.0$/,'')+'НОН';
-    if(abs >= 1e27) return (n/1e27).toFixed(abs>=1e28?0:1).replace(/\.0$/,'')+'ОКТ';
-    if(abs >= 1e24) return (n/1e24).toFixed(abs>=1e25?0:1).replace(/\.0$/,'')+'СЕПТ';
-    if(abs >= 1e21) return (n/1e21).toFixed(abs>=1e22?0:1).replace(/\.0$/,'')+'СКСТ';
-    if(abs >= 1e18) return (n/1e18).toFixed(abs>=1e19?0:1).replace(/\.0$/,'')+'КВНТ';
-    if(abs >= 1e15) return (n/1e15).toFixed(abs>=1e16?0:1).replace(/\.0$/,'')+'КВДР';
-    if(abs >= 1e12) return (n/1e12).toFixed(abs>=1e13?0:1).replace(/\.0$/,'')+'ТРЛН';
-    if(abs >= 1e9)  return (n/1e9).toFixed(abs>=1e10?0:1).replace(/\.0$/,'')+'МЛРД';
-    if(abs >= 1e6)  return (n/1e6).toFixed(abs>=1e7?0:1).replace(/\.0$/,'')+'МЛН';
-    if(abs >= 1e3)  return (n/1e3).toFixed(abs>=1e4?0:1).replace(/\.0$/,'')+'К';
+    const SCALES = [
+        {v:1e100, s:'ГУГОЛ'},
+        {v:1e99,  s:'ДУОТРИГ'},
+        {v:1e96,  s:'АНТРИГ'},
+        {v:1e93,  s:'ТРИГ'},
+        {v:1e90,  s:'НОВЕМВИГ'},
+        {v:1e87,  s:'ОКТОВИГ'},
+        {v:1e84,  s:'СЕПТЕМВИГ'},
+        {v:1e81,  s:'СЕКСВИГ'},
+        {v:1e78,  s:'КВИНВИГ'},
+        {v:1e75,  s:'КВАТТОРВИГ'},
+        {v:1e72,  s:'ТРЕВИГ'},
+        {v:1e69,  s:'ДУОВИГ'},
+        {v:1e66,  s:'АНВИГ'},
+        {v:1e63,  s:'ВИГИНТ'},
+        {v:1e60,  s:'НОВЕМДЕЦ'},
+        {v:1e57,  s:'ОКТОДЕЦ'},
+        {v:1e54,  s:'СЕПТЕМДЕЦ'},
+        {v:1e51,  s:'СЕКСДЕЦ'},
+        {v:1e48,  s:'КВИНДЕЦ'},
+        {v:1e45,  s:'КВАТТУОРДЕЦ'},
+        {v:1e42,  s:'ТРЕДЕЦ'},
+        {v:1e39,  s:'ДОДЕЦ'},
+        {v:1e36,  s:'УНДЕЦ'},
+        {v:1e33,  s:'ДЕЦ'},
+        {v:1e30,  s:'НОН'},
+        {v:1e27,  s:'ОКТ'},
+        {v:1e24,  s:'СЕПТ'},
+        {v:1e21,  s:'СКСТ'},
+        {v:1e18,  s:'КВНТ'},
+        {v:1e15,  s:'КВДР'},
+        {v:1e12,  s:'ТРЛН'},
+        {v:1e9,   s:'МЛРД'},
+        {v:1e6,   s:'МЛН'},
+        {v:1e3,   s:'К'}
+    ];
+    for(const sc of SCALES){
+        if(abs >= sc.v){
+            const val = n / sc.v;
+            const digits = abs >= sc.v * 10 ? 0 : 1;
+            return val.toFixed(digits).replace(/\.0$/, '') + sc.s;
+        }
+    }
     return String(Math.floor(n));
 }
+
 function getOnlineStatus(uid){
     const u = state.users[uid]; if(!u) return {online:false, text:'⚫ офлайн'};
     if(u.status === 'online') return {online:true, text:'🟢 онлайн'};
@@ -798,16 +833,10 @@ function getOnlineStatus(uid){
 }
 function fileToBase64(f){return new Promise((r,j)=>{const x=new FileReader();x.onload=()=>r(x.result);x.onerror=j;x.readAsDataURL(f)})}
 function scrollToBottom(){const c=$('messagesContainer');if(c)requestAnimationFrame(()=>{c.scrollTop=c.scrollHeight})}
+
 function openModal(id){
     const el=$(id);
-    if(el){
-        el.classList.add('show');
-        el.style.display='flex';
-        el.style.pointerEvents='auto';
-        el.style.visibility='visible';
-        el.style.opacity='1';
-    }
-    // Перезапускаем матрицу профиля после полного рендера
+    if(el){ el.classList.add('show'); el.style.display='flex'; el.style.pointerEvents='auto'; el.style.visibility='visible'; el.style.opacity='1'; }
     if(id === 'profileModal'){
         setTimeout(()=>{
             if(currentProfileUid){
@@ -820,17 +849,10 @@ function openModal(id){
 }
 function closeModal(id){
     const el=$(id);
-    if(el){
-        el.classList.remove('show');
-        el.style.display='none';
-        el.style.pointerEvents='none';
-        el.style.visibility='hidden';
-        el.style.opacity='0';
-    }
+    if(el){ el.classList.remove('show'); el.style.display='none'; el.style.pointerEvents='none'; el.style.visibility='hidden'; el.style.opacity='0'; }
     if(id === 'profileModal') stopProfileMatrix();
 }
 
-// ⚡ getSpacegodType с учётом отключения
 function getSpacegodType(uid){
     if(!uid) return null;
     if(uid === currentUser?.id){
@@ -852,6 +874,32 @@ function isEventActive(name){
     if(!e || !e.active) return false;
     if(e.until && e.until < Date.now()) return false;
     return true;
+}
+
+// ⚡ ФУНКЦИЯ ПОЛУЧЕНИЯ СТАТУСА ПРОЧИТАНО
+function getReadStatus(msgId, msgSenderId){
+    if(msgSenderId !== currentUser.id) return null; // статус показываем только у своих
+    const msgs = chatReadBy[currentChat] || {};
+    const reads = msgs[msgId] || {};
+    const readers = Object.keys(reads);
+    if(readers.length === 0){
+        // Проверим, может собеседник онлайн — значит доставлено
+        const chat = state.userChats[currentChat];
+        if(chat && chat.type === 'private'){
+            const otherId = Object.keys(chat.participants||{}).find(id=>id!==currentUser.id);
+            const other = state.users[otherId];
+            if(other && other.status === 'online') return 'delivered';
+        }
+        return 'sent';
+    }
+    return 'read';
+}
+function getReadStatusHtml(msgId, msgSenderId){
+    const st = getReadStatus(msgId, msgSenderId);
+    if(!st) return '';
+    if(st === 'read') return '<span class="read-status read"><span class="rs-icon">✓✓</span> прочитано</span>';
+    if(st === 'delivered') return '<span class="read-status delivered"><span class="rs-icon">✓✓</span> доставлено</span>';
+    return '<span class="read-status sent"><span class="rs-icon">✓</span> отправлено</span>';
 }
 
 function rollSymbols(){
@@ -1082,19 +1130,13 @@ function renderShopSpecial(){
         const isOwned = owned.includes(s.id);
         const isActive = userInventory.spacegodType === s.id && !userInventory.spacegodDisabled;
         let takenByOther = false;
-        if(s.unique && hackerOwner && hackerOwner !== currentUser.id){
-            takenByOther = true;
-        }
+        if(s.unique && hackerOwner && hackerOwner !== currentUser.id){ takenByOther = true; }
         const previewBg = s.id==='spacegod' ? 'linear-gradient(90deg,#ff0000,#ffd700,#34c759,#00c8ff,#667eea,#ff0000)' : s.id==='spacecosmos' ? 'linear-gradient(90deg,#a855f7,#6366f1,#3b82f6,#a855f7)' : s.id==='hacker' ? 'linear-gradient(90deg,#000,#00ff41,#000,#00ff41,#000)' : 'linear-gradient(90deg,#00ff9d,#7dffb0,#00ffd5,#5effa8,#00ff9d)';
         const cls2 = s.unique && takenByOther ? 'hacker-taken' : '';
         let priceText = '';
-        if(takenByOther){
-            priceText = '❌ ЗАНЯТО: ' + esc(state.users[hackerOwner]?.name || hackerOwner);
-        } else if(isOwned){
-            priceText = isActive ? '✅ АКТИВЕН' : '✔️ КУПЛЕНО · клик = активировать';
-        } else {
-            priceText = '💰 ' + fmtShort(s.price) + ' $';
-        }
+        if(takenByOther){ priceText = '❌ ЗАНЯТО: ' + esc(state.users[hackerOwner]?.name || hackerOwner); }
+        else if(isOwned){ priceText = isActive ? '✅ АКТИВЕН' : '✔️ КУПЛЕНО · клик = активировать'; }
+        else { priceText = '💰 ' + fmtShort(s.price) + ' $'; }
         return `<div class="shop-item ${s.cls}-item ${isOwned?'owned':''} ${isActive?'active-item':''} ${cls2}" data-special="${s.id}" style="grid-column:1/-1">
             <div class="shop-item-preview ${s.nameCls}" style="background:${previewBg};background-size:200% auto;font-size:48px">${s.emoji}</div>
             <div class="shop-item-name ${s.nameCls}" style="font-size:16px">${s.name}${s.unique?' <span style="font-size:11px">🔒 УНИКАЛЬНЫЙ</span>':''}</div>
@@ -1152,10 +1194,7 @@ async function buySpecial(id){
 
     if(it.unique && !isOwned){
         let currentOwner = null;
-        try{
-            const s = await db.ref('hackerOwner').once('value');
-            currentOwner = s.val();
-        }catch(e){}
+        try{ const s = await db.ref('hackerOwner').once('value'); currentOwner = s.val(); }catch(e){}
         if(currentOwner && currentOwner !== currentUser.id){
             showToast('❌ HACKER уже куплен другим пользователем!');
             return;
@@ -1185,18 +1224,12 @@ async function buySpecial(id){
     if(it.unique){
         let success = false;
         await db.ref('hackerOwner').transaction(current => {
-            if(current === null || current === undefined){
-                success = true;
-                return currentUser.id;
-            }
+            if(current === null || current === undefined){ success = true; return currentUser.id; }
             if(current === currentUser.id){ success = true; return current; }
             success = false;
             return;
         });
-        if(!success){
-            showToast('❌ HACKER уже куплен другим пользователем!');
-            return;
-        }
+        if(!success){ showToast('❌ HACKER уже куплен другим пользователем!'); return; }
     }
 
     userInventory.balance -= it.price;
@@ -1248,22 +1281,15 @@ function applySidebarTheme(){
 function startMatrixRain(){
     const canvas = $('matrixCanvas'); if(!canvas) return;
     canvas.classList.add('show');
-    canvas.style.pointerEvents = 'none';
-    canvas.style.zIndex = '1';
+    canvas.style.pointerEvents = 'none'; canvas.style.zIndex = '1';
     const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    const fontSize = 14;
-    const columns = Math.floor(canvas.width / fontSize);
-    const drops = Array(columns).fill(1);
-    const chars = '01';
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    const fontSize = 14; const columns = Math.floor(canvas.width / fontSize);
+    const drops = Array(columns).fill(1); const chars = '01';
     function draw(){
-        ctx.fillStyle = 'rgba(0,0,0,0.05)';
-        ctx.fillRect(0,0,canvas.width,canvas.height);
-        ctx.fillStyle = '#00ff41';
-        ctx.font = fontSize + 'px "Courier New", monospace';
-        ctx.shadowColor = '#00ff41';
-        ctx.shadowBlur = 6;
+        ctx.fillStyle = 'rgba(0,0,0,0.05)'; ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle = '#00ff41'; ctx.font = fontSize + 'px "Courier New", monospace';
+        ctx.shadowColor = '#00ff41'; ctx.shadowBlur = 6;
         for(let i=0;i<drops.length;i++){
             const text = chars.charAt(Math.floor(Math.random()*chars.length));
             ctx.fillText(text, i*fontSize, drops[i]*fontSize);
@@ -1278,34 +1304,22 @@ function stopMatrixRain(){
     if(matrixInterval){ clearInterval(matrixInterval); matrixInterval = null; }
 }
 
-// ⚡ МАТРИЦА ВНУТРИ ПРОФИЛЯ
 function startProfileMatrix(){
     const canvas = $('profileMatrixCanvas'); if(!canvas) return;
     const parent = canvas.parentElement;
-    // ⚡ Устанавливаем размеры точно как у контейнера
     const w = parent.offsetWidth || 400;
     const h = parent.offsetHeight || 500;
-    canvas.width = w;
-    canvas.height = h;
-    canvas.style.width = w + 'px';
-    canvas.style.height = h + 'px';
-    canvas.style.position = 'absolute';
-    canvas.style.top = '0';
-    canvas.style.left = '0';
-    canvas.style.zIndex = '0';
-    canvas.style.pointerEvents = 'none';
+    canvas.width = w; canvas.height = h;
+    canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+    canvas.style.position = 'absolute'; canvas.style.top = '0'; canvas.style.left = '0';
+    canvas.style.zIndex = '0'; canvas.style.pointerEvents = 'none';
     const ctx = canvas.getContext('2d');
-    const fontSize = 12;
-    const columns = Math.floor(w / fontSize);
-    const drops = Array(columns).fill(1);
-    const chars = '01';
+    const fontSize = 12; const columns = Math.floor(w / fontSize);
+    const drops = Array(columns).fill(1); const chars = '01';
     function draw(){
-        ctx.fillStyle = 'rgba(0,0,0,0.15)';
-        ctx.fillRect(0,0,w,h);
-        ctx.fillStyle = '#00ff41';
-        ctx.font = fontSize + 'px "Courier New", monospace';
-        ctx.shadowColor = '#00ff41';
-        ctx.shadowBlur = 5;
+        ctx.fillStyle = 'rgba(0,0,0,0.15)'; ctx.fillRect(0,0,w,h);
+        ctx.fillStyle = '#00ff41'; ctx.font = fontSize + 'px "Courier New", monospace';
+        ctx.shadowColor = '#00ff41'; ctx.shadowBlur = 5;
         for(let i=0;i<drops.length;i++){
             const text = chars.charAt(Math.floor(Math.random()*chars.length));
             ctx.fillText(text, i*fontSize, drops[i]*fontSize);
@@ -1350,19 +1364,14 @@ function updateSpaceGodUI(){
     const av = $('userAvatarBtn'); const headerUserName = $('userName');
     if(!av || !headerUserName) return;
     ['spacegod','spacecosmos','spacemint','hacker'].forEach(c=>av.classList.remove(c));
-    if(userInventory.spacegodDisabled){
-        headerUserName.innerText = currentUser.name;
-        return;
-    }
+    if(userInventory.spacegodDisabled){ headerUserName.innerText = currentUser.name; return; }
     const t = userInventory.spacegodType;
     if(t){
         av.classList.add(t);
         if(!headerUserName.dataset.original) headerUserName.dataset.original = currentUser.name;
         const cls = t==='spacecosmos'?'rainbow-cosmos':t==='spacemint'?'rainbow-mint':t==='hacker'?'rainbow-hacker':'rainbow-name';
         headerUserName.innerHTML = `<span class="crown-icon">👑</span><span class="${cls}">${esc(currentUser.name)}</span>`;
-    } else {
-        headerUserName.innerText = currentUser.name;
-    }
+    } else { headerUserName.innerText = currentUser.name; }
     applySpaceGodToUI();
 }
 
@@ -1446,6 +1455,8 @@ function enterEditMode(msgId, currentText){editingMessageId = msgId;const bar = 
 function exitEditMode(){editingMessageId = null;const bar = $('editBar');if(bar) bar.classList.remove('show');const input = $('messageInput');if(input) input.value = '';}
 
 function openActionSheet(msgId){
+    if(selectMode) return;
+    if(Date.now() < suppressActionSheetUntil) return;
     currentActionMessage = msgId;
     const msgs = messageCache[currentChat] || {};
     const m = msgs[msgId]; if(!m) return;
@@ -1506,6 +1517,8 @@ async function handleAction(action){
 
 function enterSelectMode(initialMsgId){
     if(!initialMsgId) return;
+    closeActionSheet();
+    suppressActionSheetUntil = Date.now() + 800;
     selectMode = true;
     selectedMessageIds.clear();
     selectedMessageIds.add(initialMsgId);
@@ -1543,10 +1556,7 @@ function selectAllMessages(){
     const container = $('messagesContainer');
     container.querySelectorAll('.message').forEach(el=>{
         const mid = el.dataset.msgid;
-        if(mid && !mid.startsWith('temp_')){
-            selectedMessageIds.add(mid);
-            el.classList.add('select-active');
-        }
+        if(mid && !mid.startsWith('temp_')){ selectedMessageIds.add(mid); el.classList.add('select-active'); }
     });
     refreshSelectUI();
 }
@@ -1690,16 +1700,9 @@ async function showProfile(uid){
     if(sgToggleBtn){
         if(isMe && userInventory.spacegodType){
             sgToggleBtn.style.display = 'block';
-            if(userInventory.spacegodDisabled){
-                sgToggleBtn.innerText = '✅ Включить SpaceGod';
-                sgToggleBtn.classList.add('off');
-            } else {
-                sgToggleBtn.innerText = '🔄 Отключить SpaceGod';
-                sgToggleBtn.classList.remove('off');
-            }
-        } else {
-            sgToggleBtn.style.display = 'none';
-        }
+            if(userInventory.spacegodDisabled){ sgToggleBtn.innerText = '✅ Включить SpaceGod'; sgToggleBtn.classList.add('off'); }
+            else { sgToggleBtn.innerText = '🔄 Отключить SpaceGod'; sgToggleBtn.classList.remove('off'); }
+        } else { sgToggleBtn.style.display = 'none'; }
     }
     openModal('profileModal');
 }
@@ -1755,11 +1758,30 @@ async function saveProfileEdits(){
     showToast('✅ Сохранено');
 }
 
+// ⚡ ОТМЕТИТЬ СООБЩЕНИЯ КАК ПРОЧИТАННЫЕ
+async function markChatAsRead(chatId){
+    if(!currentUser) return;
+    try{
+        const snap = await db.ref(`messages/${chatId}`).once('value');
+        const msgs = snap.val() || {};
+        const updates = {};
+        const now = Date.now();
+        let count = 0;
+        for(const msgId in msgs){
+            const m = msgs[msgId];
+            if(!m || m.senderId === currentUser.id) continue;
+            updates[`readBy/${chatId}/${msgId}/${currentUser.id}`] = now;
+            count++;
+        }
+        if(count > 0){ await db.ref().update(updates); }
+    }catch(e){ console.warn('markRead err', e); }
+}
+
 async function openChat(chatId){
     if(messagesListener && currentChat){ db.ref(`messages/${currentChat}`).off('value', messagesListener); messagesListener = null; }
+    if(readByListener && currentChat){ db.ref(`readBy/${currentChat}`).off('value', readByListener); readByListener = null; }
     exitEditMode(); exitSelectMode();
-    lastRenderChatId = null;
-    renderedMessages.clear();
+    lastRenderChatId = null; renderedMessages.clear();
     currentChat = chatId;
     const chat=state.userChats[chatId];
     if(!chat)return;
@@ -1796,12 +1818,36 @@ async function openChat(chatId){
     if(messageCache[chatId]) renderMessages(messageCache[chatId], chatId);
     else $('messagesContainer').innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Загрузка...</p></div>';
     applyChatWallpaper(chatId);
+
+    // ⚡ Слушатель readBy для этого чата
+    readByListener = db.ref(`readBy/${chatId}`).on('value', snap=>{
+        chatReadBy[chatId] = snap.val() || {};
+        // Обновляем статусы у своих сообщений
+        const container = $('messagesContainer');
+        if(!container) return;
+        const msgs = messageCache[chatId] || {};
+        container.querySelectorAll('.message').forEach(el=>{
+            const mid = el.dataset.msgid;
+            const m = msgs[mid];
+            if(!m || m.senderId !== currentUser.id) return;
+            let rsEl = el.querySelector('.read-status');
+            const newHtml = getReadStatusHtml(mid, m.senderId);
+            if(rsEl){ rsEl.outerHTML = newHtml; }
+            else if(newHtml){
+                const timeEl = el.querySelector('.message-time');
+                if(timeEl) timeEl.insertAdjacentHTML('beforeend', ' ' + newHtml);
+            }
+        });
+    });
+
     messagesListener = db.ref(`messages/${chatId}`).orderByChild('timestamp').limitToLast(100).on('value', snap=>{
         const msgs=snap.val()||{};
         const hadCache = !!messageCache[chatId];
         messageCache[chatId]=msgs;
         if(!hadCache || lastRenderChatId !== chatId) renderMessages(msgs, chatId);
         else appendNewMessages(msgs, chatId);
+        // ⚡ Помечаем прочитанными все сообщения собеседника
+        markChatAsRead(chatId);
     });
     try{
         const hiddenSnap = await db.ref(`hidden/${currentUser.id}/${chatId}`).once('value');
@@ -1809,12 +1855,12 @@ async function openChat(chatId){
     }catch(e){ hiddenMessages[chatId] = {}; }
     db.ref(`pinned/${chatId}`).on('value', snap=>{ pinnedMessage = snap.val(); renderPinned(); });
     if(chat.unreadCount){ db.ref(`userChats/${currentUser.id}/${chatId}/unreadCount`).set(0); }
+    // Первый раз помечаем сразу
+    markChatAsRead(chatId);
 }
 
 async function applyChatWallpaper(chatId){
-    const el=$('messagesContainer');
-    const sb = $('sidebar');
-    const ov = $('sidebarOverlay');
+    const el=$('messagesContainer'); const sb = $('sidebar'); const ov = $('sidebarOverlay');
     try{
         const snap = await db.ref(`wallpapers/${currentUser.id}/${chatId}`).once('value');
         const bg = snap.val();
@@ -1823,26 +1869,22 @@ async function applyChatWallpaper(chatId){
         if(bg){
             if(bg.startsWith('url(')){ el.style.background='transparent'; el.style.backgroundImage=bg; el.style.backgroundSize='cover'; el.style.backgroundPosition='center'; el.style.backgroundRepeat='no-repeat'; }
             else if(bg.startsWith('sg-anim:')){
-                const sgId = bg.replace('sg-anim:','');
-                const sgBg = SG_BACKGROUNDS.find(x=>x.sgId === sgId);
+                const sgId = bg.replace('sg-anim:',''); const sgBg = SG_BACKGROUNDS.find(x=>x.sgId === sgId);
                 if(sgBg){ el.style.backgroundImage = sgBg.style; el.style.backgroundSize = '300% 300%'; el.classList.add('animated-bg'); }
             } else if(bg.startsWith('linear-gradient')){ el.style.backgroundImage = bg; el.style.backgroundSize = '200% 200%'; }
             else { el.style.background = bg; }
         }
         if(sb){
             sb.style.backgroundImage = ''; sb.style.background = '#f4f7fc'; sb.style.backgroundSize = '200% 200%'; sb.style.backgroundPosition = 'center'; sb.style.backgroundRepeat = 'no-repeat';
-            sb.classList.remove('animated-bg','matrix-mode');
-            stopMatrixRain();
+            sb.classList.remove('animated-bg','matrix-mode'); stopMatrixRain();
             if(userInventory.spacegodType === 'hacker' && !userInventory.spacegodDisabled){
                 sb.style.background = '#000'; sb.classList.add('matrix-mode'); startMatrixRain();
-                if(ov) ov.style.background = 'rgba(0,0,0,.35)';
-                return;
+                if(ov) ov.style.background = 'rgba(0,0,0,.35)'; return;
             }
             if(bg){
                 if(bg.startsWith('url(')){ sb.style.background = 'transparent'; sb.style.backgroundImage = bg; sb.style.backgroundSize = 'cover'; sb.style.backgroundPosition = 'center'; sb.style.backgroundRepeat = 'no-repeat'; if(ov) ov.style.background = 'rgba(255,255,255,.15)'; }
                 else if(bg.startsWith('sg-anim:')){
-                    const sgId = bg.replace('sg-anim:','');
-                    const sgBg = SG_BACKGROUNDS.find(x=>x.sgId === sgId);
+                    const sgId = bg.replace('sg-anim:',''); const sgBg = SG_BACKGROUNDS.find(x=>x.sgId === sgId);
                     if(sgBg){ sb.style.backgroundImage = sgBg.style; sb.style.backgroundSize = '300% 300%'; sb.classList.add('animated-bg'); if(ov) ov.style.background = 'rgba(255,255,255,.15)'; }
                 } else if(bg.startsWith('linear-gradient')){ sb.style.backgroundImage = bg; sb.style.backgroundSize = '200% 200%'; if(ov) ov.style.background = 'rgba(255,255,255,.15)'; }
                 else { sb.style.background = bg; if(ov) ov.style.background = 'rgba(255,255,255,.15)'; }
@@ -1850,21 +1892,18 @@ async function applyChatWallpaper(chatId){
         }
     }catch(e){ el.style.background='#f8fafd'; }
 }
-async function setChatWallpaper(chatId,bg){
-    if(!currentUser||!chatId)return;
-    await db.ref(`wallpapers/${currentUser.id}/${chatId}`).set(bg);
-    applyChatWallpaper(chatId);
-}
+async function setChatWallpaper(chatId,bg){ if(!currentUser||!chatId)return; await db.ref(`wallpapers/${currentUser.id}/${chatId}`).set(bg); applyChatWallpaper(chatId); }
 
 function extractColors(style){const match=style.match(/linear-gradient\([^,]+,\s*([^)]+)\)/);if(match){const colors=match[1].split(',').map(c=>c.trim());return `${colors[0]}, ${colors[1]||colors[0]}, ${colors[0]}, ${colors[1]||colors[0]}, ${colors[0]}`;}return '#667eea,#764ba2';}
 
 const renderedMessages = new Set();
 let lastRenderChatId = null;
+let readByListener = null;
 
 function buildMessageEl(m){
     let media='';
-    if(m.mediaType==='photo'&&m.mediaUrl)media=`<img src="${m.mediaUrl}" loading="lazy">`;
-    else if(m.mediaType==='video'&&m.mediaUrl)media=`<video src="${m.mediaUrl}" controls preload="metadata"></video>`;
+    if(m.mediaType==='photo'&&m.mediaUrl)media=`<img src="${m.mediaUrl}" loading="lazy" data-img="${m.mediaUrl}">`;
+    else if(m.mediaType==='video'&&m.mediaUrl)media=`<video src="${m.mediaUrl}" controls preload="metadata" data-vid="${m.mediaUrl}"></video>`;
     else if(m.mediaType==='audio'&&m.mediaUrl)media=`<audio controls src="${m.mediaUrl}" preload="none"></audio>`;
     const sender=state.users[m.senderId];
     const senderName=sender?.name||m.senderId;
@@ -1885,7 +1924,9 @@ function buildMessageEl(m){
     const senderHtml = t
         ? `<span class="crown-icon">👑</span><b class="${cls}" style="cursor:pointer" data-user="${m.senderId}">${esc(senderName)}</b>`
         : `<b style="cursor:pointer" data-user="${m.senderId}">${esc(senderName)}</b>`;
-    div.innerHTML=`<div class="select-check"></div><div class="message-bubble ${bubbleClass}">${forwardedMark}${!isSent?senderHtml+' ':''}${m.text?esc(m.text):''}${media}<div class="message-time">${formatTime(m.timestamp)}${editedMark}</div></div>`;
+    // ⚡ Статус прочитано (только для своих)
+    const readHtml = isSent ? getReadStatusHtml(m.id, m.senderId) : '';
+    div.innerHTML=`<div class="select-check"></div><div class="message-bubble ${bubbleClass}">${forwardedMark}${!isSent?senderHtml+' ':''}${m.text?esc(m.text):''}${media}<div class="message-time">${formatTime(m.timestamp)}${editedMark}${readHtml ? ' ' + readHtml : ''}</div></div>`;
     return div;
 }
 
@@ -1975,24 +2016,41 @@ function bindNotifSettings(){
     const pb = $('notifPermBtn');
     if(pb){ pb.onclick = async ()=>{ const ok = await requestPushPermission(); if(ok){ showToast('🔔 Уведомления включены'); } else { showToast('❌ Отказано'); } $('notifPermBar').classList.remove('show'); }; }
 }
+// ⚡ ГРОМКИЙ ЗВУК УВЕДОМЛЕНИЙ
 function playNotifSound(){
     if(!soundEnabled) return;
     try{
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator(); const gain = ctx.createGain();
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.frequency.setValueAtTime(880, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.08);
-        gain.gain.setValueAtTime(0.15, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
-        osc.start(); osc.stop(ctx.currentTime + 0.18);
-    } catch(e){}
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if(!Ctx) return;
+        const ctx = new Ctx();
+        if(ctx.state === 'suspended'){ try{ ctx.resume(); }catch(e){} }
+        const now = ctx.currentTime;
+        const tones = [
+            {f:1046, t:0.00, d:0.20, v:0.55},
+            {f:1318, t:0.15, d:0.20, v:0.55},
+            {f:1568, t:0.30, d:0.35, v:0.55}
+        ];
+        tones.forEach(t=>{
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(t.f, now + t.t);
+            gain.gain.setValueAtTime(0, now + t.t);
+            gain.gain.linearRampToValueAtTime(t.v, now + t.t + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + t.t + t.d);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + t.t);
+            osc.stop(now + t.t + t.d + 0.02);
+        });
+        setTimeout(()=>{ try{ ctx.close(); }catch(e){} }, 1500);
+    } catch(e){ console.warn('sound err', e); }
 }
 function showMessageNotification(data){
     if(!data || !currentUser) return;
     if(!notifEnabled) return;
     if(currentChat === data.chatId && $('mainArea').classList.contains('active') && !document.hidden) return;
-    vibrate([200, 100, 200]);
+    vibrate([300, 100, 300, 100, 400]);
     playNotifSound();
     if(document.hidden || !$('mainArea').classList.contains('active')){
         showSystemNotification((data.isSpaceGod ? '👑 ' : '') + (data.senderName || 'Новое сообщение'), data.text || '📎 Медиа', data.senderAvatarUrl || null, 'chat-' + data.chatId);
@@ -2024,12 +2082,7 @@ function showMessageNotification(data){
     const timer = setTimeout(()=>closeNotif(el), 6000);
     el._timer = timer;
 }
-function closeNotif(el){
-    if(!el || !el.parentNode) return;
-    if(el._timer) clearTimeout(el._timer);
-    el.classList.add('hide');
-    setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); }, 250);
-}
+function closeNotif(el){ if(!el || !el.parentNode) return; if(el._timer) clearTimeout(el._timer); el.classList.add('hide'); setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); }, 250); }
 function startNotificationWatcher(){
     if(!currentUser || notifInitialized) return;
     notifInitialized = true;
@@ -2188,9 +2241,7 @@ function leaveChat(){
     if(chat && chat.type === 'notes'){ showToast('⭐ Нельзя'); closeModal('chatMenuModal'); return; }
     if(!confirm('Покинуть?')) return;
     db.ref(`userChats/${currentUser.id}/${currentChat}`).remove();
-    closeModal('chatMenuModal');
-    goBack();
-    showToast('✅ Покинули');
+    closeModal('chatMenuModal'); goBack(); showToast('✅ Покинули');
 }
 function goBack(){currentChat=null;$('mainArea').classList.remove('active')}
 function logout(){if(confirm('Выйти?')){ if(currentUser){ db.ref('users/'+currentUser.id).update({status:'offline',lastSeen:Date.now()}); db.ref(`users/${currentUser.id}/status`).onDisconnect().cancel(); } localStorage.clear();location.reload(); }}
@@ -2233,10 +2284,8 @@ window.doLogin=async function(){
         try{ renderXbetReels();updateXbetUI();updateWinPreview();loadData(); bindCasinoFromAdmin(); }catch(e){}
         applySidebarTheme();
         setTimeout(()=>{
-            if('Notification' in window && Notification.permission === 'default'){
-                $('notifPermBar').classList.add('show');
-                setTimeout(()=>$('notifPermBar').classList.remove('show'), 15000);
-            } else if(Notification.permission === 'granted'){ pushEnabled = true; }
+            if('Notification' in window && Notification.permission === 'default'){ $('notifPermBar').classList.add('show'); setTimeout(()=>$('notifPermBar').classList.remove('show'), 15000); }
+            else if(Notification.permission === 'granted'){ pushEnabled = true; }
         }, 2000);
         showToast(`✅ Привет, ${currentUser.name}!`);
     }catch(err){ showToast('❌ Ошибка: '+err.message); }
@@ -2251,77 +2300,137 @@ function setupPresence(){
         if(snap.val() === true){
             myStatusRef.onDisconnect().set('offline');
             myLastSeenRef.onDisconnect().set(firebase.database.ServerValue.TIMESTAMP);
-            myStatusRef.set('online');
-            myLastSeenRef.set(Date.now());
+            myStatusRef.set('online'); myLastSeenRef.set(Date.now());
         }
     });
     window.addEventListener('beforeunload', () => { myStatusRef.set('offline'); myLastSeenRef.set(Date.now()); });
     setInterval(() => { if(currentUser && document.visibilityState === 'visible'){ myLastSeenRef.set(Date.now()); } }, 30000);
 }
 
+// ⚡ НОВАЯ ЛОГИКА ТАПОВ:
+// - ДВОЙНОЙ ТАП → режим выделения
+// - ДОЛГОЕ УДЕРЖАНИЕ (500мс) → меню действий
+// - ОДИНОЧНЫЙ ТАП → ничего
 function attachLongPressHandlers(){
     const container = $('messagesContainer');
     if(!container || container._lpBound) return;
     container._lpBound = true;
-    let pressStartTime = 0; let pressStartPos = {x:0, y:0}; let pressedMsgId = null; let pressMoved = false; let longPressFired = false; let scrollStartTop = 0;
-    const MOVE_THRESHOLD = 5;
-    const LONG_PRESS_MS = 1000;
-    const startPress = (target, x, y) => {
-        if(target.closest('.select-check')) return;
-        if(target.closest('audio')) return;
-        if(target.closest('video')) return;
-        if(target.closest('a')) return;
-        const msgEl = target.closest('.message'); if(!msgEl) return;
-        const msgId = msgEl.dataset.msgid; if(!msgId || msgId.startsWith('temp_')) return;
-        pressStartTime = Date.now(); pressStartPos = {x, y}; pressedMsgId = msgId; pressMoved = false; longPressFired = false;
-        scrollStartTop = container.scrollTop;
-        longPressTimer = setTimeout(()=>{
-            if(pressMoved) return;
-            if(Math.abs(container.scrollTop - scrollStartTop) > 3) return;
+
+    let lastTapTime = 0;
+    let lastTapMsgId = null;
+    let longPressTimer = null;
+    let longPressFired = false;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartTime = 0;
+    let isScrolling = false;
+    let activeMsgId = null;
+
+    const clearLongPress = () => {
+        if(longPressTimer){ clearTimeout(longPressTimer); longPressTimer = null; }
+    };
+
+    const startLongPress = (msgEl) => {
+        clearLongPress();
+        longPressFired = false;
+        activeMsgId = msgEl.dataset.msgid;
+        longPressTimer = setTimeout(() => {
+            longPressTimer = null;
+            if(isScrolling || selectMode) return;
             longPressFired = true;
             vibrate([40]);
-            if(!selectMode){ enterSelectMode(msgId); }
-            else { toggleMessageSelect(msgId); }
-            longPressTimer = null;
-        }, LONG_PRESS_MS);
+            openActionSheet(activeMsgId);
+        }, 500);
     };
-    const cancelPress = () => { if(longPressTimer){ clearTimeout(longPressTimer); longPressTimer = null; } };
-    const handleTap = (target) => {
-        const msgEl = target.closest('.message'); if(!msgEl) return false;
-        const msgId = msgEl.dataset.msgid; if(!msgId || msgId.startsWith('temp_')) return false;
-        if(selectMode){
-            if(target.closest('.select-check')){ toggleMessageSelect(msgId); return true; }
-            toggleMessageSelect(msgId);
-            return true;
-        } else { openActionSheet(msgId); return true; }
+
+    const handleTap = (msgEl) => {
+        if(!msgEl) return;
+        const msgId = msgEl.dataset.msgid;
+        if(!msgId || msgId.startsWith('temp_')) return;
+        if(selectMode){ toggleMessageSelect(msgId); return; }
+        const now = Date.now();
+        if(lastTapMsgId === msgId && (now - lastTapTime) < 400){
+            suppressActionSheetUntil = Date.now() + 800;
+            closeActionSheet();
+            enterSelectMode(msgId);
+            lastTapTime = 0; lastTapMsgId = null;
+            return;
+        }
+        lastTapTime = now; lastTapMsgId = msgId;
     };
-    const moveCheck = (x, y) => {
-        if(!pressStartTime) return;
-        const dx = Math.abs(x - pressStartPos.x); const dy = Math.abs(y - pressStartPos.y);
-        if(dx > MOVE_THRESHOLD || dy > MOVE_THRESHOLD){ pressMoved = true; cancelPress(); return; }
-        if(Math.abs(container.scrollTop - scrollStartTop) > 3){ pressMoved = true; cancelPress(); }
-    };
-    container.addEventListener('scroll', ()=>{ if(pressStartTime && !longPressFired){ if(Math.abs(container.scrollTop - scrollStartTop) > 3){ pressMoved = true; cancelPress(); } } }, {passive:true});
-    container.addEventListener('touchstart', e=>{ const t = e.touches[0]; startPress(e.target, t.clientX, t.clientY); }, {passive:true});
-    container.addEventListener('touchmove', e=>{ const t = e.touches[0]; moveCheck(t.clientX, t.clientY); }, {passive:true});
+
+    container.addEventListener('touchstart', e=>{
+        const t = e.touches[0];
+        touchStartX = t.clientX;
+        touchStartY = t.clientY;
+        touchStartTime = Date.now();
+        isScrolling = false;
+        const msgEl = e.target.closest('.message');
+        if(msgEl && !e.target.closest('img,video,audio') && !e.target.closest('.select-check')){
+            startLongPress(msgEl);
+        }
+    }, {passive: true});
+
+    container.addEventListener('touchmove', e=>{
+        const t = e.touches[0];
+        const dx = Math.abs(t.clientX - touchStartX);
+        const dy = Math.abs(t.clientY - touchStartY);
+        if(dx > 10 || dy > 10){
+            isScrolling = true;
+            clearLongPress();
+        }
+    }, {passive: true});
+
     container.addEventListener('touchend', e=>{
-        if(!pressMoved && !longPressFired && pressedMsgId){
-            const dt = Date.now() - pressStartTime;
-            if(dt < LONG_PRESS_MS){ e.preventDefault(); handleTap(e.target); }
+        clearLongPress();
+        if(isScrolling){ isScrolling = false; return; }
+        if(longPressFired){ longPressFired = false; return; }
+        if(e.target.closest('img,video,audio')) return;
+        if(e.target.closest('.select-check')){
+            const msgEl = e.target.closest('.message');
+            if(msgEl && selectMode){ toggleMessageSelect(msgEl.dataset.msgid); }
+            return;
         }
-        cancelPress(); pressedMsgId = null; pressStartTime = 0;
+        const msgEl = e.target.closest('.message');
+        if(!msgEl) return;
+        const held = Date.now() - touchStartTime;
+        if(held > 500) return;
+        e.preventDefault();
+        handleTap(msgEl);
     });
-    container.addEventListener('touchcancel', ()=>{ cancelPress(); pressedMsgId = null; pressStartTime = 0; });
-    container.addEventListener('mousedown', e=>{ if(e.button !== 0) return; startPress(e.target, e.clientX, e.clientY); });
-    container.addEventListener('mousemove', e=>{ if(!pressStartTime) return; moveCheck(e.clientX, e.clientY); });
+
+    container.addEventListener('touchcancel', ()=>{ clearLongPress(); });
+
+    // Desktop mouse
+    let mouseDownTime = 0;
+    let mouseDownMsgId = null;
+    let mouseTimer = null;
+    container.addEventListener('mousedown', e=>{
+        if(e.target.closest('img,video,audio')) return;
+        const msgEl = e.target.closest('.message');
+        if(!msgEl) return;
+        mouseDownTime = Date.now();
+        mouseDownMsgId = msgEl.dataset.msgid;
+        if(mouseTimer) clearTimeout(mouseTimer);
+        mouseTimer = setTimeout(()=>{
+            if(!selectMode && mouseDownMsgId){ openActionSheet(mouseDownMsgId); mouseDownMsgId = null; }
+        }, 500);
+    });
     container.addEventListener('mouseup', e=>{
-        if(!pressMoved && !longPressFired && pressedMsgId){
-            const dt = Date.now() - pressStartTime;
-            if(dt < LONG_PRESS_MS){ handleTap(e.target); }
+        if(mouseTimer){ clearTimeout(mouseTimer); mouseTimer = null; }
+        if(e.target.closest('img,video,audio')) return;
+        if(e.target.closest('.select-check')){
+            const msgEl = e.target.closest('.message');
+            if(msgEl && selectMode){ toggleMessageSelect(msgEl.dataset.msgid); }
+            return;
         }
-        cancelPress(); pressedMsgId = null; pressStartTime = 0;
+        const msgEl = e.target.closest('.message');
+        if(!msgEl || !mouseDownMsgId) { mouseDownMsgId = null; return; }
+        const held = Date.now() - mouseDownTime;
+        mouseDownMsgId = null;
+        if(held > 500) return;
+        handleTap(msgEl);
     });
-    container.addEventListener('mouseleave', ()=>{ cancelPress(); pressedMsgId = null; pressStartTime = 0; });
 }
 
 document.addEventListener('click',function(e){
@@ -2342,6 +2451,12 @@ document.addEventListener('click',function(e){
         if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.add('selected'); setTimeout(()=>el.classList.remove('selected'), 1500); }
         return;
     }
+    const img = closest('img[data-img]');
+    if(img){ e.preventDefault(); e.stopPropagation(); viewImage(img.dataset.img || img.src); return; }
+    const vid = closest('video[data-vid]');
+    if(vid){ e.preventDefault(); e.stopPropagation(); viewVideo(vid.dataset.vid || vid.src); return; }
+    if(closest('audio')){ return; }
+
     if(closest('[data-unblock]')){ e.preventDefault(); unblockUser(closest('[data-unblock]').dataset.unblock); return; }
     if(closest('[data-block]')){ e.preventDefault(); e.stopPropagation(); blockUser(closest('[data-block]').dataset.block); return; }
     if(closest('#myProfileBtn')||closest('#userAvatarBtn')){e.preventDefault();e.stopPropagation();if(!currentUser){showToast('❌ Войди');return}showProfile(currentUser.id);return}
@@ -2381,10 +2496,7 @@ document.addEventListener('click',function(e){
             userInventory.spacegodDisabled = !userInventory.spacegodDisabled;
             await saveInventory();
             await db.ref(`users/${currentUser.id}/spacegodDisabled`).set(userInventory.spacegodDisabled);
-            updateSpaceGodUI();
-            applySpaceGodToUI();
-            applySidebarTheme();
-            debouncedRenderChats();
+            updateSpaceGodUI(); applySpaceGodToUI(); applySidebarTheme(); debouncedRenderChats();
             if(currentChat){ const msgs = messageCache[currentChat]; if(msgs) renderMessages(msgs, currentChat); }
             const btn = $('sgToggleBtn');
             if(userInventory.spacegodDisabled){ btn.innerText = '✅ Включить SpaceGod'; btn.classList.add('off'); showToast('🔄 SpaceGod отключён'); }
@@ -2407,7 +2519,7 @@ document.addEventListener('click',function(e){
     if(closest('.shop-item')&&closest('.shop-item').dataset.bubble){buyOrSelectBubble(closest('.shop-item').dataset.bubble);return}
     if(closest('.shop-item')&&closest('.shop-item').dataset.special){buySpecial(closest('.shop-item').dataset.special);return}
     if(closest('[data-xbet]')){
-        const b=closest('[data-xbet]'); xbetCurrentBet=parseInt(b.dataset.xbet);
+        const b=closest('[data-xbet]'); xbetCurrentBet=parseFloat(b.dataset.xbet)||parseInt(b.dataset.xbet);
         document.querySelectorAll('[data-xbet]').forEach(x=>x.classList.remove('active')); b.classList.add('active');
         updateWinPreview();
         $('xbetMessage').innerHTML=`Ставка ${fmtShort(xbetCurrentBet)}$ × ${xbetReelCount} = ${fmtShort(xbetCurrentBet*xbetReelCount)}$`;
@@ -2416,7 +2528,7 @@ document.addEventListener('click',function(e){
     if(closest('#xbetCustomBetBtn')){
         e.preventDefault();
         const input=prompt('Введи ставку:','5000'); if(input===null)return;
-        const val=parseInt(input.replace(/\s/g,''));
+        const val=parseFloat(input.replace(/\s/g,''));
         if(!val||val<10||val>MAX_BET){showToast(`❌ От 10 до ${fmtShort(MAX_BET)}`);return}
         xbetCurrentBet=val;
         document.querySelectorAll('[data-xbet],#xbetCustomBetBtn').forEach(x=>x.classList.remove('active'));
