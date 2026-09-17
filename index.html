@@ -408,8 +408,10 @@ const firebaseConfig={
 };
 firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
+
 const MSG_LIMIT = 50;
 const MAX_MEDIA_SIZE = 800 * 1024;
+
 let MAX=50,currentUser=null,currentChat=null,pendingMedia=null,messagesListener=null,isRecording=false,messageCache={};
 let readByListener = null;
 let isSendingMessage=false;
@@ -427,6 +429,10 @@ let pushEnabled = false;
 let matrixInterval = null;
 let profileMatrixInterval = null;
 let mediaRecorder=null,audioChunks=[],recordingStartTime=0,recordingTimerInterval=null,recordingStream=null;
+
+// Кэш для экономии рендера
+let _lastChatsHash = '';
+let _lastUsersHash = '';
 
 const SHOP_AVATARS=[
 {id:'default',name:'Стандарт',emoji:'U',price:0,style:'linear-gradient(135deg,#667eea,#764ba2)',type:'emoji'},
@@ -517,6 +523,29 @@ function getSpacegodType(uid){
 }
 function isBlocked(uid){ return !!blockedUsers[uid]; }
 function amIBlockedBy(uid){ const them = state.users[uid]; return !!(them && them.blockedUsers && them.blockedUsers[currentUser.id]); }
+
+// ═══ ОПТИМИЗИРОВАННЫЙ ОНЛАЙН-СТАТУС ═══
+function getOnlineStatus(uid){
+    const u = state.users[uid];
+    if(!u) return {online:false, text:'⚫ офлайн'};
+    if(u.status === 'online'){
+        if(!u.lastSeen) return {online:true, text:'🟢 онлайн'};
+        const diff = Date.now() - u.lastSeen;
+        if(diff < 90000) return {online:true, text:'🟢 онлайн'};
+    }
+    if(u.lastSeen){
+        const diff = Date.now() - u.lastSeen;
+        const min = Math.floor(diff/60000);
+        const hr = Math.floor(diff/3600000);
+        const day = Math.floor(diff/86400000);
+        if(min < 1) return {online:false, text:'⚫ только что'};
+        if(min < 60) return {online:false, text:`⚫ ${min} мин назад`};
+        if(hr < 24) return {online:false, text:`⚫ ${hr} ч назад`};
+        if(day < 30) return {online:false, text:`⚫ ${day} дн назад`};
+        return {online:false, text:'⚫ давно'};
+    }
+    return {online:false, text:'⚫ офлайн'};
+}
 
 function getReadStatus(msgId, msgSenderId){
     if(msgSenderId !== currentUser.id) return null;
@@ -921,9 +950,11 @@ function closeActionSheet(){
     document.querySelectorAll('.message.selected').forEach(function(el){ el.classList.remove('selected'); });
     currentActionMessage = null;
 }
+
 function clearChat(){if(!currentChat||!confirm('Очистить?'))return;db.ref('messages/'+currentChat).remove().then(function(){closeModal('chatMenuModal');showToast('✅');});}
 function showStickerModal(){openModal('stickerModal');}
 function renderStickers(){var c=$('stickerPack');if(!c)return;c.innerHTML=stickers.map(function(s){return '<div class="sticker" data-sticker="'+s+'" style="cursor:pointer">'+s+'</div>';}).join('');}
+
 function blockUser(uid){if(!uid || uid === currentUser.id) return;if(isBlocked(uid)){ showToast('Уже'); return; }if(!confirm('Заблокировать?')) return;blockedUsers[uid] = true;db.ref('users/'+currentUser.id+'/blockedUsers/'+uid).set(true);closeModal('profileModal');closeModal('usersModal');debouncedRenderChats();showToast('🚫');}
 function unblockUser(uid){if(!uid) return;if(!confirm('Разблокировать?')) return;delete blockedUsers[uid];db.ref('users/'+currentUser.id+'/blockedUsers/'+uid).remove();closeModal('profileModal');closeModal('blockedModal');debouncedRenderChats();showToast('✅');}
 
@@ -961,7 +992,9 @@ function showProfile(uid){
     }
     openModal('profileModal');
 }
+
 function openEditProfile(){closeModal('profileModal');closeModal('settingsModal');if(!currentUser) return;var me = state.users[currentUser.id] || currentUser;$('editName').value = me.name || currentUser.name || '';$('editBio').value = me.bio || '';$('editPassword').value = '';var prev = $('editAvatarPreview');if(me.avatarUrl){prev.innerText = '';prev.style.backgroundImage = 'url('+me.avatarUrl+')';prev.style.backgroundSize = 'cover';$('editAvatarText').value = '';}else{prev.style.backgroundImage = '';prev.innerText = me.avatar || 'U';$('editAvatarText').value = me.avatar || '';}openModal('editProfileModal');}
+
 function saveProfileEdits(){
     if(!currentUser) return;
     var newName = ($('editName').value || '').trim();
@@ -986,10 +1019,12 @@ function saveProfileEdits(){
         showToast('✅');
     });
 }
+
 function markChatAsRead(chatId){
     if(!currentUser || !chatId) return;
     db.ref('readBy/'+chatId+'/'+currentUser.id).set(Date.now()).catch(function(){});
 }
+
 function openChat(chatId){
     if(messagesListener && currentChat){ db.ref('messages/'+currentChat).off('value', messagesListener); messagesListener = null; }
     if(readByListener && currentChat){ db.ref('readBy/'+currentChat).off('value', readByListener); readByListener = null; }
@@ -1053,6 +1088,7 @@ function openChat(chatId){
     if(chat.unreadCount){ db.ref('userChats/'+currentUser.id+'/'+chatId+'/unreadCount').set(0); }
     markChatAsRead(chatId);
 }
+
 function applyChatWallpaper(chatId){
     var el=$('messagesContainer');
     db.ref('wallpapers/'+currentUser.id+'/'+chatId).once('value').then(function(snap){
@@ -1113,6 +1149,8 @@ function renderMessages(msgs,chatId){
     lastRenderChatId = chatId;
     requestAnimationFrame(function(){ container.scrollTop = container.scrollHeight; });
 }
+
+// ═══ УВЕДОМЛЕНИЯ — ОСТАВЛЕНЫ КАК ПРОСИЛ ═══
 var notifInitialized = false;
 var lastSeenMsgTs = {};
 var notifEnabled = localStorage.getItem('notif_enabled') !== 'false';
@@ -1191,8 +1229,9 @@ function playNotifSound(){
 function showMessageNotification(data){
     if(!data || !currentUser) return;
     if(!notifEnabled) return;
+    if(currentChat && currentChat === data.chatId) return;
+    vibrate([300,100,300]);
     if(document.hidden){
-        vibrate([300,100,300]);
         playNotifSound();
         showSystemNotification((data.senderName || 'Сообщение'), data.text || '📎', data.senderAvatarUrl || null, 'chat-' + data.chatId);
         return;
@@ -1218,7 +1257,10 @@ function showMessageNotification(data){
     setTimeout(function(){closeNotif(el);}, 6000);
 }
 function closeNotif(el){ if(!el || !el.parentNode) return; el.classList.add('hide'); setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, 250); }
+
+// ═══ ОПТИМИЗИРОВАННЫЙ WATCHER (авто-отписка от мёртвых чатов) ═══
 var watchedChats = new Set();
+var chatWatchers = {};
 function startNotificationWatcher(){
     if(!currentUser || notifInitialized) return;
     notifInitialized = true;
@@ -1230,16 +1272,29 @@ function startNotificationWatcher(){
             watchChatForNewMessages(chatId);
         });
     });
+    // Раз в 5 минут чистим watchers у мёртвых чатов
+    setInterval(function(){
+        var now = Date.now();
+        Object.keys(chatWatchers).forEach(function(chatId){
+            var c = state.userChats[chatId];
+            var lastTime = (c && c.lastMessageTime) || 0;
+            if(now - lastTime > 600000){
+                try{ db.ref('messages/'+chatId).off('child_added', chatWatchers[chatId]); }catch(e){}
+                delete chatWatchers[chatId];
+                watchedChats.delete(chatId);
+            }
+        });
+    }, 300000);
 }
 var watcherBootTime = Date.now();
 function watchChatForNewMessages(chatId){
     if(watchedChats.has(chatId)) return;
     watchedChats.add(chatId);
-    db.ref('messages/'+chatId).orderByChild('timestamp').limitToLast(1).on('child_added', function(snap){
+    var handler = db.ref('messages/'+chatId).orderByChild('timestamp').limitToLast(1).on('child_added', function(snap){
         var msg = snap.val(); if(!msg || !msg.timestamp) return;
         if(msg.senderId === currentUser.id) return;
         if(Date.now() - watcherBootTime < 2000) return;
-        if(Date.now() - msg.timestamp > 60000) return;
+        if(Date.now() - msg.timestamp > 120000) return;
         var lastShown = lastSeenMsgTs[chatId] || 0;
         if(msg.timestamp <= lastShown) return;
         lastSeenMsgTs[chatId] = msg.timestamp;
@@ -1251,21 +1306,13 @@ function watchChatForNewMessages(chatId){
         if(text.length > 60) text = text.slice(0, 57) + '...';
         showMessageNotification({ chatId: chatId, senderId: msg.senderId, senderName: sender.name || msg.senderName || msg.senderId, senderAvatar: sender.avatar, senderAvatarUrl: sender.avatarUrl, text: text, ts: msg.timestamp });
     });
+    chatWatchers[chatId] = handler;
 }
 setTimeout(function(){ watcherBootTime = Date.now(); }, 2000);
-function getOnlineStatus(uid){
-    var u = state.users[uid]; if(!u) return {online:false, text:'⚫ офлайн'};
-    if(u.status === 'online') return {online:true, text:'🟢 онлайн'};
-    if(u.lastSeen){
-        var diff = Date.now() - u.lastSeen; var min = Math.floor(diff/60000);
-        if(min < 1) return {online:false, text:'⚫ только что'};
-        if(min < 60) return {online:false, text:'⚫ '+min+' мин'};
-        return {online:false, text:'⚫ давно'};
-    }
-    return {online:false, text:'⚫ офлайн'};
-}
+
 var _renderChatsTimer = null;
 function debouncedRenderChats(){ if(_renderChatsTimer) return; _renderChatsTimer = setTimeout(function(){ _renderChatsTimer = null; renderChats(); }, 150); }
+
 function renderChats(){
     var list=$('chatsList'); if(!list) return;
     var st=($('chatSearch')&&$('chatSearch').value||'').toLowerCase();
@@ -1281,6 +1328,10 @@ function renderChats(){
         return!st||((c.name||'').toLowerCase().indexOf(st)>=0);
     });
     chats.sort(function(a,b){ if(a.type==='notes') return -1; if(b.type==='notes') return 1; return (b.lastMessageTime||0)-(a.lastMessageTime||0); });
+    // Хеш для пропуска одинаковых рендеров
+    var hash = chats.map(c=>c.id+'|'+(c.lastMessageTime||0)+'|'+(c.unreadCount||0)).join('#');
+    if(hash === _lastChatsHash) return;
+    _lastChatsHash = hash;
     list.innerHTML=chats.map(function(c){
         var name=c.name||'Чат',av='?',avatarStyle='';
         var t=null; var onlineDot = ''; var isNotes = c.type==='notes';
@@ -1304,6 +1355,7 @@ function renderChats(){
         return '<div class="chat-item" data-chat="'+c.id+'"><div class="'+avatarCls+'" style="'+avatarStyle+'">'+esc(av)+onlineDot+'</div><div class="chat-content"><div class="chat-name">'+nameHtml+' '+badge+'</div><div class="chat-last">'+esc(c.lastMessage||'Нет сообщений')+'</div></div></div>';
     }).join('');
 }
+
 function ensureNotesChat(){
     if(!currentUser) return Promise.resolve();
     var notesId = 'notes_' + currentUser.id;
@@ -1313,10 +1365,17 @@ function ensureNotesChat(){
         }
     });
 }
+
+// ═══ ОПТИМИЗИРОВАННЫЙ loadData ═══
 function loadData(){
     startNotificationWatcher();
-    db.ref('users').on('value',function(s){state.users=s.val()||{};debouncedRenderChats();});
-    db.ref('userChats/'+currentUser.id).on('value',function(s){state.userChats=s.val()||{};debouncedRenderChats();});
+    // Слушаем только изменённых пользователей (не весь список)
+    db.ref('users').on('child_added', function(s){ state.users[s.key] = s.val(); debouncedRenderChats(); });
+    db.ref('users').on('child_changed', function(s){ state.users[s.key] = s.val(); debouncedRenderChats(); });
+    db.ref('users').on('child_removed', function(s){ delete state.users[s.key]; debouncedRenderChats(); });
+    // Свои чаты — свой слушатель
+    db.ref('userChats/'+currentUser.id).on('value', function(s){ state.userChats = s.val()||{}; debouncedRenderChats(); });
+    // Инвентарь — свой
     db.ref('inventory/'+currentUser.id).on('value',function(s){
         var v = s.val();
         if(v){
@@ -1326,11 +1385,20 @@ function loadData(){
             updateSpaceGodUI(); applySidebarTheme();
         }
     });
+    // Заблокированные — свой список
     db.ref('users/'+currentUser.id+'/blockedUsers').on('value',function(s){
         blockedUsers = s.val() || {};
         debouncedRenderChats();
     });
+    // Раз в 30 сек обновляем счётчик юзеров (не весь список, только count)
+    setInterval(function(){
+        db.ref('users').once('value').then(function(s){
+            var cnt = Object.keys(s.val()||{}).length;
+            var el = $('userCount'); if(el) el.innerText = cnt + '/' + MAX;
+        }).catch(function(){});
+    }, 30000);
 }
+
 function showAllUsers(){
     var g=$('usersGrid');
     var others=Object.keys(state.users).filter(function(id){ if(id === currentUser.id) return false; if(isBlocked(id)) return false; return true; }).map(function(id){return [id, state.users[id]];});
@@ -1351,6 +1419,7 @@ function showAllUsers(){
     }
     openModal('usersModal');
 }
+
 function startChat(userId){
     if(!userId || userId === currentUser.id){ showToast('❌ Нельзя открыть чат с собой'); return; }
     if(isBlocked(userId)){ showToast('❌ Вы заблокировали этого пользователя'); return; }
@@ -1394,6 +1463,7 @@ function startChat(userId){
 }
 function goBack(){currentChat=null;$('mainArea').classList.remove('active');}
 function logout(){if(confirm('Выйти?')){ if(currentUser){ db.ref('users/'+currentUser.id).update({status:'offline',lastSeen:Date.now()}); } localStorage.clear();location.reload(); }}
+
 (function attachLongPress(){
     var container = document.getElementById('messagesContainer');
     if(!container || container._lpBound) return;
@@ -1447,6 +1517,7 @@ function logout(){if(confirm('Выйти?')){ if(currentUser){ db.ref('users/'+c
     });
     container.addEventListener('mouseup', function(){ if(mouseTimer){ clearTimeout(mouseTimer); mouseTimer = null; } });
 })();
+
 document.addEventListener('click', function(e){
     var actionItem = e.target.closest('.action-sheet-item');
     if(actionItem && actionItem.dataset.action){
@@ -1485,6 +1556,7 @@ document.addEventListener('click', function(e){
     }
     if(e.target.id === 'actionBackdrop'){ closeActionSheet(); }
 });
+
 document.addEventListener('click', function(e){
     var t = e.target;
     var closest = function(s){ return t.closest(s); };
@@ -1578,10 +1650,12 @@ document.addEventListener('click', function(e){
     if(closest('#saveVideoViewerBtn')){ e.preventDefault(); var u3 = $('viewedVideo') && $('viewedVideo').src; if(u3) saveMediaToDevice(u3,'video'); return; }
     if(closest('#notifPermBtn')){ e.preventDefault(); requestPushPermission().then(function(ok){ if(ok) showToast('🔔'); $('notifPermBar').classList.remove('show'); }); return; }
 });
+
 document.addEventListener('keydown', function(e){
     if(e.key === 'Enter' && document.activeElement && document.activeElement.id === 'loginPassword'){ window.doLogin(); }
     if(e.key === 'Enter' && document.activeElement && document.activeElement.id === 'messageInput'){ sendMessage(); }
 });
+
 window.doLogin = function(){
     var name = ($('loginName') && $('loginName').value || '').trim();
     var pass = $('loginPassword') && $('loginPassword').value || '';
@@ -1604,6 +1678,7 @@ window.doLogin = function(){
         }
     }).catch(function(err){ showToast('❌ ' + err.message); });
 };
+
 function loadInventoryAndStart(){
     var name = currentUser.id;
     return db.ref('inventory/'+name).once('value').then(function(invSnap){
@@ -1623,6 +1698,7 @@ function loadInventoryAndStart(){
         return startApp();
     });
 }
+
 function startApp(){
     localStorage.setItem('dg_user', JSON.stringify(currentUser));
     hideSplash();
@@ -1641,6 +1717,8 @@ function startApp(){
     }, 2000);
     showToast('✅ Привет, '+currentUser.name+'!');
 }
+
+// ═══ ОПТИМИЗИРОВАННЫЙ PRESENCE (heartbeat 60 сек, обновление при возврате) ═══
 function setupPresence(){
     if(!currentUser) return;
     var myStatusRef = db.ref('users/'+currentUser.id+'/status');
@@ -1653,8 +1731,21 @@ function setupPresence(){
         }
     });
     window.addEventListener('beforeunload', function(){ myStatusRef.set('offline'); myLastSeenRef.set(Date.now()); });
-    setInterval(function(){ if(currentUser && document.visibilityState === 'visible'){ myLastSeenRef.set(Date.now()); } }, 30000);
+    // Heartbeat раз в 60 сек
+    setInterval(function(){
+        if(currentUser && document.visibilityState === 'visible'){
+            myLastSeenRef.set(Date.now());
+        }
+    }, 60000);
+    // Мгновенное обновление при возврате
+    document.addEventListener('visibilitychange', function(){
+        if(currentUser && !document.hidden){
+            myStatusRef.set('online');
+            myLastSeenRef.set(Date.now());
+        }
+    });
 }
+
 document.addEventListener('DOMContentLoaded', function(){
     document.querySelectorAll('.modal,.image-viewer,.video-viewer').forEach(function(el){ el.classList.remove('show'); el.style.display='none'; });
     var loginBtn = $('loginBtn');
@@ -1678,9 +1769,10 @@ document.addEventListener('DOMContentLoaded', function(){
         }catch(e){ localStorage.removeItem('dg_user'); }
     }
     showLoginScreen();
-    db.ref('users').on('value', function(s){ state.users = s.val() || {}; var cnt=Object.keys(state.users||{}).length; if($('userCount'))$('userCount').innerText=cnt+'/'+MAX; });
+    db.ref('users').on('child_added', function(s){ state.users[s.key]=s.val(); var cnt=Object.keys(state.users).length; if($('userCount'))$('userCount').innerText=cnt+'/'+MAX; });
     db.ref('settings/maxUsers').once('value').then(function(snap){ MAX = snap.val() || 50; }).catch(function(){ MAX = 50; });
 });
+
 document.getElementById('photoInput').addEventListener('change', function(e){
     if(e.target.files[0]){
         var file = e.target.files[0];
