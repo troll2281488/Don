@@ -417,10 +417,8 @@ const firebaseConfig={
 };
 firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
-
 const MSG_LIMIT = 50;
 const MAX_MEDIA_SIZE = 800 * 1024;
-
 let MAX=50,currentUser=null,currentChat=null,pendingMedia=null,messagesListener=null,isRecording=false,messageCache={};
 let readByListener = null;
 let isSendingMessage=false;
@@ -438,7 +436,6 @@ let pushEnabled = false;
 let matrixInterval = null;
 let profileMatrixInterval = null;
 let mediaRecorder=null,audioChunks=[],recordingStartTime=0,recordingTimerInterval=null,recordingStream=null;
-
 const SHOP_AVATARS=[
 {id:'default',name:'Стандарт',emoji:'U',price:0,style:'linear-gradient(135deg,#667eea,#764ba2)',type:'emoji'},
 {id:'cat',name:'🐱 Котик',emoji:'🐱',price:0,style:'linear-gradient(135deg,#ffecd2,#fcb69f)',type:'emoji'},
@@ -491,19 +488,15 @@ const SPACEGOD_THEMES=[
 {id:'gold',name:'👑 Золото',bg:'linear-gradient(135deg,#f7971e,#ffd200)'},
 {id:'matrix',name:'🟢 Матрица',bg:'linear-gradient(135deg,#000000,#0f2027,#2c5364)'}
 ];
-
 let userInventory={avatars:['default'],bubbles:['none'],activeAvatar:'default',activeBubble:'none',balance:5000,spacegod:false,spacegodType:null,spacegodDisabled:false,ownedSpacegods:[],sidebarTheme:'none',sidebarCustomImg:null};
-
 function $(id){return document.getElementById(id)}
 function showToast(m){const t=document.createElement('div');t.className='toast';t.innerHTML=m;document.body.appendChild(t);setTimeout(()=>t.remove(),3500)}
 function esc(s){if(!s)return'';return String(s).replace(/[&<>]/g,m=>m==='&'?'&amp;':m==='<'?'&lt;':m==='>'?'&gt;':'')}
 function formatTime(ts){return ts?new Date(ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):''}
 function fileToBase64(f){return new Promise((r,j)=>{const x=new FileReader();x.onload=()=>r(x.result);x.onerror=j;x.readAsDataURL(f)})}
 function blobToBase64(blob){return new Promise((r,j)=>{const x=new FileReader();x.onload=()=>r(x.result);x.onerror=j;x.readAsDataURL(blob)})}
-
 function hideSplash(){var s=$('splashScreen');if(s){s.classList.remove('show');s.style.display='none';}}
 function showLoginScreen(){var s=$('splashScreen');if(s){s.classList.remove('show');s.style.display='none';}$('loginScreen').style.display='flex';}
-
 function openModal(id){
     const el=$(id);if(el){el.classList.add('show');el.style.display='flex';}
     if(id==='profileModal'){
@@ -520,7 +513,6 @@ function closeModal(id){
     const el=$(id);if(el){el.classList.remove('show');el.style.display='none';}
     if(id==='profileModal')stopProfileMatrix();
 }
-
 function getSpacegodType(uid){
     if(!uid) return null;
     if(uid === (currentUser&&currentUser.id)){ if(userInventory.spacegodDisabled) return null; return userInventory.spacegodType || null; }
@@ -528,7 +520,6 @@ function getSpacegodType(uid){
 }
 function isBlocked(uid){ return !!blockedUsers[uid]; }
 function amIBlockedBy(uid){ const them = state.users[uid]; return !!(them && them.blockedUsers && them.blockedUsers[currentUser.id]); }
-
 function getReadStatus(msgId, msgSenderId){
     if(msgSenderId !== currentUser.id) return null;
     const msgs = messageCache[currentChat] || {};
@@ -554,13 +545,11 @@ function getReadStatusHtml(msgId, msgSenderId){
     if(typeof st === 'object' && st.status === 'delivered') return '<span class="read-status delivered"><span class="rs-icon">✓✓</span> доставлено</span>';
     return '<span class="read-status sent"><span class="rs-icon">✓</span> отправлено</span>';
 }
-
 function saveMediaToDevice(url,type){try{const a=document.createElement('a');a.href=url;const ext=type==='image'?'jpg':'mp4';a.download='dg_'+Date.now()+'.'+ext;document.body.appendChild(a);a.click();document.body.removeChild(a);showToast('💾');}catch(e){showToast('❌');}}
 function viewImage(url){$('viewedImage').src=url;openModal('imageViewer');}
 function closeImageViewer(){closeModal('imageViewer');}
 function viewVideo(url){const v=$('viewedVideo');v.src=url;openModal('videoViewer');v.play();}
 function closeVideoViewer(){const v=$('viewedVideo');v.pause();v.src='';closeModal('videoViewer');}
-
 function renderShopAvatars(){
     const g=$('shopAvatarsGrid');if(!g)return;
     g.innerHTML=SHOP_AVATARS.map(a=>{
@@ -617,7 +606,6 @@ function renderSGBackgrounds(){
         return '<div class="theme-item" data-sgbg="'+b.sgId+'" style="background:'+b.style+';background-size:300% 300%"><div class="theme-name">'+b.name+'</div></div>';
     }).join('');
 }
-
 function buyOrSelectAvatar(id){
     const it=SHOP_AVATARS.find(a=>a.id===id);if(!it)return;
     if(userInventory.avatars.indexOf(id)<0) userInventory.avatars.push(id);
@@ -679,13 +667,11 @@ function buySpecial(id){
     if(currentChat){ const msgs = messageCache[currentChat]; if(msgs) renderMessages(msgs, currentChat); }
     showToast(it.emoji+' '+it.name+'!');
 }
-
 function selectTheme(id){
     if(!userInventory.spacegod) return;
     if(id === 'custom'){if(!userInventory.sidebarCustomImg){showToast('❌ Загрузи фото');return;}}
     userInventory.sidebarTheme = id;saveInventory();applySidebarTheme();renderThemes();showToast('✅');
 }
-
 function applySidebarTheme(){
     const sb = $('sidebar'); const ov = $('sidebarOverlay'); if(!sb) return;
     const themeId = userInventory.sidebarTheme || 'none';
@@ -787,8 +773,6 @@ function updateSpaceGodUI(){
     applySpaceGodToUI();
 }
 function saveInventory(){if(!currentUser)return;userInventory.balance = Number(userInventory.balance) || 0;db.ref('inventory/'+currentUser.id).set(userInventory).catch(function(){});}
-
-// ═══════════ ОТПРАВКА СООБЩЕНИЯ ═══════════
 function sendMessage(){
     if(isSendingMessage) return;
     const input=$('messageInput');
@@ -850,7 +834,6 @@ function sendMessage(){
     });
 }
 function exitEditMode(){editingMessageId = null;var bar = $('editBar');if(bar) bar.classList.remove('show');var input = $('messageInput');if(input) input.value = '';}
-
 function startRecording(){
     if(isRecording) return;
     if(!currentChat){ showToast('❌ Открой чат'); return; }
@@ -903,7 +886,6 @@ function stopRecording(send){
     if(recordingStream){ try{ recordingStream.getTracks().forEach(function(t){t.stop();}); }catch(e){} recordingStream = null; }
     mediaRecorder = null;
 }
-
 function openActionSheet(msgId){
     var msgs = messageCache[currentChat] || {};
     var m = msgs[msgId]; if(!m) return;
@@ -933,14 +915,11 @@ function closeActionSheet(){
     document.querySelectorAll('.message.selected').forEach(function(el){ el.classList.remove('selected'); });
     currentActionMessage = null;
 }
-
 function clearChat(){if(!currentChat||!confirm('Очистить?'))return;db.ref('messages/'+currentChat).remove().then(function(){closeModal('chatMenuModal');showToast('✅');});}
 function showStickerModal(){openModal('stickerModal');}
 function renderStickers(){var c=$('stickerPack');if(!c)return;c.innerHTML=stickers.map(function(s){return '<div class="sticker" data-sticker="'+s+'" style="cursor:pointer">'+s+'</div>';}).join('');}
-
 function blockUser(uid){if(!uid || uid === currentUser.id) return;if(isBlocked(uid)){ showToast('Уже'); return; }if(!confirm('Заблокировать?')) return;blockedUsers[uid] = true;db.ref('users/'+currentUser.id+'/blockedUsers/'+uid).set(true);closeModal('profileModal');closeModal('usersModal');debouncedRenderChats();showToast('🚫');}
 function unblockUser(uid){if(!uid) return;if(!confirm('Разблокировать?')) return;delete blockedUsers[uid];db.ref('users/'+currentUser.id+'/blockedUsers/'+uid).remove();closeModal('profileModal');closeModal('blockedModal');debouncedRenderChats();showToast('✅');}
-
 function showProfile(uid){
     var u=state.users[uid];if(!u)return;
     currentProfileUid = uid;
@@ -975,9 +954,7 @@ function showProfile(uid){
     }
     openModal('profileModal');
 }
-
 function openEditProfile(){closeModal('profileModal');closeModal('settingsModal');if(!currentUser) return;var me = state.users[currentUser.id] || currentUser;$('editName').value = me.name || currentUser.name || '';$('editBio').value = me.bio || '';$('editPassword').value = '';var prev = $('editAvatarPreview');if(me.avatarUrl){prev.innerText = '';prev.style.backgroundImage = 'url('+me.avatarUrl+')';prev.style.backgroundSize = 'cover';$('editAvatarText').value = '';}else{prev.style.backgroundImage = '';prev.innerText = me.avatar || 'U';$('editAvatarText').value = me.avatar || '';}openModal('editProfileModal');}
-
 function saveProfileEdits(){
     if(!currentUser) return;
     var newName = ($('editName').value || '').trim();
@@ -1002,13 +979,10 @@ function saveProfileEdits(){
         showToast('✅');
     });
 }
-
 function markChatAsRead(chatId){
     if(!currentUser || !chatId) return;
     db.ref('readBy/'+chatId+'/'+currentUser.id).set(Date.now()).catch(function(){});
 }
-
-// ═══════════ ОТКРЫТИЕ ЧАТА ═══════════
 function openChat(chatId){
     if(messagesListener && currentChat){ db.ref('messages/'+currentChat).off('value', messagesListener); messagesListener = null; }
     if(readByListener && currentChat){ db.ref('readBy/'+currentChat).off('value', readByListener); readByListener = null; }
@@ -1072,7 +1046,6 @@ function openChat(chatId){
     if(chat.unreadCount){ db.ref('userChats/'+currentUser.id+'/'+chatId+'/unreadCount').set(0); }
     markChatAsRead(chatId);
 }
-
 function applyChatWallpaper(chatId){
     var el=$('messagesContainer');
     db.ref('wallpapers/'+currentUser.id+'/'+chatId).once('value').then(function(snap){
@@ -1087,10 +1060,8 @@ function applyChatWallpaper(chatId){
     }).catch(function(){ el.style.background='#f8fafd'; });
 }
 function setChatWallpaper(chatId,bg){ if(!currentUser||!chatId)return; db.ref('wallpapers/'+currentUser.id+'/'+chatId).set(bg).then(function(){applyChatWallpaper(chatId);}); }
-
 var renderedMessages = new Set();
 var lastRenderChatId = null;
-
 function buildMessageEl(m){
     var media='';
     if(m.mediaType==='photo'&&m.mediaUrl)media='<img src="'+m.mediaUrl+'" loading="lazy" data-img="'+m.mediaUrl+'">';
@@ -1135,13 +1106,10 @@ function renderMessages(msgs,chatId){
     lastRenderChatId = chatId;
     requestAnimationFrame(function(){ container.scrollTop = container.scrollHeight; });
 }
-
-// ═══ УВЕДОМЛЕНИЯ ═══
 var notifInitialized = false;
 var lastSeenMsgTs = {};
 var notifEnabled = localStorage.getItem('notif_enabled') !== 'false';
 var soundEnabled = localStorage.getItem('sound_enabled') !== 'false';
-
 function requestPushPermission(){
     return new Promise(function(resolve){
         try{
@@ -1193,7 +1161,7 @@ function playNotifSound(){
         if(ctx.state === 'suspended'){ try{ ctx.resume(); }catch(e){} }
         var now = ctx.currentTime;
         var masterGain = ctx.createGain();
-        masterGain.gain.setValueAtTime(8.0, now);
+        masterGain.gain.setValueAtTime(2.0, now);
         masterGain.connect(ctx.destination);
         [0, 0.45].forEach(function(baseT){
             [
@@ -1205,7 +1173,7 @@ function playNotifSound(){
                 osc.type = 'square';
                 osc.frequency.setValueAtTime(n.f, now + baseT + n.t);
                 g.gain.setValueAtTime(0, now + baseT + n.t);
-                g.gain.linearRampToValueAtTime(1.0, now + baseT + n.t + 0.008);
+                g.gain.linearRampToValueAtTime(0.9, now + baseT + n.t + 0.008);
                 g.gain.exponentialRampToValueAtTime(0.001, now + baseT + n.t + n.d);
                 osc.connect(g); g.connect(masterGain);
                 osc.start(now + baseT + n.t); osc.stop(now + baseT + n.t + n.d + 0.05);
@@ -1216,9 +1184,10 @@ function playNotifSound(){
 function showMessageNotification(data){
     if(!data || !currentUser) return;
     if(!notifEnabled) return;
-    vibrate([200,100,200]);
-    playNotifSound();
+    if(currentChat && currentChat === data.chatId) return;
     if(document.hidden){
+        vibrate([300,100,300]);
+        playNotifSound();
         showSystemNotification((data.senderName || 'Сообщение'), data.text || '📎', data.senderAvatarUrl || null, 'chat-' + data.chatId);
         return;
     }
@@ -1278,7 +1247,6 @@ function watchChatForNewMessages(chatId){
     });
 }
 setTimeout(function(){ watcherBootTime = Date.now(); }, 2000);
-
 function getOnlineStatus(uid){
     var u = state.users[uid]; if(!u) return {online:false, text:'⚫ офлайн'};
     if(u.status === 'online') return {online:true, text:'🟢 онлайн'};
@@ -1290,10 +1258,8 @@ function getOnlineStatus(uid){
     }
     return {online:false, text:'⚫ офлайн'};
 }
-
 var _renderChatsTimer = null;
 function debouncedRenderChats(){ if(_renderChatsTimer) return; _renderChatsTimer = setTimeout(function(){ _renderChatsTimer = null; renderChats(); }, 150); }
-
 function renderChats(){
     var list=$('chatsList'); if(!list) return;
     var st=($('chatSearch')&&$('chatSearch').value||'').toLowerCase();
@@ -1332,7 +1298,6 @@ function renderChats(){
         return '<div class="chat-item" data-chat="'+c.id+'"><div class="'+avatarCls+'" style="'+avatarStyle+'">'+esc(av)+onlineDot+'</div><div class="chat-content"><div class="chat-name">'+nameHtml+' '+badge+'</div><div class="chat-last">'+esc(c.lastMessage||'Нет сообщений')+'</div></div></div>';
     }).join('');
 }
-
 function ensureNotesChat(){
     if(!currentUser) return Promise.resolve();
     var notesId = 'notes_' + currentUser.id;
@@ -1342,7 +1307,6 @@ function ensureNotesChat(){
         }
     });
 }
-
 function loadData(){
     startNotificationWatcher();
     db.ref('users').on('value',function(s){state.users=s.val()||{};debouncedRenderChats();});
@@ -1361,7 +1325,6 @@ function loadData(){
         debouncedRenderChats();
     });
 }
-
 function showAllUsers(){
     var g=$('usersGrid');
     var others=Object.keys(state.users).filter(function(id){ if(id === currentUser.id) return false; if(isBlocked(id)) return false; return true; }).map(function(id){return [id, state.users[id]];});
@@ -1382,8 +1345,6 @@ function showAllUsers(){
     }
     openModal('usersModal');
 }
-
-// ═══════════ START CHAT ═══════════
 function startChat(userId){
     if(!userId || userId === currentUser.id){ showToast('❌ Нельзя открыть чат с собой'); return; }
     if(isBlocked(userId)){ showToast('❌ Вы заблокировали этого пользователя'); return; }
@@ -1427,8 +1388,6 @@ function startChat(userId){
 }
 function goBack(){currentChat=null;$('mainArea').classList.remove('active');}
 function logout(){if(confirm('Выйти?')){ if(currentUser){ db.ref('users/'+currentUser.id).update({status:'offline',lastSeen:Date.now()}); } localStorage.clear();location.reload(); }}
-
-// ═══ ДОЛГОЕ УДЕРЖАНИЕ ═══
 (function attachLongPress(){
     var container = document.getElementById('messagesContainer');
     if(!container || container._lpBound) return;
@@ -1482,7 +1441,6 @@ function logout(){if(confirm('Выйти?')){ if(currentUser){ db.ref('users/'+c
     });
     container.addEventListener('mouseup', function(){ if(mouseTimer){ clearTimeout(mouseTimer); mouseTimer = null; } });
 })();
-
 document.addEventListener('click', function(e){
     var actionItem = e.target.closest('.action-sheet-item');
     if(actionItem && actionItem.dataset.action){
@@ -1521,7 +1479,6 @@ document.addEventListener('click', function(e){
     }
     if(e.target.id === 'actionBackdrop'){ closeActionSheet(); }
 });
-
 document.addEventListener('click', function(e){
     var t = e.target;
     var closest = function(s){ return t.closest(s); };
@@ -1616,13 +1573,10 @@ document.addEventListener('click', function(e){
     if(closest('#saveVideoViewerBtn')){ e.preventDefault(); var u3 = $('viewedVideo') && $('viewedVideo').src; if(u3) saveMediaToDevice(u3,'video'); return; }
     if(closest('#notifPermBtn')){ e.preventDefault(); requestPushPermission().then(function(ok){ if(ok) showToast('🔔'); $('notifPermBar').classList.remove('show'); }); return; }
 });
-
 document.addEventListener('keydown', function(e){
     if(e.key === 'Enter' && document.activeElement && document.activeElement.id === 'loginPassword'){ window.doLogin(); }
     if(e.key === 'Enter' && document.activeElement && document.activeElement.id === 'messageInput'){ sendMessage(); }
 });
-
-// ═══ ЛОГИН ═══
 window.doLogin = function(){
     var name = ($('loginName') && $('loginName').value || '').trim();
     var pass = $('loginPassword') && $('loginPassword').value || '';
@@ -1645,7 +1599,6 @@ window.doLogin = function(){
         }
     }).catch(function(err){ showToast('❌ ' + err.message); });
 };
-
 function loadInventoryAndStart(){
     var name = currentUser.id;
     return db.ref('inventory/'+name).once('value').then(function(invSnap){
@@ -1665,7 +1618,6 @@ function loadInventoryAndStart(){
         return startApp();
     });
 }
-
 function startApp(){
     localStorage.setItem('dg_user', JSON.stringify(currentUser));
     hideSplash();
@@ -1684,7 +1636,6 @@ function startApp(){
     }, 2000);
     showToast('✅ Привет, '+currentUser.name+'!');
 }
-
 function setupPresence(){
     if(!currentUser) return;
     var myStatusRef = db.ref('users/'+currentUser.id+'/status');
@@ -1699,8 +1650,6 @@ function setupPresence(){
     window.addEventListener('beforeunload', function(){ myStatusRef.set('offline'); myLastSeenRef.set(Date.now()); });
     setInterval(function(){ if(currentUser && document.visibilityState === 'visible'){ myLastSeenRef.set(Date.now()); } }, 60000);
 }
-
-// ═══ СТАРТ ═══
 document.addEventListener('DOMContentLoaded', function(){
     document.querySelectorAll('.modal,.image-viewer,.video-viewer').forEach(function(el){ el.classList.remove('show'); el.style.display='none'; });
     var loginBtn = $('loginBtn');
@@ -1727,7 +1676,6 @@ document.addEventListener('DOMContentLoaded', function(){
     db.ref('users').on('value', function(s){ state.users = s.val() || {}; var cnt=Object.keys(state.users||{}).length; if($('userCount'))$('userCount').innerText=cnt+'/'+MAX; });
     db.ref('settings/maxUsers').once('value').then(function(snap){ MAX = snap.val() || 50; }).catch(function(){ MAX = 50; });
 });
-
 document.getElementById('photoInput').addEventListener('change', function(e){
     if(e.target.files[0]){
         var file = e.target.files[0];
