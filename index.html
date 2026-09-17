@@ -17,7 +17,6 @@ body{background:#1a1a2e;height:100vh;display:flex;align-items:center;justify-con
 @keyframes auraMint{0%,100%{box-shadow:0 0 0 3px rgba(0,255,157,.95)}50%{box-shadow:0 0 0 3px rgba(125,255,176,.95)}}
 @keyframes hackerGlow{0%,100%{box-shadow:0 0 0 3px rgba(0,255,65,.9)}50%{box-shadow:0 0 0 3px rgba(0,255,65,1)}}
 @keyframes bubbleShimmer{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-@keyframes bgShift{0%{background-position:0% 0%}50%{background-position:100% 100%}100%{background-position:0% 0%}}
 @keyframes notifIn{from{transform:translateY(-120%) scale(.9);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
 @keyframes notifOut{from{transform:translateY(0) scale(1);opacity:1}to{transform:translateY(-120%) scale(.9);opacity:0}}
 @keyframes headerShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
@@ -244,18 +243,30 @@ input:checked+.slider:before{transform:translateX(26px)}
 
 .sg-toggle-btn{width:100%;padding:12px;margin-top:8px;border-radius:12px;border:2px solid #667eea;background:#fff;color:#667eea;font-weight:600;font-size:14px;cursor:pointer}
 .sg-toggle-btn.off{border-color:#8e98a3;color:#8e98a3}
+
+#splashScreen{position:fixed;inset:0;background:linear-gradient(135deg,#1a1a2e,#16213e);z-index:500;display:none;align-items:center;justify-content:center;flex-direction:column;gap:18px;color:#fff}
+#splashScreen.show{display:flex}
+#splashScreen .splash-logo{font-size:56px;animation:recPulse 1.4s infinite}
+#splashScreen .splash-title{font-size:22px;font-weight:700;background:linear-gradient(90deg,#667eea,#c44569,#667eea);background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:rainbowText 3s linear infinite}
+#splashScreen .splash-sub{font-size:13px;color:#8e98a3}
 </style>
 </head>
 <body>
 
 <canvas id="matrixCanvas"></canvas>
+<div id="splashScreen" class="show">
+  <div class="splash-logo">✨</div>
+  <div class="splash-title">DonorGram Pro</div>
+  <div class="splash-sub">Загрузка…</div>
+</div>
+
 <div class="notif-container" id="notifContainer"></div>
 <div class="notif-permission-bar" id="notifPermBar">
 <span>🔔 Включить уведомления?</span>
 <button id="notifPermBtn">ВКЛ</button>
 </div>
 
-<div id="loginScreen" class="login-screen">
+<div id="loginScreen" class="login-screen" style="display:none">
 <div class="login-card">
 <h2>✨ DonorGram Pro</h2>
 <input type="text" id="loginName" placeholder="Никнейм" autofocus>
@@ -310,17 +321,14 @@ input:checked+.slider:before{transform:translateX(26px)}
 </div>
 </div></div></div>
 
-<!-- ═══ МЕНЮ ДЕЙСТВИЙ ПО ДОЛГОМУ УДЕРЖАНИЮ ═══ -->
 <div id="actionBackdrop" style="position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:299;opacity:0;pointer-events:none;transition:opacity .2s"></div>
 <div id="actionSheet" style="position:fixed;bottom:0;left:0;width:100%;background:#fff;border-radius:24px 24px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.25);z-index:300;transform:translateY(100%);transition:transform .2s;padding:10px 0 20px">
 <div class="action-sheet-item" data-action="copy" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer"><i class="fas fa-copy" style="width:22px;color:#667eea"></i><span>Копировать</span></div>
 <div class="action-sheet-item" data-action="edit" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer"><i class="fas fa-pen" style="width:22px;color:#667eea"></i><span>Редактировать</span></div>
-<div class="action-sheet-item" data-action="pin" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer"><i class="fas fa-thumbtack" style="width:22px;color:#667eea"></i><span>Закрепить</span></div>
-<div class="action-sheet-item danger" data-action="delete-me" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#ff3b30;cursor:pointer"><i class="fas fa-eye-slash" style="width:22px"></i><span>Удалить у себя</span></div>
+<div class="action-sheet-item" data-action="delete-me" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#ff3b30;cursor:pointer"><i class="fas fa-eye-slash" style="width:22px"></i><span>Удалить у себя</span></div>
 <div class="action-sheet-item danger" data-action="delete" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#ff3b30;cursor:pointer"><i class="fas fa-trash" style="width:22px"></i><span>Удалить у всех</span></div>
 </div>
 
-<!-- ═══ ПРОФИЛЬ ═══ -->
 <div class="modal" id="profileModal"><div class="modal-content" id="profileModalContent">
 <canvas id="profileMatrixCanvas" style="position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.4;border-radius:22px"></canvas>
 <div class="modal-header"><h3 id="profileTitle">👤 Профиль</h3><button type="button" data-close="profileModal">&times;</button></div>
@@ -340,7 +348,6 @@ input:checked+.slider:before{transform:translateX(26px)}
 </div>
 </div></div>
 
-<!-- ═══ РЕДАКТИРОВАНИЕ ПРОФИЛЯ ═══ -->
 <div class="modal" id="editProfileModal"><div class="modal-content">
 <div class="modal-header"><h3>✏️ Редактировать профиль</h3><button type="button" data-close="editProfileModal">&times;</button></div>
 <div class="edit-avatar-row">
@@ -362,7 +369,6 @@ input:checked+.slider:before{transform:translateX(26px)}
 </div>
 </div></div>
 
-<!-- ═══ МАГАЗИН ═══ -->
 <div class="modal" id="shopModal"><div class="modal-content" style="max-width:520px">
 <div class="modal-header"><h3>🛍️ Магазин</h3><button type="button" data-close="shopModal">&times;</button></div>
 <div class="shop-balance">✨ ВСЁ БЕСПЛАТНО</div>
@@ -383,11 +389,9 @@ input:checked+.slider:before{transform:translateX(26px)}
 </div>
 </div></div>
 
-<!-- ═══ НАСТРОЙКИ ═══ -->
 <div class="modal" id="settingsModal"><div class="modal-content">
 <div class="modal-header"><h3>⚙️ Настройки</h3><button type="button" data-close="settingsModal">&times;</button></div>
 <button id="settingsEditProfileBtn" class="login-btn" style="background:#f0f4ff;color:#333">✏️ Редактировать профиль</button>
-<button id="settingsBlockedBtn" class="login-btn" style="background:#fff0f0;color:#ff3b30">🚫 Заблокированные</button>
 <button id="settingsEnableNotifBtn" class="login-btn" style="background:#e8f4ff;color:#0083b0">🔔 Push-уведомления</button>
 <div class="settings-item"><span>🔔 Уведомления</span><label class="switch"><input type="checkbox" id="notifSwitch" checked><span class="slider"></span></label></div>
 <div class="settings-item"><span>🔊 Звук</span><label class="switch"><input type="checkbox" id="soundSwitch" checked><span class="slider"></span></label></div>
@@ -401,7 +405,6 @@ input:checked+.slider:before{transform:translateX(26px)}
 
 <div class="modal" id="usersModal"><div class="modal-content"><div class="modal-header"><h3>👥 Пользователи</h3><button type="button" data-close="usersModal">&times;</button></div><div class="users-grid" id="usersGrid"></div></div></div>
 
-<!-- ═══ ОБОИ ЧАТА ═══ -->
 <div class="modal" id="backgroundModal"><div class="modal-content"><div class="modal-header"><h3>🎨 Обои чата</h3><button type="button" data-close="backgroundModal">&times;</button></div>
 <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
 <div style="aspect-ratio:1;background:#f8fafd;border-radius:12px;cursor:pointer;border:2px solid #e8edf2" data-bg="#f8fafd"></div>
@@ -410,14 +413,6 @@ input:checked+.slider:before{transform:translateX(26px)}
 <div style="aspect-ratio:1;background:#1a1a2e;border-radius:12px;cursor:pointer" data-bg="#1a1a2e"></div>
 <div style="aspect-ratio:1;background:linear-gradient(135deg,#34c759,#28a745);border-radius:12px;cursor:pointer" data-bg="linear-gradient(135deg,#34c759,#28a745)"></div>
 <div style="aspect-ratio:1;background:linear-gradient(135deg,#ff6b9d,#ff0844);border-radius:12px;cursor:pointer" data-bg="linear-gradient(135deg,#ff6b9d,#ff0844)"></div>
-</div>
-<div id="sgBgSection" style="display:none;margin-top:14px">
-<p style="font-size:12px;color:#8e98a3;margin-bottom:8px">🌟 SpaceGod-обои</p>
-<div id="sgBgGrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px"></div>
-</div>
-<div id="customBgRow" style="display:none;margin-top:14px">
-<button id="uploadChatBgBtn" class="login-btn" type="button" style="background:linear-gradient(135deg,#667eea,#764ba2)">📷 Своё фото</button>
-<input type="file" id="chatBgFile" accept="image/*" style="display:none">
 </div>
 </div></div>
 
@@ -476,33 +471,13 @@ const SHOP_BUBBLES=[
 {id:'frog',name:'🐸 Лягушка',price:0,cssClass:'bubble-frog',style:'linear-gradient(135deg,#a8e063,#56ab2f)',color:'#fff'},
 {id:'capybara',name:'🦫 Капибара',price:0,cssClass:'bubble-capybara',style:'linear-gradient(135deg,#f5e6ca,#c9a87c)',color:'#5a3a1a'},
 {id:'love',name:'💖 Любовь',price:0,cssClass:'bubble-love',style:'linear-gradient(135deg,#ff6b9d,#ff0844)',color:'#fff'},
-{id:'premium',name:'💎 Премиум',price:0,cssClass:'bubble-premium',style:'linear-gradient(135deg,#000428,#004e92)',color:'#00ffcc'},
-{id:'mcat',name:'🐱 Мордочка кота',price:0,cssClass:'bubble-mascot-cat',style:'linear-gradient(135deg,#fff4e6,#ffd9a0)',color:'#5a3a1a'},
-{id:'molivia',name:'🌸 Olivia с цветком',price:0,cssClass:'bubble-mascot-olivia',style:'linear-gradient(135deg,#ffd6e8,#ff8cc8)',color:'#7a1a4a'},
-{id:'mfrog',name:'🐸 Мордочка лягушки',price:0,cssClass:'bubble-mascot-frog',style:'linear-gradient(135deg,#c5f28c,#56ab2f)',color:'#0a3a0a'},
-{id:'mcapy',name:'🦫 Мордочка капибары',price:0,cssClass:'bubble-mascot-capy',style:'linear-gradient(135deg,#f9e9cf,#c9a87c)',color:'#5a3a1a'},
-{id:'mglam',name:'💋 Гламурная дива',price:0,cssClass:'bubble-mascot-glam',style:'linear-gradient(135deg,#fbc2eb,#f5a0d8)',color:'#5a1a4a'},
-{id:'mduck',name:'🦆 Лягушка и утка',price:0,cssClass:'bubble-mascot-duck',style:'linear-gradient(135deg,#fff4a3,#ffe066)',color:'#4a3a0a'},
-{id:'msleepy',name:'😴 Отдыхающий кот',price:0,cssClass:'bubble-mascot-sleepy',style:'linear-gradient(135deg,#b8c6ff,#6a7fd6)',color:'#fff'},
-{id:'multra',name:'👑 УЛЬТРА премиум',price:0,cssClass:'bubble-mascot-ultra',style:'linear-gradient(135deg,#1a1a3e,#4a1a6a)',color:'#ffd700'}
+{id:'premium',name:'💎 Премиум',price:0,cssClass:'bubble-premium',style:'linear-gradient(135deg,#000428,#004e92)',color:'#00ffcc'}
 ];
 const SHOP_SPECIAL=[
 {id:'spacegod',name:'🌈 SPACEGOD',price:0,desc:'Радужный ник + Корона + Аура',emoji:'🌈',cls:'spacegod',nameCls:'rainbow-name'},
 {id:'spacecosmos',name:'🌌 SPACEGOD COSMOS',price:0,desc:'Космос + Неон',emoji:'🌌',cls:'spacecosmos',nameCls:'rainbow-cosmos'},
 {id:'spacemint',name:'💚 SPACEGOD MINT',price:0,desc:'Мятный неон + Аура',emoji:'💚',cls:'spacemint',nameCls:'rainbow-mint'},
 {id:'hacker',name:'💻 SPACEGOD HACKER',price:0,desc:'Матрица 0/1 + Зелёный неон',emoji:'💻',cls:'hacker',nameCls:'rainbow-hacker'}
-];
-const SG_BUBBLES=[
-{id:'bubble-spacegod',name:'🌈 Радужный пузырь',sgId:'spacegod',cssClass:'bubble-spacegod'},
-{id:'bubble-spacecosmos',name:'🌌 Космо-пузырь',sgId:'spacecosmos',cssClass:'bubble-spacecosmos'},
-{id:'bubble-spacemint',name:'💚 Мятный пузырь',sgId:'spacemint',cssClass:'bubble-spacemint'},
-{id:'bubble-hacker',name:'💻 Хакерский пузырь',sgId:'hacker',cssClass:'bubble-hacker'}
-];
-const SG_BACKGROUNDS=[
-{id:'sg-bg-spacegod',name:'🌈 Радужные',sgId:'spacegod',style:'linear-gradient(135deg,#ff0000,#ff9500,#ffd700,#34c759,#00c8ff,#667eea,#c44569,#ff0000)'},
-{id:'sg-bg-spacecosmos',name:'🌌 Космо',sgId:'spacecosmos',style:'linear-gradient(135deg,#050014,#2a0055,#1a0050,#0a1a6a,#2a0055,#050014)'},
-{id:'sg-bg-spacemint',name:'💚 Мята',sgId:'spacemint',style:'linear-gradient(135deg,#003a20,#006640,#00cc80,#006640,#003a20)'},
-{id:'sg-bg-hacker',name:'💻 Матрица',sgId:'hacker',style:'linear-gradient(135deg,#000,#001a05,#00ff41,#001a05,#000)'}
 ];
 const SPACEGOD_THEMES=[
 {id:'none',name:'По умолчанию',bg:'#f4f7fc'},
@@ -522,8 +497,11 @@ function formatTime(ts){return ts?new Date(ts).toLocaleTimeString([],{hour:'2-di
 function fileToBase64(f){return new Promise((r,j)=>{const x=new FileReader();x.onload=()=>r(x.result);x.onerror=j;x.readAsDataURL(f)})}
 function blobToBase64(blob){return new Promise((r,j)=>{const x=new FileReader();x.onload=()=>r(x.result);x.onerror=j;x.readAsDataURL(blob)})}
 
-function openModal(id){const el=$(id);if(el){el.classList.add('show');el.style.display='flex';}if(id==='profileModal'){setTimeout(()=>{if(currentProfileUid){const t=getSpacegodType(currentProfileUid);stopProfileMatrix();if(t==='hacker')startProfileMatrix();}},250);}}
-function closeModal(id){const el=$(id);if(el){el.classList.remove('show');el.style.display='none';}if(id==='profileModal')stopProfileMatrix();}
+function hideSplash(){var s=$('splashScreen');if(s){s.classList.remove('show');s.style.display='none';}}
+function showLoginScreen(){var s=$('splashScreen');if(s){s.classList.remove('show');s.style.display='none';}$('loginScreen').style.display='flex';}
+
+function openModal(id){const el=$(id);if(el){el.classList.add('show');el.style.display='flex';}}
+function closeModal(id){const el=$(id);if(el){el.classList.remove('show');el.style.display='none';}}
 
 function getSpacegodType(uid){
     if(!uid) return null;
@@ -536,7 +514,7 @@ function amIBlockedBy(uid){ const them = state.users[uid]; return !!(them && the
 function getReadStatus(msgId, msgSenderId){
     if(msgSenderId !== currentUser.id) return null;
     const msgs = messageCache[currentChat] || {};
-    const m = msgs[msgId]; if(!m || !m.timestamp) return 'sent';
+    const m = msgs[msgId]; if(!m || !m.timestamp) return {status:'sent'};
     const reads = chatReadBy[currentChat] || {};
     const chat = state.userChats[currentChat];
     if(chat && chat.type === 'private'){
@@ -565,11 +543,6 @@ function closeImageViewer(){closeModal('imageViewer');}
 function viewVideo(url){const v=$('viewedVideo');v.src=url;openModal('videoViewer');v.play();}
 function closeVideoViewer(){const v=$('viewedVideo');v.pause();v.src='';closeModal('videoViewer');}
 
-function openShop(){
-    closeModal('profileModal');
-    renderShopAvatars();renderShopBubbles();renderShopSpecial();renderThemes();
-    openModal('shopModal');
-}
 function renderShopAvatars(){
     const g=$('shopAvatarsGrid');if(!g)return;
     g.innerHTML=SHOP_AVATARS.map(a=>{
@@ -581,19 +554,10 @@ function renderShopAvatars(){
 }
 function renderShopBubbles(){
     const g=$('shopBubblesGrid');if(!g)return;
-    let html = SHOP_BUBBLES.map(b=>{
+    g.innerHTML = SHOP_BUBBLES.map(b=>{
         const o=userInventory.bubbles.includes(b.id);const ac=userInventory.activeBubble===b.id;
         return '<div class="shop-item '+(o?'owned':'')+' '+(ac?'active-item':'')+'" data-bubble="'+b.id+'"><div class="shop-item-preview bubble-preview" style="background:'+b.style+';color:'+b.color+'">Привет!</div><div class="shop-item-name">'+b.name+'</div><div class="shop-item-price '+(o?'bought':'')+'">'+(o?(ac?'✅ Используется':'✔️ Куплено'):'✨ БЕСПЛАТНО')+'</div></div>';
     }).join('');
-    const owned = userInventory.ownedSpacegods || [];
-    SG_BUBBLES.forEach(sb=>{
-        if(owned.indexOf(sb.sgId)<0) return;
-        const ac = userInventory.activeBubble === sb.id;
-        const bg = sb.sgId==='spacegod'?'linear-gradient(90deg,#ff0000,#ffd700,#34c759,#00c8ff,#667eea,#ff0000)':sb.sgId==='spacecosmos'?'linear-gradient(90deg,#050014,#2a0055,#0a1a6a,#2a0055,#050014)':sb.sgId==='hacker'?'linear-gradient(90deg,#000,#001a05,#00ff41,#001a05,#000)':'linear-gradient(90deg,#003a20,#00cc80,#003a20)';
-        const col = sb.sgId==='spacegod'?'#fff':sb.sgId==='spacecosmos'?'#c8a8ff':sb.sgId==='hacker'?'#00ff41':'#a0ffd0';
-        html += '<div class="shop-item owned '+(ac?'active-item':'')+'" data-bubble="'+sb.id+'" style="grid-column:1/-1;border:2px solid '+col+'"><div class="shop-item-preview bubble-preview" style="background:'+bg+';background-size:300% 100%;color:'+col+';font-weight:700">Привет! ✨</div><div class="shop-item-name" style="color:'+col+'">'+sb.name+'</div><div class="shop-item-price bought">'+(ac?'✅ Используется':'✔️ Клик = применить')+'</div></div>';
-    });
-    g.innerHTML = html;
 }
 function renderShopSpecial(){
     const g=$('shopSpecialGrid');if(!g) return;
@@ -618,13 +582,6 @@ function renderThemes(){
         html += '<div class="theme-item '+(active?'active':'')+'" data-theme="custom" style="background-image:url('+userInventory.sidebarCustomImg+')"><div class="theme-name">📷 Моя</div></div>';
     }
     g.innerHTML = html;
-}
-function renderSGBackgrounds(){
-    const g = $('sgBgGrid'); if(!g) return;
-    const owned = userInventory.ownedSpacegods || [];
-    g.innerHTML = SG_BACKGROUNDS.filter(b=>owned.indexOf(b.sgId)>=0).map(b=>{
-        return '<div class="theme-item" data-sgbg="'+b.sgId+'" style="background:'+b.style+';background-size:300% 300%"><div class="theme-name">'+b.name+'</div></div>';
-    }).join('');
 }
 
 function buyOrSelectAvatar(id){
@@ -654,15 +611,6 @@ function buyOrSelectAvatar(id){
     }
 }
 function buyOrSelectBubble(id){
-    const sb = SG_BUBBLES.find(x=>x.id === id);
-    if(sb){
-        if((userInventory.ownedSpacegods||[]).indexOf(sb.sgId)<0){ showToast('❌ Сначала купи SpaceGod'); return; }
-        userInventory.activeBubble = id;
-        saveInventory();renderShopBubbles();debouncedRenderChats();
-        if(currentChat){ const msgs = messageCache[currentChat]; if(msgs) renderMessages(msgs, currentChat); }
-        showToast('✅');
-        return;
-    }
     const it=SHOP_BUBBLES.find(b=>b.id===id);if(!it)return;
     if(userInventory.bubbles.indexOf(id)<0) userInventory.bubbles.push(id);
     userInventory.activeBubble=id;
@@ -674,21 +622,9 @@ function buySpecial(id){
     const it=SHOP_SPECIAL.find(s=>s.id===id);if(!it)return;
     const owned = userInventory.ownedSpacegods || [];
     const isOwned = owned.indexOf(id)>=0;
-
-    if(isOwned){
-        userInventory.spacegodType = id;
-        userInventory.spacegod = true;
-        userInventory.spacegodDisabled = false;
-        saveInventory();
-        db.ref('users/'+currentUser.id+'/spacegodType').set(id);
-        db.ref('users/'+currentUser.id+'/spacegodDisabled').set(false);
-        updateSpaceGodUI();applySpaceGodToUI();applySidebarTheme();
-        renderShopSpecial();renderShopBubbles();debouncedRenderChats();
-        if(currentChat){ const msgs = messageCache[currentChat]; if(msgs) renderMessages(msgs, currentChat); }
-        showToast(it.emoji+' '+it.name);
-        return;
+    if(!isOwned){
+        userInventory.ownedSpacegods = owned.concat([id]);
     }
-    userInventory.ownedSpacegods = owned.concat([id]);
     userInventory.spacegodType = id;
     userInventory.spacegod = true;
     userInventory.spacegodDisabled = false;
@@ -697,7 +633,8 @@ function buySpecial(id){
     saveInventory();
     updateSpaceGodUI();applySpaceGodToUI();
     applySidebarTheme();
-    renderShopSpecial();renderShopBubbles();debouncedRenderChats();
+    renderShopSpecial();debouncedRenderChats();
+    if(currentChat){ const msgs = messageCache[currentChat]; if(msgs) renderMessages(msgs, currentChat); }
     showToast(it.emoji+' '+it.name+'!');
 }
 
@@ -747,37 +684,8 @@ function startMatrixRain(){
     matrixInterval = setInterval(draw, 55);
 }
 function stopMatrixRain(){ const canvas = $('matrixCanvas'); if(canvas) canvas.classList.remove('show'); if(matrixInterval){ clearInterval(matrixInterval); matrixInterval = null; } }
-function startProfileMatrix(){
-    const canvas = $('profileMatrixCanvas'); if(!canvas) return;
-    const parent = canvas.parentElement; const w = parent.offsetWidth || 400; const h = parent.offsetHeight || 500;
-    canvas.width = w; canvas.height = h;
-    const ctx = canvas.getContext('2d'); const fontSize = 12; const columns = Math.floor(w / fontSize);
-    const drops = Array(columns).fill(1);
-    function draw(){
-        ctx.fillStyle = 'rgba(0,0,0,0.15)'; ctx.fillRect(0,0,w,h);
-        ctx.fillStyle = '#00ff41'; ctx.font = fontSize + 'px monospace';
-        for(var i=0;i<drops.length;i++){
-            ctx.fillText(Math.random()>0.5?'0':'1', i*fontSize, drops[i]*fontSize);
-            if(drops[i]*fontSize > h && Math.random() > 0.95){ drops[i] = 0; }
-            drops[i]++;
-        }
-    }
-    draw(); if(profileMatrixInterval) clearInterval(profileMatrixInterval);
-    profileMatrixInterval = setInterval(draw, 60);
-}
-function stopProfileMatrix(){ if(profileMatrixInterval){ clearInterval(profileMatrixInterval); profileMatrixInterval = null; } const canvas = $('profileMatrixCanvas'); if(canvas){ const ctx = canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height); } }
 function uploadSidebarTheme(file){if(!userInventory.spacegod) return;fileToBase64(file).then(function(b64){userInventory.sidebarCustomImg = b64;userInventory.sidebarTheme = 'custom';saveInventory();applySidebarTheme();renderThemes();showToast('✅');});}
 function resetSidebarTheme(){userInventory.sidebarTheme = 'none';saveInventory();applySidebarTheme();renderThemes();showToast('✅');}
-function uploadChatBg(file){
-    if(!currentChat) return;
-    if(!userInventory.spacegod){showToast('❌ Только для SPACEGOD');return;}
-    fileToBase64(file).then(function(b64){
-        db.ref('wallpapers/'+currentUser.id+'/'+currentChat).set('url('+b64+')');
-        applyChatWallpaper(currentChat);
-        showToast('✅');
-        closeModal('backgroundModal');
-    });
-}
 function applySpaceGodToUI(){
     const header = $('mainHeader'); if(!header) return;
     ['sg-spacegod','sg-spacecosmos','sg-spacemint','sg-hacker'].forEach(c=>header.classList.remove(c));
@@ -803,6 +711,7 @@ function updateSpaceGodUI(){
 }
 function saveInventory(){if(!currentUser)return;userInventory.balance = Number(userInventory.balance) || 0;db.ref('inventory/'+currentUser.id).set(userInventory).catch(function(){});}
 
+// ═══════════ ОТПРАВКА СООБЩЕНИЯ ═══════════
 function sendMessage(){
     if(isSendingMessage) return;
     const input=$('messageInput');
@@ -813,8 +722,8 @@ function sendMessage(){
     if(chat && chat.type === 'private'){
         var otherId = Object.keys(chat.participants||{}).find(function(id){return id!==currentUser.id;});
         if(otherId){
-            if(isBlocked(otherId)){ showToast('❌'); return; }
-            if(amIBlockedBy(otherId)){ showToast('❌'); return; }
+            if(isBlocked(otherId)){ showToast('❌ Вы заблокировали этого пользователя'); return; }
+            if(amIBlockedBy(otherId)){ showToast('❌ Вы заблокированы'); return; }
         }
     }
     if(editingMessageId){
@@ -836,22 +745,12 @@ function sendMessage(){
     }
     isSendingMessage = true;
     var sendBtn2 = $('sendBtn'); if(sendBtn2) sendBtn2.disabled = true;
-    var tempId = 'temp_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
     var msg = { senderId: currentUser.id, senderName: currentUser.name, timestamp: Date.now() };
     if(text) msg.text = text;
     if(pendingMedia){ msg.mediaType = pendingMedia.type; msg.mediaUrl = pendingMedia.url; pendingMedia = null; }
-    var container = $('messagesContainer');
-    var emptyState = container.querySelector('.empty-state');
-    if(emptyState) emptyState.remove();
-    var tempEl = buildMessageEl(Object.assign({},msg,{id:tempId}));
-    tempEl.dataset.temp = '1';
-    container.appendChild(tempEl);
-    renderedMessages.add(tempId);
-    requestAnimationFrame(function(){ container.scrollTop = container.scrollHeight; });
     if(input) input.value = '';
     var ref = db.ref('messages/'+currentChat).push();
     ref.set(msg).then(function(){
-        setTimeout(function(){ var t = document.getElementById('msg_'+tempId); if(t) t.remove(); renderedMessages.delete(tempId); }, 200);
         var cd = state.userChats[currentChat];
         var parts = (cd && cd.participants) || {};
         var lt = text||(msg.mediaType==='photo'?'📷':msg.mediaType==='video'?'🎥':msg.mediaType==='audio'?'🎤':'Медиа');
@@ -861,11 +760,12 @@ function sendMessage(){
             up2['userChats/'+uid+'/'+currentChat+'/lastMessage'] = lt;
             up2['userChats/'+uid+'/'+currentChat+'/lastMessageTime'] = msg.timestamp;
         });
+        // Также обновим у себя
+        up2['userChats/'+currentUser.id+'/'+currentChat+'/lastMessage'] = lt;
+        up2['userChats/'+currentUser.id+'/'+currentChat+'/lastMessageTime'] = msg.timestamp;
         db.ref().update(up2);
-    }).catch(function(){
-        showToast('❌');
-        var t = document.getElementById('msg_'+tempId); if(t) t.remove();
-        renderedMessages.delete(tempId);
+    }).catch(function(err){
+        showToast('❌ ' + (err.message||'Ошибка'));
         if(input) input.value = text;
     }).then(function(){
         isSendingMessage = false;
@@ -909,7 +809,6 @@ function startRecording(){
         }, 200);
     }).catch(function(e){
         if(e.name === 'NotAllowedError') showToast('❌ Разреши микрофон');
-        else if(e.name === 'NotFoundError') showToast('❌ Микрофон не найден');
         else showToast('❌ ' + e.message);
     });
 }
@@ -964,7 +863,7 @@ function showStickerModal(){openModal('stickerModal');}
 function renderStickers(){var c=$('stickerPack');if(!c)return;c.innerHTML=stickers.map(function(s){return '<div class="sticker" data-sticker="'+s+'" style="cursor:pointer">'+s+'</div>';}).join('');}
 
 function blockUser(uid){if(!uid || uid === currentUser.id) return;if(isBlocked(uid)){ showToast('Уже'); return; }if(!confirm('Заблокировать?')) return;blockedUsers[uid] = true;db.ref('users/'+currentUser.id+'/blockedUsers/'+uid).set(true);closeModal('profileModal');closeModal('usersModal');debouncedRenderChats();showToast('🚫');}
-function unblockUser(uid){if(!uid) return;if(!confirm('Разблокировать?')) return;delete blockedUsers[uid];db.ref('users/'+currentUser.id+'/blockedUsers/'+uid).remove();closeModal('profileModal');closeModal('blockedModal');debouncedRenderChats();showToast('✅');}
+function unblockUser(uid){if(!uid) return;if(!confirm('Разблокировать?')) return;delete blockedUsers[uid];db.ref('users/'+currentUser.id+'/blockedUsers/'+uid).remove();closeModal('profileModal');debouncedRenderChats();showToast('✅');}
 
 function showProfile(uid){
     var u=state.users[uid];if(!u)return;
@@ -981,11 +880,6 @@ function showProfile(uid){
     else { $('profileName').innerText = u.name||uid; }
     $('profileBio').innerText=u.bio||'Нет статуса';
     var os = getOnlineStatus(uid); $('profileOnline').innerText = os.text;
-    var modalContent = $('profileModalContent');
-    ['sg-spacegod','sg-spacecosmos','sg-spacemint','sg-hacker'].forEach(function(c){modalContent.classList.remove(c);});
-    if(t) modalContent.classList.add('sg-' + t);
-    stopProfileMatrix();
-    if(t === 'hacker'){ setTimeout(function(){startProfileMatrix();}, 250); }
     var editBtn = $('editProfileBtn'); var blockBtn = $('blockUserBtn'); var unblockBtn = $('unblockUserBtn'); var shopBtn = $('shopBtn');
     var isMe = uid === currentUser.id;
     if(editBtn) editBtn.style.display = isMe ? 'block' : 'none';
@@ -1035,14 +929,30 @@ function markChatAsRead(chatId){
     db.ref('readBy/'+chatId+'/'+currentUser.id).set(Date.now()).catch(function(){});
 }
 
+// ═══════════ ОТКРЫТИЕ ЧАТА (главная функция) ═══════════
 function openChat(chatId){
+    // отписываемся от предыдущего чата
     if(messagesListener && currentChat){ db.ref('messages/'+currentChat).off('value', messagesListener); messagesListener = null; }
     if(readByListener && currentChat){ db.ref('readBy/'+currentChat).off('value', readByListener); readByListener = null; }
+
     exitEditMode();
     lastRenderChatId = null; renderedMessages.clear();
     currentChat = chatId;
-    var chat=state.userChats[chatId];
-    if(!chat)return;
+
+    var chat = state.userChats[chatId];
+    if(!chat){
+        // подгружаем из базы на случай, если чат создан другим пользователем
+        db.ref('userChats/'+currentUser.id+'/'+chatId).once('value').then(function(snap){
+            if(snap.exists()){
+                state.userChats[chatId] = snap.val();
+                openChat(chatId);
+            } else {
+                showToast('❌ Чат не найден');
+            }
+        });
+        return;
+    }
+
     $('mainArea').classList.add('active');
     var chatName=chat.name||'Чат',otherId=null;
     if(chat.type==='private'){
@@ -1062,10 +972,13 @@ function openChat(chatId){
         $('chatAvatar').style.backgroundImage=''; $('chatAvatar').innerText = chat.type==='notes' ? '⭐' : '👥';
         $('chatName').innerText = chatName;
     }
+
     if(messageCache[chatId]) renderMessages(messageCache[chatId], chatId);
-    else $('messagesContainer').innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i></div>';
+    else $('messagesContainer').innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Загрузка…</p></div>';
+
     applyChatWallpaper(chatId);
 
+    // слушатель "прочитано"
     readByListener = db.ref('readBy/'+chatId).on('value', function(snap){
         chatReadBy[chatId] = snap.val() || {};
         var msgs = messageCache[chatId] || {};
@@ -1080,14 +993,14 @@ function openChat(chatId){
         });
     });
 
+    // слушатель сообщений
     messagesListener = db.ref('messages/'+chatId).orderByChild('timestamp').limitToLast(MSG_LIMIT).on('value', function(snap){
         var msgs=snap.val()||{};
-        var hadCache = !!messageCache[chatId];
         messageCache[chatId]=msgs;
-        if(!hadCache || lastRenderChatId !== chatId) renderMessages(msgs, chatId);
-        else appendNewMessages(msgs, chatId);
+        renderMessages(msgs, chatId);
         markChatAsRead(chatId);
     });
+
     db.ref('hidden/'+currentUser.id+'/'+chatId).once('value').then(function(s){ hiddenMessages[chatId] = s.val() || {}; }).catch(function(){ hiddenMessages[chatId] = {}; });
     if(chat.unreadCount){ db.ref('userChats/'+currentUser.id+'/'+chatId+'/unreadCount').set(0); }
     markChatAsRead(chatId);
@@ -1100,7 +1013,6 @@ function applyChatWallpaper(chatId){
         el.style.backgroundImage=''; el.style.background='#f8fafd';
         if(bg){
             if(bg.indexOf('url(')===0){ el.style.background='transparent'; el.style.backgroundImage=bg; el.style.backgroundSize='cover'; el.style.backgroundPosition='center'; }
-            else if(bg.indexOf('sg-anim:')===0){ var sgId = bg.replace('sg-anim:',''); var sgBg = SG_BACKGROUNDS.find(function(x){return x.sgId===sgId;}); if(sgBg){ el.style.backgroundImage=sgBg.style; el.style.backgroundSize='300% 300%'; } }
             else if(bg.indexOf('linear-gradient')===0){ el.style.backgroundImage = bg; }
             else { el.style.background = bg; }
         }
@@ -1117,7 +1029,7 @@ function buildMessageEl(m){
     else if(m.mediaType==='video'&&m.mediaUrl)media='<video src="'+m.mediaUrl+'" controls preload="metadata" data-vid="'+m.mediaUrl+'"></video>';
     else if(m.mediaType==='audio'&&m.mediaUrl)media='<audio controls src="'+m.mediaUrl+'" preload="metadata"></audio>';
     var sender=state.users[m.senderId];
-    var senderName=(sender&&sender.name)||m.senderId;
+    var senderName=(sender&&sender.name)||m.senderName||m.senderId;
     var isSent=m.senderId===currentUser.id;
     var t = getSpacegodType(m.senderId);
     var div=document.createElement('div');
@@ -1126,18 +1038,16 @@ function buildMessageEl(m){
     div.dataset.msgid=m.id;
     var bubbleClass='';
     var activeBubble = userInventory.activeBubble;
-    if(isSent && t && activeBubble === 'bubble-'+t){ bubbleClass = 'bubble-'+t; }
-    else if(isSent && t && (!activeBubble || activeBubble === 'none')){ bubbleClass = 'bubble-'+t; }
-    else if(isSent && activeBubble && activeBubble !== 'none'){ var b = SHOP_BUBBLES.find(function(x){return x.id===activeBubble;}); if(b) bubbleClass = b.cssClass; }
+    if(isSent && activeBubble && activeBubble !== 'none'){ var b = SHOP_BUBBLES.find(function(x){return x.id===activeBubble;}); if(b) bubbleClass = b.cssClass; }
     var editedMark = m.edited ? ' <span class="edited-mark">(ред.)</span>' : '';
-    var forwardedMark = m.forwarded ? '<div style="font-size:10px;opacity:.7;font-style:italic;margin-bottom:2px">📤 '+(esc(m.originalSender||'?'))+'</div>' : '';
     var cls = t==='spacecosmos'?'rainbow-cosmos':t==='spacemint'?'rainbow-mint':t==='hacker'?'rainbow-hacker':'rainbow-name';
     var senderHtml = t ? '<span class="crown-icon">👑</span><b class="'+cls+'">'+esc(senderName)+'</b>' : '<b>'+esc(senderName)+'</b>';
     var readHtml = isSent ? getReadStatusHtml(m.id, m.senderId) : '';
-    div.innerHTML='<div class="message-bubble '+bubbleClass+'">'+forwardedMark+(!isSent?senderHtml+' ':'')+(m.text?esc(m.text):'')+media+'<div class="message-time">'+formatTime(m.timestamp)+editedMark+(readHtml ? ' ' + readHtml : '')+'</div></div>';
+    div.innerHTML='<div class="message-bubble '+bubbleClass+'">'+(!isSent?senderHtml+' ':'')+(m.text?esc(m.text):'')+media+'<div class="message-time">'+formatTime(m.timestamp)+editedMark+(readHtml ? ' ' + readHtml : '')+'</div></div>';
     return div;
 }
 function renderMessages(msgs,chatId){
+    if(chatId !== currentChat) return;
     var container=$('messagesContainer');
     var hidden = hiddenMessages[chatId] || {};
     var arr=Object.keys(msgs).map(function(id){return Object.assign({id:id},msgs[id]);}).filter(function(m){return !hidden[m.id];}).sort(function(a,b){return (a.timestamp||0)-(b.timestamp||0);});
@@ -1146,24 +1056,12 @@ function renderMessages(msgs,chatId){
     renderedMessages.clear();
     limited.forEach(function(m){ renderedMessages.add(m.id); fragment.appendChild(buildMessageEl(m)); });
     container.innerHTML='';
-    container.appendChild(fragment);
+    if(limited.length === 0){
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-comments"></i><p>Нет сообщений. Напишите первым!</p></div>';
+    } else {
+        container.appendChild(fragment);
+    }
     lastRenderChatId = chatId;
-    requestAnimationFrame(function(){ container.scrollTop = container.scrollHeight; });
-}
-function appendNewMessages(msgs,chatId){
-    if(lastRenderChatId !== chatId){ renderMessages(msgs,chatId); return; }
-    var container=$('messagesContainer');
-    var hidden = hiddenMessages[chatId] || {};
-    var arr=Object.keys(msgs).map(function(id){return Object.assign({id:id},msgs[id]);}).filter(function(m){return !hidden[m.id];}).sort(function(a,b){return (a.timestamp||0)-(b.timestamp||0);});
-    var currentIds = new Set(arr.map(function(m){return m.id;}));
-    renderedMessages.forEach(function(id){
-        if(!currentIds.has(id)){ var el = document.getElementById('msg_'+id); if(el){ el.remove(); } renderedMessages.delete(id); }
-    });
-    var newOnes = arr.filter(function(m){ return !renderedMessages.has(m.id); });
-    if(newOnes.length === 0) return;
-    var fragment = document.createDocumentFragment();
-    newOnes.forEach(function(m){ renderedMessages.add(m.id); fragment.appendChild(buildMessageEl(m)); });
-    container.appendChild(fragment);
     requestAnimationFrame(function(){ container.scrollTop = container.scrollHeight; });
 }
 
@@ -1208,68 +1106,39 @@ function bindNotifSettings(){
     if(ss){ ss.checked = soundEnabled; ss.onchange = function(){ soundEnabled = ss.checked; localStorage.setItem('sound_enabled', soundEnabled ? 'true' : 'false'); }; }
     if(vs){ vs.checked = vibroEnabled; vs.onchange = function(){ vibroEnabled = vs.checked; localStorage.setItem('vibro_enabled', vibroEnabled ? 'true' : 'false'); }; }
 }
-var _notifAudioCtx = null;
-function getAudioCtx(){
-    if(_notifAudioCtx && _notifAudioCtx.state !== 'closed') return _notifAudioCtx;
-    var Ctx = window.AudioContext || window.webkitAudioContext;
-    if(!Ctx) return null;
-    _notifAudioCtx = new Ctx();
-    return _notifAudioCtx;
-}
 function playNotifSound(){
     if(!soundEnabled) return;
     try{
-        var ctx = getAudioCtx();
-        if(!ctx) return;
-        if(ctx.state === 'suspended'){ try{ ctx.resume(); }catch(e){} }
+        var Ctx = window.AudioContext || window.webkitAudioContext;
+        if(!Ctx) return;
+        var ctx = new Ctx();
         var now = ctx.currentTime;
-        var masterGain = ctx.createGain();
-        masterGain.gain.setValueAtTime(0.7, now);
-        masterGain.connect(ctx.destination);
-        var notes = [
-            {f:783.99, t:0.00, d:0.55, v:0.55},
-            {f:987.77, t:0.15, d:0.55, v:0.50},
-            {f:1318.51,t:0.30, d:0.85, v:0.45}
-        ];
-        notes.forEach(function(n){
-            var osc1 = ctx.createOscillator(); var g1 = ctx.createGain();
-            osc1.type = 'triangle';
-            osc1.frequency.setValueAtTime(n.f, now + n.t);
-            g1.gain.setValueAtTime(0, now + n.t);
-            g1.gain.linearRampToValueAtTime(n.v, now + n.t + 0.02);
-            g1.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.d);
-            osc1.connect(g1); g1.connect(masterGain);
-            osc1.start(now + n.t); osc1.stop(now + n.t + n.d + 0.05);
-            var osc2 = ctx.createOscillator(); var g2 = ctx.createGain();
-            osc2.type = 'sine';
-            osc2.frequency.setValueAtTime(n.f * 2, now + n.t);
-            g2.gain.setValueAtTime(0, now + n.t);
-            g2.gain.linearRampToValueAtTime(n.v * 0.25, now + n.t + 0.01);
-            g2.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.d * 0.7);
-            osc2.connect(g2); g2.connect(masterGain);
-            osc2.start(now + n.t); osc2.stop(now + n.t + n.d);
-        });
+        var osc = ctx.createOscillator(); var g = ctx.createGain();
+        osc.type='triangle'; osc.frequency.setValueAtTime(880, now);
+        g.gain.setValueAtTime(0.5, now);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        osc.connect(g); g.connect(ctx.destination);
+        osc.start(now); osc.stop(now + 0.45);
     } catch(e){}
 }
 function showMessageNotification(data){
     if(!data || !currentUser) return;
     if(!notifEnabled) return;
-    vibrate([300, 100, 300, 100, 400]);
+    vibrate([200,100,200]);
     playNotifSound();
     if(document.hidden){
-        showSystemNotification((data.isSpaceGod ? '👑 ' : '') + (data.senderName || 'Сообщение'), data.text || '📎', data.senderAvatarUrl || null, 'chat-' + data.chatId);
+        showSystemNotification((data.senderName || 'Сообщение'), data.text || '📎', data.senderAvatarUrl || null, 'chat-' + data.chatId);
+        return;
     }
-    if(document.hidden) return;
     var container = $('notifContainer'); if(!container) return;
     var el = document.createElement('div');
-    var t = data.senderId ? getSpacegodType(data.senderId) : null;
-    el.className = 'notif' + (t?' '+t:'');
+    el.className = 'notif';
     el.dataset.chatId = data.chatId;
     var avStyle = '', avContent = '';
     if(data.senderAvatarUrl){ avStyle = 'background-image:url('+data.senderAvatarUrl+');background-size:cover'; }
     else avContent = esc(data.senderAvatar || (data.senderName&&data.senderName[0] ? data.senderName[0].toUpperCase() : '?'));
     var timeStr = new Date(data.ts || Date.now()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-    el.innerHTML = '<div class="notif-avatar" style="'+avStyle+'">'+avContent+'</div><div class="notif-content"><div class="notif-name">'+(t ? '👑 ' : '')+esc(data.senderName)+'</div><div class="notif-text">'+esc(data.text || '📎')+'</div><div class="notif-time">'+timeStr+'</div></div><button class="notif-close" type="button">✕</button>';
+    el.innerHTML = '<div class="notif-avatar" style="'+avStyle+'">'+avContent+'</div><div class="notif-content"><div class="notif-name">'+esc(data.senderName)+'</div><div class="notif-text">'+esc(data.text || '📎')+'</div><div class="notif-time">'+timeStr+'</div></div><button class="notif-close" type="button">✕</button>';
     el.addEventListener('click', function(e){
         if(e.target.closest('.notif-close')){ closeNotif(el); return; }
         document.querySelectorAll('.modal.show').forEach(function(m){ m.classList.remove('show'); m.style.display='none'; });
@@ -1310,13 +1179,10 @@ function watchChatForNewMessages(chatId){
         if(isBlocked(msg.senderId)) return;
         if(amIBlockedBy(msg.senderId)) return;
         var sender = state.users[msg.senderId] || {};
-        var isSG = !!sender.spacegodType && !sender.spacegodDisabled;
         var text = msg.text || '';
         if(!text){ if(msg.mediaType === 'photo') text = '📷'; else if(msg.mediaType === 'video') text = '🎥'; else if(msg.mediaType === 'audio') text = '🎤'; else text = 'Сообщение'; }
         if(text.length > 60) text = text.slice(0, 57) + '...';
-        var chat = state.userChats[chatId] || {};
-        var count = chat.unreadCount || 0;
-        showMessageNotification({ chatId: chatId, senderId: msg.senderId, senderName: sender.name || msg.senderName || msg.senderId, senderAvatar: sender.avatar, senderAvatarUrl: sender.avatarUrl, text: text, isSpaceGod: isSG, count: count, ts: msg.timestamp });
+        showMessageNotification({ chatId: chatId, senderId: msg.senderId, senderName: sender.name || msg.senderName || msg.senderId, senderAvatar: sender.avatar, senderAvatarUrl: sender.avatarUrl, text: text, ts: msg.timestamp });
     });
 }
 setTimeout(function(){ watcherBootTime = Date.now(); }, 2000);
@@ -1334,7 +1200,7 @@ function getOnlineStatus(uid){
 }
 
 var _renderChatsTimer = null;
-function debouncedRenderChats(){ if(_renderChatsTimer) return; _renderChatsTimer = setTimeout(function(){ _renderChatsTimer = null; renderChats(); }, 200); }
+function debouncedRenderChats(){ if(_renderChatsTimer) return; _renderChatsTimer = setTimeout(function(){ _renderChatsTimer = null; renderChats(); }, 150); }
 
 function renderChats(){
     var list=$('chatsList'); if(!list) return;
@@ -1346,7 +1212,6 @@ function renderChats(){
             var o=Object.keys(c.participants||{}).find(function(id){return id!==currentUser.id;});
             if(!o||!state.users[o])return false;
             if(isBlocked(o)) return false;
-            if(amIBlockedBy(o)) return false;
             return!st||((state.users[o]&&state.users[o].name||'').toLowerCase().indexOf(st)>=0);
         }
         return!st||((c.name||'').toLowerCase().indexOf(st)>=0);
@@ -1388,16 +1253,14 @@ function ensureNotesChat(){
 
 function loadData(){
     startNotificationWatcher();
-    db.ref('users').on('value',function(s){state.users=s.val()||{};debouncedRenderChats();updateUserCount();});
+    db.ref('users').on('value',function(s){state.users=s.val()||{};debouncedRenderChats();});
     db.ref('userChats/'+currentUser.id).on('value',function(s){state.userChats=s.val()||{};debouncedRenderChats();});
-    db.ref('forceLogout/'+currentUser.id).on('value',function(s){if(s.exists()){showToast('⚠️');logout();}});
     db.ref('inventory/'+currentUser.id).on('value',function(s){
         var v = s.val();
         if(v){
             userInventory = Object.assign({}, userInventory, v);
             userInventory.balance = Number(userInventory.balance) || 0;
             if(!userInventory.ownedSpacegods) userInventory.ownedSpacegods = [];
-            if(userInventory.spacegodType && userInventory.ownedSpacegods.indexOf(userInventory.spacegodType)<0) userInventory.ownedSpacegods.push(userInventory.spacegodType);
             updateSpaceGodUI(); applySidebarTheme();
         }
     });
@@ -1406,45 +1269,77 @@ function loadData(){
         debouncedRenderChats();
     });
 }
-function updateUserCount(){var cnt=Object.keys(state.users||{}).length;if($('userCount'))$('userCount').innerText=cnt+'/'+MAX;}
 
 function showAllUsers(){
     var g=$('usersGrid');
-    var others=Object.keys(state.users).filter(function(id){ if(id === currentUser.id) return false; if(isBlocked(id)) return false; if(amIBlockedBy(id)) return false; return true; }).map(function(id){return [id, state.users[id]];});
-    g.innerHTML=others.map(function(pair){
-        var id=pair[0],u=pair[1];
-        var avatarStyle='',avatarContent='';
-        if(u.avatarUrl){ avatarStyle='background-image:url('+u.avatarUrl+');background-size:cover;background-position:center'; }
-        else avatarContent=esc(u.avatar||(id[0]?id[0].toUpperCase():'?'));
-        var t = getSpacegodType(id);
-        var avatarCls = 'user-card-avatar' + (t?' '+t:'');
-        var cls = t==='spacecosmos'?'rainbow-cosmos':t==='spacemint'?'rainbow-mint':t==='hacker'?'rainbow-hacker':'rainbow-name';
-        var nameHtml = t ? '<span class="crown-icon">👑</span><span class="'+cls+'">'+esc(u.name||id)+'</span>' : '<b>'+esc(u.name||id)+'</b>';
-        return '<div class="user-card" data-id="'+id+'"><div class="'+avatarCls+'" style="'+avatarStyle+'">'+avatarContent+'</div>'+nameHtml+'</div>';
-    }).join('');
+    var others=Object.keys(state.users).filter(function(id){ if(id === currentUser.id) return false; if(isBlocked(id)) return false; return true; }).map(function(id){return [id, state.users[id]];});
+    if(others.length === 0){
+        g.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#8e98a3;padding:20px">Пока нет других пользователей</p>';
+    } else {
+        g.innerHTML=others.map(function(pair){
+            var id=pair[0],u=pair[1];
+            var avatarStyle='',avatarContent='';
+            if(u.avatarUrl){ avatarStyle='background-image:url('+u.avatarUrl+');background-size:cover;background-position:center'; }
+            else avatarContent=esc(u.avatar||(id[0]?id[0].toUpperCase():'?'));
+            var t = getSpacegodType(id);
+            var avatarCls = 'user-card-avatar' + (t?' '+t:'');
+            var cls = t==='spacecosmos'?'rainbow-cosmos':t==='spacemint'?'rainbow-mint':t==='hacker'?'rainbow-hacker':'rainbow-name';
+            var nameHtml = t ? '<span class="crown-icon">👑</span><span class="'+cls+'">'+esc(u.name||id)+'</span>' : '<b>'+esc(u.name||id)+'</b>';
+            return '<div class="user-card" data-id="'+id+'"><div class="'+avatarCls+'" style="'+avatarStyle+'">'+avatarContent+'</div>'+nameHtml+'</div>';
+        }).join('');
+    }
     openModal('usersModal');
 }
 
+// ═══════════ ГЛАВНОЕ: START CHAT ═══════════
 function startChat(userId){
-    if(isBlocked(userId) || amIBlockedBy(userId)){ showToast('❌'); return; }
-    var chatId=[currentUser.id,userId].sort().join('_');
+    if(!userId || userId === currentUser.id){ showToast('❌ Нельзя открыть чат с собой'); return; }
+    if(isBlocked(userId)){ showToast('❌ Вы заблокировали этого пользователя'); return; }
+    if(amIBlockedBy(userId)){ showToast('❌ Вы заблокированы'); return; }
+    if(!state.users[userId]){ showToast('❌ Пользователь не найден'); return; }
+
+    var chatId = [currentUser.id, userId].sort().join('_');
+    var ou = state.users[userId];
+
+    // 1. СРАЗУ кладём чат в локальный стейт (синхронно!) — чтобы openChat его нашёл
+    if(!state.userChats[chatId]){
+        state.userChats[chatId] = {
+            id: chatId,
+            type: 'private',
+            name: (ou && ou.name) || userId,
+            lastMessage: '',
+            lastMessageTime: Date.now(),
+            participants: {}
+        };
+        state.userChats[chatId].participants[currentUser.id] = true;
+        state.userChats[chatId].participants[userId] = true;
+    }
+
+    // 2. Закрываем модалку и открываем чат
+    closeModal('usersModal');
+    openChat(chatId);
+
+    // 3. В фоне пишем в базу, чтобы второй участник увидел чат
     db.ref('chats/'+chatId).once('value').then(function(snap){
         if(!snap.exists()){
-            var ou=state.users[userId];
             var updates = {};
-            updates['chats/'+chatId] = {id:chatId,type:'private'};
+            updates['chats/'+chatId+'/type'] = 'private';
             updates['chats/'+chatId+'/participants/'+currentUser.id] = true;
             updates['chats/'+chatId+'/participants/'+userId] = true;
-            updates['userChats/'+currentUser.id+'/'+chatId] = {id:chatId,type:'private',name:(ou&&ou.name)||userId};
+            updates['userChats/'+currentUser.id+'/'+chatId+'/id'] = chatId;
+            updates['userChats/'+currentUser.id+'/'+chatId+'/type'] = 'private';
+            updates['userChats/'+currentUser.id+'/'+chatId+'/name'] = (ou && ou.name) || userId;
+            updates['userChats/'+currentUser.id+'/'+chatId+'/lastMessageTime'] = Date.now();
             updates['userChats/'+currentUser.id+'/'+chatId+'/participants/'+currentUser.id] = true;
             updates['userChats/'+currentUser.id+'/'+chatId+'/participants/'+userId] = true;
-            updates['userChats/'+userId+'/'+chatId] = {id:chatId,type:'private',name:currentUser.name};
+            updates['userChats/'+userId+'/'+chatId+'/id'] = chatId;
+            updates['userChats/'+userId+'/'+chatId+'/type'] = 'private';
+            updates['userChats/'+userId+'/'+chatId+'/name'] = currentUser.name;
+            updates['userChats/'+userId+'/'+chatId+'/lastMessageTime'] = Date.now();
             updates['userChats/'+userId+'/'+chatId+'/participants/'+currentUser.id] = true;
             updates['userChats/'+userId+'/'+chatId+'/participants/'+userId] = true;
-            db.ref().update(updates);
+            db.ref().update(updates).catch(function(err){ console.error('startChat error:', err); });
         }
-        closeModal('usersModal');
-        openChat(chatId);
     });
 }
 function goBack(){currentChat=null;$('mainArea').classList.remove('active');}
@@ -1455,15 +1350,12 @@ function logout(){if(confirm('Выйти?')){ if(currentUser){ db.ref('users/'+c
     var container = document.getElementById('messagesContainer');
     if(!container || container._lpBound) return;
     container._lpBound = true;
-
     var longPressTimer = null;
     var longPressFired = false;
     var touchStartX = 0, touchStartY = 0;
     var isScrolling = false;
     var activeMsgId = null;
-
     function clearLongPress(){ if(longPressTimer){ clearTimeout(longPressTimer); longPressTimer = null; } }
-
     container.addEventListener('touchstart', function(e){
         var t = e.touches[0];
         touchStartX = t.clientX; touchStartY = t.clientY;
@@ -1482,22 +1374,18 @@ function logout(){if(confirm('Выйти?')){ if(currentUser){ db.ref('users/'+c
             }, 500);
         }
     }, {passive: true});
-
     container.addEventListener('touchmove', function(e){
         var t = e.touches[0];
         var dx = Math.abs(t.clientX - touchStartX);
         var dy = Math.abs(t.clientY - touchStartY);
         if(dx > 10 || dy > 10){ isScrolling = true; clearLongPress(); }
     }, {passive: true});
-
     container.addEventListener('touchend', function(){
         clearLongPress();
         if(isScrolling){ isScrolling = false; return; }
         if(longPressFired){ longPressFired = false; return; }
     });
-
     container.addEventListener('touchcancel', clearLongPress);
-
     var mouseTimer = null;
     container.addEventListener('mousedown', function(e){
         if(e.target.closest('img,video,audio')) return;
@@ -1512,7 +1400,6 @@ function logout(){if(confirm('Выйти?')){ if(currentUser){ db.ref('users/'+c
     container.addEventListener('mouseup', function(){ if(mouseTimer){ clearTimeout(mouseTimer); mouseTimer = null; } });
 })();
 
-// ═══ ОБРАБОТЧИК МЕНЮ ДЕЙСТВИЙ ═══
 document.addEventListener('click', function(e){
     var actionItem = e.target.closest('.action-sheet-item');
     if(actionItem && actionItem.dataset.action){
@@ -1529,11 +1416,6 @@ document.addEventListener('click', function(e){
             editingMessageId = currentActionMessage;
             var bar = $('editBar'); if(bar) bar.classList.add('show');
             var inp = $('messageInput'); if(inp){ inp.value = m.text || ''; inp.focus(); }
-        } else if(action === 'pin'){
-            closeActionSheet();
-            var preview = (m.text || (m.mediaType === 'photo' ? '📷' : m.mediaType === 'video' ? '🎥' : '📎')).slice(0,80);
-            db.ref('pinned/'+currentChat).set({ msgId: currentActionMessage, text: preview, senderName: m.senderName || m.senderId, pinnedBy: currentUser.name, ts: Date.now() });
-            showToast('📌');
         } else if(action === 'delete'){
             closeActionSheet();
             if(!confirm('Удалить у всех?')) return;
@@ -1552,7 +1434,6 @@ document.addEventListener('click', function(e){
     if(e.target.id === 'actionBackdrop'){ closeActionSheet(); }
 });
 
-// ═══ ГЛАВНЫЙ ОБРАБОТЧИК КЛИКОВ ═══
 document.addEventListener('click', function(e){
     var t = e.target;
     var closest = function(s){ return t.closest(s); };
@@ -1566,12 +1447,7 @@ document.addEventListener('click', function(e){
     if(closest('#stickerBtn')){ e.preventDefault(); showStickerModal(); return; }
     if(closest('#settingsBtn')){ e.preventDefault(); openModal('settingsModal'); return; }
     if(closest('#settingsEditProfileBtn')){ e.preventDefault(); closeModal('settingsModal'); openEditProfile(); return; }
-    if(closest('#settingsBlockedBtn')){ e.preventDefault(); openModal('blockedModal'); return; }
-    if(closest('#settingsEnableNotifBtn')){
-        e.preventDefault();
-        requestPushPermission().then(function(ok){ if(ok) showToast('🔔'); });
-        return;
-    }
+    if(closest('#settingsEnableNotifBtn')){ e.preventDefault(); requestPushPermission().then(function(ok){ if(ok) showToast('🔔'); }); return; }
     if(closest('#logoutBtn')){ e.preventDefault(); logout(); return; }
 
     if(closest('#backBtn')){ e.preventDefault(); goBack(); return; }
@@ -1579,21 +1455,13 @@ document.addEventListener('click', function(e){
     if(closest('#clearChatBtn')){ e.preventDefault(); clearChat(); return; }
     if(closest('#bgBtn')){
         e.preventDefault();
-        if(currentChat){
-            var row=$('customBgRow'); if(row) row.style.display = userInventory.spacegod ? 'block' : 'none';
-            var sgSec = $('sgBgSection'); if(sgSec) sgSec.style.display = (userInventory.ownedSpacegods||[]).length ? 'block' : 'none';
-            renderSGBackgrounds();
-            openModal('backgroundModal');
-        }
+        if(currentChat){ openModal('backgroundModal'); }
         return;
     }
-    if(closest('#uploadChatBgBtn')){ e.preventDefault(); $('chatBgFile').click(); return; }
     if(closest('[data-bg]')){ var b=closest('[data-bg]'); if(currentChat) setChatWallpaper(currentChat, b.dataset.bg); closeModal('backgroundModal'); return; }
-    var sgbg = closest('[data-sgbg]');
-    if(sgbg){ e.preventDefault(); if(currentChat){ setChatWallpaper(currentChat, 'sg-anim:' + sgbg.dataset.sgbg); showToast('🌟'); closeModal('backgroundModal'); } return; }
 
     if(closest('#editProfileBtn')){ e.preventDefault(); openEditProfile(); return; }
-    if(closest('#shopBtn')){ e.preventDefault(); openShop(); return; }
+    if(closest('#shopBtn')){ e.preventDefault(); closeModal('profileModal'); renderShopAvatars();renderShopBubbles();renderShopSpecial();renderThemes();openModal('shopModal'); return; }
     if(closest('#openSettingsBtn')){ e.preventDefault(); closeModal('profileModal'); openModal('settingsModal'); return; }
     if(closest('#sgToggleBtn')){
         e.preventDefault();
@@ -1601,7 +1469,6 @@ document.addEventListener('click', function(e){
         saveInventory();
         db.ref('users/'+currentUser.id+'/spacegodDisabled').set(userInventory.spacegodDisabled);
         updateSpaceGodUI(); applySpaceGodToUI(); applySidebarTheme();
-        if(currentChat){ var msgs = messageCache[currentChat]; if(msgs) renderMessages(msgs, currentChat); }
         var btn = $('sgToggleBtn');
         if(userInventory.spacegodDisabled){ btn.innerText = '✅ Включить SpaceGod'; btn.classList.add('off'); }
         else { btn.innerText = '🔄 Отключить SpaceGod'; btn.classList.remove('off'); }
@@ -1698,7 +1565,6 @@ function loadInventoryAndStart(){
             userInventory = Object.assign({}, userInventory, invSnap.val());
             userInventory.balance = Number(userInventory.balance) || 5000;
             if(!userInventory.ownedSpacegods) userInventory.ownedSpacegods = [];
-            if(userInventory.spacegodType && userInventory.ownedSpacegods.indexOf(userInventory.spacegodType)<0) userInventory.ownedSpacegods.push(userInventory.spacegodType);
         } else {
             userInventory.balance = 5000;
             userInventory.ownedSpacegods = [];
@@ -1714,6 +1580,7 @@ function loadInventoryAndStart(){
 
 function startApp(){
     localStorage.setItem('dg_user', JSON.stringify(currentUser));
+    hideSplash();
     $('loginScreen').style.display = 'none';
     $('mainApp').style.display = 'block';
     var av = $('userAvatar');
@@ -1726,7 +1593,6 @@ function startApp(){
     applySidebarTheme();
     setTimeout(function(){
         if('Notification' in window && Notification.permission === 'default'){ $('notifPermBar').classList.add('show'); setTimeout(function(){$('notifPermBar').classList.remove('show');}, 15000); }
-        else if('Notification' in window && Notification.permission === 'granted'){ pushEnabled = true; }
     }, 2000);
     showToast('✅ Привет, '+currentUser.name+'!');
 }
@@ -1762,20 +1628,20 @@ document.addEventListener('DOMContentLoaded', function(){
             currentUser = JSON.parse(saved);
             if(!currentUser || !currentUser.id) throw new Error('bad');
             db.ref('users/'+currentUser.id).once('value').then(function(chk){
-                if(!chk.exists() || chk.val().blocked){ localStorage.removeItem('dg_user'); location.reload(); return; }
+                if(!chk.exists() || chk.val().blocked){ localStorage.removeItem('dg_user'); showLoginScreen(); return; }
                 currentUser.name = chk.val().name || currentUser.name;
                 currentUser.avatar = chk.val().avatar || currentUser.avatar;
                 currentUser.avatarUrl = chk.val().avatarUrl || null;
                 currentUser.bio = chk.val().bio || '';
                 return loadInventoryAndStart();
-            }).catch(function(){ localStorage.removeItem('dg_user'); location.reload(); });
+            }).catch(function(){ localStorage.removeItem('dg_user'); showLoginScreen(); });
             return;
         }catch(e){ localStorage.removeItem('dg_user'); }
     }
 
-    $('loginScreen').style.display = 'flex';
-    db.ref('users').on('value', function(s){ state.users = s.val() || {}; updateUserCount(); });
-    db.ref('settings/maxUsers').once('value').then(function(snap){ MAX = snap.val() || 50; updateUserCount(); }).catch(function(){ MAX = 50; });
+    showLoginScreen();
+    db.ref('users').on('value', function(s){ state.users = s.val() || {}; var cnt=Object.keys(state.users||{}).length; if($('userCount'))$('userCount').innerText=cnt+'/'+MAX; });
+    db.ref('settings/maxUsers').once('value').then(function(snap){ MAX = snap.val() || 50; }).catch(function(){ MAX = 50; });
 });
 
 document.getElementById('photoInput').addEventListener('change', function(e){
@@ -1796,7 +1662,6 @@ document.getElementById('videoInput').addEventListener('change', function(e){
 });
 document.getElementById('chatSearch').addEventListener('input', function(){ debouncedRenderChats(); });
 document.getElementById('sidebarThemeFile').addEventListener('change', function(e){ if(e.target.files[0]){ uploadSidebarTheme(e.target.files[0]); e.target.value=''; } });
-document.getElementById('chatBgFile').addEventListener('change', function(e){ if(e.target.files[0]){ uploadChatBg(e.target.files[0]); e.target.value=''; } });
 </script>
 </body>
 </html>
