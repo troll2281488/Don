@@ -18,7 +18,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-/* ⚡ АНТИ-МИГАНИЕ */
 html:not([data-mode]) body{visibility:hidden}
 html[data-mode="app"] #loginScreen{display:none !important}
 html[data-mode="login"] #mainApp{display:none !important}
@@ -159,15 +158,14 @@ body{background:#1a1a2e;height:100vh;display:flex;align-items:center;justify-con
 .message-bubble{max-width:75%;padding:10px 14px;border-radius:18px;font-size:14px;line-height:1.4;word-break:break-word;position:relative}
 .message-received .message-bubble{background:#fff;border-bottom-left-radius:5px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
 .message-sent .message-bubble{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-bottom-right-radius:5px}
-
 .message-bubble img,.message-bubble video{cursor:pointer;pointer-events:auto!important;transition:transform .15s}
 .message-bubble img:hover,.message-bubble video:hover{transform:scale(1.02)}
 .message-bubble audio{pointer-events:auto!important;cursor:default;width:100%;max-width:240px;height:38px;margin-top:4px}
 
-.bubble-spacegod{background:linear-gradient(90deg,#ff0000,#ff9500,#ffd700,#34c759,#00c8ff,#667eea,#c44569,#ff0000)!important;background-size:300% 100%!important;animation:bubbleShimmer 3s linear infinite!important;color:#fff!important;font-weight:700!important;box-shadow:0 0 12px rgba(255,200,0,.9),0 0 24px rgba(255,0,180,.6),0 0 36px rgba(0,200,255,.5)!important;border:1.5px solid rgba(255,220,100,.9)!important}
-.bubble-spacecosmos{background:linear-gradient(90deg,#050014,#2a0055,#1a0050,#0a1a6a,#2a0055,#050014)!important;background-size:300% 100%!important;animation:bubbleShimmer 4s linear infinite!important;color:#d8b8ff!important;font-weight:700!important;border:1.5px solid rgba(150,80,255,.9)!important;box-shadow:0 0 14px rgba(120,60,255,.9),0 0 28px rgba(80,120,255,.6)!important}
-.bubble-spacemint{background:linear-gradient(90deg,#003a20,#006640,#00cc80,#006640,#003a20)!important;background-size:300% 100%!important;animation:bubbleShimmer 4s linear infinite!important;color:#b0ffd0!important;font-weight:700!important;border:1.5px solid rgba(0,255,157,.9)!important;box-shadow:0 0 14px rgba(0,255,157,.9),0 0 28px rgba(0,255,213,.6)!important}
-.bubble-hacker{background:linear-gradient(90deg,#000,#001a05,#00ff41,#001a05,#000)!important;background-size:300% 100%!important;animation:bubbleShimmer 4s linear infinite!important;color:#00ff41!important;font-weight:700!important;border:1.5px solid #00ff41!important;box-shadow:0 0 14px rgba(0,255,65,.9),0 0 28px rgba(0,255,65,.6),inset 0 0 8px rgba(0,255,65,.3)!important;text-shadow:0 0 4px rgba(0,255,65,.8)!important;font-family:'Courier New',monospace}
+.bubble-spacegod{background:linear-gradient(90deg,#ff0000,#ff9500,#ffd700,#34c759,#00c8ff,#667eea,#c44569,#ff0000)!important;background-size:300% 100%!important;animation:bubbleShimmer 3s linear infinite!important;color:#fff!important;font-weight:700!important;box-shadow:0 0 12px rgba(255,200,0,.9),0 0 24px rgba(255,0,180,.6)!important;border:1.5px solid rgba(255,220,100,.9)!important}
+.bubble-spacecosmos{background:linear-gradient(90deg,#050014,#2a0055,#1a0050,#0a1a6a,#2a0055,#050014)!important;background-size:300% 100%!important;animation:bubbleShimmer 4s linear infinite!important;color:#d8b8ff!important;font-weight:700!important;border:1.5px solid rgba(150,80,255,.9)!important}
+.bubble-spacemint{background:linear-gradient(90deg,#003a20,#006640,#00cc80,#006640,#003a20)!important;background-size:300% 100%!important;animation:bubbleShimmer 4s linear infinite!important;color:#b0ffd0!important;font-weight:700!important;border:1.5px solid rgba(0,255,157,.9)!important}
+.bubble-hacker{background:linear-gradient(90deg,#000,#001a05,#00ff41,#001a05,#000)!important;background-size:300% 100%!important;animation:bubbleShimmer 4s linear infinite!important;color:#00ff41!important;font-weight:700!important;border:1.5px solid #00ff41!important;font-family:'Courier New',monospace}
 
 .message-time{font-size:10px;opacity:.8;margin-top:4px}
 .edited-mark{font-size:10px;opacity:.75;font-style:italic}
@@ -176,25 +174,12 @@ body{background:#1a1a2e;height:100vh;display:flex;align-items:center;justify-con
 .read-status .rs-icon{font-size:11px;line-height:1}
 .read-status.sent{color:#9ca3af}
 .read-status.delivered{color:#9ca3af}
-.read-status.read{color:#22c55e;opacity:1;text-shadow:0 0 4px rgba(34,197,94,.4)}
+.read-status.read{color:#22c55e;opacity:1}
 .message-sent .message-bubble .read-status.sent{color:rgba(255,255,255,.7)}
 .message-sent .message-bubble .read-status.delivered{color:rgba(255,255,255,.85)}
-.message-sent .message-bubble .read-status.read{color:#4ade80;text-shadow:0 0 5px rgba(74,222,128,.8)}
-.bubble-spacegod .read-status.read{color:#fff700;text-shadow:0 0 6px #fff700,0 0 10px #ff9500}
-.bubble-spacegod .read-status.delivered{color:#ffe066}
-.bubble-spacecosmos .read-status.read{color:#7cffa0;text-shadow:0 0 6px #7cffa0}
-.bubble-spacecosmos .read-status.delivered{color:#b8a8ff}
-.bubble-spacemint .read-status.read{color:#a0ffd0;text-shadow:0 0 6px #a0ffd0}
-.bubble-spacemint .read-status.delivered{color:#80ffc0}
-.bubble-hacker .read-status.read{color:#00ff41;text-shadow:0 0 6px #00ff41,0 0 12px #00ff41}
-.bubble-hacker .read-status.delivered{color:#00cc33}
+.message-sent .message-bubble .read-status.read{color:#4ade80}
 
-.message .select-check{
-    position:absolute;top:50%;transform:translateY(-50%);
-    width:26px;height:26px;border-radius:50%;background:#fff;border:2px solid #667eea;
-    display:none;align-items:center;justify-content:center;z-index:10;
-    box-shadow:0 2px 8px rgba(0,0,0,.15);transition:all .15s;cursor:pointer;
-}
+.message .select-check{position:absolute;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;background:#fff;border:2px solid #667eea;display:none;align-items:center;justify-content:center;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.15);transition:all .15s;cursor:pointer}
 .message-sent .select-check{left:-34px}
 .message-received .select-check{right:-34px}
 .messages-container.select-mode{padding-left:40px;padding-right:40px}
@@ -219,8 +204,7 @@ body{background:#1a1a2e;height:100vh;display:flex;align-items:center;justify-con
 .send-btn{width:44px;height:44px;border-radius:22px;background:linear-gradient(135deg,#667eea,#764ba2);border:none;color:#fff;font-size:17px;cursor:pointer;flex-shrink:0}
 .send-btn:disabled{opacity:.5}
 .mic-btn{width:44px;height:44px;border-radius:22px;background:#ff3b30;border:none;color:#fff;font-size:17px;cursor:pointer;flex-shrink:0;transition:all .2s}
-.mic-btn.recording{animation:recPulse 1s infinite;background:#c0392b;box-shadow:0 0 0 0 rgba(255,59,48,.7)}
-
+.mic-btn.recording{animation:recPulse 1s infinite;background:#c0392b}
 .recording-bar{display:none;align-items:center;gap:12px;padding:12px 16px;background:#fff0f0;border-top:1px solid #ffd0d0;position:absolute;bottom:0;left:0;right:0;z-index:20}
 .recording-bar.show{display:flex}
 .recording-bar .rec-dot{width:12px;height:12px;border-radius:50%;background:#ff3b30;animation:recPulse 1s infinite}
@@ -238,18 +222,16 @@ html[data-mode="login"] .login-screen{display:flex}
 .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;pointer-events:none;visibility:hidden;opacity:0}
 .modal.show{display:flex;pointer-events:auto;visibility:visible;opacity:1}
 .modal-content{background:#fff;border-radius:24px;padding:24px;width:90%;max-width:450px;max-height:80vh;overflow-y:auto;transition:all .4s;position:relative}
-.modal-content.sg-spacegod{background:linear-gradient(135deg,#fff5d0,#ffd0e8,#d0f0ff,#fff5d0);background-size:300% 300%;animation:bgShift 10s ease infinite;border:3px solid #ffd700;box-shadow:0 0 30px rgba(255,180,0,.6)}
-.modal-content.sg-spacecosmos{background:linear-gradient(135deg,#050014,#1a0040,#0a1a4a,#1a0040,#050014);background-size:300% 300%;animation:bgShift 12s ease infinite;color:#fff;border:3px solid #7c5cff;box-shadow:0 0 30px rgba(120,60,255,.7)}
+.modal-content.sg-spacegod{background:linear-gradient(135deg,#fff5d0,#ffd0e8,#d0f0ff,#fff5d0);background-size:300% 300%;animation:bgShift 10s ease infinite;border:3px solid #ffd700}
+.modal-content.sg-spacecosmos{background:linear-gradient(135deg,#050014,#1a0040,#0a1a4a,#1a0040,#050014);background-size:300% 300%;animation:bgShift 12s ease infinite;color:#fff;border:3px solid #7c5cff}
 .modal-content.sg-spacecosmos h3,.modal-content.sg-spacecosmos p,.modal-content.sg-spacecosmos strong,.modal-content.sg-spacecosmos span,.modal-content.sg-spacecosmos div{color:#fff}
-.modal-content.sg-spacemint{background:linear-gradient(135deg,#001a10,#003320,#005030,#003320,#001a10);background-size:300% 300%;animation:bgShift 12s ease infinite;color:#fff;border:3px solid #00ff9d;box-shadow:0 0 30px rgba(0,255,157,.7)}
+.modal-content.sg-spacemint{background:linear-gradient(135deg,#001a10,#003320,#005030,#003320,#001a10);background-size:300% 300%;animation:bgShift 12s ease infinite;color:#fff;border:3px solid #00ff9d}
 .modal-content.sg-spacemint h3,.modal-content.sg-spacemint p,.modal-content.sg-spacemint strong,.modal-content.sg-spacemint span,.modal-content.sg-spacemint div{color:#fff}
-.modal-content.sg-hacker{background:#000;color:#00ff41;border:3px solid #00ff41;box-shadow:0 0 40px rgba(0,255,65,.7);font-family:'Courier New',monospace;position:relative;overflow:hidden}
-.modal-content.sg-hacker::before{content:"01001010 11001 00101010 010110 1010110 0101 101010 1100100 1010 110100";position:absolute;top:0;left:0;right:0;color:#00ff41;font-family:'Courier New',monospace;font-size:10px;line-height:1.4;letter-spacing:1px;opacity:.15;white-space:pre-wrap;word-break:break-all;padding:14px;pointer-events:none;z-index:0}
-.modal-matrix-canvas{position:absolute !important;top:0 !important;left:0 !important;width:100% !important;height:100% !important;z-index:0 !important;pointer-events:none !important;opacity:.4 !important;border-radius:22px !important}
+.modal-content.sg-hacker{background:#000;color:#00ff41;border:3px solid #00ff41;font-family:'Courier New',monospace;position:relative;overflow:hidden}
+.modal-matrix-canvas{position:absolute !important;top:0 !important;left:0 !important;width:100% !important;height:100% !important;z-index:0 !important;pointer-events:none !important;opacity:.4 !important}
 .modal-content.sg-hacker > *:not(.modal-matrix-canvas){position:relative;z-index:3}
-.modal-content.sg-hacker h3,.modal-content.sg-hacker p,.modal-content.sg-hacker strong,.modal-content.sg-hacker span,.modal-content.sg-hacker div{color:#00ff41!important;text-shadow:0 0 5px rgba(0,255,65,.8)}
-.modal-content.sg-hacker .modal-header button{color:#00ff41;text-shadow:0 0 6px #00ff41}
-.modal-content.sg-hacker input,.modal-content.sg-hacker textarea{background:rgba(0,255,65,.08);color:#00ff41;border:1px solid rgba(0,255,65,.5);font-family:'Courier New',monospace}
+.modal-content.sg-hacker h3,.modal-content.sg-hacker p,.modal-content.sg-hacker strong,.modal-content.sg-hacker span,.modal-content.sg-hacker div{color:#00ff41!important}
+.modal-content.sg-hacker input,.modal-content.sg-hacker textarea{background:rgba(0,255,65,.08);color:#00ff41;border:1px solid rgba(0,255,65,.5)}
 
 .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .modal-header button{background:none;border:none;font-size:26px;cursor:pointer;color:#8e98a3;line-height:1;padding:0 8px}
@@ -259,18 +241,18 @@ html[data-mode="login"] .login-screen{display:flex}
 .user-card .block-mini{position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;background:#ff3b30;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;z-index:5;opacity:0}
 .user-card:hover .block-mini{opacity:1}
 .user-card-avatar{width:48px;height:48px;border-radius:12px;background:#667eea;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:18px;background-size:cover;background-position:center;position:relative}
-.user-card-avatar.spacegod{box-shadow:0 0 0 2px rgba(255,215,0,.9),0 0 15px rgba(255,0,255,.6)}
-.user-card-avatar.spacecosmos{box-shadow:0 0 0 2px rgba(120,90,255,.9),0 0 15px rgba(150,80,255,.8)}
-.user-card-avatar.spacemint{box-shadow:0 0 0 2px rgba(0,255,157,.9),0 0 15px rgba(125,255,176,.7)}
-.user-card-avatar.hacker{box-shadow:0 0 0 2px rgba(0,255,65,.95),0 0 15px rgba(0,255,65,.8)}
+.user-card-avatar.spacegod{box-shadow:0 0 0 2px rgba(255,215,0,.9)}
+.user-card-avatar.spacecosmos{box-shadow:0 0 0 2px rgba(120,90,255,.9)}
+.user-card-avatar.spacemint{box-shadow:0 0 0 2px rgba(0,255,157,.9)}
+.user-card-avatar.hacker{box-shadow:0 0 0 2px rgba(0,255,65,.95)}
 .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:12px 22px;border-radius:36px;z-index:10000;animation:fadeIn .25s;max-width:90%;text-align:center}
 .group-avatar{background:linear-gradient(135deg,#34c759,#28a745)!important}
 audio,img,video{max-width:200px;max-height:300px;border-radius:10px;margin-top:6px;object-fit:cover}
 .profile-avatar-big{width:80px;height:80px;border-radius:20px;background:#667eea;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:32px;font-weight:bold;background-size:cover;background-position:center;position:relative;cursor:pointer}
 .profile-avatar-big.spacegod{box-shadow:0 0 0 4px rgba(255,215,0,.9),0 0 25px rgba(255,0,255,.7);animation:auraGlow 2s ease-in-out infinite}
-.profile-avatar-big.spacecosmos{box-shadow:0 0 0 4px rgba(120,90,255,.9),0 0 25px rgba(150,80,255,.8);animation:auraCosmos 2s ease-in-out infinite}
-.profile-avatar-big.spacemint{box-shadow:0 0 0 4px rgba(0,255,157,.9),0 0 25px rgba(125,255,176,.7);animation:auraMint 2s ease-in-out infinite}
-.profile-avatar-big.hacker{box-shadow:0 0 0 4px rgba(0,255,65,.95),0 0 25px rgba(0,255,65,.9);animation:hackerGlow 2s ease-in-out infinite}
+.profile-avatar-big.spacecosmos{box-shadow:0 0 0 4px rgba(120,90,255,.9);animation:auraCosmos 2s ease-in-out infinite}
+.profile-avatar-big.spacemint{box-shadow:0 0 0 4px rgba(0,255,157,.9);animation:auraMint 2s ease-in-out infinite}
+.profile-avatar-big.hacker{box-shadow:0 0 0 4px rgba(0,255,65,.95);animation:hackerGlow 2s ease-in-out infinite}
 .settings-item{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #e8edf2}
 .switch{position:relative;display:inline-block;width:50px;height:24px}
 .switch input{opacity:0;width:0;height:0}
@@ -289,8 +271,7 @@ input:checked+.slider:before{transform:translateX(26px)}
 .shop-item.spacegod-item{background:linear-gradient(135deg,#1a1a3e,#4a1a6a);border:2px solid gold}
 .shop-item.spacecosmos-item{background:linear-gradient(135deg,#050014,#1a0040,#0a1a4a);border:2px solid #7c5cff}
 .shop-item.spacemint-item{background:linear-gradient(135deg,#001a10,#003320);border:2px solid #00ff9d}
-.shop-item.hacker-item{background:#000;border:2px solid #00ff41;box-shadow:0 0 25px rgba(0,255,65,.6);position:relative;overflow:hidden}
-.shop-item.hacker-item::before{content:"";position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent 0,transparent 8px,rgba(0,255,65,.12) 8px,rgba(0,255,65,.12) 9px);pointer-events:none}
+.shop-item.hacker-item{background:#000;border:2px solid #00ff41;box-shadow:0 0 25px rgba(0,255,65,.6)}
 .shop-item.hacker-item .shop-item-name{color:#00ff41;text-shadow:0 0 4px #00ff41}
 .shop-item.hacker-taken{background:#222;border:2px solid #444;opacity:.6;cursor:not-allowed;filter:grayscale(.7)}
 .shop-item.hacker-taken .shop-item-name{color:#888}
@@ -307,29 +288,12 @@ input:checked+.slider:before{transform:translateX(26px)}
 .bubble-capybara{background:linear-gradient(135deg,#f5e6ca,#c9a87c)!important;color:#5a3a1a!important}
 .bubble-love{background:linear-gradient(135deg,#ff6b9d,#ff0844)!important;color:#fff!important}
 .bubble-premium{background:linear-gradient(135deg,#000428,#004e92)!important;color:#00ffcc!important;border:2px solid gold!important}
-.bubble-mascot-cat,.bubble-mascot-olivia,.bubble-mascot-frog,.bubble-mascot-capy,.bubble-mascot-glam,.bubble-mascot-duck,.bubble-mascot-sleepy,.bubble-mascot-ultra{padding-right:42px!important}
-.bubble-mascot-cat{background:linear-gradient(135deg,#fff4e6,#ffd9a0)!important;color:#5a3a1a!important}
-.bubble-mascot-cat::after{content:"🐱";position:absolute;top:-12px;right:-12px;font-size:30px;z-index:5}
-.bubble-mascot-olivia{background:linear-gradient(135deg,#ffd6e8,#ff8cc8)!important;color:#7a1a4a!important}
-.bubble-mascot-olivia::after{content:"🌸";position:absolute;top:-12px;right:-12px;font-size:30px;z-index:5}
-.bubble-mascot-frog{background:linear-gradient(135deg,#c5f28c,#56ab2f)!important;color:#0a3a0a!important}
-.bubble-mascot-frog::after{content:"🐸";position:absolute;top:-12px;right:-12px;font-size:30px;z-index:5}
-.bubble-mascot-capy{background:linear-gradient(135deg,#f9e9cf,#c9a87c)!important;color:#5a3a1a!important}
-.bubble-mascot-capy::after{content:"🦫";position:absolute;top:-12px;right:-12px;font-size:30px;z-index:5}
-.bubble-mascot-glam{background:linear-gradient(135deg,#fbc2eb,#f5a0d8)!important;color:#5a1a4a!important}
-.bubble-mascot-glam::after{content:"💋";position:absolute;top:-12px;right:-12px;font-size:30px;z-index:5}
-.bubble-mascot-duck{background:linear-gradient(135deg,#fff4a3,#ffe066)!important;color:#4a3a0a!important}
-.bubble-mascot-duck::after{content:"🦆";position:absolute;top:-12px;right:-12px;font-size:30px;z-index:5}
-.bubble-mascot-sleepy{background:linear-gradient(135deg,#b8c6ff,#6a7fd6)!important;color:#fff!important}
-.bubble-mascot-sleepy::after{content:"😴";position:absolute;top:-12px;right:-12px;font-size:30px;z-index:5}
-.bubble-mascot-ultra{background:linear-gradient(135deg,#1a1a3e,#4a1a6a)!important;color:#ffd700!important;border:2px solid #ffd700!important}
-.bubble-mascot-ultra::after{content:"👑";position:absolute;top:-14px;right:-14px;font-size:32px;z-index:5}
 
 .shop-item.buy-flash{animation:buyFlash 1.2s ease}
 .rainbow-name{background:linear-gradient(90deg,#ff0000,#ff9500,#ffd700,#34c759,#00c8ff,#667eea,#c44569,#ff0000);background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:rainbowText 3s linear infinite;font-weight:800}
 .rainbow-cosmos{background:linear-gradient(90deg,#a855f7,#6366f1,#3b82f6,#a855f7);background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:rainbowText 3s linear infinite;font-weight:800}
 .rainbow-mint{background:linear-gradient(90deg,#00ff9d,#7dffb0,#00ffd5,#5effa8,#00ff9d);background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:rainbowText 3s linear infinite;font-weight:800}
-.rainbow-hacker{color:#00ff41;text-shadow:0 0 5px #00ff41,0 0 10px #00ff41,0 0 15px #00ff41;font-weight:800;font-family:'Courier New',monospace;letter-spacing:1px}
+.rainbow-hacker{color:#00ff41;text-shadow:0 0 5px #00ff41,0 0 10px #00ff41;font-weight:800;font-family:'Courier New',monospace}
 .crown-icon{filter:drop-shadow(0 0 4px rgba(255,215,0,.8));font-size:14px;margin-right:2px}
 
 .theme-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px}
@@ -337,12 +301,10 @@ input:checked+.slider:before{transform:translateX(26px)}
 .theme-item:hover{transform:scale(1.03);border-color:#667eea}
 .theme-item.active{border-color:#ffd700;box-shadow:0 0 20px rgba(255,215,0,.6)}
 .theme-item.active::after{content:"✅";position:absolute;top:6px;right:6px;background:#ffd700;color:#000;font-weight:bold;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:14px}
-.theme-item.animated{animation:bgShift 12s ease infinite}
 .theme-name{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.85));color:#fff;padding:20px 8px 6px;font-size:11px;font-weight:600;text-align:center}
 
 .xbet-container{background:radial-gradient(circle at 10% 20%,#030514,#000);border-radius:40px;padding:20px;margin-top:10px;position:relative;overflow:hidden}
 .xbet-status-bar{background:linear-gradient(90deg,#0b1f33,#0a1a2f);border:1px solid #0ff;border-radius:20px;padding:8px 14px;margin-bottom:12px;color:#0ff;font-size:12px;text-align:center;font-weight:700;letter-spacing:1px}
-.xbet-mult-badge{display:inline-block;background:linear-gradient(135deg,#ffd700,#ff0066);color:#fff;padding:2px 10px;border-radius:12px;font-size:11px;margin-left:6px;font-weight:800}
 .xbet-jackpots{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:15px}
 .xbet-jackpot{background:#000a;padding:6px 12px;border-radius:20px;border:1px solid gold;color:#FFE484;font-weight:bold;font-size:11px}
 .xbet-reels{display:flex;justify-content:center;gap:10px;margin:20px 0;flex-wrap:wrap}
@@ -370,7 +332,7 @@ input:checked+.slider:before{transform:translateX(26px)}
 .lb-row.top2{background:linear-gradient(135deg,#c0c0c0,#a0a0a0);color:#000;font-weight:bold}
 .lb-row.top3{background:linear-gradient(135deg,#cd7f32,#a05a1c);color:#fff;font-weight:bold}
 .lb-rank{font-size:16px;font-weight:bold;min-width:32px;text-align:center}
-.lb-avatar{width:36px;height:36px;border-radius:10px;background:#667eea;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;background-size:cover;background-position:center;flex-shrink:0}
+.lb-avatar{width:36px;height:36px;border-radius:10px;background:#667eea;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0}
 .lb-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lb-balance{font-weight:bold;color:#0ff;font-size:13px}
 
@@ -511,7 +473,7 @@ input:checked+.slider:before{transform:translateX(26px)}
 
 <div class="select-actions-backdrop" id="selectActionsBackdrop"></div>
 <div class="select-actions" id="selectActions">
-<button class="sel-action" data-selaction="copy"><i class="fas fa-copy"></i><span>Копировать выбранные</span></button>
+<button class="sel-action" data-selaction="copy"><i class="fas fa-copy"></i><span>Копировать</span></button>
 <button class="sel-action" data-selaction="forward"><i class="fas fa-share"></i><span>Переслать</span></button>
 <button class="sel-action danger" data-selaction="delete-me"><i class="fas fa-eye-slash"></i><span>Удалить у себя</span></button>
 <button class="sel-action danger" data-selaction="delete"><i class="fas fa-trash"></i><span>Удалить у всех (свои)</span></button>
@@ -529,7 +491,7 @@ input:checked+.slider:before{transform:translateX(26px)}
 <div class="modal" id="usersModal"><div class="modal-content"><div class="modal-header"><h3>👥 Пользователи</h3><button type="button" data-close="usersModal">&times;</button></div><div class="users-grid" id="usersGrid"></div></div></div>
 
 <div class="modal" id="profileModal"><div class="modal-content" id="profileModalContent"><canvas class="modal-matrix-canvas" id="profileMatrixCanvas"></canvas><div class="modal-header"><h3 id="profileTitle">👤 Профиль</h3><button type="button" data-close="profileModal">&times;</button></div><div class="profile-avatar-big" id="profileAvatar">U</div><div><p><strong>Имя:</strong> <span id="profileName"></span></p><p><strong>Статус:</strong> <span id="profileBio"></span></p><p><strong>Онлайн:</strong> <span id="profileOnline"></span></p></div>
-<button id="editProfileBtn" class="login-btn" type="button" style="margin-top:8px;background:linear-gradient(135deg,#00b4db,#0083b0)">✏️ РЕДАКТИРОВАТЬ ПРОФИЛЬ</button>
+<button id="editProfileBtn" class="login-btn" type="button" style="margin-top:8px;background:linear-gradient(135deg,#00b4db,#0083b0)">✏️ РЕДАКТИРОВАТЬ</button>
 <button id="donorXbetBtn" class="login-btn" type="button" style="margin-top:8px;background:linear-gradient(135deg,#ff0066,#ffaa00)">🎰 DONOR XBET</button>
 <button id="shopBtn" class="login-btn" type="button" style="margin-top:8px;background:linear-gradient(135deg,#ff6b9d,#c44569)">🛍️ МАГАЗИН</button>
 <button id="openSettingsBtn" class="login-btn" type="button" style="margin-top:8px;background:#1a1a2e;color:#fff">⚙️ НАСТРОЙКИ</button>
@@ -539,20 +501,19 @@ input:checked+.slider:before{transform:translateX(26px)}
 </div></div>
 
 <div class="modal" id="editProfileModal"><div class="modal-content">
-<div class="modal-header"><h3>✏️ Редактировать профиль</h3><button type="button" data-close="editProfileModal">&times;</button></div>
+<div class="modal-header"><h3>✏️ Профиль</h3><button type="button" data-close="editProfileModal">&times;</button></div>
 <div class="edit-avatar-row">
   <div class="edit-avatar-preview" id="editAvatarPreview">U</div>
   <div style="flex:1">
     <label>Аватар (2 буквы)</label>
     <input type="text" id="editAvatarText" maxlength="2" style="text-transform:uppercase">
-    <p style="font-size:11px;color:#8e98a3;margin-top:4px">📷 Своё фото — только в магазине (500М $)</p>
   </div>
 </div>
 <label>Имя</label>
 <input type="text" id="editName" maxlength="24">
-<label>Описание (статус)</label>
+<label>Описание</label>
 <textarea id="editBio" maxlength="120"></textarea>
-<label>Новый пароль (пусто = не менять)</label>
+<label>Новый пароль</label>
 <input type="password" id="editPassword" placeholder="••••••••">
 <div style="display:flex;gap:8px;margin-top:10px">
   <button type="button" id="editCancelBtn2" class="login-btn" style="background:#8e98a3;margin-top:0">Отмена</button>
@@ -563,8 +524,8 @@ input:checked+.slider:before{transform:translateX(26px)}
 <div class="modal" id="settingsModal"><div class="modal-content"><div class="modal-header"><h3>⚙️ Настройки</h3><button type="button" data-close="settingsModal">&times;</button></div>
 <button id="settingsEditProfileBtn" class="icon-btn" type="button" style="width:100%;padding:14px;justify-content:flex-start;gap:10px;background:#f0f4ff;margin-bottom:6px"><i class="fas fa-user-edit"></i> Редактировать профиль</button>
 <button id="settingsBlockedBtn" class="icon-btn" type="button" style="width:100%;padding:14px;justify-content:flex-start;gap:10px;background:#fff0f0;color:#ff3b30;margin-bottom:6px"><i class="fas fa-ban"></i> Заблокированные (<span id="blockedCount">0</span>)</button>
-<button id="settingsEnableNotifBtn" class="icon-btn" type="button" style="width:100%;padding:14px;justify-content:flex-start;gap:10px;background:#e8f4ff;color:#0083b0;margin-bottom:6px"><i class="fas fa-bell"></i> Включить push-уведомления</button>
-<div class="settings-item"><span>🔔 Внутренние уведомления</span><label class="switch"><input type="checkbox" id="notifSwitch" checked><span class="slider"></span></label></div>
+<button id="settingsEnableNotifBtn" class="icon-btn" type="button" style="width:100%;padding:14px;justify-content:flex-start;gap:10px;background:#e8f4ff;color:#0083b0;margin-bottom:6px"><i class="fas fa-bell"></i> Push-уведомления</button>
+<div class="settings-item"><span>🔔 Уведомления</span><label class="switch"><input type="checkbox" id="notifSwitch" checked><span class="slider"></span></label></div>
 <div class="settings-item"><span>🔊 Звук</span><label class="switch"><input type="checkbox" id="soundSwitch" checked><span class="slider"></span></label></div>
 <div class="settings-item"><span>📳 Вибрация</span><label class="switch"><input type="checkbox" id="vibroSwitch" checked><span class="slider"></span></label></div>
 </div></div>
@@ -582,14 +543,13 @@ input:checked+.slider:before{transform:translateX(26px)}
 <div class="shop-tab" id="spacegodTabBtn" data-shop="spacegod" style="display:none;background:linear-gradient(135deg,#ffd700,#ff0066);color:#fff">🌈 SPACEGOD</div>
 </div>
 <div id="shopAvatarsTab"><div class="shop-grid" id="shopAvatarsGrid"></div></div>
-<div id="shopBubblesTab" style="display:none"><p style="font-size:12px;color:#8e98a3;margin-bottom:10px">Пузырь применяется ко всем чатам.</p><div class="shop-grid" id="shopBubblesGrid"></div></div>
-<div id="shopSpecialTab" style="display:none"><p style="font-size:12px;color:#8e98a3;margin-bottom:10px">🌟 Легендарные товары. HACKER — только один владелец</p><div class="shop-grid" id="shopSpecialGrid"></div></div>
+<div id="shopBubblesTab" style="display:none"><div class="shop-grid" id="shopBubblesGrid"></div></div>
+<div id="shopSpecialTab" style="display:none"><div class="shop-grid" id="shopSpecialGrid"></div></div>
 <div id="shopSpacegodTab" style="display:none">
-<p style="font-size:12px;color:#8e98a3;margin-bottom:10px">🌈 Эксклюзивный каталог тем</p>
 <div class="theme-grid" id="themeGrid"></div>
-<button id="uploadSidebarThemeBtn" class="login-btn" type="button" style="margin-top:14px;background:linear-gradient(135deg,#667eea,#764ba2)">📷 Загрузить своё фото</button>
+<button id="uploadSidebarThemeBtn" class="login-btn" type="button" style="margin-top:14px;background:linear-gradient(135deg,#667eea,#764ba2)">📷 Загрузить фото</button>
 <input type="file" id="sidebarThemeFile" accept="image/*" style="display:none">
-<button id="resetSidebarThemeBtn" class="login-btn" type="button" style="margin-top:8px;background:#8e98a3">🗑 Сбросить тему</button>
+<button id="resetSidebarThemeBtn" class="login-btn" type="button" style="margin-top:8px;background:#8e98a3">🗑 Сбросить</button>
 </div>
 </div></div>
 
@@ -601,7 +561,7 @@ input:checked+.slider:before{transform:translateX(26px)}
 <div class="xbet-tab" data-xtab="leaders">🏆 Лидеры</div>
 </div>
 <div id="xbetGameTab">
-<div class="xbet-jackpots" id="xbetJackpotPreview">
+<div class="xbet-jackpots">
 <div class="xbet-jackpot" data-sym="💎">💎 x<span class="jv">100000</span></div>
 <div class="xbet-jackpot" data-sym="🔷">🔷 x<span class="jv">50000</span></div>
 <div class="xbet-jackpot" data-sym="💰">💰 x<span class="jv">25000</span></div>
@@ -611,18 +571,14 @@ input:checked+.slider:before{transform:translateX(26px)}
 <div class="xbet-jackpot" data-sym="🍒">🍒 x<span class="jv">5000</span></div>
 </div>
 <div class="xbet-reel-count" id="xbetReelCounts">
-<button class="xbet-count-btn active" type="button" data-count="3">3 барабана</button>
-<button class="xbet-count-btn" type="button" data-count="4">4 барабана</button>
-<button class="xbet-count-btn" type="button" data-count="5">5 барабанов</button>
+<button class="xbet-count-btn active" type="button" data-count="3">3</button>
+<button class="xbet-count-btn" type="button" data-count="4">4</button>
+<button class="xbet-count-btn" type="button" data-count="5">5</button>
 </div>
 <div class="xbet-reels" id="xbetReelsContainer"></div>
 <div class="cooldown-timer" id="xbetCooldown" style="display:none"></div>
 <div class="xbet-balance">💰 БАЛАНС: <span id="xbetBalance">5000</span> $</div>
 <div class="xbet-bet-buttons">
-<button data-xbet="5" class="xbet-bet-btn" type="button">5</button>
-<button data-xbet="10" class="xbet-bet-btn" type="button">10</button>
-<button data-xbet="25" class="xbet-bet-btn" type="button">25</button>
-<button data-xbet="50" class="xbet-bet-btn" type="button">50</button>
 <button data-xbet="100" class="xbet-bet-btn" type="button">100</button>
 <button data-xbet="1000" class="xbet-bet-btn" type="button">1К</button>
 <button data-xbet="10000" class="xbet-bet-btn" type="button">10К</button>
@@ -632,10 +588,6 @@ input:checked+.slider:before{transform:translateX(26px)}
 <button data-xbet="1000000000000" class="xbet-bet-btn" type="button">1ТРЛН</button>
 <button data-xbet="1000000000000000" class="xbet-bet-btn" type="button">1КВДР</button>
 <button data-xbet="1e18" class="xbet-bet-btn" type="button">1КВНТ</button>
-<button data-xbet="1e21" class="xbet-bet-btn" type="button">1СКСТ</button>
-<button data-xbet="1e24" class="xbet-bet-btn" type="button">1СЕПТ</button>
-<button data-xbet="1e27" class="xbet-bet-btn" type="button">1ОКТ</button>
-<button data-xbet="1e30" class="xbet-bet-btn" type="button">1НОН</button>
 <button data-xbet="1e33" class="xbet-bet-btn" type="button">1ДЕЦ</button>
 <button data-xbet="1e100" class="xbet-bet-btn" type="button" style="background:linear-gradient(135deg,#ff0066,#ffaa00);color:#fff">1ГУГОЛ</button>
 <button id="xbetCustomBetBtn" class="xbet-bet-btn" type="button" style="background:linear-gradient(135deg,#00ff88,#00aaff);color:#000">✏️ Своя</button>
@@ -646,13 +598,13 @@ input:checked+.slider:before{transform:translateX(26px)}
 </div>
 <div id="xbetLeadersTab" style="display:none">
 <div class="leaderboard" id="leaderboard">
-<div class="lb-title">🏆 ТОП-10 ИГРОКОВ</div>
+<div class="lb-title">🏆 ТОП-10</div>
 <div id="leaderboardList" style="color:#0ff;text-align:center;padding:20px">Загрузка...</div>
 </div>
 </div>
 </div></div></div>
 
-<div class="modal" id="backgroundModal"><div class="modal-content"><div class="modal-header"><h3>🎨 Обои чата</h3><button type="button" data-close="backgroundModal">&times;</button></div>
+<div class="modal" id="backgroundModal"><div class="modal-content"><div class="modal-header"><h3>🎨 Обои</h3><button type="button" data-close="backgroundModal">&times;</button></div>
 <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
 <div style="aspect-ratio:1;background:#f8fafd;border-radius:12px;cursor:pointer;border:2px solid #e8edf2" data-bg="#f8fafd"></div>
 <div style="aspect-ratio:1;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:12px;cursor:pointer" data-bg="linear-gradient(135deg,#667eea,#764ba2)"></div>
@@ -668,7 +620,7 @@ input:checked+.slider:before{transform:translateX(26px)}
 <div class="video-viewer" id="videoViewer"><button class="close-btn" type="button" id="closeVidBtn">✕</button><video id="viewedVideo" controls></video><div class="viewer-buttons"><button class="save-media-btn" type="button" id="saveVideoViewerBtn">💾 СОХРАНИТЬ</button></div></div>
 
 <script>
-window.addEventListener('error',function(e){console.error('❌ ОШИБКА:',e.message);});
+window.addEventListener('error',function(e){console.error('❌',e.message);});
 
 function bindLoginNow(){
     var btn=document.getElementById('loginBtn');
@@ -681,10 +633,9 @@ const firebaseConfig={apiKey:"AIzaSyBoSh8wbp8vc1eFdrROPlWCdEteY6KZ6HQ",authDomai
 firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
 
-// ⚡ ОПТИМИЗАЦИЯ: максимально ограничиваем трафик
-const MSG_LIMIT = 30;           // только 30 последних сообщений
-const CLEANUP_DAYS = 30;        // чистим сообщения старше 30 дней
-const MAX_MEDIA_SIZE = 800*1024; // 800 КБ макс для медиа
+// ⚡ ОПТИМИЗАЦИЯ
+const MSG_LIMIT = 30;
+const MAX_MEDIA_SIZE = 800*1024;
 
 let MAX=50,currentUser=null,currentChat=null,pendingMedia=null,messagesListener=null,isRecording=false,messageCache={};
 let isSendingMessage=false;
@@ -713,9 +664,7 @@ let xbetCurrentBet=100000,xbetReelCount=3,xbetCooldown=false;
 const MAX_BET = 1e100;
 let XBET_SYMBOLS=[{sym:'💎',mult:100000},{sym:'🔷',mult:50000},{sym:'💰',mult:25000},{sym:'⭐',mult:15000},{sym:'🔥',mult:10000},{sym:'7️⃣',mult:8000},{sym:'🍒',mult:5000}];
 let xbetSymbols=XBET_SYMBOLS.map(s=>s.sym);
-let casinoCfg = { minBet:5, maxBet:1e100, cooldown:0, maxReels:5, globalMult:1, minMatch:3, casinoEnabled:true, jackpotEnabled:true, coinRain:true, logSpins:false, welcomeBonus:true, autoSpin:false };
 
-// ⚡ КОРОТКИЕ СПИСКИ (для экономии)
 const SHOP_AVATARS=[
 {id:'default',name:'Стандарт',emoji:'U',price:0,style:'linear-gradient(135deg,#667eea,#764ba2)',type:'emoji'},
 {id:'cat',name:'🐱 Котик',emoji:'🐱',price:25000,style:'linear-gradient(135deg,#ffecd2,#fcb69f)',type:'emoji'},
@@ -727,7 +676,7 @@ const SHOP_AVATARS=[
 ];
 const SHOP_BUBBLES=[
 {id:'none',name:'По умолчанию',price:0,cssClass:'',style:'linear-gradient(135deg,#667eea,#764ba2)',color:'#fff'},
-{id:'cat',name:'🐱 Кот-силач',price:300000,cssClass:'bubble-cat',style:'linear-gradient(135deg,#ffecd2,#fcb69f)',color:'#5a3a1a'},
+{id:'cat',name:'🐱 Кот',price:300000,cssClass:'bubble-cat',style:'linear-gradient(135deg,#ffecd2,#fcb69f)',color:'#5a3a1a'},
 {id:'olivia',name:'🌸 Olivia',price:500000,cssClass:'bubble-olivia',style:'linear-gradient(135deg,#ffd6e8,#ff8cc8)',color:'#7a1a4a'},
 {id:'frog',name:'🐸 Лягушка',price:700000,cssClass:'bubble-frog',style:'linear-gradient(135deg,#a8e063,#56ab2f)',color:'#fff'},
 {id:'capybara',name:'🦫 Капибара',price:1000000,cssClass:'bubble-capybara',style:'linear-gradient(135deg,#f5e6ca,#c9a87c)',color:'#5a3a1a'},
@@ -735,16 +684,16 @@ const SHOP_BUBBLES=[
 {id:'premium',name:'💎 Премиум',price:2000000,cssClass:'bubble-premium',style:'linear-gradient(135deg,#000428,#004e92)',color:'#00ffcc'}
 ];
 const SHOP_SPECIAL=[
-{id:'spacegod',name:'🌈 SPACEGOD',price:1e15,desc:'Радужный ник + Аура',emoji:'🌈',cls:'spacegod',nameCls:'rainbow-name'},
-{id:'spacecosmos',name:'🌌 SPACEGOD COSMOS',price:1e15,desc:'Космос + Неон',emoji:'🌌',cls:'spacecosmos',nameCls:'rainbow-cosmos'},
-{id:'spacemint',name:'💚 SPACEGOD MINT',price:1e15,desc:'Мятный неон',emoji:'💚',cls:'spacemint',nameCls:'rainbow-mint'},
-{id:'hacker',name:'💻 SPACEGOD HACKER',price:1e99,desc:'Матрица. ТОЛЬКО 1 ВЛАДЕЛЕЦ!',emoji:'💻',cls:'hacker',nameCls:'rainbow-hacker',unique:true}
+{id:'spacegod',name:'🌈 SPACEGOD',price:1e15,desc:'Радужный ник',emoji:'🌈',cls:'spacegod',nameCls:'rainbow-name'},
+{id:'spacecosmos',name:'🌌 COSMOS',price:1e15,desc:'Космос',emoji:'🌌',cls:'spacecosmos',nameCls:'rainbow-cosmos'},
+{id:'spacemint',name:'💚 MINT',price:1e15,desc:'Мята',emoji:'💚',cls:'spacemint',nameCls:'rainbow-mint'},
+{id:'hacker',name:'💻 HACKER',price:1e99,desc:'Матрица. ТОЛЬКО 1 ВЛАДЕЛЕЦ!',emoji:'💻',cls:'hacker',nameCls:'rainbow-hacker',unique:true}
 ];
 const SG_BUBBLES=[
-{id:'bubble-spacegod',name:'🌈 Радужный пузырь',sgId:'spacegod',cssClass:'bubble-spacegod'},
-{id:'bubble-spacecosmos',name:'🌌 Космо-пузырь',sgId:'spacecosmos',cssClass:'bubble-spacecosmos'},
-{id:'bubble-spacemint',name:'💚 Мятный пузырь',sgId:'spacemint',cssClass:'bubble-spacemint'},
-{id:'bubble-hacker',name:'💻 Хакерский пузырь',sgId:'hacker',cssClass:'bubble-hacker'}
+{id:'bubble-spacegod',name:'🌈 Радужный',sgId:'spacegod',cssClass:'bubble-spacegod'},
+{id:'bubble-spacecosmos',name:'🌌 Космо',sgId:'spacecosmos',cssClass:'bubble-spacecosmos'},
+{id:'bubble-spacemint',name:'💚 Мятный',sgId:'spacemint',cssClass:'bubble-spacemint'},
+{id:'bubble-hacker',name:'💻 Хакерский',sgId:'hacker',cssClass:'bubble-hacker'}
 ];
 const SPACEGOD_THEMES=[
 {id:'none',name:'По умолчанию',bg:'#f4f7fc'},
@@ -799,7 +748,6 @@ function getOnlineStatus(uid){
 }
 function fileToBase64(f){return new Promise((r,j)=>{const x=new FileReader();x.onload=()=>r(x.result);x.onerror=j;x.readAsDataURL(f)})}
 function blobToBase64(blob){return new Promise((r,j)=>{const x=new FileReader();x.onload=()=>r(x.result);x.onerror=j;x.readAsDataURL(blob)})}
-function scrollToBottom(){const c=$('messagesContainer');if(c)requestAnimationFrame(()=>{c.scrollTop=c.scrollHeight})}
 
 function openModal(id){ const el=$(id); if(el){ el.classList.add('show'); el.style.display='flex'; } if(id==='profileModal'){ setTimeout(()=>{ if(currentProfileUid){ const t=getSpacegodType(currentProfileUid); stopProfileMatrix(); if(t==='hacker') startProfileMatrix(); } },250); } }
 function closeModal(id){ const el=$(id); if(el){ el.classList.remove('show'); el.style.display='none'; } if(id==='profileModal') stopProfileMatrix(); }
@@ -817,7 +765,7 @@ function getSpacegodType(uid){
 function isBlocked(uid){ return !!blockedUsers[uid]; }
 function amIBlockedBy(uid){ const them = state.users[uid]; return !!(them && them.blockedUsers && them.blockedUsers[currentUser.id]); }
 
-// ⚡ ОПТИМИЗИРОВАННЫЙ readBy: {chatId}/{uid} = timestamp
+// ⚡ readBy: {chatId}/{uid} = timestamp
 function getReadStatus(msgId, msgSenderId){
     if(msgSenderId !== currentUser.id) return null;
     const msgs = messageCache[currentChat] || {};
@@ -828,9 +776,7 @@ function getReadStatus(msgId, msgSenderId){
     if(chat && chat.type === 'private'){
         const otherId = Object.keys(chat.participants||{}).find(id=>id!==currentUser.id);
         const otherReadTime = reads[otherId] || 0;
-        if(otherReadTime >= m.timestamp){
-            return {status:'read', ts: otherReadTime};
-        }
+        if(otherReadTime >= m.timestamp) return {status:'read', ts: otherReadTime};
         const other = state.users[otherId];
         if(other && other.status === 'online') return {status:'delivered'};
     }
@@ -847,15 +793,9 @@ function getReadStatusHtml(msgId, msgSenderId){
     return '<span class="read-status sent"><span class="rs-icon">✓</span> отправлено</span>';
 }
 
-function rollSymbols(){
-    const res = [];
-    for(let i=0;i<xbetReelCount;i++) res.push(xbetSymbols[Math.floor(Math.random()*xbetSymbols.length)]);
-    return res;
-}
 function getSymbolMult(sym){ const f=XBET_SYMBOLS.find(s=>s.sym===sym); return f?(Number(f.mult)||1):1; }
-
 let currentMediaUrl=null,currentMediaType=null;
-function saveMediaToDevice(url,type){try{const a=document.createElement('a');a.href=url;const ext=type==='image'?'jpg':'mp4';a.download=`dg_${Date.now()}.${ext}`;document.body.appendChild(a);a.click();document.body.removeChild(a);showToast('💾 Сохранено!')}catch(e){showToast('❌ Ошибка')}}
+function saveMediaToDevice(url,type){try{const a=document.createElement('a');a.href=url;const ext=type==='image'?'jpg':'mp4';a.download=`dg_${Date.now()}.${ext}`;document.body.appendChild(a);a.click();document.body.removeChild(a);showToast('💾 Сохранено!')}catch(e){showToast('❌')}}
 function viewImage(url){currentMediaUrl=url;currentMediaType='image';$('viewedImage').src=url;openModal('imageViewer')}
 function closeImageViewer(){closeModal('imageViewer');currentMediaUrl=null}
 function viewVideo(url){currentMediaUrl=url;currentMediaType='video';const v=$('viewedVideo');v.src=url;openModal('videoViewer');v.play()}
@@ -865,7 +805,7 @@ function startCoinRain(sec=3){const c=document.createElement('div');c.className=
 function calculateWin(symbol,count,reelCount,bet){ let base=getSymbolMult(symbol)*(bet/100); if(reelCount===4)base*=1.25; else if(reelCount===5)base*=1.5; return base; }
 
 function updateWinPreview(){
-    document.querySelectorAll('#xbetJackpotPreview .xbet-jackpot').forEach(el=>{
+    document.querySelectorAll('.xbet-jackpot').forEach(el=>{
         const sym=el.dataset.sym; const mult=getSymbolMult(sym); const val=mult*xbetCurrentBet/100;
         const v=el.querySelector('.jv'); if(v)v.textContent=fmtShort(val);
     });
@@ -889,16 +829,20 @@ async function persistBalance(){
 function renderXbetReels(){const c=$('xbetReelsContainer');c.innerHTML='';for(let i=1;i<=xbetReelCount;i++){const r=document.createElement('div');r.className='xbet-reel';r.id='xbetReel'+i;r.innerText='💎';c.appendChild(r)}}
 function updateCooldownUI(sec){const el=$('xbetCooldown');if(sec>0){el.style.display='block';el.innerText=`⏳ ${sec.toFixed(1)}с`}else el.style.display='none'}
 
+// ⚡ ОПТИМИЗИРОВАННЫЙ СПИН — никаких логов, никаких слушателей, только баланс
 async function xbetSpin(){
     if(xbetCooldown){$('xbetMessage').innerHTML='⏳ Подожди!';return}
-    if(!casinoCfg.casinoEnabled){ $('xbetMessage').innerHTML = '🔧 Тех.работы'; return; }
     const cost = xbetCurrentBet * xbetReelCount;
     const balNum = Number(userInventory.balance) || 0;
     if(balNum < cost){ $('xbetMessage').innerHTML=`❌ Нужно ${fmtShort(cost)}$`; return; }
     xbetCooldown=true;$('xbetSpinBtn').disabled=true;$('xbetSpinBtn').innerText='⏳ КРУТИМ...';
     userInventory.balance = balNum - cost;
-    await persistBalance();
+    
+    // ⚡ Пишем ТОЛЬКО баланс, ничего больше
+    try{ await db.ref(`inventory/${currentUser.id}/balance`).set(userInventory.balance); }catch(e){}
+    updateXbetUI();
     $('xbetMessage').innerHTML=`💸 Ставка: ${fmtShort(cost)}$`;
+    
     const reels=[];for(let i=1;i<=xbetReelCount;i++)reels.push($('xbetReel'+i));
     reels.forEach(r=>r.classList.add('xbet-reel-spinning'));
     const animStart=Date.now();
@@ -910,7 +854,9 @@ async function xbetSpin(){
         if(el>=animDuration){
             clearInterval(iv);clearInterval(cdIv);
             reels.forEach(r=>r.classList.remove('xbet-reel-spinning'));
-            const res = rollSymbols();
+            // ⚡ Локальный ролл — БЕЗ записи в БД
+            const res = [];
+            for(let i=0;i<xbetReelCount;i++) res.push(xbetSymbols[Math.floor(Math.random()*xbetSymbols.length)]);
             reels.forEach((r,i)=>{r.innerText = res[i]||'💎'});
             const counts={};res.forEach(s=>counts[s]=(counts[s]||0)+1);
             let winSym=null,maxCount=0;
@@ -918,7 +864,9 @@ async function xbetSpin(){
             if(winSym){
                 const win=calculateWin(winSym,maxCount,xbetReelCount,xbetCurrentBet);
                 userInventory.balance = (Number(userInventory.balance)||0) + win;
-                await persistBalance();
+                // ⚡ Пишем ТОЛЬКО финальный баланс
+                try{ await db.ref(`inventory/${currentUser.id}/balance`).set(userInventory.balance); }catch(e){}
+                updateXbetUI();
                 $('xbetMessage').innerHTML=`✨ ${maxCount}× ${winSym}! +${fmtShort(win)}$`;
                 startCoinRain(2); showToast(`🎰 +${fmtShort(win)}$!`);
             }else{
@@ -934,6 +882,7 @@ async function loadLeaderboard(){
     const list = $('leaderboardList'); if(!list) return;
     list.innerHTML = '<div style="padding:20px;text-align:center;color:#0ff">Загрузка...</div>';
     try{
+        // ⚡ Читаем ТОЛЬКО балансы (limitToLast 10 по значению не работает, но всё-равно меньше)
         const snap = await db.ref('inventory').once('value');
         const data = snap.val() || {}; const users = state.users || {};
         const arr = Object.entries(data).map(([uid, inv]) => ({ uid, name: users[uid]?.name || uid, avatar: users[uid]?.avatar || '?', balance: Number(inv?.balance) || 0 })).sort((a,b) => b.balance - a.balance).slice(0, 10);
@@ -954,7 +903,7 @@ function openShop(){
     if(sgTab) sgTab.style.display = (userInventory.ownedSpacegods||[]).length ? 'inline-block' : 'none';
     openModal('shopModal');
 }
-function renderShopAvatars(){const g=$('shopAvatarsGrid');g.innerHTML=SHOP_AVATARS.map(a=>{const o=userInventory.avatars.includes(a.id);const ac=userInventory.activeAvatar===a.id;let ps=`background:${a.style}`;let pc=a.emoji;if(a.type==='custom'&&currentUser?.avatarUrl){ps=`background-image:url(${currentUser.avatarUrl});background-size:cover;background-position:center`;pc='';}return `<div class="shop-item ${o?'owned':''} ${ac?'active-item':''}" data-avatar="${a.id}"><div class="shop-item-preview" style="${ps}">${pc}</div><div class="shop-item-name">${a.name}</div><div class="shop-item-price ${o?'bought':''}">${o?(ac?'✅':'✔️'):'💰 '+fmtShort(a.price)}</div></div>`;}).join('')}
+function renderShopAvatars(){const g=$('shopAvatarsGrid');g.innerHTML=SHOP_AVATARS.map(a=>{const o=userInventory.avatars.includes(a.id);const ac=userInventory.activeAvatar===a.id;let ps=`background:${a.style}`;let pc=a.emoji;if(a.type==='custom'&&currentUser?.avatarUrl){ps=`background-image:url(${currentUser.avatarUrl});background-size:cover`;pc='';}return `<div class="shop-item ${o?'owned':''} ${ac?'active-item':''}" data-avatar="${a.id}"><div class="shop-item-preview" style="${ps}">${pc}</div><div class="shop-item-name">${a.name}</div><div class="shop-item-price ${o?'bought':''}">${o?(ac?'✅':'✔️'):'💰 '+fmtShort(a.price)}</div></div>`;}).join('')}
 function renderShopBubbles(){
     const g=$('shopBubblesGrid');
     let html = SHOP_BUBBLES.map(b=>{
@@ -998,7 +947,7 @@ function renderThemes(){
     }).join('');
     if(userInventory.sidebarCustomImg){
         const active = userInventory.sidebarTheme === 'custom';
-        html += `<div class="theme-item ${active?'active':''}" data-theme="custom" style="background-image:url(${userInventory.sidebarCustomImg})"><div class="theme-name">📷 Моя</div></div>`;
+        html += `<div class="theme-item ${active?'active':''}" data-theme="custom" style="background-image:url(${userInventory.sidebarCustomImg})"><div class="theme-name">📷</div></div>`;
     }
     g.innerHTML = html;
 }
@@ -1008,7 +957,7 @@ async function buyOrSelectAvatar(id){const it=SHOP_AVATARS.find(a=>a.id===id);if
 async function buyOrSelectBubble(id){
     const sb = SG_BUBBLES.find(x=>x.id === id);
     if(sb){
-        if(!(userInventory.ownedSpacegods||[]).includes(sb.sgId)){ showToast('❌ Сначала SpaceGod'); return; }
+        if(!(userInventory.ownedSpacegods||[]).includes(sb.sgId)){ showToast('❌ SpaceGod'); return; }
         userInventory.activeBubble = id;
         await saveInventory();
         renderShopBubbles();
@@ -1055,7 +1004,7 @@ async function buySpecial(id){
         return;
     }
     if(userInventory.balance < it.price){ showToast(`❌ Нужно ${fmtShort(it.price)}$`); return; }
-    if(!confirm(`Купить "${it.name}" за ${fmtShort(it.price)}$?`)) return;
+    if(!confirm(`Купить "${it.name}"?`)) return;
 
     if(it.unique){
         let success = false;
@@ -1083,7 +1032,7 @@ async function buySpecial(id){
     showToast(`${it.emoji} ${it.name}!`);
 }
 
-async function selectTheme(id){if(!userInventory.spacegod) return;if(id === 'custom'){if(!userInventory.sidebarCustomImg){showToast('❌ Загрузи фото');return;}}userInventory.sidebarTheme = id;await saveInventory();applySidebarTheme();renderThemes();showToast('✅');}
+async function selectTheme(id){if(!userInventory.spacegod) return;if(id === 'custom'){if(!userInventory.sidebarCustomImg){showToast('❌');return;}}userInventory.sidebarTheme = id;await saveInventory();applySidebarTheme();renderThemes();showToast('✅');}
 
 function applySidebarTheme(){
     const sb = $('sidebar'); const ov = $('sidebarOverlay'); if(!sb) return;
@@ -1099,7 +1048,7 @@ function applySidebarTheme(){
         return;
     }
     if(themeId === 'custom'){
-        if(userInventory.sidebarCustomImg){ sb.style.background = 'transparent'; sb.style.backgroundImage = `url(${userInventory.sidebarCustomImg})`; sb.style.backgroundSize = 'cover'; sb.style.backgroundPosition = 'center'; if(ov) ov.style.background = 'rgba(255,255,255,.4)'; }
+        if(userInventory.sidebarCustomImg){ sb.style.background = 'transparent'; sb.style.backgroundImage = `url(${userInventory.sidebarCustomImg})`; sb.style.backgroundSize = 'cover'; if(ov) ov.style.background = 'rgba(255,255,255,.4)'; }
         return;
     }
     const theme = SPACEGOD_THEMES.find(t => t.id === themeId) || SPACEGOD_THEMES[0];
@@ -1149,7 +1098,7 @@ function stopProfileMatrix(){ if(profileMatrixInterval){ clearInterval(profileMa
 
 async function uploadSidebarTheme(file){if(!userInventory.spacegod) return;const b64 = await fileToBase64(file);userInventory.sidebarCustomImg = b64;userInventory.sidebarTheme = 'custom';await saveInventory();applySidebarTheme();renderThemes();showToast('✅');}
 async function resetSidebarTheme(){userInventory.sidebarTheme = 'none';await saveInventory();applySidebarTheme();renderThemes();showToast('✅');}
-async function uploadChatBg(file){if(!currentChat) return;if(!userInventory.spacegod){showToast('❌ Только для SPACEGOD');return;}const b64=await fileToBase64(file);await db.ref(`wallpapers/${currentUser.id}/${currentChat}`).set(`url(${b64})`);applyChatWallpaper(currentChat);showToast('✅');closeModal('backgroundModal');}
+async function uploadChatBg(file){if(!currentChat) return;if(!userInventory.spacegod){showToast('❌ SPACEGOD');return;}const b64=await fileToBase64(file);await db.ref(`wallpapers/${currentUser.id}/${currentChat}`).set(`url(${b64})`);applyChatWallpaper(currentChat);showToast('✅');closeModal('backgroundModal');}
 
 function applySpaceGodToUI(){
     const header = $('mainHeader'); if(!header) return;
@@ -1250,11 +1199,10 @@ async function sendMessage(){
 function enterEditMode(msgId, currentText){editingMessageId = msgId;const bar = $('editBar');if(bar) bar.classList.add('show');const input = $('messageInput');if(input){ input.value = currentText || ''; input.focus(); }}
 function exitEditMode(){editingMessageId = null;const bar = $('editBar');if(bar) bar.classList.remove('show');const input = $('messageInput');if(input) input.value = '';}
 
-// ГОЛОСОВЫЕ
 async function startRecording(){
     if(isRecording) return;
     if(!currentChat){ showToast('❌ Открой чат'); return; }
-    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ showToast('❌ Микрофон не поддерживается'); return; }
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ showToast('❌ Не поддерживается'); return; }
     try{
         const stream = await navigator.mediaDevices.getUserMedia({audio:true});
         recordingStream = stream;
@@ -1262,12 +1210,11 @@ async function startRecording(){
         let options = {};
         if(MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) options = {mimeType:'audio/webm;codecs=opus'};
         else if(MediaRecorder.isTypeSupported('audio/webm')) options = {mimeType:'audio/webm'};
-        else if(MediaRecorder.isTypeSupported('audio/mp4')) options = {mimeType:'audio/mp4'};
         mediaRecorder = new MediaRecorder(stream, options);
         mediaRecorder.ondataavailable = e => { if(e.data && e.data.size > 0) audioChunks.push(e.data); };
         mediaRecorder.onstop = async () => {
             const blob = new Blob(audioChunks, {type: mediaRecorder.mimeType || 'audio/webm'});
-            if(blob.size > MAX_MEDIA_SIZE){ showToast('❌ Голосовое слишком большое (>800КБ)'); return; }
+            if(blob.size > MAX_MEDIA_SIZE){ showToast(`❌ Голосовое > ${Math.round(MAX_MEDIA_SIZE/1024)}КБ`); return; }
             const b64 = await blobToBase64(blob);
             pendingMedia = {type:'audio', url:b64};
             await sendMessage();
@@ -1439,7 +1386,7 @@ function openForwardModal(ids){
             if(c.type === 'private'){
                 const o = Object.keys(c.participants||{}).find(uid => uid !== currentUser.id);
                 const u = state.users[o]; name = u?.name || o;
-                if(u?.avatarUrl){ avStyle = `background-image:url(${u.avatarUrl});background-size:cover;background-position:center`; av = ''; }
+                if(u?.avatarUrl){ avStyle = `background-image:url(${u.avatarUrl});background-size:cover`; av = ''; }
                 else av = u?.avatar || name[0]?.toUpperCase() || '?';
             }
             return `<div class="forward-chat" data-forward="${id}"><div class="fc-av" style="${avStyle}">${esc(av)}</div><div><div class="fc-name">${esc(name)}</div></div></div>`;
@@ -1465,7 +1412,7 @@ async function doForward(chatId){
         const up = {};
         for(const uid of Object.keys(parts)){
             if(uid !== currentUser.id) up[`userChats/${uid}/${chatId}/unreadCount`] = firebase.database.ServerValue.increment(1);
-            up[`userChats/${uid}/${chatId}/lastMessage`] = '📤 Переслано';
+            up[`userChats/${uid}/${chatId}/lastMessage`] = '📤';
             up[`userChats/${uid}/${chatId}/lastMessageTime`] = Date.now();
         }
         await db.ref().update(up);
@@ -1581,12 +1528,11 @@ async function saveProfileEdits(){
     showToast('✅');
 }
 
-// ⚡ ОПТИМИЗИРОВАННАЯ ОТМЕТКА ПРОЧТЕНИЯ
 async function markChatAsRead(chatId){
     if(!currentUser || !chatId) return;
     try{
         await db.ref(`readBy/${chatId}/${currentUser.id}`).set(Date.now());
-    }catch(e){ console.warn('markRead err', e); }
+    }catch(e){}
 }
 
 async function openChat(chatId){
@@ -1629,7 +1575,6 @@ async function openChat(chatId){
     else $('messagesContainer').innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i></div>';
     applyChatWallpaper(chatId);
 
-    // ⚡ readBy: одна запись на чат+юзера
     readByListener = db.ref(`readBy/${chatId}`).on('value', snap=>{
         chatReadBy[chatId] = snap.val() || {};
         const msgs = messageCache[chatId] || {};
@@ -1648,7 +1593,6 @@ async function openChat(chatId){
         }
     });
 
-    // ⚡ Только 30 последних сообщений
     messagesListener = db.ref(`messages/${chatId}`).orderByChild('timestamp').limitToLast(MSG_LIMIT).on('value', snap=>{
         const msgs=snap.val()||{};
         const hadCache = !!messageCache[chatId];
@@ -1660,14 +1604,12 @@ async function openChat(chatId){
         const hiddenSnap = await db.ref(`hidden/${currentUser.id}/${chatId}`).once('value');
         hiddenMessages[chatId] = hiddenSnap.val() || {};
     }catch(e){ hiddenMessages[chatId] = {}; }
-    // ⚡ pinned — через once, не live
     try{
         const pinSnap = await db.ref(`pinned/${chatId}`).once('value');
         pinnedMessage = pinSnap.val();
         renderPinned();
     }catch(e){}
     if(chat.unreadCount){ db.ref(`userChats/${currentUser.id}/${chatId}/unreadCount`).set(0); }
-    // ⚡ Помечаем прочитанным 1 раз
     markChatAsRead(chatId);
 }
 
@@ -1748,7 +1690,6 @@ function appendNewMessages(msgs,chatId){
     requestAnimationFrame(()=>{ container.scrollTop = container.scrollHeight; });
 }
 
-// ============== УВЕДОМЛЕНИЯ ==============
 let notifInitialized = false;
 const lastSeenMsgTs = {};
 let notifEnabled = localStorage.getItem('notif_enabled') !== 'false';
@@ -1769,7 +1710,7 @@ function showSystemNotification(title, body, icon, tag){
         if(!('Notification' in window)) return false;
         if(Notification.permission !== 'granted') return false;
         if(!document.hidden) return false;
-        const opts = { body: body || '', icon: icon || null, badge: icon, tag: tag || ('dg-' + Date.now()), renotify: true, silent: false };
+        const opts = { body: body || '', icon: icon || null, badge: icon, tag: tag || ('dg-' + Date.now()) };
         const notif = new Notification(title, opts);
         notif.onclick = function(){ window.focus(); this.close(); if(tag && tag.startsWith('chat-')){ const cid = tag.replace('chat-',''); setTimeout(()=>{ openChat(cid); }, 100); } };
         setTimeout(()=>{ try{notif.close()}catch(e){} }, 8000);
@@ -1778,9 +1719,7 @@ function showSystemNotification(title, body, icon, tag){
 }
 function vibrate(pattern){
     if(!vibroEnabled) return;
-    try{
-        if(navigator.vibrate) navigator.vibrate(pattern);
-    }catch(e){}
+    try{ if(navigator.vibrate) navigator.vibrate(pattern); }catch(e){}
 }
 function bindNotifSettings(){
     const ns = $('notifSwitch'); const ss = $('soundSwitch'); const vs = $('vibroSwitch');
@@ -1803,8 +1742,7 @@ function getAudioCtx(){
 function playNotifSound(){
     if(!soundEnabled) return;
     try{
-        const ctx = getAudioCtx();
-        if(!ctx) return;
+        const ctx = getAudioCtx(); if(!ctx) return;
         if(ctx.state === 'suspended'){ try{ ctx.resume(); }catch(e){} }
         const now = ctx.currentTime;
         const masterGain = ctx.createGain();
@@ -1842,7 +1780,7 @@ function showMessageNotification(data){
     el.className = 'notif' + (t?' '+t:'');
     el.dataset.chatId = data.chatId;
     let avStyle = '', avContent = '';
-    if(data.senderAvatarUrl){ avStyle = `background-image:url(${data.senderAvatarUrl});background-size:cover;background-position:center`; }
+    if(data.senderAvatarUrl){ avStyle = `background-image:url(${data.senderAvatarUrl});background-size:cover`; }
     else avContent = esc(data.senderAvatar || data.senderName?.[0]?.toUpperCase() || '?');
     const timeStr = new Date(data.ts || Date.now()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
     el.innerHTML = `<div class="notif-avatar" style="${avStyle}">${avContent}</div><div class="notif-content"><div class="notif-name">${t ? '👑 ' : ''}${esc(data.senderName)}</div><div class="notif-text">${esc(data.text || '📎')}</div><div class="notif-time">${timeStr}</div></div><button class="notif-close" type="button">✕</button>`;
@@ -1889,7 +1827,7 @@ function watchChatForNewMessages(chatId){
         const sender = state.users[msg.senderId] || {};
         const isSG = !!sender.spacegodType && !sender.spacegodDisabled;
         let text = msg.text || '';
-        if(!text){ if(msg.mediaType === 'photo') text = '📷 Фото'; else if(msg.mediaType === 'video') text = '🎥 Видео'; else if(msg.mediaType === 'audio') text = '🎤 Голосовое'; else text = 'Сообщение'; }
+        if(!text){ if(msg.mediaType === 'photo') text = '📷'; else if(msg.mediaType === 'video') text = '🎥'; else if(msg.mediaType === 'audio') text = '🎤'; else text = 'Сообщение'; }
         if(text.length > 60) text = text.slice(0, 57) + '...';
         const chat = state.userChats[chatId] || {};
         let count = chat.unreadCount || 0;
@@ -1898,7 +1836,6 @@ function watchChatForNewMessages(chatId){
 }
 setTimeout(()=>{ watcherBootTime = Date.now(); }, 2000);
 
-// ============== СПИСОК ЧАТОВ ==============
 let _renderChatsTimer = null;
 function debouncedRenderChats(){ if(_renderChatsTimer) return; _renderChatsTimer = setTimeout(()=>{ _renderChatsTimer = null; renderChats(); }, 200); }
 
@@ -1926,7 +1863,7 @@ function renderChats(){
             const u=state.users[o];
             name=u?.name||o;
             t = getSpacegodType(o);
-            if(u?.avatarUrl){ avatarStyle=`background-image:url(${u.avatarUrl});background-size:cover;background-position:center`; av=''; }
+            if(u?.avatarUrl){ avatarStyle=`background-image:url(${u.avatarUrl});background-size:cover`; av=''; }
             else av=u?.avatar||name[0]?.toUpperCase()||'?';
             const os = getOnlineStatus(o);
             onlineDot = `<div class="online-dot ${os.online?'':'offline'}"></div>`;
@@ -1950,16 +1887,12 @@ async function ensureNotesChat(){
     }
 }
 
-// ⚡ ОПТИМИЗИРОВАННЫЙ loadData — минимум слушателей
 let _loadDataBound = false;
 function loadData(){
     if(_loadDataBound) return; _loadDataBound = true;
     startNotificationWatcher();
-    // ⚡ userChats — live (нужен для новых чатов)
     db.ref('userChats/'+currentUser.id).on('value',s=>{state.userChats=s.val()||{};debouncedRenderChats()});
-    // ⚡ users — live, но редко меняется
     db.ref('users').on('value',s=>{state.users=s.val()||{};debouncedRenderChats();updateUserCount()});
-    // ⚡ inventory — live (баланс)
     db.ref(`inventory/${currentUser.id}`).on('value',s=>{
         const v = s.val();
         if(v){
@@ -1971,19 +1904,14 @@ function loadData(){
             const sgTab = $('spacegodTabBtn'); if(sgTab) sgTab.style.display = userInventory.ownedSpacegods.length ? 'inline-block' : 'none';
         }
     });
-    // ⚡ blocked — live, но маленький
     db.ref(`users/${currentUser.id}/blockedUsers`).on('value',s=>{
         blockedUsers = s.val() || {};
         const cnt = Object.keys(blockedUsers).length;
         const el = $('blockedCount'); if(el) el.innerText = cnt;
         debouncedRenderChats();
     });
-    // ⚡ forceLogout — live (нужен для разлогина)
     db.ref(`forceLogout/${currentUser.id}`).on('value',s=>{if(s.exists()){showToast('⚠️');logout()}});
-    // ⚡ hackerOwner — once (не меняется часто)
     db.ref('hackerOwner').once('value', s=>{ hackerOwner = s.val() || null; }).catch(()=>{});
-    // ⚡ casino config — once (не критично если меняется)
-    db.ref('casino/config').once('value', s=>{ const v = s.val(); if(v) casinoCfg = {...casinoCfg, ...v}; }).catch(()=>{});
 }
 function updateUserCount(){const cnt=Object.keys(state.users||{}).length;if($('userCount'))$('userCount').innerText=`${cnt}/${MAX}`;}
 function selectPhoto(){closeModal('attachMenu');$('photoInput').click()}
@@ -1994,7 +1922,7 @@ function showAllUsers(){
     const others=Object.entries(state.users).filter(([id])=>{ if(id === currentUser.id) return false; if(isBlocked(id)) return false; if(amIBlockedBy(id)) return false; return true; });
     g.innerHTML=others.map(([id,u])=>{
         let avatarStyle='',avatarContent='';
-        if(u.avatarUrl){ avatarStyle=`background-image:url(${u.avatarUrl});background-size:cover;background-position:center`; }
+        if(u.avatarUrl){ avatarStyle=`background-image:url(${u.avatarUrl});background-size:cover`; }
         else avatarContent=esc(u.avatar||id[0]?.toUpperCase()||'?');
         const t = getSpacegodType(id);
         const avatarCls = 'user-card-avatar' + (t?` ${t}`:'');
@@ -2077,7 +2005,6 @@ function setupPresence(){
         }
     });
     window.addEventListener('beforeunload', () => { myStatusRef.set('offline'); myLastSeenRef.set(Date.now()); });
-    // ⚡ Heartbeat раз в 2 минуты вместо 30 секунд
     setInterval(() => { if(currentUser && document.visibilityState === 'visible'){ myLastSeenRef.set(Date.now()); } }, 120000);
 }
 
@@ -2090,9 +2017,7 @@ function attachLongPressHandlers(){
     let lastTapMsgId = null;
     let longPressTimer = null;
     let longPressFired = false;
-    let touchStartX = 0;
-    let touchStartY = 0;
-    let touchStartTime = 0;
+    let touchStartX = 0, touchStartY = 0, touchStartTime = 0;
     let isScrolling = false;
     let activeMsgId = null;
 
@@ -2227,7 +2152,7 @@ document.addEventListener('click',function(e){
     if(closest('#logoutBtn')){e.preventDefault();logout();return}
     if(closest('#backBtn')){e.preventDefault();goBack();return}
     if(closest('#chatMenuBtn')){e.preventDefault();if(currentChat)openModal('chatMenuModal');return}
-    if(closest('#bgBtn')){e.preventDefault();if(currentChat){ const row=$('customBgRow'); if(row) row.style.display=userInventory.spacegod?'block':'none'; openModal('backgroundModal'); }return}
+    if(closest('#bgBtn')){e.preventDefault();if(currentChat){ openModal('backgroundModal'); }return}
     if(closest('#uploadChatBgBtn')){e.preventDefault();$('chatBgFile').click();return}
     if(closest('#uploadSidebarThemeBtn')){e.preventDefault();$('sidebarThemeFile').click();return}
     if(closest('#resetSidebarThemeBtn')){e.preventDefault();resetSidebarTheme();return}
