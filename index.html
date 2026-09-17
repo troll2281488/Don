@@ -1185,9 +1185,9 @@ function showMessageNotification(data){
     if(!data || !currentUser) return;
     if(!notifEnabled) return;
     if(currentChat && currentChat === data.chatId) return;
+    vibrate([300,100,300]);
+    playNotifSound();
     if(document.hidden){
-        vibrate([300,100,300]);
-        playNotifSound();
         showSystemNotification((data.senderName || 'Сообщение'), data.text || '📎', data.senderAvatarUrl || null, 'chat-' + data.chatId);
         return;
     }
@@ -1307,9 +1307,17 @@ function ensureNotesChat(){
         }
     });
 }
+function refreshUsersList(){
+    db.ref('users').once('value').then(function(s){
+        state.users = s.val() || {};
+        var cnt = Object.keys(state.users||{}).length;
+        if($('userCount')) $('userCount').innerText = cnt + '/' + MAX;
+        debouncedRenderChats();
+    });
+}
 function loadData(){
     startNotificationWatcher();
-    db.ref('users').on('value',function(s){state.users=s.val()||{};debouncedRenderChats();});
+    db.ref('users').on('value',function(s){state.users=s.val()||{};var cnt=Object.keys(state.users||{}).length;if($('userCount'))$('userCount').innerText=cnt+'/'+MAX;debouncedRenderChats();});
     db.ref('userChats/'+currentUser.id).on('value',function(s){state.userChats=s.val()||{};debouncedRenderChats();});
     db.ref('inventory/'+currentUser.id).on('value',function(s){
         var v = s.val();
@@ -1648,7 +1656,7 @@ function setupPresence(){
         }
     });
     window.addEventListener('beforeunload', function(){ myStatusRef.set('offline'); myLastSeenRef.set(Date.now()); });
-    setInterval(function(){ if(currentUser && document.visibilityState === 'visible'){ myLastSeenRef.set(Date.now()); } }, 60000);
+    setInterval(function(){ if(currentUser && document.visibilityState === 'visible'){ myLastSeenRef.set(Date.now()); } }, 30000);
 }
 document.addEventListener('DOMContentLoaded', function(){
     document.querySelectorAll('.modal,.image-viewer,.video-viewer').forEach(function(el){ el.classList.remove('show'); el.style.display='none'; });
