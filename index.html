@@ -367,7 +367,6 @@ input:checked+.slider:before{transform:translateX(26px)}
 <div class="modal" id="settingsModal"><div class="modal-content">
 <div class="modal-header"><h3>⚙️ Настройки</h3><button type="button" data-close="settingsModal">&times;</button></div>
 <button id="settingsEditProfileBtn" class="login-btn" style="background:#f0f4ff;color:#333">✏️ Редактировать профиль</button>
-<button id="settingsBlockedBtn" class="login-btn" style="background:#fff0f0;color:#ff3b30">🚫 Заблокированные</button>
 <button id="settingsEnableNotifBtn" class="login-btn" style="background:#e8f4ff;color:#0083b0">🔔 Push-уведомления</button>
 <div class="settings-item"><span>🔔 Уведомления</span><label class="switch"><input type="checkbox" id="notifSwitch" checked><span class="slider"></span></label></div>
 <div class="settings-item"><span>🔊 Звук</span><label class="switch"><input type="checkbox" id="soundSwitch" checked><span class="slider"></span></label></div>
@@ -389,14 +388,6 @@ input:checked+.slider:before{transform:translateX(26px)}
 <div style="aspect-ratio:1;background:#1a1a2e;border-radius:12px;cursor:pointer" data-bg="#1a1a2e"></div>
 <div style="aspect-ratio:1;background:linear-gradient(135deg,#34c759,#28a745);border-radius:12px;cursor:pointer" data-bg="linear-gradient(135deg,#34c759,#28a745)"></div>
 <div style="aspect-ratio:1;background:linear-gradient(135deg,#ff6b9d,#ff0844);border-radius:12px;cursor:pointer" data-bg="linear-gradient(135deg,#ff6b9d,#ff0844)"></div>
-</div>
-<div id="sgBgSection" style="display:none;margin-top:14px">
-<p style="font-size:12px;color:#8e98a3;margin-bottom:8px">🌟 SpaceGod-обои</p>
-<div id="sgBgGrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px"></div>
-</div>
-<div id="customBgRow" style="display:none;margin-top:14px">
-<button id="uploadChatBgBtn" class="login-btn" type="button" style="background:linear-gradient(135deg,#667eea,#764ba2)">📷 Своё фото</button>
-<input type="file" id="chatBgFile" accept="image/*" style="display:none">
 </div>
 </div></div>
 
@@ -436,6 +427,7 @@ let pushEnabled = false;
 let matrixInterval = null;
 let profileMatrixInterval = null;
 let mediaRecorder=null,audioChunks=[],recordingStartTime=0,recordingTimerInterval=null,recordingStream=null;
+
 const SHOP_AVATARS=[
 {id:'default',name:'Стандарт',emoji:'U',price:0,style:'linear-gradient(135deg,#667eea,#764ba2)',type:'emoji'},
 {id:'cat',name:'🐱 Котик',emoji:'🐱',price:0,style:'linear-gradient(135deg,#ffecd2,#fcb69f)',type:'emoji'},
@@ -488,15 +480,19 @@ const SPACEGOD_THEMES=[
 {id:'gold',name:'👑 Золото',bg:'linear-gradient(135deg,#f7971e,#ffd200)'},
 {id:'matrix',name:'🟢 Матрица',bg:'linear-gradient(135deg,#000000,#0f2027,#2c5364)'}
 ];
+
 let userInventory={avatars:['default'],bubbles:['none'],activeAvatar:'default',activeBubble:'none',balance:5000,spacegod:false,spacegodType:null,spacegodDisabled:false,ownedSpacegods:[],sidebarTheme:'none',sidebarCustomImg:null};
+
 function $(id){return document.getElementById(id)}
 function showToast(m){const t=document.createElement('div');t.className='toast';t.innerHTML=m;document.body.appendChild(t);setTimeout(()=>t.remove(),3500)}
 function esc(s){if(!s)return'';return String(s).replace(/[&<>]/g,m=>m==='&'?'&amp;':m==='<'?'&lt;':m==='>'?'&gt;':'')}
 function formatTime(ts){return ts?new Date(ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):''}
 function fileToBase64(f){return new Promise((r,j)=>{const x=new FileReader();x.onload=()=>r(x.result);x.onerror=j;x.readAsDataURL(f)})}
 function blobToBase64(blob){return new Promise((r,j)=>{const x=new FileReader();x.onload=()=>r(x.result);x.onerror=j;x.readAsDataURL(blob)})}
+
 function hideSplash(){var s=$('splashScreen');if(s){s.classList.remove('show');s.style.display='none';}}
 function showLoginScreen(){var s=$('splashScreen');if(s){s.classList.remove('show');s.style.display='none';}$('loginScreen').style.display='flex';}
+
 function openModal(id){
     const el=$(id);if(el){el.classList.add('show');el.style.display='flex';}
     if(id==='profileModal'){
@@ -513,6 +509,7 @@ function closeModal(id){
     const el=$(id);if(el){el.classList.remove('show');el.style.display='none';}
     if(id==='profileModal')stopProfileMatrix();
 }
+
 function getSpacegodType(uid){
     if(!uid) return null;
     if(uid === (currentUser&&currentUser.id)){ if(userInventory.spacegodDisabled) return null; return userInventory.spacegodType || null; }
@@ -520,6 +517,7 @@ function getSpacegodType(uid){
 }
 function isBlocked(uid){ return !!blockedUsers[uid]; }
 function amIBlockedBy(uid){ const them = state.users[uid]; return !!(them && them.blockedUsers && them.blockedUsers[currentUser.id]); }
+
 function getReadStatus(msgId, msgSenderId){
     if(msgSenderId !== currentUser.id) return null;
     const msgs = messageCache[currentChat] || {};
@@ -545,11 +543,13 @@ function getReadStatusHtml(msgId, msgSenderId){
     if(typeof st === 'object' && st.status === 'delivered') return '<span class="read-status delivered"><span class="rs-icon">✓✓</span> доставлено</span>';
     return '<span class="read-status sent"><span class="rs-icon">✓</span> отправлено</span>';
 }
+
 function saveMediaToDevice(url,type){try{const a=document.createElement('a');a.href=url;const ext=type==='image'?'jpg':'mp4';a.download='dg_'+Date.now()+'.'+ext;document.body.appendChild(a);a.click();document.body.removeChild(a);showToast('💾');}catch(e){showToast('❌');}}
 function viewImage(url){$('viewedImage').src=url;openModal('imageViewer');}
 function closeImageViewer(){closeModal('imageViewer');}
 function viewVideo(url){const v=$('viewedVideo');v.src=url;openModal('videoViewer');v.play();}
 function closeVideoViewer(){const v=$('viewedVideo');v.pause();v.src='';closeModal('videoViewer');}
+
 function renderShopAvatars(){
     const g=$('shopAvatarsGrid');if(!g)return;
     g.innerHTML=SHOP_AVATARS.map(a=>{
@@ -606,6 +606,7 @@ function renderSGBackgrounds(){
         return '<div class="theme-item" data-sgbg="'+b.sgId+'" style="background:'+b.style+';background-size:300% 300%"><div class="theme-name">'+b.name+'</div></div>';
     }).join('');
 }
+
 function buyOrSelectAvatar(id){
     const it=SHOP_AVATARS.find(a=>a.id===id);if(!it)return;
     if(userInventory.avatars.indexOf(id)<0) userInventory.avatars.push(id);
@@ -667,11 +668,13 @@ function buySpecial(id){
     if(currentChat){ const msgs = messageCache[currentChat]; if(msgs) renderMessages(msgs, currentChat); }
     showToast(it.emoji+' '+it.name+'!');
 }
+
 function selectTheme(id){
     if(!userInventory.spacegod) return;
     if(id === 'custom'){if(!userInventory.sidebarCustomImg){showToast('❌ Загрузи фото');return;}}
     userInventory.sidebarTheme = id;saveInventory();applySidebarTheme();renderThemes();showToast('✅');
 }
+
 function applySidebarTheme(){
     const sb = $('sidebar'); const ov = $('sidebarOverlay'); if(!sb) return;
     const themeId = userInventory.sidebarTheme || 'none';
@@ -773,6 +776,7 @@ function updateSpaceGodUI(){
     applySpaceGodToUI();
 }
 function saveInventory(){if(!currentUser)return;userInventory.balance = Number(userInventory.balance) || 0;db.ref('inventory/'+currentUser.id).set(userInventory).catch(function(){});}
+
 function sendMessage(){
     if(isSendingMessage) return;
     const input=$('messageInput');
@@ -834,6 +838,7 @@ function sendMessage(){
     });
 }
 function exitEditMode(){editingMessageId = null;var bar = $('editBar');if(bar) bar.classList.remove('show');var input = $('messageInput');if(input) input.value = '';}
+
 function startRecording(){
     if(isRecording) return;
     if(!currentChat){ showToast('❌ Открой чат'); return; }
@@ -886,6 +891,7 @@ function stopRecording(send){
     if(recordingStream){ try{ recordingStream.getTracks().forEach(function(t){t.stop();}); }catch(e){} recordingStream = null; }
     mediaRecorder = null;
 }
+
 function openActionSheet(msgId){
     var msgs = messageCache[currentChat] || {};
     var m = msgs[msgId]; if(!m) return;
@@ -920,6 +926,7 @@ function showStickerModal(){openModal('stickerModal');}
 function renderStickers(){var c=$('stickerPack');if(!c)return;c.innerHTML=stickers.map(function(s){return '<div class="sticker" data-sticker="'+s+'" style="cursor:pointer">'+s+'</div>';}).join('');}
 function blockUser(uid){if(!uid || uid === currentUser.id) return;if(isBlocked(uid)){ showToast('Уже'); return; }if(!confirm('Заблокировать?')) return;blockedUsers[uid] = true;db.ref('users/'+currentUser.id+'/blockedUsers/'+uid).set(true);closeModal('profileModal');closeModal('usersModal');debouncedRenderChats();showToast('🚫');}
 function unblockUser(uid){if(!uid) return;if(!confirm('Разблокировать?')) return;delete blockedUsers[uid];db.ref('users/'+currentUser.id+'/blockedUsers/'+uid).remove();closeModal('profileModal');closeModal('blockedModal');debouncedRenderChats();showToast('✅');}
+
 function showProfile(uid){
     var u=state.users[uid];if(!u)return;
     currentProfileUid = uid;
@@ -1184,10 +1191,9 @@ function playNotifSound(){
 function showMessageNotification(data){
     if(!data || !currentUser) return;
     if(!notifEnabled) return;
-    if(currentChat && currentChat === data.chatId) return;
-    vibrate([300,100,300]);
-    playNotifSound();
     if(document.hidden){
+        vibrate([300,100,300]);
+        playNotifSound();
         showSystemNotification((data.senderName || 'Сообщение'), data.text || '📎', data.senderAvatarUrl || null, 'chat-' + data.chatId);
         return;
     }
@@ -1307,17 +1313,9 @@ function ensureNotesChat(){
         }
     });
 }
-function refreshUsersList(){
-    db.ref('users').once('value').then(function(s){
-        state.users = s.val() || {};
-        var cnt = Object.keys(state.users||{}).length;
-        if($('userCount')) $('userCount').innerText = cnt + '/' + MAX;
-        debouncedRenderChats();
-    });
-}
 function loadData(){
     startNotificationWatcher();
-    db.ref('users').on('value',function(s){state.users=s.val()||{};var cnt=Object.keys(state.users||{}).length;if($('userCount'))$('userCount').innerText=cnt+'/'+MAX;debouncedRenderChats();});
+    db.ref('users').on('value',function(s){state.users=s.val()||{};debouncedRenderChats();});
     db.ref('userChats/'+currentUser.id).on('value',function(s){state.userChats=s.val()||{};debouncedRenderChats();});
     db.ref('inventory/'+currentUser.id).on('value',function(s){
         var v = s.val();
@@ -1498,7 +1496,6 @@ document.addEventListener('click', function(e){
     if(closest('#stickerBtn')){ e.preventDefault(); showStickerModal(); return; }
     if(closest('#settingsBtn')){ e.preventDefault(); openModal('settingsModal'); return; }
     if(closest('#settingsEditProfileBtn')){ e.preventDefault(); closeModal('settingsModal'); openEditProfile(); return; }
-    if(closest('#settingsBlockedBtn')){ e.preventDefault(); openModal('blockedModal'); return; }
     if(closest('#settingsEnableNotifBtn')){ e.preventDefault(); requestPushPermission().then(function(ok){ if(ok) showToast('🔔'); }); return; }
     if(closest('#logoutBtn')){ e.preventDefault(); logout(); return; }
     if(closest('#backBtn')){ e.preventDefault(); goBack(); return; }
