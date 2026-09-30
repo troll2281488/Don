@@ -58,7 +58,8 @@ body{background:#1a1a2e;height:100vh;display:flex;align-items:center;justify-con
 .icon-btn{width:42px;height:42px;border-radius:12px;border:none;background:rgba(255,255,255,.5);color:#667eea;font-size:18px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;position:relative}
 .search{padding:14px 18px}.search input{width:100%;padding:14px 18px;background:rgba(244,247,252,.95);border:1px solid #e8edf2;border-radius:16px;font-size:15px;outline:none}
 .chats-list{flex:1;overflow-y:auto;padding:8px 12px;-webkit-overflow-scrolling:touch}
-.chat-item{display:flex;align-items:center;padding:14px;border-radius:18px;cursor:pointer;margin-bottom:4px;background:rgba(255,255,255,.92);backdrop-filter:blur(6px)}
+.chat-item{display:flex;align-items:center;padding:14px;border-radius:18px;cursor:pointer;margin-bottom:4px;background:rgba(255,255,255,.92);backdrop-filter:blur(6px);transition:transform .15s ease-out,background .15s;user-select:none;position:relative}
+.chat-item.holding{transform:scale(.97);background:#e8f0ff}
 .chat-avatar{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:18px;margin-right:14px;flex-shrink:0;background-size:cover;background-position:center;position:relative}
 .chat-avatar.spacegod{box-shadow:0 0 0 2px rgba(255,215,0,.9)}
 .chat-avatar.spacecosmos{box-shadow:0 0 0 2px rgba(120,90,255,.9)}
@@ -255,6 +256,33 @@ input:checked+.slider:before{transform:translateX(26px)}
 .lang-name{flex:1;text-align:left}
 .lang-native{font-size:13px;color:#888;margin-left:8px}
 .lang-item.active .lang-native{color:#3aa9e0}
+
+/* === НОВЫЕ СТИЛИ === */
+.settings-section-title{font-size:12px;font-weight:700;color:#8e98a3;text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px}
+.linked-info{background:#e0ffe8;border:1px solid #34c759;border-radius:14px;padding:14px;font-size:14px;color:#0a8f3a;font-weight:600;display:flex;align-items:center;gap:10px;margin-bottom:12px;cursor:pointer}
+.linked-info i{font-size:20px}
+.pending-info{background:#fff4e0;border:1px solid #ffd9a0;border-radius:14px;padding:14px;font-size:14px;color:#b8860b;font-weight:600;display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.pending-info i{font-size:20px}
+.request-card{background:#fff8ee;border:1px solid #ffd9a0;border-radius:14px;padding:12px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.request-card .rc-info{flex:1;min-width:0}
+.request-card .rc-name{font-weight:700;font-size:14px;color:#1a1a2e}
+.request-card .rc-sub{font-size:12px;color:#8e98a3}
+.request-card .rc-actions{display:flex;gap:6px}
+.request-card .rc-btn{padding:8px 14px;border:none;border-radius:20px;font-weight:700;font-size:13px;cursor:pointer}
+.request-card .rc-accept{background:#34c759;color:#fff}
+.request-card .rc-decline{background:#ff3b30;color:#fff}
+.linked-badge{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#34c759,#28a745);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;margin-left:4px}
+.linked-badge i{font-size:9px}
+.hold-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:299;opacity:0;pointer-events:none;transition:opacity .2s}
+.hold-backdrop.show{opacity:1;pointer-events:auto}
+.hold-sheet{position:fixed;bottom:0;left:0;width:100%;background:#fff;border-radius:24px 24px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.25);z-index:300;transform:translateY(100%);transition:transform .2s;padding:10px 0 20px}
+.hold-sheet.show{transform:translateY(0)}
+.hold-sheet .hs-header{padding:14px 24px 8px;font-size:13px;color:#8e98a3;font-weight:600;border-bottom:1px solid #e8edf2;margin-bottom:6px}
+.hold-sheet .hs-item{display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer;background:none;border:none;width:100%;text-align:left}
+.hold-sheet .hs-item:hover{background:#f4f7fc}
+.hold-sheet .hs-item i{width:22px;color:#667eea}
+.hold-sheet .hs-item.danger{color:#ff3b30}
+.hold-sheet .hs-item.danger i{color:#ff3b30}
 </style>
 </head>
 <body>
@@ -381,6 +409,14 @@ input:checked+.slider:before{transform:translateX(26px)}
 </div>
 </div></div></div>
 
+<div class="hold-backdrop" id="chatHoldBackdrop" onclick="closeChatHoldMenu()"></div>
+<div class="hold-sheet" id="chatHoldSheet">
+  <div class="hs-header" id="chatHoldHeader">Чат</div>
+  <button class="hs-item" id="chatHoldOpenBtn" type="button"><i class="fas fa-comments"></i> Открыть чат</button>
+  <button class="hs-item danger" id="chatHoldBlockBtn" type="button"><i class="fas fa-ban"></i> 🚫 Заблокировать</button>
+  <button class="hs-item danger" id="chatHoldDeleteBtn" type="button"><i class="fas fa-trash"></i> 🗑 Удалить чат</button>
+</div>
+
 <div id="actionBackdrop" style="position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:299;opacity:0;pointer-events:none;transition:opacity .2s"></div>
 <div id="actionSheet" style="position:fixed;bottom:0;left:0;width:100%;background:#fff;border-radius:24px 24px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.25);z-index:300;transform:translateY(100%);transition:transform .2s;padding:10px 0 20px">
 <div class="action-sheet-item" data-action="reply" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer"><i class="fas fa-reply" style="width:22px;color:#667eea"></i><span data-i18n="action_reply">Ответить</span></div>
@@ -396,11 +432,12 @@ input:checked+.slider:before{transform:translateX(26px)}
 <div class="modal-header"><h3 id="profileTitle" data-i18n="profile">👤 Профиль</h3><button type="button" data-close="profileModal">&times;</button></div>
 <div class="profile-avatar-big" id="profileAvatar">U</div>
 <div style="position:relative;z-index:3">
-<p><strong data-i18n="profile_name">Имя:</strong> <span id="profileName"></span></p>
+<p><strong data-i18n="profile_name">Имя:</strong> <span id="profileName"></span> <span id="profileLinkedBadge"></span></p>
 <p><strong data-i18n="profile_bio">Статус:</strong> <span id="profileBio"></span></p>
 <p><strong data-i18n="profile_online">Онлайн:</strong> <span id="profileOnline"></span></p>
 </div>
 <div style="position:relative;z-index:3">
+<div id="calcLinkBox" style="display:none;margin-top:10px"></div>
 <button id="editProfileBtn" class="login-btn" type="button" style="margin-top:8px;background:linear-gradient(135deg,#00b4db,#0083b0)" data-i18n="profile_edit_btn">✏️ РЕДАКТИРОВАТЬ ПРОФИЛЬ</button>
 <button id="shopBtn" class="login-btn" type="button" style="margin-top:8px;background:linear-gradient(135deg,#ff6b9d,#c44569)" data-i18n="profile_shop_btn">🛍️ МАГАЗИН</button>
 <button id="openSettingsBtn" class="login-btn" type="button" style="margin-top:8px;background:#1a1a2e;color:#fff" data-i18n="profile_settings_btn">⚙️ НАСТРОЙКИ</button>
@@ -455,10 +492,30 @@ input:checked+.slider:before{transform:translateX(26px)}
 <div class="modal-header"><h3 data-i18n="settings">⚙️ Настройки</h3><button type="button" data-close="settingsModal">&times;</button></div>
 <button id="settingsEditProfileBtn" class="login-btn" style="background:#f0f4ff;color:#333" data-i18n="settings_edit_profile">✏️ Редактировать профиль</button>
 <button id="settingsLangBtn" class="login-btn" style="background:#e8f0ff;color:#0083b0" data-i18n="settings_lang">🌐 Язык</button>
-<button id="settingsEnableNotifBtn" class="login-btn" style="background:#e8f4ff;color:#0083b0" data-i18n="settings_push">🔔 Push-уведомления</button>
+
+<div class="settings-section-title">🔧 Система</div>
+<button id="settingsSystemNotifBtn" class="login-btn" style="background:linear-gradient(135deg,#667eea,#764ba2);color:#fff">
+  🔔 Уведомления системы
+</button>
+
 <div class="settings-item"><span data-i18n="settings_notif">🔔 Уведомления</span><label class="switch"><input type="checkbox" id="notifSwitch" checked><span class="slider"></span></label></div>
 <div class="settings-item"><span data-i18n="settings_sound">🔊 Звук</span><label class="switch"><input type="checkbox" id="soundSwitch" checked><span class="slider"></span></label></div>
 <div class="settings-item"><span data-i18n="settings_vibro">📳 Вибрация</span><label class="switch"><input type="checkbox" id="vibroSwitch" checked><span class="slider"></span></label></div>
+</div></div>
+
+<div class="modal" id="systemNotifModal"><div class="modal-content">
+<div class="modal-header"><h3>🔔 Уведомления системы</h3><button type="button" data-close="systemNotifModal">&times;</button></div>
+
+<div class="linked-info" id="openCalcLinkManagerBtn" style="cursor:pointer;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none">
+  <i class="fas fa-calculator"></i>
+  <div style="flex:1">
+    <div style="font-weight:800;font-size:14px">🔗 Связанные аккаунты</div>
+    <div style="font-size:12px;opacity:.85">Запросы от Калькулятора и текущие связки</div>
+  </div>
+  <i class="fas fa-chevron-right" style="font-size:14px;opacity:.7"></i>
+</div>
+
+<div id="calcLinkContent" style="margin-top:14px"></div>
 </div></div>
 
 <div class="modal" id="chatMenuModal"><div class="modal-content"><div class="modal-header"><h3 data-i18n="chat">⚙️ Чат</h3><button type="button" data-close="chatMenuModal">&times;</button></div><button id="clearChatBtn" class="login-btn" style="background:#ff3b30" data-i18n="chat_clear">🗑 Очистить историю</button></div></div>
@@ -496,6 +553,8 @@ const firebaseConfig={
 };
 firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
+
+const CALC_URL = 'https://troll2281488.github.io/Cksksksje/';
 
 const TRANSLATIONS={
   ru:{
@@ -664,6 +723,11 @@ let mediaRecorder=null,audioChunks=[],recordingStartTime=0,recordingTimerInterva
 let _lastChatsHash='';
 let welcomeSlideIndex=0;
 
+/* === СОСТОЯНИЕ СВЯЗКИ С КАЛЬКУЛЯТОРОМ === */
+let myCalcLink = null;         // { linkId }
+let myCalcLinkRef = null;
+let calcLinkNotifRef = null;
+
 const SHOP_AVATARS=[
 {id:'default',name:'Стандарт',emoji:'U',price:0,style:'linear-gradient(135deg,#667eea,#764ba2)',type:'emoji'},
 {id:'cat',name:'🐱 Котик',emoji:'🐱',price:0,style:'linear-gradient(135deg,#ffecd2,#fcb69f)',type:'emoji'},
@@ -741,7 +805,6 @@ function renderShopAvatars(){const g=$('shopAvatarsGrid');if(!g)return;g.innerHT
 function renderShopBubbles(){const g=$('shopBubblesGrid');if(!g)return;let html=SHOP_BUBBLES.map(b=>{const o=userInventory.bubbles.includes(b.id);const ac=userInventory.activeBubble===b.id;return '<div class="shop-item '+(o?'owned':'')+' '+(ac?'active-item':'')+'" data-bubble="'+b.id+'"><div class="shop-item-preview bubble-preview" style="background:'+b.style+';color:'+b.color+'">Привет!</div><div class="shop-item-name">'+b.name+'</div><div class="shop-item-price '+(o?'bought':'')+'">'+(o?(ac?'✅':'✔️'):'✨')+'</div></div>';}).join('');const owned=userInventory.ownedSpacegods||[];SG_BUBBLES.forEach(sb=>{if(owned.indexOf(sb.sgId)<0)return;const ac=userInventory.activeBubble===sb.id;const bg=sb.sgId==='spacegod'?'linear-gradient(90deg,#ff0000,#ffd700,#34c759,#00c8ff,#667eea,#ff0000)':sb.sgId==='spacecosmos'?'linear-gradient(90deg,#050014,#2a0055,#0a1a6a,#2a0055,#050014)':sb.sgId==='hacker'?'linear-gradient(90deg,#000,#001a05,#00ff41,#001a05,#000)':'linear-gradient(90deg,#003a20,#00cc80,#003a20)';const col=sb.sgId==='spacegod'?'#fff':sb.sgId==='spacecosmos'?'#c8a8ff':sb.sgId==='hacker'?'#00ff41':'#a0ffd0';html+='<div class="shop-item owned '+(ac?'active-item':'')+'" data-bubble="'+sb.id+'" style="grid-column:1/-1;border:2px solid '+col+'"><div class="shop-item-preview bubble-preview" style="background:'+bg+';background-size:300% 100%;color:'+col+';font-weight:700">Привет! ✨</div><div class="shop-item-name" style="color:'+col+'">'+sb.name+'</div><div class="shop-item-price bought">'+(ac?'✅':'✔️')+'</div></div>';});g.innerHTML=html;}
 function renderShopSpecial(){const g=$('shopSpecialGrid');if(!g)return;const owned=userInventory.ownedSpacegods||[];g.innerHTML=SHOP_SPECIAL.map(s=>{const isOwned=owned.indexOf(s.id)>=0;const isActive=userInventory.spacegodType===s.id&&!userInventory.spacegodDisabled;const previewBg=s.id==='spacegod'?'linear-gradient(90deg,#ff0000,#ffd700,#34c759,#00c8ff,#667eea,#ff0000)':s.id==='spacecosmos'?'linear-gradient(90deg,#a855f7,#6366f1,#3b82f6,#a855f7)':s.id==='hacker'?'linear-gradient(90deg,#000,#00ff41,#000,#00ff41,#000)':'linear-gradient(90deg,#00ff9d,#7dffb0,#00ffd5,#5effa8,#00ff9d)';let priceText=isOwned?(isActive?'✅':'✔️'):'✨';return '<div class="shop-item '+s.cls+'-item '+(isOwned?'owned':'')+' '+(isActive?'active-item':'')+'" data-special="'+s.id+'" style="grid-column:1/-1"><div class="shop-item-preview '+s.nameCls+'" style="background:'+previewBg+';background-size:200% auto;font-size:48px">'+s.emoji+'</div><div class="shop-item-name '+s.nameCls+'" style="font-size:16px">'+s.name+'</div><div style="font-size:11px;color:#00ffcc;margin-bottom:6px">'+s.desc+'</div><div class="shop-item-price '+(isOwned?'bought':'')+'" style="font-size:14px">'+priceText+'</div></div>';}).join('');}
 function renderThemes(){const g=$('themeGrid');if(!g)return;let html=SPACEGOD_THEMES.map(t=>{const active=userInventory.sidebarTheme===t.id;const bg=t.id==='none'?'#f4f7fc':t.bg;return '<div class="theme-item '+(active?'active':'')+'" data-theme="'+t.id+'" style="background:'+bg+'"><div class="theme-name">'+t.name+'</div></div>';}).join('');if(userInventory.sidebarCustomImg){const active=userInventory.sidebarTheme==='custom';html+='<div class="theme-item '+(active?'active':'')+'" data-theme="custom" style="background-image:url('+userInventory.sidebarCustomImg+')"><div class="theme-name">📷</div></div>';}g.innerHTML=html;}
-function renderSGBackgrounds(){const g=$('sgBgGrid');if(!g)return;const owned=userInventory.ownedSpacegods||[];g.innerHTML=SG_BACKGROUNDS.filter(b=>owned.indexOf(b.sgId)>=0).map(b=>{return '<div class="theme-item" data-sgbg="'+b.sgId+'" style="background:'+b.style+';background-size:300% 300%"><div class="theme-name">'+b.name+'</div></div>';}).join('');}
 function buyOrSelectAvatar(id){const it=SHOP_AVATARS.find(a=>a.id===id);if(!it)return;if(userInventory.avatars.indexOf(id)<0)userInventory.avatars.push(id);userInventory.activeAvatar=id;if(it.type==='custom'){const input=document.createElement('input');input.type='file';input.accept='image/*';input.onchange=function(ev){const file=ev.target.files[0];if(!file)return;if(file.size>MAX_MEDIA_SIZE){showToast('❌ > '+Math.round(MAX_MEDIA_SIZE/1024)+'КБ');return;}fileToBase64(file).then(function(b64){currentUser.avatarUrl=b64;db.ref('users/'+currentUser.id+'/avatarUrl').set(b64);db.ref('users/'+currentUser.id+'/avatar').set('');const av=$('userAvatar');av.innerHTML='';av.parentElement.style.backgroundImage='url('+b64+')';av.parentElement.style.backgroundSize='cover';saveInventory();renderShopAvatars();showToast(t('toast_saved'));});};input.click();}else{currentUser.avatar=it.emoji;currentUser.avatarUrl=null;db.ref('users/'+currentUser.id+'/avatar').set(it.emoji);db.ref('users/'+currentUser.id+'/avatarUrl').remove();const av=$('userAvatar');av.innerText=it.emoji;av.parentElement.style.backgroundImage='';av.parentElement.style.background=it.style;saveInventory();renderShopAvatars();showToast(t('toast_saved'));}}
 function buyOrSelectBubble(id){const sb=SG_BUBBLES.find(x=>x.id===id);if(sb){if((userInventory.ownedSpacegods||[]).indexOf(sb.sgId)<0){showToast('❌');return;}userInventory.activeBubble=id;saveInventory();renderShopBubbles();if(currentChat){const msgs=messageCache[currentChat];if(msgs)renderMessages(msgs,currentChat);}showToast(t('toast_saved'));return;}const it=SHOP_BUBBLES.find(b=>b.id===id);if(!it)return;if(userInventory.bubbles.indexOf(id)<0)userInventory.bubbles.push(id);userInventory.activeBubble=id;saveInventory();renderShopBubbles();if(currentChat){const msgs=messageCache[currentChat];if(msgs)renderMessages(msgs,currentChat);}showToast(t('toast_saved'));}
 function buySpecial(id){const it=SHOP_SPECIAL.find(s=>s.id===id);if(!it)return;const owned=userInventory.ownedSpacegods||[];const isOwned=owned.indexOf(id)>=0;if(!isOwned){userInventory.ownedSpacegods=owned.concat([id]);}userInventory.spacegodType=id;userInventory.spacegod=true;userInventory.spacegodDisabled=false;db.ref('users/'+currentUser.id+'/spacegodType').set(id);db.ref('users/'+currentUser.id+'/spacegodDisabled').set(false);saveInventory();updateSpaceGodUI();applySpaceGodToUI();applySidebarTheme();renderShopSpecial();renderShopBubbles();debouncedRenderChats();if(currentChat){const msgs=messageCache[currentChat];if(msgs)renderMessages(msgs,currentChat);}showToast(it.emoji+' '+it.name+'!');}
@@ -753,10 +816,197 @@ function startProfileMatrix(){const canvas=$('profileMatrixCanvas');if(!canvas)r
 function stopProfileMatrix(){if(profileMatrixInterval){clearInterval(profileMatrixInterval);profileMatrixInterval=null;}const canvas=$('profileMatrixCanvas');if(canvas){const ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);}}
 function uploadSidebarTheme(file){if(!userInventory.spacegod)return;fileToBase64(file).then(function(b64){userInventory.sidebarCustomImg=b64;userInventory.sidebarTheme='custom';saveInventory();applySidebarTheme();renderThemes();showToast(t('toast_saved'));});}
 function resetSidebarTheme(){userInventory.sidebarTheme='none';saveInventory();applySidebarTheme();renderThemes();showToast(t('toast_saved'));}
-function uploadChatBg(file){if(!currentChat)return;if(!userInventory.spacegod){showToast('❌');return;}fileToBase64(file).then(function(b64){db.ref('wallpapers/'+currentUser.id+'/'+currentChat).set('url('+b64+')');applyChatWallpaper(currentChat);showToast(t('toast_saved'));closeModal('backgroundModal');});}
 function applySpaceGodToUI(){const header=$('mainHeader');if(!header)return;['sg-spacegod','sg-spacecosmos','sg-spacemint','sg-hacker'].forEach(c=>header.classList.remove(c));if(userInventory.spacegodDisabled)return;const t=userInventory.spacegodType;if(t==='spacegod')header.classList.add('sg-spacegod');else if(t==='spacecosmos')header.classList.add('sg-spacecosmos');else if(t==='spacemint')header.classList.add('sg-spacemint');else if(t==='hacker')header.classList.add('sg-hacker');}
 function updateSpaceGodUI(){const av=$('userAvatarBtn');const headerUserName=$('userName');if(!av||!headerUserName||!currentUser)return;['spacegod','spacecosmos','spacemint','hacker'].forEach(c=>av.classList.remove(c));if(userInventory.spacegodDisabled){headerUserName.innerText=currentUser.name;return;}const t=userInventory.spacegodType;if(t){av.classList.add(t);const cls=t==='spacecosmos'?'rainbow-cosmos':t==='spacemint'?'rainbow-mint':t==='hacker'?'rainbow-hacker':'rainbow-name';headerUserName.innerHTML='<span class="crown-icon">👑</span><span class="'+cls+'">'+esc(currentUser.name)+'</span>';}else{headerUserName.innerText=currentUser.name;}applySpaceGodToUI();}
 function saveInventory(){if(!currentUser)return;userInventory.balance=Number(userInventory.balance)||0;db.ref('inventory/'+currentUser.id).set(userInventory).catch(function(){});}
+
+/* ================= СВЯЗКА С КАЛЬКУЛЯТОРОМ ================= */
+
+function checkCalcLink(){
+  if(!currentUser) return;
+  const linkId = 'calc_' + currentUser.id;
+  db.ref('links/' + linkId).on('value', snap => {
+    const v = snap.val();
+    if(v && v.status === 'accepted'){
+      myCalcLink = { linkId: linkId };
+      updateCalcLinkBadge();
+    } else {
+      myCalcLink = null;
+      updateCalcLinkBadge();
+    }
+  });
+}
+
+function updateCalcLinkBadge(){
+  const badge = $('profileLinkedBadge');
+  const calcBox = $('calcLinkBox');
+  if(myCalcLink){
+    if(badge) badge.innerHTML = '<span class="linked-badge"><i class="fas fa-link"></i> Калькулятор</span>';
+    if(calcBox){
+      calcBox.style.display = 'block';
+      calcBox.innerHTML = '<div class="linked-info" id="openCalcBtn"><i class="fas fa-calculator"></i> Перейти в Калькулятор →</div>';
+    }
+  } else {
+    if(badge) badge.innerHTML = '';
+    if(calcBox){ calcBox.style.display = 'none'; calcBox.innerHTML = ''; }
+  }
+}
+
+function openCalculator(){
+  try {
+    // Пытаемся открыть через Android WebView в браузере по умолчанию (системный браузер)
+    const w = window.open(CALC_URL, '_blank');
+    if(!w) {
+      window.location.href = CALC_URL;
+    }
+  } catch(e) {
+    window.location.href = CALC_URL;
+  }
+}
+
+// Приём запросов от калькулятора
+function startCalcLinkRequestsListener(){
+  if(!currentUser) return;
+  if(calcLinkNotifRef){
+    try { calcLinkNotifRef.ref.off('child_added', calcLinkNotifRef.cb); } catch(e){}
+  }
+  const ref = db.ref('systemNotifs/' + currentUser.id);
+  const cb = ref.on('child_added', snap => {
+    const n = snap.val();
+    if(!n) return;
+    if(n.read) return;
+    if(Date.now() - (n.ts||0) > 10*60*1000) return;
+    if(n.type === 'link_request_calc'){
+      showCalcLinkRequest(n);
+      db.ref('systemNotifs/' + currentUser.id + '/' + snap.key + '/read').set(true);
+    }
+  });
+  calcLinkNotifRef = { ref: ref, cb: cb };
+}
+
+function showCalcLinkRequest(n){
+  const container = $('notifContainer');
+  if(container){
+    const el = document.createElement('div');
+    el.className = 'notif';
+    el.innerHTML = '<div class="notif-avatar" style="background:linear-gradient(135deg,#ff9500,#ff6b00)"><i class="fas fa-calculator" style="font-size:20px"></i></div>'+
+      '<div class="notif-content"><div class="notif-name">🔗 Связка с Калькулятором</div><div class="notif-text">Запрос на связку профилей</div></div>'+
+      '<button class="notif-close" type="button">✕</button>';
+    el.addEventListener('click', function(e){
+      if(e.target.closest('.notif-close')){ closeNotif(el); return; }
+      // Открыть системные уведомления
+      openSystemNotifModal();
+      closeNotif(el);
+    });
+    el.querySelector('.notif-close').addEventListener('click', function(e){ e.stopPropagation(); closeNotif(el); });
+    container.appendChild(el);
+    setTimeout(()=>closeNotif(el), 8000);
+  }
+  try {
+    if('Notification' in window && Notification.permission === 'granted'){
+      const sys = new Notification('🔗 Связка с Калькулятором', { body: 'Запрос на связку профилей' });
+      sys.onclick = function(){ window.focus(); openSystemNotifModal(); this.close(); };
+      setTimeout(()=>{try{sys.close()}catch(e){}}, 8000);
+    }
+  } catch(e){}
+  vibrate([300,100,300,100,400]);
+  playNotifSound();
+}
+
+function openSystemNotifModal(){
+  renderCalcLinkManager();
+  openModal('systemNotifModal');
+}
+
+function renderCalcLinkManager(){
+  const box = $('calcLinkContent');
+  if(!box) return;
+  box.innerHTML = '<p style="text-align:center;color:#888;font-size:13px;padding:10px">Загрузка...</p>';
+
+  const linkId = 'calc_' + currentUser.id;
+  db.ref('links/' + linkId).once('value').then(snap => {
+    const v = snap.val();
+    if(!v){
+      box.innerHTML = '<div class="pending-info" style="background:#f4f7fc;border-color:#e8edf2;color:#8e98a3"><i>ℹ️</i> Связок пока нет</div>';
+      return;
+    }
+    let html = '';
+    if(v.status === 'pending'){
+      html += `
+        <div class="request-card">
+          <div class="lu-av" style="width:40px;height:40px;background:linear-gradient(135deg,#ff9500,#ff6b00);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px"><i class="fas fa-calculator"></i></div>
+          <div class="rc-info">
+            <div class="rc-name">Калькулятор Pro</div>
+            <div class="rc-sub">Хочет связаться с вашим профилем</div>
+          </div>
+          <div class="rc-actions">
+            <button class="rc-btn rc-accept" id="calcAcceptBtn">Принять</button>
+            <button class="rc-btn rc-decline" id="calcDeclineBtn">✕</button>
+          </div>
+        </div>
+      `;
+    } else if(v.status === 'accepted'){
+      html += `
+        <div class="linked-info" id="openCalcFromManager">
+          <i class="fas fa-calculator"></i>
+          <div style="flex:1">
+            <div style="font-weight:800;font-size:14px">Калькулятор Pro</div>
+            <div style="font-size:12px;opacity:.85">Нажмите, чтобы открыть</div>
+          </div>
+          <i class="fas fa-external-link-alt" style="font-size:14px;opacity:.7"></i>
+        </div>
+        <button class="login-btn" id="calcUnlinkBtn" style="background:#8e98a3;margin-top:8px">🔓 Отвязать</button>
+      `;
+    } else if(v.status === 'declined'){
+      html += `<div class="pending-info" style="background:#ffe0e0;border-color:#ffb0b0;color:#c0392b"><i>❌</i> Запрос был отклонён</div>`;
+      html += `<button class="login-btn" id="calcResetBtn" style="background:#667eea;margin-top:8px">Сбросить</button>`;
+    }
+    box.innerHTML = html;
+
+    const accept = $('calcAcceptBtn');
+    const decline = $('calcDeclineBtn');
+    const unlink = $('calcUnlinkBtn');
+    const openCalcFromMgr = $('openCalcFromManager');
+    const resetBtn = $('calcResetBtn');
+
+    if(accept) accept.onclick = () => acceptCalcLink(linkId);
+    if(decline) decline.onclick = () => declineCalcLink(linkId);
+    if(unlink) unlink.onclick = () => unlinkCalcLink(linkId);
+    if(openCalcFromMgr) openCalcFromMgr.onclick = () => { closeModal('systemNotifModal'); openCalculator(); };
+    if(resetBtn) resetBtn.onclick = () => { db.ref('links/'+linkId).remove().then(()=>renderCalcLinkManager()); };
+  });
+}
+
+function acceptCalcLink(linkId){
+  db.ref('links/' + linkId).once('value').then(snap => {
+    const v = snap.val();
+    if(!v || v.status !== 'pending') return;
+    const updates = {};
+    updates['links/' + linkId + '/status'] = 'accepted';
+    updates['links/' + linkId + '/acceptedAt'] = Date.now();
+    db.ref().update(updates).then(() => {
+      showToast('✅ Связка подтверждена');
+      renderCalcLinkManager();
+    }).catch(() => showToast('❌ Ошибка'));
+  });
+}
+
+function declineCalcLink(linkId){
+  db.ref('links/' + linkId).update({status:'declined', declinedAt: Date.now()}).then(() => {
+    showToast('❌ Запрос отклонён');
+    renderCalcLinkManager();
+  });
+}
+
+function unlinkCalcLink(linkId){
+  if(!confirm('Отвязать калькулятор?')) return;
+  db.ref('links/' + linkId).remove().then(() => {
+    showToast('🔓 Связка удалена');
+    renderCalcLinkManager();
+  });
+}
+
+/* ================================================== */
 
 function sendMessage(){
     if(isSendingMessage)return;
@@ -924,6 +1174,7 @@ function showProfile(uid){
             else{sgToggleBtn.innerText=t('profile_sg_off');sgToggleBtn.classList.remove('off');}
         }else{sgToggleBtn.style.display='none';}
     }
+    updateCalcLinkBadge();
     openModal('profileModal');
 }
 function openEditProfile(){closeModal('profileModal');closeModal('settingsModal');if(!currentUser)return;var me=state.users[currentUser.id]||currentUser;$('editName').value=me.name||currentUser.name||'';$('editBio').value=me.bio||'';$('editPassword').value='';var prev=$('editAvatarPreview');if(me.avatarUrl){prev.innerText='';prev.style.backgroundImage='url('+me.avatarUrl+')';prev.style.backgroundSize='cover';$('editAvatarText').value='';}else{prev.style.backgroundImage='';prev.innerText=me.avatar||'U';$('editAvatarText').value=me.avatar||'';}openModal('editProfileModal');}
@@ -1124,6 +1375,7 @@ function renderChats(){
     var chats=Object.keys(state.userChats).map(function(id){return Object.assign({id:id},state.userChats[id]);});
     chats=chats.filter(function(c){
         if(c.type==='notes')return true;
+        if(c.type==='linked')return false;
         if(c.type==='private'){
             var o=Object.keys(c.participants||{}).find(function(id){return id!==currentUser.id;});
             if(!o||!state.users[o])return false;
@@ -1156,12 +1408,14 @@ function renderChats(){
         else if(t2){var cls=t2==='spacecosmos'?'rainbow-cosmos':t2==='spacemint'?'rainbow-mint':t2==='hacker'?'rainbow-hacker':'rainbow-name';nameHtml='<span class="crown-icon">👑</span><span class="'+cls+'">'+esc(name)+'</span>';}
         else nameHtml=esc(name);
         var avatarCls='chat-avatar '+(c.type==='group'?'group-avatar':'')+(t2?' '+t2:'');
-        return '<div class="chat-item" data-chat="'+c.id+'"><div class="'+avatarCls+'" style="'+avatarStyle+'">'+esc(av)+onlineDot+'</div><div class="chat-content"><div class="chat-name">'+nameHtml+' '+badge+'</div><div class="chat-last">'+esc(c.lastMessage||t('chat_no_msgs'))+'</div></div></div>';
+        return '<div class="chat-item" data-chat="'+c.id+'" data-chat-type="'+(c.type||'private')+'"><div class="'+avatarCls+'" style="'+avatarStyle+'">'+esc(av)+onlineDot+'</div><div class="chat-content"><div class="chat-name">'+nameHtml+' '+badge+'</div><div class="chat-last">'+esc(c.lastMessage||t('chat_no_msgs'))+'</div></div></div>';
     }).join('');
 }
 function ensureNotesChat(){if(!currentUser)return Promise.resolve();var notesId='notes_'+currentUser.id;return db.ref('userChats/'+currentUser.id+'/'+notesId).once('value').then(function(snap){if(!snap.exists()){return db.ref('userChats/'+currentUser.id+'/'+notesId).set({id:notesId,type:'notes',name:t('chat_notes'),lastMessage:'',lastMessageTime:Date.now(),participants:{}});}});}
 function loadData(){
     startNotificationWatcher();
+    startCalcLinkRequestsListener();
+    checkCalcLink();
     db.ref('users').on('child_added',function(s){state.users[s.key]=s.val();debouncedRenderChats();});
     db.ref('users').on('child_changed',function(s){state.users[s.key]=s.val();debouncedRenderChats();});
     db.ref('users').on('child_removed',function(s){delete state.users[s.key];debouncedRenderChats();});
@@ -1235,6 +1489,139 @@ function startChat(userId){
 }
 function goBack(){currentChat=null;$('mainArea').classList.remove('active');}
 function logout(){if(confirm(t('logout_confirm'))){if(currentUser){db.ref('users/'+currentUser.id).update({status:'offline'});}localStorage.removeItem('dg_user');location.reload();}}
+
+/* === ДОЛГОЕ УДЕРЖАНИЕ НА ЧАТЕ === */
+let chatHoldTimer=null;
+let chatHoldFired=false;
+let chatHoldChatId=null;
+let chatHoldChatType=null;
+let chatHoldStartX=0;
+let chatHoldStartY=0;
+let chatHoldScrolling=false;
+
+function openChatHoldMenu(chatId, chatType, chatName){
+  chatHoldChatId = chatId;
+  chatHoldChatType = chatType;
+  chatHoldFired = true;
+  $('chatHoldHeader').innerText = chatName || 'Чат';
+  const blockBtn = $('chatHoldBlockBtn');
+  const deleteBtn = $('chatHoldDeleteBtn');
+  if(chatType === 'notes' || chatType === 'linked'){
+    blockBtn.style.display = 'none';
+    deleteBtn.style.display = 'none';
+  } else {
+    blockBtn.style.display = 'flex';
+    deleteBtn.style.display = 'flex';
+  }
+  $('chatHoldBackdrop').classList.add('show');
+  $('chatHoldSheet').classList.add('show');
+  vibrate([40]);
+  const items = document.querySelectorAll('.chat-item');
+  items.forEach(el => el.classList.remove('holding'));
+  const current = document.querySelector('.chat-item[data-chat="'+chatId+'"]');
+  if(current) current.classList.add('holding');
+}
+
+function closeChatHoldMenu(){
+  $('chatHoldBackdrop').classList.remove('show');
+  $('chatHoldSheet').classList.remove('show');
+  document.querySelectorAll('.chat-item.holding').forEach(el => el.classList.remove('holding'));
+  chatHoldChatId = null;
+  chatHoldChatType = null;
+}
+
+(function attachChatHold(){
+  const list = document.getElementById('chatsList');
+  if(!list || list._holdBound) return;
+  list._holdBound = true;
+
+  function startHold(e, target){
+    const item = target.closest('.chat-item');
+    if(!item) return;
+    const cid = item.dataset.chat;
+    const ctype = item.dataset.chatType || 'private';
+    const cname = item.querySelector('.chat-name') ? item.querySelector('.chat-name').innerText : 'Чат';
+    chatHoldStartX = (e.touches ? e.touches[0].clientX : e.clientX);
+    chatHoldStartY = (e.touches ? e.touches[0].clientY : e.clientY);
+    chatHoldScrolling = false;
+    chatHoldFired = false;
+    if(chatHoldTimer) clearTimeout(chatHoldTimer);
+    chatHoldTimer = setTimeout(() => {
+      chatHoldTimer = null;
+      if(chatHoldScrolling || chatHoldFired) return;
+      openChatHoldMenu(cid, ctype, cname);
+    }, 550);
+  }
+
+  function moveHold(e){
+    if(!chatHoldTimer) return;
+    const x = (e.touches ? e.touches[0].clientX : e.clientX);
+    const y = (e.touches ? e.touches[0].clientY : e.clientY);
+    const dx = Math.abs(x - chatHoldStartX);
+    const dy = Math.abs(y - chatHoldStartY);
+    if(dx > 10 || dy > 10){
+      chatHoldScrolling = true;
+      if(chatHoldTimer){ clearTimeout(chatHoldTimer); chatHoldTimer = null; }
+    }
+  }
+
+  function endHold(e){
+    if(chatHoldTimer){ clearTimeout(chatHoldTimer); chatHoldTimer = null; }
+    const item = e.target.closest('.chat-item');
+    if(item && !chatHoldFired && !chatHoldScrolling){
+      const cid = item.dataset.chat;
+      if(cid) openChat(cid);
+    }
+    setTimeout(() => { chatHoldFired = false; }, 10);
+  }
+
+  list.addEventListener('touchstart', e => startHold(e, e.target), {passive:true});
+  list.addEventListener('touchmove', moveHold, {passive:true});
+  list.addEventListener('touchend', endHold);
+  list.addEventListener('touchcancel', () => {
+    if(chatHoldTimer){ clearTimeout(chatHoldTimer); chatHoldTimer = null; }
+  });
+
+  list.addEventListener('mousedown', e => startHold(e, e.target));
+  list.addEventListener('mousemove', moveHold);
+  list.addEventListener('mouseup', endHold);
+  list.addEventListener('mouseleave', () => {
+    if(chatHoldTimer){ clearTimeout(chatHoldTimer); chatHoldTimer = null; }
+  });
+})();
+
+function chatHoldBlockNow(){
+  const cid = chatHoldChatId;
+  const ctype = chatHoldChatType;
+  closeChatHoldMenu();
+  if(!cid || ctype === 'notes' || ctype === 'linked') return;
+  db.ref('userChats/'+currentUser.id+'/'+cid).once('value').then(snap => {
+    const chat = snap.val();
+    if(!chat || !chat.participants) { showToast('❌'); return; }
+    const otherId = Object.keys(chat.participants).find(id => id !== currentUser.id);
+    if(!otherId) { showToast('❌'); return; }
+    if(!confirm('Заблокировать ' + otherId + '?')) return;
+    blockedUsers[otherId] = true;
+    db.ref('users/'+currentUser.id+'/blockedUsers/'+otherId).set(true);
+    db.ref('userChats/'+currentUser.id+'/'+cid).remove();
+    debouncedRenderChats();
+    showToast('🚫 Заблокирован');
+  });
+}
+
+function chatHoldDeleteNow(){
+  const cid = chatHoldChatId;
+  const ctype = chatHoldChatType;
+  closeChatHoldMenu();
+  if(!cid || ctype === 'notes' || ctype === 'linked') return;
+  if(!confirm('Удалить чат у себя? У собеседника он останется.')) return;
+  db.ref('userChats/'+currentUser.id+'/'+cid).remove().then(() => {
+    showToast('🗑 Чат удалён');
+    debouncedRenderChats();
+  }).catch(() => showToast('❌ Ошибка'));
+}
+
+/* ============================== */
 
 (function attachSwipeAndLongPress(){
     var container=document.getElementById('messagesContainer');
@@ -1335,6 +1722,28 @@ document.addEventListener('click',function(e){
         return;
     }
     if(e.target.id==='actionBackdrop'){closeActionSheet();}
+
+    if(e.target.closest('#chatHoldOpenBtn')){
+        e.preventDefault();
+        const cid = chatHoldChatId;
+        closeChatHoldMenu();
+        if(cid) setTimeout(()=>openChat(cid), 30);
+        return;
+    }
+    if(e.target.closest('#chatHoldBlockBtn')){ e.preventDefault(); chatHoldBlockNow(); return; }
+    if(e.target.closest('#chatHoldDeleteBtn')){ e.preventDefault(); chatHoldDeleteNow(); return; }
+
+    if(e.target.closest('#openCalcBtn')){
+        e.preventDefault();
+        openCalculator();
+        return;
+    }
+    if(e.target.closest('#openCalcFromManager')){
+        e.preventDefault();
+        closeModal('systemNotifModal');
+        openCalculator();
+        return;
+    }
 });
 
 document.addEventListener('click',function(e){
@@ -1353,7 +1762,8 @@ document.addEventListener('click',function(e){
     if(closest('#stickerBtn')){e.preventDefault();showStickerModal();return;}
     if(closest('#settingsBtn')){e.preventDefault();openModal('settingsModal');return;}
     if(closest('#settingsEditProfileBtn')){e.preventDefault();closeModal('settingsModal');openEditProfile();return;}
-    if(closest('#settingsEnableNotifBtn')){e.preventDefault();requestPushPermission().then(function(ok){if(ok)showToast('🔔');});return;}
+    if(closest('#settingsSystemNotifBtn')){e.preventDefault();closeModal('settingsModal');openSystemNotifModal();return;}
+    if(closest('#openCalcLinkManagerBtn')){e.preventDefault();renderCalcLinkManager();return;}
     if(closest('#logoutBtn')){e.preventDefault();logout();return;}
     if(closest('#backBtn')){e.preventDefault();goBack();return;}
     if(closest('#chatMenuBtn')){e.preventDefault();if(currentChat)openModal('chatMenuModal');return;}
@@ -1400,8 +1810,6 @@ document.addEventListener('click',function(e){
     if(closest('#micBtn')){e.preventDefault();if(isRecording)stopRecording(true);else startRecording();return;}
     if(closest('#recCancel')){e.preventDefault();stopRecording(false);return;}
     if(closest('#recSend')){e.preventDefault();stopRecording(true);return;}
-    var chatItem=closest('.chat-item');
-    if(chatItem&&chatItem.dataset.chat){e.preventDefault();openChat(chatItem.dataset.chat);return;}
     var userCard=closest('.user-card');
     if(userCard&&userCard.dataset.id){e.preventDefault();startChat(userCard.dataset.id);return;}
     var st=closest('.sticker');
