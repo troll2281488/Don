@@ -591,6 +591,8 @@ let mediaRecorder=null,audioChunks=[],recordingStartTime=0,recordingTimerInterva
 let _lastChatsHash='',welcomeSlideIndex=0;
 let typingListenerRef=null,typingListenerCb=null,typingTimer=null;
 let myCalcLink=null,myCalcLinkRef=null,calcLinkNotifRef=null;
+var _keepAliveCtx=null,_keepAliveOsc=null,_keepAliveGain=null;
+var _gpsAutoPrompted=false;
 
 const SHOP_AVATARS=[{id:'default',name:'Стандарт',emoji:'U',price:0,style:'linear-gradient(135deg,#667eea,#764ba2)',type:'emoji'},{id:'cat',name:'🐱 Котик',emoji:'🐱',price:0,style:'linear-gradient(135deg,#ffecd2,#fcb69f)',type:'emoji'},{id:'dog',name:'🐶 Пёсик',emoji:'🐶',price:0,style:'linear-gradient(135deg,#ffeaa7,#fdcb6e)',type:'emoji'},{id:'fox',name:'🦊 Лисёнок',emoji:'🦊',price:0,style:'linear-gradient(135deg,#ff9500,#ff6b00)',type:'emoji'},{id:'dragon',name:'🐉 Дракон',emoji:'🐉',price:0,style:'linear-gradient(135deg,#00b894,#00cec9)',type:'emoji'},{id:'crown',name:'👑 Корона',emoji:'👑',price:0,style:'linear-gradient(135deg,#ffd700,#ff9500)',type:'emoji'},{id:'custom',name:'📷 Своё фото',emoji:'📷',price:0,style:'linear-gradient(135deg,#333,#111)',type:'custom'}];
 const SHOP_BUBBLES=[{id:'none',name:'По умолчанию',price:0,cssClass:'',style:'linear-gradient(135deg,#667eea,#764ba2)',color:'#fff'},{id:'cat',name:'🐱 Кот-силач',price:0,cssClass:'bubble-cat',style:'linear-gradient(135deg,#ffecd2,#fcb69f)',color:'#5a3a1a'},{id:'olivia',name:'🌸 Olivia',price:0,cssClass:'bubble-olivia',style:'linear-gradient(135deg,#ffd6e8,#ff8cc8)',color:'#7a1a4a'},{id:'frog',name:'🐸 Лягушка',price:0,cssClass:'bubble-frog',style:'linear-gradient(135deg,#a8e063,#56ab2f)',color:'#fff'},{id:'capybara',name:'🦫 Капибара',price:0,cssClass:'bubble-capybara',style:'linear-gradient(135deg,#f5e6ca,#c9a87c)',color:'#5a3a1a'},{id:'love',name:'💖 Любовь',price:0,cssClass:'bubble-love',style:'linear-gradient(135deg,#ff6b9d,#ff0844)',color:'#fff'},{id:'premium',name:'💎 Премиум',price:0,cssClass:'bubble-premium',style:'linear-gradient(135deg,#000428,#004e92)',color:'#00ffcc'},{id:'mcat',name:'🐱 Мордочка кота',price:0,cssClass:'bubble-mascot-cat',style:'linear-gradient(135deg,#fff4e6,#ffd9a0)',color:'#5a3a1a'},{id:'molivia',name:'🌸 Olivia с цветком',price:0,cssClass:'bubble-mascot-olivia',style:'linear-gradient(135deg,#ffd6e8,#ff8cc8)',color:'#7a1a4a'},{id:'mfrog',name:'🐸 Мордочка лягушки',price:0,cssClass:'bubble-mascot-frog',style:'linear-gradient(135deg,#c5f28c,#56ab2f)',color:'#0a3a0a'},{id:'mcapy',name:'🦫 Мордочка капибары',price:0,cssClass:'bubble-mascot-capy',style:'linear-gradient(135deg,#f9e9cf,#c9a87c)',color:'#5a3a1a'},{id:'mglam',name:'💋 Гламурная дива',price:0,cssClass:'bubble-mascot-glam',style:'linear-gradient(135deg,#fbc2eb,#f5a0d8)',color:'#5a1a4a'},{id:'mduck',name:'🦆 Лягушка и утка',price:0,cssClass:'bubble-mascot-duck',style:'linear-gradient(135deg,#fff4a3,#ffe066)',color:'#4a3a0a'},{id:'msleepy',name:'😴 Отдыхающий кот',price:0,cssClass:'bubble-mascot-sleepy',style:'linear-gradient(135deg,#b8c6ff,#6a7fd6)',color:'#fff'},{id:'multra',name:'👑 УЛЬТРА премиум',price:0,cssClass:'bubble-mascot-ultra',style:'linear-gradient(135deg,#1a1a3e,#4a1a6a)',color:'#ffd700'}];
@@ -620,31 +622,9 @@ function closeImageViewer(){closeModal('imageViewer');}
 function viewVideo(url){const v=$('viewedVideo');v.src=url;openModal('videoViewer');v.play();}
 function closeVideoViewer(){const v=$('viewedVideo');v.pause();v.src='';closeModal('videoViewer');}
 
-/* === КЭШ ЧАТОВ === */
-function saveChatsCache(){
-  if(!currentUser) return;
-  try {
-    localStorage.setItem('dg_cache_chats_'+currentUser.id, JSON.stringify(state.userChats));
-    localStorage.setItem('dg_cache_users_'+currentUser.id, JSON.stringify(state.users));
-  } catch(e){}
-}
-function loadChatsCache(){
-  if(!currentUser) return false;
-  try {
-    var cachedChats = localStorage.getItem('dg_cache_chats_'+currentUser.id);
-    var cachedUsers = localStorage.getItem('dg_cache_users_'+currentUser.id);
-    if(cachedUsers){ state.users = JSON.parse(cachedUsers) || {}; }
-    if(cachedChats){
-      state.userChats = JSON.parse(cachedChats) || {};
-      _lastChatsHash = '';
-      renderChats();
-    }
-    return true;
-  } catch(e){ return false; }
-}
+function saveChatsCache(){if(!currentUser)return;try{localStorage.setItem('dg_cache_chats_'+currentUser.id,JSON.stringify(state.userChats));localStorage.setItem('dg_cache_users_'+currentUser.id,JSON.stringify(state.users));}catch(e){}}
+function loadChatsCache(){if(!currentUser)return false;try{var cachedChats=localStorage.getItem('dg_cache_chats_'+currentUser.id);var cachedUsers=localStorage.getItem('dg_cache_users_'+currentUser.id);if(cachedUsers){state.users=JSON.parse(cachedUsers)||{};}if(cachedChats){state.userChats=JSON.parse(cachedChats)||{};_lastChatsHash='';renderChats();}return true;}catch(e){return false;}}
 
-/* === KEEP-ALIVE === */
-var _keepAliveCtx=null,_keepAliveOsc=null,_keepAliveGain=null;
 function startKeepAlive(){
   if(_keepAliveCtx) return;
   try{
@@ -1122,12 +1102,15 @@ function logout(){if(confirm(t('logout_confirm'))){if(currentUser){db.ref('users
 let gpsWatchId=null,gpsLastSent=0,gpsShareEnabled=false,gpsMap=null,gpsMarkers={},gpsFriendListener=null;
 const GPS_SEND_INTERVAL=300000;
 const GPS_STALE_MS=20*60*1000;
+
 function gpsStartSharing(){
   if(!currentUser)return;
   if(gpsWatchId!==null)return;
   if(!navigator.geolocation){showToast('❌ Геолокация недоступна');return;}
   gpsShareEnabled=true;
   db.ref('locations/'+currentUser.id+'/sharing').set(true);
+  db.ref('users/'+currentUser.id+'/gpsSharing').set(true);
+  db.ref('users/'+currentUser.id+'/gpsSharingAt').set(Date.now());
   gpsWatchId=navigator.geolocation.watchPosition(
     pos=>{
       const now=Date.now();
@@ -1144,7 +1127,10 @@ function gpsStartSharing(){
 function gpsStopSharing(){
   gpsShareEnabled=false;
   if(gpsWatchId!==null&&navigator.geolocation){try{navigator.geolocation.clearWatch(gpsWatchId);}catch(e){}gpsWatchId=null;}
-  if(currentUser){db.ref('locations/'+currentUser.id).update({sharing:false,ts:Date.now()}).catch(()=>{});}
+  if(currentUser){
+    db.ref('locations/'+currentUser.id).update({sharing:false,ts:Date.now()}).catch(()=>{});
+    db.ref('users/'+currentUser.id+'/gpsSharing').set(false);
+  }
   updateGpsUI();
   showToast('📍 Геолокация выключена');
 }
@@ -1166,6 +1152,23 @@ function gpsBuildAvatarIcon(user,isOnline,isMe){
   return L.divIcon({className:'gps-friend-marker',html:html,iconSize:[52,52],iconAnchor:[26,26]});
 }
 function gpsOpenMap(){
+  // ✅ АВТО-ЗАПРОС GPS при открытии карты
+  if(currentUser && !gpsShareEnabled && navigator.geolocation){
+    if(!userInventory.gpsSharing){
+      if(!_gpsAutoPrompted){
+        _gpsAutoPrompted = true;
+        var ok = confirm('📍 DonorGram хочет делиться твоей геолокацией с друзьями?\n\nЭто нужно, чтобы друг видел тебя на карте.\n\nРасход трафика: ~1 МБ в месяц');
+        if(ok){
+          userInventory.gpsSharing = true;
+          saveInventory();
+          db.ref('users/' + currentUser.id + '/gpsSharing').set(true);
+          gpsStartSharing();
+        }
+      }
+    } else {
+      gpsStartSharing();
+    }
+  }
   openModal('gpsMapModal');
   setTimeout(()=>{
     if(!gpsMap){
@@ -1249,7 +1252,15 @@ function gpsLoadFriendsOnMap(){
     if(friends.length===0&&!empty){
       const div=document.createElement('div');
       div.className='gps-empty';
-      div.innerHTML='😴 Пока никто не делится геолокацией.<br><br>Друг должен:<br>1) Настройки → 📍 Геолокация<br>2) Нажать OK<br>3) Дать разрешение GPS';
+      var totalOthers=0;
+      Object.keys(state.users).forEach(function(uid){if(uid!==currentUser.id)totalOthers++;});
+      var msg='';
+      if(totalOthers===0){msg='😴 Пока в мессенджере нет других пользователей';}
+      else{
+        msg='📍 <b>Никто из друзей не включил геолокацию</b><br><br>';
+        msg+='Попроси друга:<br>1) Открыть приложение<br>2) Нажать 🗺️ карту<br>3) Разрешить геолокацию';
+      }
+      div.innerHTML=msg;
       gpsMap.getContainer().appendChild(div);
     }else if(friends.length>0&&empty){empty.remove();}
   });
