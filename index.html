@@ -7,6 +7,8 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
 body{background:#1a1a2e;height:100vh;display:flex;align-items:center;justify-content:center;padding:8px;position:fixed;width:100%;overflow:hidden}
@@ -257,7 +259,6 @@ input:checked+.slider:before{transform:translateX(26px)}
 .lang-native{font-size:13px;color:#888;margin-left:8px}
 .lang-item.active .lang-native{color:#3aa9e0}
 
-/* === НОВЫЕ СТИЛИ === */
 .settings-section-title{font-size:12px;font-weight:700;color:#8e98a3;text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px}
 .linked-info{background:#e0ffe8;border:1px solid #34c759;border-radius:14px;padding:14px;font-size:14px;color:#0a8f3a;font-weight:600;display:flex;align-items:center;gap:10px;margin-bottom:12px;cursor:pointer}
 .linked-info i{font-size:20px}
@@ -283,6 +284,27 @@ input:checked+.slider:before{transform:translateX(26px)}
 .hold-sheet .hs-item i{width:22px;color:#667eea}
 .hold-sheet .hs-item.danger{color:#ff3b30}
 .hold-sheet .hs-item.danger i{color:#ff3b30}
+
+/* === GPS / КАРТА === */
+#gpsMapModal .modal-content{padding:0;max-width:100%;width:100%;height:100vh;border-radius:0;overflow:hidden;display:flex;flex-direction:column}
+.gps-map-header{padding:14px 18px;display:flex;align-items:center;gap:12px;background:#fff;border-bottom:1px solid #e8edf2;z-index:10}
+.gps-map-header h3{flex:1;font-size:16px;font-weight:700;color:#1a1a2e}
+#leafletMap{flex:1;width:100%;background:#e5e5e5;position:relative}
+.gps-friend-marker{background:transparent!important;border:none!important}
+.gps-friend-marker .gps-avatar{width:52px;height:52px;border-radius:50%;border:3px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,.4);background-size:cover;background-position:center;background-color:#667eea;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:20px;cursor:pointer;transition:transform .15s}
+.gps-friend-marker .gps-avatar:hover{transform:scale(1.1)}
+.gps-friend-marker .gps-avatar.online{border-color:#34c759;box-shadow:0 0 0 3px rgba(52,199,89,.4),0 4px 12px rgba(0,0,0,.4)}
+.gps-friend-marker .gps-avatar.offline{border-color:#8e98a3;filter:grayscale(.4)}
+.gps-friend-label{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap;pointer-events:none}
+.gps-my-marker .gps-me-dot{width:20px;height:20px;border-radius:50%;background:#007AFF;border:3px solid #fff;box-shadow:0 0 0 3px rgba(0,122,255,.3),0 2px 8px rgba(0,0,0,.4)}
+.gps-status-bar{padding:10px 16px;background:#f8fafd;border-top:1px solid #e8edf2;display:flex;align-items:center;gap:10px;font-size:13px;color:#555}
+.gps-status-bar .gps-dot{width:10px;height:10px;border-radius:50%;background:#8e98a3}
+.gps-status-bar .gps-dot.on{background:#34c759;box-shadow:0 0 0 4px rgba(52,199,89,.25);animation:recPulse 2s infinite}
+.gps-toggle-btn{width:100%;padding:14px;border-radius:14px;border:none;font-weight:700;font-size:15px;cursor:pointer;margin-top:8px;transition:.2s}
+.gps-toggle-btn.on{background:linear-gradient(135deg,#34c759,#28a745);color:#fff}
+.gps-toggle-btn.off{background:#f0f2f5;color:#555}
+.gps-empty{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(255,255,255,.95);padding:20px 24px;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.15);text-align:center;font-size:14px;color:#555;max-width:280px;z-index:5;pointer-events:none;line-height:1.5}
+.leaflet-control-attribution{font-size:9px!important;background:rgba(255,255,255,.7)!important}
 </style>
 </head>
 <body>
@@ -367,6 +389,7 @@ input:checked+.slider:before{transform:translateX(26px)}
 </div>
 <div class="actions">
 <button class="icon-btn" id="showUsersBtn" type="button"><i class="fas fa-users"></i></button>
+<button class="icon-btn" id="gpsBtn" type="button" title="Карта друзей"><i class="fas fa-map-marked-alt"></i></button>
 <button class="icon-btn" id="stickerBtn" type="button"><i class="fas fa-smile"></i></button>
 <button class="icon-btn" id="settingsBtn" type="button"><i class="fas fa-cog"></i></button>
 <button class="icon-btn" id="logoutBtn" type="button"><i class="fas fa-sign-out-alt"></i></button>
@@ -492,6 +515,7 @@ input:checked+.slider:before{transform:translateX(26px)}
 <div class="modal-header"><h3 data-i18n="settings">⚙️ Настройки</h3><button type="button" data-close="settingsModal">&times;</button></div>
 <button id="settingsEditProfileBtn" class="login-btn" style="background:#f0f4ff;color:#333" data-i18n="settings_edit_profile">✏️ Редактировать профиль</button>
 <button id="settingsLangBtn" class="login-btn" style="background:#e8f0ff;color:#0083b0" data-i18n="settings_lang">🌐 Язык</button>
+<button id="settingsGpsBtn" class="login-btn" style="background:#e0f7e8;color:#0a8f3a">📍 Геолокация</button>
 
 <div class="settings-section-title">🔧 Система</div>
 <button id="settingsSystemNotifBtn" class="login-btn" style="background:linear-gradient(135deg,#667eea,#764ba2);color:#fff">
@@ -537,6 +561,22 @@ input:checked+.slider:before{transform:translateX(26px)}
 </div></div>
 
 <div class="modal" id="stickerModal"><div class="modal-content"><div class="modal-header"><h3 data-i18n="stickers">😎 Стикеры</h3><button type="button" data-close="stickerModal">&times;</button></div><div id="stickerPack" style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;font-size:24px;text-align:center"></div></div></div>
+
+<!-- 📍 GPS КАРТА -->
+<div class="modal" id="gpsMapModal">
+  <div class="modal-content">
+    <div class="gps-map-header">
+      <button class="back-btn" id="gpsMapBack" type="button"><i class="fas fa-arrow-left"></i></button>
+      <h3>📍 Карта друзей</h3>
+      <button class="icon-btn" id="gpsCenterBtn" type="button" title="Где я"><i class="fas fa-crosshairs"></i></button>
+    </div>
+    <div id="leafletMap"></div>
+    <div class="gps-status-bar">
+      <div class="gps-dot" id="gpsDot"></div>
+      <span id="gpsStatusText">Геолокация выключена</span>
+    </div>
+  </div>
+</div>
 
 <div class="image-viewer" id="imageViewer"><button class="close-btn" type="button" id="closeImgBtn">✕</button><img id="viewedImage"><div class="viewer-buttons"><button class="save-media-btn" type="button" id="saveImageViewerBtn" data-i18n="save">💾 СОХРАНИТЬ</button></div></div>
 <div class="video-viewer" id="videoViewer"><button class="close-btn" type="button" id="closeVidBtn">✕</button><video id="viewedVideo" controls></video><div class="viewer-buttons"><button class="save-media-btn" type="button" id="saveVideoViewerBtn" data-i18n="save">💾 СОХРАНИТЬ</button></div></div>
@@ -723,8 +763,7 @@ let mediaRecorder=null,audioChunks=[],recordingStartTime=0,recordingTimerInterva
 let _lastChatsHash='';
 let welcomeSlideIndex=0;
 
-/* === СОСТОЯНИЕ СВЯЗКИ С КАЛЬКУЛЯТОРОМ === */
-let myCalcLink = null;         // { linkId }
+let myCalcLink = null;
 let myCalcLinkRef = null;
 let calcLinkNotifRef = null;
 
@@ -780,7 +819,7 @@ const SPACEGOD_THEMES=[
 {id:'gold',name:'👑 Золото',bg:'linear-gradient(135deg,#f7971e,#ffd200)'},
 {id:'matrix',name:'🟢 Матрица',bg:'linear-gradient(135deg,#000000,#0f2027,#2c5364)'}
 ];
-let userInventory={avatars:['default'],bubbles:['none'],activeAvatar:'default',activeBubble:'none',balance:5000,spacegod:false,spacegodType:null,spacegodDisabled:false,ownedSpacegods:[],sidebarTheme:'none',sidebarCustomImg:null};
+let userInventory={avatars:['default'],bubbles:['none'],activeAvatar:'default',activeBubble:'none',balance:5000,spacegod:false,spacegodType:null,spacegodDisabled:false,ownedSpacegods:[],sidebarTheme:'none',sidebarCustomImg:null,gpsSharing:false};
 function $(id){return document.getElementById(id)}
 function showToast(m){const t=document.createElement('div');t.className='toast';t.innerHTML=m;document.body.appendChild(t);setTimeout(()=>t.remove(),3500)}
 function esc(s){if(!s)return'';return String(s).replace(/[&<>]/g,m=>m==='&'?'&amp;':m==='<'?'&lt;':m==='>'?'&gt;':'')}
@@ -820,8 +859,6 @@ function applySpaceGodToUI(){const header=$('mainHeader');if(!header)return;['sg
 function updateSpaceGodUI(){const av=$('userAvatarBtn');const headerUserName=$('userName');if(!av||!headerUserName||!currentUser)return;['spacegod','spacecosmos','spacemint','hacker'].forEach(c=>av.classList.remove(c));if(userInventory.spacegodDisabled){headerUserName.innerText=currentUser.name;return;}const t=userInventory.spacegodType;if(t){av.classList.add(t);const cls=t==='spacecosmos'?'rainbow-cosmos':t==='spacemint'?'rainbow-mint':t==='hacker'?'rainbow-hacker':'rainbow-name';headerUserName.innerHTML='<span class="crown-icon">👑</span><span class="'+cls+'">'+esc(currentUser.name)+'</span>';}else{headerUserName.innerText=currentUser.name;}applySpaceGodToUI();}
 function saveInventory(){if(!currentUser)return;userInventory.balance=Number(userInventory.balance)||0;db.ref('inventory/'+currentUser.id).set(userInventory).catch(function(){});}
 
-/* ================= СВЯЗКА С КАЛЬКУЛЯТОРОМ ================= */
-
 function checkCalcLink(){
   if(!currentUser) return;
   const linkId = 'calc_' + currentUser.id;
@@ -854,7 +891,6 @@ function updateCalcLinkBadge(){
 
 function openCalculator(){
   try {
-    // Пытаемся открыть через Android WebView в браузере по умолчанию (системный браузер)
     const w = window.open(CALC_URL, '_blank');
     if(!w) {
       window.location.href = CALC_URL;
@@ -864,7 +900,6 @@ function openCalculator(){
   }
 }
 
-// Приём запросов от калькулятора
 function startCalcLinkRequestsListener(){
   if(!currentUser) return;
   if(calcLinkNotifRef){
@@ -894,7 +929,6 @@ function showCalcLinkRequest(n){
       '<button class="notif-close" type="button">✕</button>';
     el.addEventListener('click', function(e){
       if(e.target.closest('.notif-close')){ closeNotif(el); return; }
-      // Открыть системные уведомления
       openSystemNotifModal();
       closeNotif(el);
     });
@@ -1005,8 +1039,6 @@ function unlinkCalcLink(linkId){
     renderCalcLinkManager();
   });
 }
-
-/* ================================================== */
 
 function sendMessage(){
     if(isSendingMessage)return;
@@ -1430,6 +1462,11 @@ function loadData(){
         }
     });
     db.ref('users/'+currentUser.id+'/blockedUsers').on('value',function(s){blockedUsers=s.val()||{};debouncedRenderChats();});
+    db.ref('users/'+currentUser.id+'/gpsSharing').on('value', s => {
+      const want = !!s.val();
+      if(want && !gpsShareEnabled) gpsStartSharing();
+      if(!want && gpsShareEnabled) gpsStopSharing();
+    });
     setInterval(function(){db.ref('users').once('value').then(function(s){var cnt=Object.keys(s.val()||{}).length;var el=$('userCount');if(el)el.innerText=cnt+'/'+MAX;}).catch(function(){});},30000);
 }
 function showAllUsers(){
@@ -1490,50 +1527,305 @@ function startChat(userId){
 function goBack(){currentChat=null;$('mainArea').classList.remove('active');}
 function logout(){if(confirm(t('logout_confirm'))){if(currentUser){db.ref('users/'+currentUser.id).update({status:'offline'});}localStorage.removeItem('dg_user');location.reload();}}
 
-/* === ДОЛГОЕ УДЕРЖАНИЕ НА ЧАТЕ === */
-let chatHoldTimer=null;
-let chatHoldFired=false;
-let chatHoldChatId=null;
-let chatHoldChatType=null;
-let chatHoldStartX=0;
-let chatHoldStartY=0;
-let chatHoldScrolling=false;
+/* ===================================================== */
+/* ============  📍 GPS / ГЕОЛОКАЦИЯ  ================== */
+/* ===================================================== */
 
-function openChatHoldMenu(chatId, chatType, chatName){
-  chatHoldChatId = chatId;
-  chatHoldChatType = chatType;
-  chatHoldFired = true;
-  $('chatHoldHeader').innerText = chatName || 'Чат';
-  const blockBtn = $('chatHoldBlockBtn');
-  const deleteBtn = $('chatHoldDeleteBtn');
-  if(chatType === 'notes' || chatType === 'linked'){
-    blockBtn.style.display = 'none';
-    deleteBtn.style.display = 'none';
-  } else {
-    blockBtn.style.display = 'flex';
-    deleteBtn.style.display = 'flex';
+let gpsWatchId = null;
+let gpsLastSent = 0;
+let gpsShareEnabled = false;
+let gpsMap = null;
+let gpsMarkers = {};
+let gpsFriendListener = null;
+const GPS_SEND_INTERVAL = 90000;
+const GPS_STALE_MS = 10 * 60 * 1000;
+
+function gpsStartSharing(){
+  if(!currentUser) return;
+  if(gpsWatchId !== null) return;
+  if(!navigator.geolocation){ showToast('❌ Геолокация недоступна'); return; }
+
+  gpsShareEnabled = true;
+  db.ref('locations/' + currentUser.id + '/sharing').set(true);
+
+  gpsWatchId = navigator.geolocation.watchPosition(
+    pos => {
+      const now = Date.now();
+      if(now - gpsLastSent < GPS_SEND_INTERVAL) return;
+      gpsLastSent = now;
+      db.ref('locations/' + currentUser.id).update({
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+        acc: Math.round(pos.coords.accuracy || 0),
+        ts: now,
+        sharing: true,
+        name: currentUser.name || currentUser.id
+      }).catch(()=>{});
+    },
+    err => {
+      console.warn('GPS error', err);
+      if(err.code === 1){
+        gpsStopSharing();
+        showToast('❌ Нет разрешения на геолокацию');
+      }
+    },
+    { enableHighAccuracy:false, maximumAge:90000, timeout:30000 }
+  );
+
+  updateGpsUI();
+  showToast('📍 Геолокация включена');
+}
+
+function gpsStopSharing(){
+  gpsShareEnabled = false;
+  if(gpsWatchId !== null && navigator.geolocation){
+    try { navigator.geolocation.clearWatch(gpsWatchId); } catch(e){}
+    gpsWatchId = null;
   }
-  $('chatHoldBackdrop').classList.add('show');
-  $('chatHoldSheet').classList.add('show');
-  vibrate([40]);
-  const items = document.querySelectorAll('.chat-item');
-  items.forEach(el => el.classList.remove('holding'));
-  const current = document.querySelector('.chat-item[data-chat="'+chatId+'"]');
-  if(current) current.classList.add('holding');
+  if(currentUser){
+    db.ref('locations/' + currentUser.id).update({sharing:false, ts:Date.now()}).catch(()=>{});
+  }
+  updateGpsUI();
+  showToast('📍 Геолокация выключена');
 }
 
-function closeChatHoldMenu(){
-  $('chatHoldBackdrop').classList.remove('show');
-  $('chatHoldSheet').classList.remove('show');
-  document.querySelectorAll('.chat-item.holding').forEach(el => el.classList.remove('holding'));
-  chatHoldChatId = null;
-  chatHoldChatType = null;
+function updateGpsUI(){
+  const dot = $('gpsDot');
+  const txt = $('gpsStatusText');
+  if(dot && txt){
+    if(gpsShareEnabled){
+      dot.classList.add('on');
+      txt.innerText = '📍 Вы делитесь геолокацией с другом';
+    } else {
+      dot.classList.remove('on');
+      txt.innerText = 'Геолокация выключена';
+    }
+  }
 }
+
+function gpsBuildAvatarIcon(user, isOnline){
+  const initial = (user.avatar || (user.name ? user.name[0] : '?')).toUpperCase().slice(0,1);
+  let bgStyle = '';
+  let inner = '';
+  if(user.avatarUrl){
+    bgStyle = "background-image:url('" + user.avatarUrl + "');";
+  } else {
+    inner = '<span>' + esc(initial) + '</span>';
+  }
+  const onlineCls = isOnline ? 'online' : 'offline';
+  const html = '<div class="gps-avatar ' + onlineCls + '" style="' + bgStyle + '">' + inner + '</div>' +
+               '<div class="gps-friend-label">' + esc(user.name || user.id || 'Друг') + '</div>';
+  return L.divIcon({
+    className: 'gps-friend-marker',
+    html: html,
+    iconSize: [52, 52],
+    iconAnchor: [26, 26]
+  });
+}
+
+function gpsOpenMap(){
+  openModal('gpsMapModal');
+  setTimeout(() => {
+    if(!gpsMap){
+      gpsMap = L.map('leafletMap', { zoomControl:true, attributionControl:true }).setView([55.75, 37.62], 6);
+
+      const streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19, attribution: '© OpenStreetMap'
+      });
+      const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19, attribution: '© Esri'
+      });
+      satellite.addTo(gpsMap);
+      L.control.layers({ '🛰️ Спутник': satellite, '🗺️ Карта': streets }, null, { position:'topright' }).addTo(gpsMap);
+    }
+    setTimeout(() => { gpsMap.invalidateSize(); }, 200);
+
+    gpsLoadFriendsOnMap();
+    gpsLoadMyPosition();
+    updateGpsUI();
+
+    const now = Date.now();
+    Object.keys(state.users).forEach(uid => {
+      if(uid === currentUser.id) return;
+      db.ref('locations/' + uid).once('value').then(snap => {
+        const loc = snap.val();
+        if(loc && loc.sharing && (now - (loc.ts||0) < GPS_STALE_MS)){
+          gpsMap.setView([loc.lat, loc.lng], 13);
+        }
+      }).catch(()=>{});
+    });
+  }, 250);
+}
+
+function gpsCloseMap(){
+  closeModal('gpsMapModal');
+}
+
+function gpsLoadMyPosition(){
+  if(!gpsMap || !navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const lat = pos.coords.latitude, lng = pos.coords.longitude;
+      const icon = L.divIcon({
+        className:'gps-my-marker',
+        html:'<div class="gps-me-dot"></div>',
+        iconSize:[20,20], iconAnchor:[10,10]
+      });
+      if(gpsMarkers['__me__']) gpsMarkers['__me__'].setLatLng([lat,lng]);
+      else gpsMarkers['__me__'] = L.marker([lat,lng], {icon:icon}).addTo(gpsMap).bindPopup('📍 Вы здесь');
+    },
+    err => {},
+    { enableHighAccuracy:false, maximumAge:60000, timeout:15000 }
+  );
+}
+
+function gpsCenterOnMe(){
+  if(!gpsMap || !navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(
+    pos => gpsMap.setView([pos.coords.latitude, pos.coords.longitude], 15),
+    err => showToast('❌ Не удалось определить позицию'),
+    { enableHighAccuracy:false, maximumAge:30000, timeout:15000 }
+  );
+}
+
+function gpsLoadFriendsOnMap(){
+  if(!gpsMap) return;
+  if(gpsFriendListener){ try{ gpsFriendListener.ref.off('value', gpsFriendListener.cb); }catch(e){} }
+
+  const ref = db.ref('locations');
+  const cb = ref.on('value', snap => {
+    const all = snap.val() || {};
+    const now = Date.now();
+    const friends = [];
+
+    Object.keys(all).forEach(uid => {
+      if(uid === currentUser.id) return;
+      const loc = all[uid];
+      if(!loc || !loc.sharing) return;
+      if(now - (loc.ts||0) > GPS_STALE_MS) return;
+      friends.push({ uid, loc });
+    });
+
+    Object.keys(gpsMarkers).forEach(uid => {
+      if(uid === '__me__') return;
+      if(!friends.find(f => f.uid === uid)){
+        try{ gpsMap.removeLayer(gpsMarkers[uid]); }catch(e){}
+        delete gpsMarkers[uid];
+      }
+    });
+
+    friends.forEach(f => {
+      const user = state.users[f.uid] || {id:f.uid, name:f.loc.name || f.uid};
+      const isOnline = user.status === 'online';
+      const icon = gpsBuildAvatarIcon(user, isOnline);
+      if(gpsMarkers[f.uid]){
+        gpsMarkers[f.uid].setLatLng([f.loc.lat, f.loc.lng]).setIcon(icon);
+      } else {
+        const marker = L.marker([f.loc.lat, f.loc.lng], {icon:icon, riseOnHover:true}).addTo(gpsMap);
+        marker.on('click', () => {
+          gpsCloseMap();
+          setTimeout(() => startChat(f.uid), 200);
+        });
+        gpsMarkers[f.uid] = marker;
+      }
+    });
+
+    const empty = gpsMap.getContainer().querySelector('.gps-empty');
+    if(friends.length === 0 && !empty){
+      const div = document.createElement('div');
+      div.className = 'gps-empty';
+      div.innerHTML = '😴 Пока никто не делится геолокацией.<br>Включите GPS в настройках, чтобы друг увидел вас.';
+      gpsMap.getContainer().appendChild(div);
+    } else if(friends.length > 0 && empty){
+      empty.remove();
+    }
+  });
+
+  gpsFriendListener = { ref: ref, cb: cb };
+}
+
+function gpsStopMapListeners(){
+  if(gpsFriendListener){ try{ gpsFriendListener.ref.off('value', gpsFriendListener.cb); }catch(e){} gpsFriendListener = null; }
+}
+
+function gpsOpenSettings(){
+  closeModal('settingsModal');
+  const currently = userInventory.gpsSharing && gpsShareEnabled;
+  const choice = confirm(
+    (currently ? '📍 Геолокация ВКЛючена.\n\n' : '📍 Геолокация ВЫКЛючена.\n\n') +
+    'Включить и делиться позицией с друзьями?\n\n' +
+    'Расход трафика: ~1-2 МБ в месяц\n' +
+    'Обновление раз в 90 секунд (экономно)'
+  );
+  if(choice && !currently){
+    userInventory.gpsSharing = true;
+    saveInventory();
+    db.ref('users/' + currentUser.id + '/gpsSharing').set(true);
+    gpsStartSharing();
+  } else if(!choice && currently){
+    userInventory.gpsSharing = false;
+    saveInventory();
+    db.ref('users/' + currentUser.id + '/gpsSharing').set(false);
+    gpsStopSharing();
+  }
+}
+
+function gpsRestoreState(){
+  if(userInventory && userInventory.gpsSharing && navigator.geolocation){
+    navigator.permissions && navigator.permissions.query({name:'geolocation'}).then(p => {
+      if(p.state === 'granted'){
+        gpsStartSharing();
+      }
+    }).catch(()=>{});
+  }
+  updateGpsUI();
+}
+
+/* ===================================================== */
 
 (function attachChatHold(){
   const list = document.getElementById('chatsList');
   if(!list || list._holdBound) return;
   list._holdBound = true;
+
+  let chatHoldTimer=null;
+  let chatHoldFired=false;
+  let chatHoldChatId=null;
+  let chatHoldChatType=null;
+  let chatHoldStartX=0;
+  let chatHoldStartY=0;
+  let chatHoldScrolling=false;
+
+  window.openChatHoldMenu = function(chatId, chatType, chatName){
+    chatHoldChatId = chatId;
+    chatHoldChatType = chatType;
+    chatHoldFired = true;
+    $('chatHoldHeader').innerText = chatName || 'Чат';
+    const blockBtn = $('chatHoldBlockBtn');
+    const deleteBtn = $('chatHoldDeleteBtn');
+    if(chatType === 'notes' || chatType === 'linked'){
+      blockBtn.style.display = 'none';
+      deleteBtn.style.display = 'none';
+    } else {
+      blockBtn.style.display = 'flex';
+      deleteBtn.style.display = 'flex';
+    }
+    $('chatHoldBackdrop').classList.add('show');
+    $('chatHoldSheet').classList.add('show');
+    vibrate([40]);
+    const items = document.querySelectorAll('.chat-item');
+    items.forEach(el => el.classList.remove('holding'));
+    const current = document.querySelector('.chat-item[data-chat="'+chatId+'"]');
+    if(current) current.classList.add('holding');
+  };
+
+  window.closeChatHoldMenu = function(){
+    $('chatHoldBackdrop').classList.remove('show');
+    $('chatHoldSheet').classList.remove('show');
+    document.querySelectorAll('.chat-item.holding').forEach(el => el.classList.remove('holding'));
+    chatHoldChatId = null;
+    chatHoldChatType = null;
+  };
 
   function startHold(e, target){
     const item = target.closest('.chat-item');
@@ -1591,9 +1883,9 @@ function closeChatHoldMenu(){
 })();
 
 function chatHoldBlockNow(){
-  const cid = chatHoldChatId;
-  const ctype = chatHoldChatType;
-  closeChatHoldMenu();
+  const cid = window.chatHoldChatId || null;
+  const ctype = window.chatHoldChatType || null;
+  if(window.closeChatHoldMenu) window.closeChatHoldMenu();
   if(!cid || ctype === 'notes' || ctype === 'linked') return;
   db.ref('userChats/'+currentUser.id+'/'+cid).once('value').then(snap => {
     const chat = snap.val();
@@ -1610,9 +1902,9 @@ function chatHoldBlockNow(){
 }
 
 function chatHoldDeleteNow(){
-  const cid = chatHoldChatId;
-  const ctype = chatHoldChatType;
-  closeChatHoldMenu();
+  const cid = window.chatHoldChatId || null;
+  const ctype = window.chatHoldChatType || null;
+  if(window.closeChatHoldMenu) window.closeChatHoldMenu();
   if(!cid || ctype === 'notes' || ctype === 'linked') return;
   if(!confirm('Удалить чат у себя? У собеседника он останется.')) return;
   db.ref('userChats/'+currentUser.id+'/'+cid).remove().then(() => {
@@ -1620,8 +1912,6 @@ function chatHoldDeleteNow(){
     debouncedRenderChats();
   }).catch(() => showToast('❌ Ошибка'));
 }
-
-/* ============================== */
 
 (function attachSwipeAndLongPress(){
     var container=document.getElementById('messagesContainer');
@@ -1725,8 +2015,8 @@ document.addEventListener('click',function(e){
 
     if(e.target.closest('#chatHoldOpenBtn')){
         e.preventDefault();
-        const cid = chatHoldChatId;
-        closeChatHoldMenu();
+        const cid = window.chatHoldChatId;
+        if(window.closeChatHoldMenu) window.closeChatHoldMenu();
         if(cid) setTimeout(()=>openChat(cid), 30);
         return;
     }
@@ -1757,6 +2047,10 @@ document.addEventListener('click',function(e){
     if(closest('#welcomeEnglishBtn')){e.preventDefault();setLanguage('en');return;}
     if(closest('#welcomeStartBtn')){e.preventDefault();localStorage.setItem('dg_welcome_seen','1');hideSplash();showLoginScreen();return;}
     if(closest('#settingsLangBtn')){e.preventDefault();closeModal('settingsModal');renderLangList();openModal('welcomeLangModal');return;}
+    if(closest('#settingsGpsBtn')){e.preventDefault();gpsOpenSettings();return;}
+    if(closest('#gpsBtn')){e.preventDefault();gpsOpenMap();return;}
+    if(closest('#gpsMapBack')){e.preventDefault();gpsStopMapListeners();gpsCloseMap();return;}
+    if(closest('#gpsCenterBtn')){e.preventDefault();gpsCenterOnMe();return;}
     if(closest('#myProfileBtn')){e.preventDefault();e.stopPropagation();showProfile(currentUser.id);return;}
     if(closest('#showUsersBtn')){e.preventDefault();showAllUsers();return;}
     if(closest('#stickerBtn')){e.preventDefault();showStickerModal();return;}
@@ -1873,6 +2167,7 @@ function startApp(){
     loadData();
     applySidebarTheme();
     applyTranslations();
+    gpsRestoreState();
     setTimeout(function(){if('Notification' in window&&Notification.permission==='default'){$('notifPermBar').classList.add('show');setTimeout(function(){$('notifPermBar').classList.remove('show');},15000);}},2000);
     showToast(t('toast_hello')+' '+currentUser.name+'!');
 }
@@ -1937,7 +2232,6 @@ document.getElementById('videoInput').addEventListener('change',function(e){
 });
 document.getElementById('chatSearch').addEventListener('input',function(){debouncedRenderChats();});
 document.getElementById('sidebarThemeFile').addEventListener('change',function(e){if(e.target.files[0]){uploadSidebarTheme(e.target.files[0]);e.target.value='';}});
-document.getElementById('chatBgFile').addEventListener('change',function(e){if(e.target.files[0]){uploadChatBg(e.target.files[0]);e.target.value='';}});
 
 document.addEventListener('scroll',function(e){
     if(e.target.id==='welcomeSlider'){
