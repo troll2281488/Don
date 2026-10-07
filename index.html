@@ -11,7 +11,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
-body{background:#1a1a2e;height:100vh;display:flex;align-items:center;justify-content:center;padding:8px;position:fixed;width:100%;overflow:hidden}
+body{background:#1a1a2e;height:100vh;height:100dvh;display:flex;align-items:center;justify-content:center;padding:8px;position:fixed;width:100%;overflow:hidden}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 @keyframes rainbowText{0%{background-position:0% 50%}100%{background-position:200% 50%}}
 @keyframes auraGlow{0%,100%{box-shadow:0 0 0 3px rgba(255,215,0,.9),0 0 20px rgba(255,0,255,.7)}50%{box-shadow:0 0 0 3px rgba(255,0,255,.9),0 0 25px rgba(0,255,255,.8)}}
@@ -28,7 +28,7 @@ body{background:#1a1a2e;height:100vh;display:flex;align-items:center;justify-con
 .sidebar.matrix-mode{background:#000}
 .sidebar-overlay{position:absolute;inset:0;background:rgba(255,255,255,0);pointer-events:none;z-index:2}
 .sidebar > *:not(.sidebar-overlay){position:relative;z-index:3}
-.main-area{width:100%;background:#f8fafd;display:flex;flex-direction:column;position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:10;transform:translateX(100%);transition:transform .2s}
+.main-area{width:100%;background:#f8fafd;display:flex;flex-direction:column;position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:10;transform:translateX(100%);transition:transform .2s;will-change:transform,height,top}
 .main-area.active{transform:translateX(0)}
 @media(min-width:768px){.sidebar{width:340px;min-width:340px;border-right:1px solid #e0e0e0}.main-area{position:relative;transform:none;width:auto;flex:1;min-width:0}.back-btn{display:none!important}}
 .notif-container{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:99999;width:92%;max-width:440px;display:flex;flex-direction:column;gap:8px;pointer-events:none}
@@ -258,7 +258,6 @@ input:checked+.slider:before{transform:translateX(26px)}
 .lang-name{flex:1;text-align:left}
 .lang-native{font-size:13px;color:#888;margin-left:8px}
 .lang-item.active .lang-native{color:#3aa9e0}
-
 .settings-section-title{font-size:12px;font-weight:700;color:#8e98a3;text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px}
 .linked-info{background:#e0ffe8;border:1px solid #34c759;border-radius:14px;padding:14px;font-size:14px;color:#0a8f3a;font-weight:600;display:flex;align-items:center;gap:10px;margin-bottom:12px;cursor:pointer}
 .linked-info i{font-size:20px}
@@ -284,8 +283,6 @@ input:checked+.slider:before{transform:translateX(26px)}
 .hold-sheet .hs-item i{width:22px;color:#667eea}
 .hold-sheet .hs-item.danger{color:#ff3b30}
 .hold-sheet .hs-item.danger i{color:#ff3b30}
-
-/* === GPS / КАРТА === */
 #gpsMapModal .modal-content{padding:0;max-width:100%;width:100%;height:100vh;border-radius:0;overflow:hidden;display:flex;flex-direction:column}
 .gps-map-header{padding:14px 18px;display:flex;align-items:center;gap:12px;background:#fff;border-bottom:1px solid #e8edf2;z-index:10}
 .gps-map-header h3{flex:1;font-size:16px;font-weight:700;color:#1a1a2e}
@@ -295,14 +292,11 @@ input:checked+.slider:before{transform:translateX(26px)}
 .gps-friend-marker .gps-avatar:hover{transform:scale(1.1)}
 .gps-friend-marker .gps-avatar.online{border-color:#34c759;box-shadow:0 0 0 3px rgba(52,199,89,.4),0 4px 12px rgba(0,0,0,.4)}
 .gps-friend-marker .gps-avatar.offline{border-color:#8e98a3;filter:grayscale(.4)}
+.gps-friend-marker .gps-avatar.me{border-color:#ffd700;box-shadow:0 0 0 3px rgba(255,215,0,.6),0 4px 12px rgba(0,0,0,.5);animation:auraGlow 2s ease-in-out infinite}
 .gps-friend-label{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap;pointer-events:none}
-.gps-my-marker .gps-me-dot{width:20px;height:20px;border-radius:50%;background:#007AFF;border:3px solid #fff;box-shadow:0 0 0 3px rgba(0,122,255,.3),0 2px 8px rgba(0,0,0,.4)}
 .gps-status-bar{padding:10px 16px;background:#f8fafd;border-top:1px solid #e8edf2;display:flex;align-items:center;gap:10px;font-size:13px;color:#555}
 .gps-status-bar .gps-dot{width:10px;height:10px;border-radius:50%;background:#8e98a3}
 .gps-status-bar .gps-dot.on{background:#34c759;box-shadow:0 0 0 4px rgba(52,199,89,.25);animation:recPulse 2s infinite}
-.gps-toggle-btn{width:100%;padding:14px;border-radius:14px;border:none;font-weight:700;font-size:15px;cursor:pointer;margin-top:8px;transition:.2s}
-.gps-toggle-btn.on{background:linear-gradient(135deg,#34c759,#28a745);color:#fff}
-.gps-toggle-btn.off{background:#f0f2f5;color:#555}
 .gps-empty{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(255,255,255,.95);padding:20px 24px;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.15);text-align:center;font-size:14px;color:#555;max-width:280px;z-index:5;pointer-events:none;line-height:1.5}
 .leaflet-control-attribution{font-size:9px!important;background:rgba(255,255,255,.7)!important}
 </style>
@@ -529,7 +523,6 @@ input:checked+.slider:before{transform:translateX(26px)}
 
 <div class="modal" id="systemNotifModal"><div class="modal-content">
 <div class="modal-header"><h3>🔔 Уведомления системы</h3><button type="button" data-close="systemNotifModal">&times;</button></div>
-
 <div class="linked-info" id="openCalcLinkManagerBtn" style="cursor:pointer;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none">
   <i class="fas fa-calculator"></i>
   <div style="flex:1">
@@ -538,7 +531,6 @@ input:checked+.slider:before{transform:translateX(26px)}
   </div>
   <i class="fas fa-chevron-right" style="font-size:14px;opacity:.7"></i>
 </div>
-
 <div id="calcLinkContent" style="margin-top:14px"></div>
 </div></div>
 
@@ -562,7 +554,6 @@ input:checked+.slider:before{transform:translateX(26px)}
 
 <div class="modal" id="stickerModal"><div class="modal-content"><div class="modal-header"><h3 data-i18n="stickers">😎 Стикеры</h3><button type="button" data-close="stickerModal">&times;</button></div><div id="stickerPack" style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;font-size:24px;text-align:center"></div></div></div>
 
-<!-- 📍 GPS КАРТА -->
 <div class="modal" id="gpsMapModal">
   <div class="modal-content">
     <div class="gps-map-header">
@@ -936,13 +927,6 @@ function showCalcLinkRequest(n){
     container.appendChild(el);
     setTimeout(()=>closeNotif(el), 8000);
   }
-  try {
-    if('Notification' in window && Notification.permission === 'granted'){
-      const sys = new Notification('🔗 Связка с Калькулятором', { body: 'Запрос на связку профилей' });
-      sys.onclick = function(){ window.focus(); openSystemNotifModal(); this.close(); };
-      setTimeout(()=>{try{sys.close()}catch(e){}}, 8000);
-    }
-  } catch(e){}
   vibrate([300,100,300,100,400]);
   playNotifSound();
 }
@@ -966,34 +950,12 @@ function renderCalcLinkManager(){
     }
     let html = '';
     if(v.status === 'pending'){
-      html += `
-        <div class="request-card">
-          <div class="lu-av" style="width:40px;height:40px;background:linear-gradient(135deg,#ff9500,#ff6b00);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px"><i class="fas fa-calculator"></i></div>
-          <div class="rc-info">
-            <div class="rc-name">Калькулятор Pro</div>
-            <div class="rc-sub">Хочет связаться с вашим профилем</div>
-          </div>
-          <div class="rc-actions">
-            <button class="rc-btn rc-accept" id="calcAcceptBtn">Принять</button>
-            <button class="rc-btn rc-decline" id="calcDeclineBtn">✕</button>
-          </div>
-        </div>
-      `;
+      html += '<div class="request-card"><div class="lu-av" style="width:40px;height:40px;background:linear-gradient(135deg,#ff9500,#ff6b00);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px"><i class="fas fa-calculator"></i></div><div class="rc-info"><div class="rc-name">Калькулятор Pro</div><div class="rc-sub">Хочет связаться с вашим профилем</div></div><div class="rc-actions"><button class="rc-btn rc-accept" id="calcAcceptBtn">Принять</button><button class="rc-btn rc-decline" id="calcDeclineBtn">✕</button></div></div>';
     } else if(v.status === 'accepted'){
-      html += `
-        <div class="linked-info" id="openCalcFromManager">
-          <i class="fas fa-calculator"></i>
-          <div style="flex:1">
-            <div style="font-weight:800;font-size:14px">Калькулятор Pro</div>
-            <div style="font-size:12px;opacity:.85">Нажмите, чтобы открыть</div>
-          </div>
-          <i class="fas fa-external-link-alt" style="font-size:14px;opacity:.7"></i>
-        </div>
-        <button class="login-btn" id="calcUnlinkBtn" style="background:#8e98a3;margin-top:8px">🔓 Отвязать</button>
-      `;
+      html += '<div class="linked-info" id="openCalcFromManager"><i class="fas fa-calculator"></i><div style="flex:1"><div style="font-weight:800;font-size:14px">Калькулятор Pro</div><div style="font-size:12px;opacity:.85">Нажмите, чтобы открыть</div></div><i class="fas fa-external-link-alt" style="font-size:14px;opacity:.7"></i></div><button class="login-btn" id="calcUnlinkBtn" style="background:#8e98a3;margin-top:8px">🔓 Отвязать</button>';
     } else if(v.status === 'declined'){
-      html += `<div class="pending-info" style="background:#ffe0e0;border-color:#ffb0b0;color:#c0392b"><i>❌</i> Запрос был отклонён</div>`;
-      html += `<button class="login-btn" id="calcResetBtn" style="background:#667eea;margin-top:8px">Сбросить</button>`;
+      html += '<div class="pending-info" style="background:#ffe0e0;border-color:#ffb0b0;color:#c0392b"><i>❌</i> Запрос был отклонён</div>';
+      html += '<button class="login-btn" id="calcResetBtn" style="background:#667eea;margin-top:8px">Сбросить</button>';
     }
     box.innerHTML = html;
 
@@ -1368,10 +1330,28 @@ function requestPushPermission(){return new Promise(function(resolve){try{if(!('
 function showSystemNotification(title,body,icon,tag){try{if(!('Notification' in window))return false;if(Notification.permission!=='granted')return false;var opts={body:body||'',icon:icon||null,badge:icon,tag:tag||('dg-'+Date.now())};var notif=new Notification(title,opts);notif.onclick=function(){window.focus();this.close();if(tag&&tag.indexOf('chat-')===0){var cid=tag.replace('chat-','');setTimeout(function(){openChat(cid);},100);}};setTimeout(function(){try{notif.close()}catch(e){}},8000);return true;}catch(e){return false;}}
 function vibrate(pattern){if(!vibroEnabled)return;try{if(navigator.vibrate)navigator.vibrate(pattern);}catch(e){}}
 function bindNotifSettings(){var ns=$('notifSwitch');var ss=$('soundSwitch');var vs=$('vibroSwitch');if(ns){ns.checked=notifEnabled;ns.onchange=function(){notifEnabled=ns.checked;localStorage.setItem('notif_enabled',notifEnabled?'true':'false');};}if(ss){ss.checked=soundEnabled;ss.onchange=function(){soundEnabled=ss.checked;localStorage.setItem('sound_enabled',soundEnabled?'true':'false');};}if(vs){vs.checked=vibroEnabled;vs.onchange=function(){vibroEnabled=vs.checked;localStorage.setItem('vibro_enabled',vibroEnabled?'true':'false');};}}
-var _notifAudioCtx=null;
-function getAudioCtx(){if(_notifAudioCtx&&_notifAudioCtx.state!=='closed')return _notifAudioCtx;var Ctx=window.AudioContext||window.webkitAudioContext;if(!Ctx)return null;_notifAudioCtx=new Ctx();return _notifAudioCtx;}
-function playNotifSound(){if(!soundEnabled)return;try{var ctx=getAudioCtx();if(!ctx)return;if(ctx.state==='suspended'){try{ctx.resume();}catch(e){}}var now=ctx.currentTime;var masterGain=ctx.createGain();masterGain.gain.setValueAtTime(2.0,now);masterGain.connect(ctx.destination);[0,0.45].forEach(function(baseT){[{f:1200,t:0.00,d:0.20},{f:1600,t:0.18,d:0.20},{f:2000,t:0.36,d:0.30}].forEach(function(n){var osc=ctx.createOscillator();var g=ctx.createGain();osc.type='square';osc.frequency.setValueAtTime(n.f,now+baseT+n.t);g.gain.setValueAtTime(0,now+baseT+n.t);g.gain.linearRampToValueAtTime(0.9,now+baseT+n.t+0.008);g.gain.exponentialRampToValueAtTime(0.001,now+baseT+n.t+n.d);osc.connect(g);g.connect(masterGain);osc.start(now+baseT+n.t);osc.stop(now+baseT+n.t+n.d+0.05);});});}catch(e){}}
-function showMessageNotification(data){if(!data||!currentUser)return;if(!notifEnabled)return;vibrate([300,100,300,100,400]);playNotifSound();showSystemNotification((data.senderName||'Message'),data.text||'📎',data.senderAvatarUrl||null,'chat-'+data.chatId);if(document.hidden)return;var container=$('notifContainer');if(!container)return;var el=document.createElement('div');el.className='notif';el.dataset.chatId=data.chatId;var avStyle='',avContent='';if(data.senderAvatarUrl){avStyle='background-image:url('+data.senderAvatarUrl+');background-size:cover';}else avContent=esc(data.senderAvatar||(data.senderName&&data.senderName[0]?data.senderName[0].toUpperCase():'?'));var timeStr=new Date(data.ts||Date.now()).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});el.innerHTML='<div class="notif-avatar" style="'+avStyle+'">'+avContent+'</div><div class="notif-content"><div class="notif-name">'+esc(data.senderName)+'</div><div class="notif-text">'+esc(data.text||'📎')+'</div><div class="notif-time">'+timeStr+'</div></div><button class="notif-close" type="button">✕</button>';el.addEventListener('click',function(e){if(e.target.closest('.notif-close')){closeNotif(el);return;}document.querySelectorAll('.modal.show').forEach(function(m){m.classList.remove('show');m.style.display='none';});var cid=el.dataset.chatId;setTimeout(function(){openChat(cid);},50);closeNotif(el);});el.querySelector('.notif-close').addEventListener('click',function(e){e.stopPropagation();closeNotif(el);});container.appendChild(el);setTimeout(function(){closeNotif(el);},6000);}
+function playNotifSound(){return;}
+function showMessageNotification(data){
+  if(!data||!currentUser)return;
+  if(!notifEnabled)return;
+  vibrate([300,100,300,100,400]);
+  if(document.hidden){
+    showSystemNotification((data.senderName||'Message'),data.text||'📎',data.senderAvatarUrl||null,'chat-'+data.chatId);
+    return;
+  }
+  if(currentChat === data.chatId) return;
+  var container=$('notifContainer');if(!container)return;
+  var el=document.createElement('div');el.className='notif';el.dataset.chatId=data.chatId;
+  var avStyle='',avContent='';
+  if(data.senderAvatarUrl){avStyle='background-image:url('+data.senderAvatarUrl+');background-size:cover';}
+  else avContent=esc(data.senderAvatar||(data.senderName&&data.senderName[0]?data.senderName[0].toUpperCase():'?'));
+  var timeStr=new Date(data.ts||Date.now()).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  el.innerHTML='<div class="notif-avatar" style="'+avStyle+'">'+avContent+'</div><div class="notif-content"><div class="notif-name">'+esc(data.senderName)+'</div><div class="notif-text">'+esc(data.text||'📎')+'</div><div class="notif-time">'+timeStr+'</div></div><button class="notif-close" type="button">✕</button>';
+  el.addEventListener('click',function(e){if(e.target.closest('.notif-close')){closeNotif(el);return;}document.querySelectorAll('.modal.show').forEach(function(m){m.classList.remove('show');m.style.display='none';});var cid=el.dataset.chatId;setTimeout(function(){openChat(cid);},50);closeNotif(el);});
+  el.querySelector('.notif-close').addEventListener('click',function(e){e.stopPropagation();closeNotif(el);});
+  container.appendChild(el);
+  setTimeout(function(){closeNotif(el);},6000);
+}
 function closeNotif(el){if(!el||!el.parentNode)return;el.classList.add('hide');setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},250);}
 var watchedChats=new Set();
 var chatWatchers={};
@@ -1527,10 +1507,6 @@ function startChat(userId){
 function goBack(){currentChat=null;$('mainArea').classList.remove('active');}
 function logout(){if(confirm(t('logout_confirm'))){if(currentUser){db.ref('users/'+currentUser.id).update({status:'offline'});}localStorage.removeItem('dg_user');location.reload();}}
 
-/* ===================================================== */
-/* ============  📍 GPS / ГЕОЛОКАЦИЯ  ================== */
-/* ===================================================== */
-
 let gpsWatchId = null;
 let gpsLastSent = 0;
 let gpsShareEnabled = false;
@@ -1603,7 +1579,7 @@ function updateGpsUI(){
   }
 }
 
-function gpsBuildAvatarIcon(user, isOnline){
+function gpsBuildAvatarIcon(user, isOnline, isMe){
   const initial = (user.avatar || (user.name ? user.name[0] : '?')).toUpperCase().slice(0,1);
   let bgStyle = '';
   let inner = '';
@@ -1613,8 +1589,10 @@ function gpsBuildAvatarIcon(user, isOnline){
     inner = '<span>' + esc(initial) + '</span>';
   }
   const onlineCls = isOnline ? 'online' : 'offline';
-  const html = '<div class="gps-avatar ' + onlineCls + '" style="' + bgStyle + '">' + inner + '</div>' +
-               '<div class="gps-friend-label">' + esc(user.name || user.id || 'Друг') + '</div>';
+  const meCls = isMe ? ' me' : '';
+  const label = isMe ? '👑 Вы' : esc(user.name || user.id || 'Друг');
+  const html = '<div class="gps-avatar ' + onlineCls + meCls + '" style="' + bgStyle + '">' + inner + '</div>' +
+               '<div class="gps-friend-label">' + label + '</div>';
   return L.divIcon({
     className: 'gps-friend-marker',
     html: html,
@@ -1649,7 +1627,7 @@ function gpsOpenMap(){
       if(uid === currentUser.id) return;
       db.ref('locations/' + uid).once('value').then(snap => {
         const loc = snap.val();
-        if(loc && loc.sharing && (now - (loc.ts||0) < GPS_STALE_MS)){
+        if(loc && loc.sharing && loc.lat && loc.lng && (now - (loc.ts||0) < GPS_STALE_MS)){
           gpsMap.setView([loc.lat, loc.lng], 13);
         }
       }).catch(()=>{});
@@ -1666,13 +1644,15 @@ function gpsLoadMyPosition(){
   navigator.geolocation.getCurrentPosition(
     pos => {
       const lat = pos.coords.latitude, lng = pos.coords.longitude;
-      const icon = L.divIcon({
-        className:'gps-my-marker',
-        html:'<div class="gps-me-dot"></div>',
-        iconSize:[20,20], iconAnchor:[10,10]
-      });
-      if(gpsMarkers['__me__']) gpsMarkers['__me__'].setLatLng([lat,lng]);
-      else gpsMarkers['__me__'] = L.marker([lat,lng], {icon:icon}).addTo(gpsMap).bindPopup('📍 Вы здесь');
+      const me = state.users[currentUser.id] || currentUser;
+      const icon = gpsBuildAvatarIcon(me, true, true);
+      if(gpsMarkers['__me__']){
+        gpsMarkers['__me__'].setLatLng([lat,lng]).setIcon(icon);
+      } else {
+        gpsMarkers['__me__'] = L.marker([lat,lng], {icon:icon, zIndexOffset:1000})
+          .addTo(gpsMap)
+          .bindPopup('📍 Это вы');
+      }
     },
     err => {},
     { enableHighAccuracy:false, maximumAge:60000, timeout:15000 }
@@ -1702,6 +1682,7 @@ function gpsLoadFriendsOnMap(){
       if(uid === currentUser.id) return;
       const loc = all[uid];
       if(!loc || !loc.sharing) return;
+      if(!loc.lat || !loc.lng) return;
       if(now - (loc.ts||0) > GPS_STALE_MS) return;
       friends.push({ uid, loc });
     });
@@ -1717,7 +1698,7 @@ function gpsLoadFriendsOnMap(){
     friends.forEach(f => {
       const user = state.users[f.uid] || {id:f.uid, name:f.loc.name || f.uid};
       const isOnline = user.status === 'online';
-      const icon = gpsBuildAvatarIcon(user, isOnline);
+      const icon = gpsBuildAvatarIcon(user, isOnline, false);
       if(gpsMarkers[f.uid]){
         gpsMarkers[f.uid].setLatLng([f.loc.lat, f.loc.lng]).setIcon(icon);
       } else {
@@ -1780,8 +1761,6 @@ function gpsRestoreState(){
   }
   updateGpsUI();
 }
-
-/* ===================================================== */
 
 (function attachChatHold(){
   const list = document.getElementById('chatsList');
@@ -2063,10 +2042,7 @@ document.addEventListener('click',function(e){
     if(closest('#chatMenuBtn')){e.preventDefault();if(currentChat)openModal('chatMenuModal');return;}
     if(closest('#clearChatBtn')){e.preventDefault();clearChat();return;}
     if(closest('#bgBtn')){e.preventDefault();if(currentChat){openModal('backgroundModal');}return;}
-    if(closest('#uploadChatBgBtn')){e.preventDefault();$('chatBgFile').click();return;}
     if(closest('[data-bg]')){var b=closest('[data-bg]');if(currentChat)setChatWallpaper(currentChat,b.dataset.bg);closeModal('backgroundModal');return;}
-    var sgbg=closest('[data-sgbg]');
-    if(sgbg){e.preventDefault();if(currentChat){setChatWallpaper(currentChat,'sg-anim:'+sgbg.dataset.sgbg);closeModal('backgroundModal');}return;}
     if(closest('#editProfileBtn')){e.preventDefault();openEditProfile();return;}
     if(closest('#shopBtn')){e.preventDefault();closeModal('profileModal');renderShopAvatars();renderShopBubbles();renderShopSpecial();renderThemes();openModal('shopModal');return;}
     if(closest('#openSettingsBtn')){e.preventDefault();closeModal('profileModal');openModal('settingsModal');return;}
@@ -2248,6 +2224,53 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
     var slider=$('welcomeSlider');
     slider.scrollTo({left:idx*slider.clientWidth,behavior:'smooth'});
 });
+
+/* === ИСПРАВЛЕНИЕ ВВОДА ТЕКСТА В WEBVIEW === */
+(function fixKeyboardInWebView(){
+  if(!window.visualViewport) return;
+  var vv = window.visualViewport;
+  var mainArea = document.getElementById('mainArea');
+  var inputArea = document.getElementById('inputArea');
+  var messagesContainer = document.getElementById('messagesContainer');
+
+  function adjust(){
+    var diff = window.innerHeight - vv.height;
+    if(diff > 80){
+      if(inputArea) inputArea.style.paddingBottom = '0';
+      if(mainArea) mainArea.style.height = vv.height + 'px';
+      if(mainArea) mainArea.style.transform = 'translateX(0)';
+      if(mainArea) mainArea.style.position = 'fixed';
+      if(mainArea) mainArea.style.top = (vv.offsetTop || 0) + 'px';
+      if(messagesContainer) messagesContainer.style.paddingBottom = '20px';
+      requestAnimationFrame(function(){
+        if(messagesContainer) messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      });
+    } else {
+      if(mainArea){
+        mainArea.style.height = '';
+        mainArea.style.top = '';
+        mainArea.style.position = '';
+      }
+    }
+  }
+
+  vv.addEventListener('resize', adjust);
+  vv.addEventListener('scroll', adjust);
+  window.addEventListener('resize', adjust);
+
+  var msgInput = document.getElementById('messageInput');
+  if(msgInput){
+    msgInput.addEventListener('focus', function(){
+      setTimeout(adjust, 150);
+      setTimeout(function(){
+        if(messagesContainer) messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }, 350);
+    });
+    msgInput.addEventListener('blur', function(){
+      setTimeout(adjust, 100);
+    });
+  }
+})();
 </script>
 </body>
 </html>
