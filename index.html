@@ -6,6 +6,7 @@
 <title>✨ DonorGram Pro</title>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -720,6 +721,7 @@ input:checked+.slider:before{transform:translateX(26px)}
 const firebaseConfig={apiKey:"AIzaSyA2CuM61jyNiMcXstm_aUsIOwabfiTkKuo",authDomain:"donor-fd6ea.firebaseapp.com",databaseURL:"https://donor-fd6ea-default-rtdb.firebaseio.com",projectId:"donor-fd6ea",storageBucket:"donor-fd6ea.firebasestorage.app",messagingSenderId:"825423285184",appId:"1:825423285184:web:77f0160f05609e81381625"};
 firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
+const auth=firebase.auth();
 const CALC_URL='https://troll2281488.github.io/Cksksksje/';
 
 const TRANSLATIONS={ru:{welcome_title_0:'DonorGram',welcome_sub_0:'Самый быстрый мессенджер в мире. Бесплатный и безопасный.',welcome_title_1:'Быстро',welcome_sub_1:'DonorGram работает быстрее любых других приложений.',welcome_title_2:'Свободно',welcome_sub_2:'DonorGram — свободный мессенджер. Никакой рекламы.',welcome_title_3:'Мощно',welcome_sub_3:'DonorGram не имеет ограничений на размер файлов.',welcome_title_4:'Облачно',welcome_sub_4:'Доступ к сообщениям с нескольких устройств.',welcome_start:'Начать общение',welcome_choose_lang:'Выберите язык',login_name:'Никнейм',login_pass:'Пароль',login_avatar:'Аватар (2 буквы)',login_btn:'Войти / Регистрация',login_users:'пользователей',chat_search:'🔍 Поиск...',chat_select:'Выберите чат',chat_type:'Сообщение...',chat_online:'🟢 в сети',chat_offline:'⚫ не в сети',chat_notes:'⭐ Избранное',chat_no_msgs:'Нет сообщений',chat_editing:'Редактирование',chat_rec_cancel:'Отмена',chat_rec_send:'➤ Отправить',chat_clear:'🗑 Очистить историю',chat:'⚙️ Чат',chat_started:'Сообщений пока нет. Напишите первым!',action_reply:'Ответить',action_copy:'Копировать',action_edit:'Редактировать',action_pin:'Закрепить',action_delete_me:'Удалить у себя',action_delete:'Удалить у всех',settings:'⚙️ Настройки',settings_lang:'🌐 Язык',settings_push:'🔔 Push-уведомления',settings_notif:'🔔 Уведомления',settings_sound:'🔊 Звук',settings_vibro:'📳 Вибрация',settings_edit_profile:'✏️ Редактировать профиль',profile:'👤 Профиль',profile_name:'Имя:',profile_bio:'Статус:',profile_online:'Онлайн:',profile_edit_btn:'✏️ РЕДАКТИРОВАТЬ ПРОФИЛЬ',profile_shop_btn:'🛍️ МАГАЗИН',profile_settings_btn:'⚙️ НАСТРОЙКИ',profile_sg_off:'🔄 Отключить SpaceGod',profile_sg_on:'✅ Включить SpaceGod',profile_block:'🚫 ЗАБЛОКИРОВАТЬ',profile_unblock:'✅ РАЗБЛОКИРОВАТЬ',profile_no_status:'Нет статуса',profile_my:'👤 Мой профиль',editprofile_title:'✏️ Редактировать профиль',editprofile_avatar:'Аватар (2 буквы)',editprofile_name:'Имя',editprofile_bio:'Описание (статус)',editprofile_pass:'Новый пароль (пусто = не менять)',cancel:'Отмена',save:'💾 Сохранить',shop:'🛍️ Магазин',shop_all_free:'✨ ВСЁ БЕСПЛАТНО',shop_avatars:'👤 Аватарки',shop_bubbles:'💬 Пузыри',shop_special:'🌟 Особые',shop_sg:'🌈 SPACEGOD',shop_upload_theme:'📷 Загрузить своё фото',shop_reset_theme:'🗑 Сбросить тему',attach:'📎 Вложения',attach_photo:'Отправить фото',attach_video:'Отправить видео',users:'👥 Пользователи',bg:'🎨 Обои чата',stickers:'😎 Стикеры',logout_confirm:'Выйти из аккаунта?',logout:'Выйти',notif_enable:'🔔 Включить уведомления?',notif_on:'ВКЛ',err_fill:'❌ Введите ник и пароль',err_pass:'❌ Неверный пароль',err_blocked:'❌ Заблокирован',toast_hello:'✅ Привет,',toast_copied:'📋',toast_deleted:'🗑',toast_saved:'💾',toast_error:'❌ Ошибка',no_other_users:'Пока нет других пользователей',you_offline:'⚫ не в сети',you_online:'🟢 в сети',call_btn:'📞 Позвонить',call_no_perm:'❌ Нет доступа к микрофону',call_calling:'📞 Вызов...',call_incoming:'📞 Входящий звонок',call_connected:'🔊 Разговор',call_ended:'Звонок завершён',call_declined:'❌ Звонок отклонён',call_timeout:'⏱ Никто не ответил',call_speaker_on:'🔊 Динамик вкл',call_speaker_off:'🔈 Динамик выкл'},en:{welcome_title_0:'DonorGram',welcome_sub_0:'The fastest messenger in the world. Free and secure.',welcome_title_1:'Fast',welcome_sub_1:'DonorGram works faster than any other app.',welcome_title_2:'Free',welcome_sub_2:'DonorGram is a free messenger. No ads.',welcome_title_3:'Powerful',welcome_sub_3:'DonorGram has no file size limits.',welcome_title_4:'Cloud',welcome_sub_4:'Access messages from multiple devices.',welcome_start:'Start Messaging',welcome_choose_lang:'Choose language',login_name:'Nickname',login_pass:'Password',login_avatar:'Avatar (2 letters)',login_btn:'Login / Sign up',login_users:'users',chat_search:'🔍 Search...',chat_select:'Select chat',chat_type:'Message...',chat_online:'🟢 online',chat_offline:'⚫ offline',chat_notes:'⭐ Saved',chat_no_msgs:'No messages',chat_editing:'Editing',chat_rec_cancel:'Cancel',chat_rec_send:'➤ Send',chat_clear:'🗑 Clear history',chat:'⚙️ Chat',chat_started:'No messages yet. Write first!',action_reply:'Reply',action_copy:'Copy',action_edit:'Edit',action_pin:'Pin',action_delete_me:'Delete for me',action_delete:'Delete for everyone',settings:'⚙️ Settings',settings_lang:'🌐 Language',settings_push:'🔔 Push notifications',settings_notif:'🔔 Notifications',settings_sound:'🔊 Sound',settings_vibro:'📳 Vibration',settings_edit_profile:'✏️ Edit profile',profile:'👤 Profile',profile_name:'Name:',profile_bio:'Status:',profile_online:'Online:',profile_edit_btn:'✏️ EDIT PROFILE',profile_shop_btn:'🛍️ SHOP',profile_settings_btn:'⚙️ SETTINGS',profile_sg_off:'🔄 Disable SpaceGod',profile_sg_on:'✅ Enable SpaceGod',profile_block:'🚫 BLOCK',profile_unblock:'✅ UNBLOCK',profile_no_status:'No status',profile_my:'👤 My profile',editprofile_title:'✏️ Edit profile',editprofile_avatar:'Avatar (2 letters)',editprofile_name:'Name',editprofile_bio:'Bio (status)',editprofile_pass:'New password (empty = keep)',cancel:'Cancel',save:'💾 Save',shop:'🛍️ Shop',shop_all_free:'✨ ALL FREE',shop_avatars:'👤 Avatars',shop_bubbles:'💬 Bubbles',shop_special:'🌟 Special',shop_sg:'🌈 SPACEGOD',shop_upload_theme:'📷 Upload your photo',shop_reset_theme:'🗑 Reset theme',attach:'📎 Attachments',attach_photo:'Send photo',attach_video:'Send video',users:'👥 Users',bg:'🎨 Chat wallpaper',stickers:'😎 Stickers',logout_confirm:'Logout from account?',logout:'Logout',notif_enable:'🔔 Enable notifications?',notif_on:'ON',err_fill:'❌ Enter nickname and password',err_pass:'❌ Wrong password',err_blocked:'❌ Blocked',toast_hello:'✅ Hi,',toast_copied:'📋',toast_deleted:'🗑',toast_saved:'💾',toast_error:'❌ Error',no_other_users:'No other users yet',you_offline:'⚫ offline',you_online:'🟢 online',call_btn:'📞 Call',call_no_perm:'❌ No microphone access',call_calling:'📞 Calling...',call_incoming:'📞 Incoming call',call_connected:'🔊 Connected',call_ended:'Call ended',call_declined:'❌ Call declined',call_timeout:'⏱ No answer',call_speaker_on:'🔊 Speaker on',call_speaker_off:'🔈 Speaker off'},uk:{welcome_title_0:'DonorGram',welcome_sub_0:'Найшвидший месенджер у світі. Безкоштовний і безпечний.',welcome_title_1:'Швидко',welcome_sub_1:'DonorGram працює швидше за будь-які інші додатки.',welcome_title_2:'Вільно',welcome_sub_2:'DonorGram — вільний месенджер. Жодної реклами.',welcome_title_3:'Потужно',welcome_sub_3:'DonorGram не має обмежень на розмір файлів.',welcome_title_4:'У хмарі',welcome_sub_4:'Доступ до повідомлень з кількох пристроїв.',welcome_start:'Почати спілкування',welcome_choose_lang:'Виберіть мову',login_name:'Нікнейм',login_pass:'Пароль',login_avatar:'Аватар (2 літери)',login_btn:'Увійти / Реєстрація',login_users:'користувачів',chat_search:'🔍 Пошук...',chat_select:'Виберіть чат',chat_type:'Повідомлення...',chat_online:'🟢 онлайн',chat_offline:'⚫ офлайн',chat_notes:'⭐ Обране',chat_no_msgs:'Немає повідомлень',chat_editing:'Редагування',chat_rec_cancel:'Скасувати',chat_rec_send:'➤ Надіслати',chat_clear:'🗑 Очистити історію',chat:'⚙️ Чат',chat_started:'Повідомлень поки немає. Напишіть першим!',action_reply:'Відповісти',action_copy:'Копіювати',action_edit:'Редагувати',action_pin:'Закріпити',action_delete_me:'Видалити у себе',action_delete:'Видалити у всіх',settings:'⚙️ Налаштування',settings_lang:'🌐 Мова',settings_push:'🔔 Push-повідомлення',settings_notif:'🔔 Повідомлення',settings_sound:'🔊 Звук',settings_vibro:'📳 Вібрація',settings_edit_profile:'✏️ Редагувати профіль',profile:'👤 Профіль',profile_name:"Ім'я:",profile_bio:'Статус:',profile_online:'Онлайн:',profile_edit_btn:'✏️ РЕДАГУВАТИ ПРОФІЛЬ',profile_shop_btn:'🛍️ МАГАЗИН',profile_settings_btn:'⚙️ НАЛАШТУВАННЯ',profile_sg_off:'🔄 Вимкнути SpaceGod',profile_sg_on:'✅ Увімкнути SpaceGod',profile_block:'🚫 ЗАБЛОКУВАТИ',profile_unblock:'✅ РОЗБЛОКУВАТИ',profile_no_status:'Немає статусу',profile_my:'👤 Мій профіль',editprofile_title:'✏️ Редагувати профіль',editprofile_avatar:'Аватар (2 літери)',editprofile_name:"Ім'я",editprofile_bio:'Опис (статус)',editprofile_pass:'Новий пароль (пусто = не змінювати)',cancel:'Скасувати',save:'💾 Зберегти',shop:'🛍️ Магазин',shop_all_free:'✨ ВСЕ БЕЗКОШТОВНО',shop_avatars:'👤 Аватарки',shop_bubbles:'💬 Бульбашки',shop_special:'🌟 Особливі',shop_sg:'🌈 SPACEGOD',shop_upload_theme:'📷 Завантажити своє фото',shop_reset_theme:'🗑 Скинути тему',attach:'📎 Вкладення',attach_photo:'Надіслати фото',attach_video:'Надіслати відео',users:'👥 Користувачі',bg:'🎨 Шпалери чату',stickers:'😎 Стікери',logout_confirm:'Вийти з акаунта?',logout:'Вийти',notif_enable:'🔔 Увімкнути повідомлення?',notif_on:'УВІМК',err_fill:'❌ Введіть нік та пароль',err_pass:'❌ Невірний пароль',err_blocked:'❌ Заблоковано',toast_hello:'✅ Привіт,',toast_copied:'📋',toast_deleted:'🗑',toast_saved:'💾',toast_error:'❌ Помилка',no_other_users:'Поки немає інших користувачів',you_offline:'⚫ офлайн',you_online:'🟢 онлайн',call_btn:'📞 Подзвонити',call_no_perm:'❌ Немає доступу до мікрофона',call_calling:'📞 Виклик...',call_incoming:'📞 Вхідний виклик',call_connected:'🔊 Розмова',call_ended:'Виклик завершено',call_declined:'❌ Виклик відхилено',call_timeout:'⏱ Ніхто не відповів',call_speaker_on:'🔊 Динамік увімк',call_speaker_off:'🔈 Динамік вимк'}};
@@ -1198,11 +1200,12 @@ function saveProfileEdits(){
     if(newName&&newName!==currentUser.id)updates.name=newName;
     updates.bio=newBio;
     if(newAvatarText&&!currentUser.avatarUrl)updates.avatar=newAvatarText;
-    if(newPassword)updates.password=newPassword;
     db.ref('users/'+currentUser.id).update(updates).then(function(){
         currentUser.name=newName||currentUser.name;
         currentUser.bio=newBio;
-        if(newPassword)currentUser.password=newPassword;
+        if(newPassword && auth.currentUser){
+            auth.currentUser.updatePassword(newPassword).catch(function(){});
+        }
         localStorage.setItem('dg_user',JSON.stringify(currentUser));
         window.currentUser = currentUser;
         var av=$('userAvatar');
@@ -1522,7 +1525,7 @@ function startChat(userId){
     });
 }
 function goBack(){currentChat=null;$('mainArea').classList.remove('active');}
-function logout(){if(confirm(t('logout_confirm'))){if(currentUser){db.ref('users/'+currentUser.id).update({status:'offline'});}localStorage.removeItem('dg_user');location.reload();}}
+function logout(){if(confirm(t('logout_confirm'))){if(currentUser){db.ref('users/'+currentUser.id).update({status:'offline'});}try{auth.signOut();}catch(e){}localStorage.removeItem('dg_user');location.reload();}}
 
 let gpsWatchId=null,gpsLastSent=0,gpsShareEnabled=false,gpsMap=null,gpsMarkers={},gpsFriendListener=null;
 const GPS_SEND_INTERVAL=300000;
@@ -1899,40 +1902,104 @@ document.addEventListener('keydown',function(e){
     if(e.key==='Escape'){if(replyToMessage)cancelReply();if(editingMessageId)exitEditMode();}
 });
 
-window.doLogin=function(){
-    var name=($('loginName')&&$('loginName').value||'').trim();
-    var pass=$('loginPassword')&&$('loginPassword').value||'';
-    var avatar=(($('loginAvatar')&&$('loginAvatar').value||'').trim()||name.substring(0,2)).toUpperCase().slice(0,2);
-    if(!name||!pass){showToast(t('err_fill'));return;}
-    db.ref('users').once('value').then(function(usersSnap){
-        var usersCount = Object.keys(usersSnap.val() || {}).length;
-        db.ref('settings/maxUsers').once('value').then(function(maxSnap){
-            var maxUsers = maxSnap.val() || 50;
-            db.ref('users/'+name).once('value').then(function(userSnap){
-                if(userSnap.exists()){
-                    var u=userSnap.val();
-                    if(u.password!==pass){showToast(t('err_pass'));return;}
-                    if(u.blocked){showToast(t('err_blocked'));return;}
-                    currentUser={id:name,name:u.name||name,avatar:u.avatar||avatar,avatarUrl:u.avatarUrl||null,password:pass,bio:u.bio||''};
-                    window.currentUser=currentUser;
-                    db.ref('users/'+name).update({status:'online'});
-                    return loadInventoryAndStart();
-                } else {
-                    if(usersCount >= maxUsers){
-                        showToast('❌ Достигнут лимит пользователей (' + maxUsers + '). Регистрация закрыта.');
-                        return;
-                    }
-                    var newUser={name:name,avatar:avatar,password:pass,createdAt:Date.now(),status:'online',blocked:false,bio:''};
-                    db.ref('users/'+name).set(newUser).then(function(){
-                        currentUser={id:name,name:name,avatar:avatar,password:pass,avatarUrl:null,bio:''};
-                        window.currentUser=currentUser;
-                        return loadInventoryAndStart();
-                    });
-                }
-            });
+/* ==================== НОВЫЙ ВХОД ЧЕРЕЗ FIREBASE AUTH ==================== */
+
+function nickToEmail(nick){
+    var clean = String(nick||'').toLowerCase().replace(/[^a-z0-9._-]/g, '');
+    if(!clean) clean = 'user' + Date.now();
+    return clean + '@donorgram.local';
+}
+
+window.doLogin = function(){
+    var name = ($('loginName') && $('loginName').value || '').trim();
+    var pass = ($('loginPassword') && $('loginPassword').value || '');
+    var avatar = (($('loginAvatar') && $('loginAvatar').value || '').trim() || name.substring(0,2))
+                 .toUpperCase().slice(0,2);
+
+    if(!name || !pass){ showToast(t('err_fill')); return; }
+    if(name.length < 2){ showToast('❌ Ник минимум 2 символа'); return; }
+    if(pass.length < 4){ showToast('❌ Пароль минимум 4 символа'); return; }
+
+    var email = nickToEmail(name);
+
+    auth.signInWithEmailAndPassword(email, pass)
+    .then(function(cred){
+        return db.ref('users/' + cred.user.uid).once('value').then(function(snap){
+            var u = snap.val() || {};
+            currentUser = {
+                id: cred.user.uid,
+                name: u.name || name,
+                avatar: u.avatar || avatar,
+                avatarUrl: u.avatarUrl || null,
+                bio: u.bio || ''
+            };
+            window.currentUser = currentUser;
+            db.ref('users/' + cred.user.uid).update({ status: 'online' });
+            return loadInventoryAndStart();
         });
-    }).catch(function(err){showToast(t('toast_error'));});
+    })
+    .catch(function(err){
+        if(err && err.code === 'auth/user-not-found'){
+            return registerNewUser(name, avatar, email, pass);
+        }
+        if(err && err.code === 'auth/wrong-password'){
+            showToast(t('err_pass'));
+            return;
+        }
+        if(err && err.code === 'auth/too-many-requests'){
+            showToast('❌ Слишком много попыток. Подожди минуту.');
+            return;
+        }
+        if(err && err.code === 'auth/invalid-email'){
+            showToast('❌ Некорректный ник');
+            return;
+        }
+        console.error('[auth]', err);
+        showToast(t('toast_error'));
+    });
 };
+
+function registerNewUser(name, avatar, email, pass){
+    return db.ref('userNames/' + name.toLowerCase()).once('value').then(function(snap){
+        if(snap.exists()){
+            showToast('❌ Этот ник уже занят');
+            throw new Error('nick_taken');
+        }
+        return auth.createUserWithEmailAndPassword(email, pass);
+    }).then(function(cred){
+        var uid = cred.user.uid;
+        var updates = {};
+        updates['users/' + uid] = {
+            name: name,
+            avatar: avatar,
+            createdAt: Date.now(),
+            status: 'online',
+            blocked: false,
+            bio: ''
+        };
+        updates['userNames/' + name.toLowerCase()] = uid;
+        return db.ref().update(updates).then(function(){
+            currentUser = {
+                id: uid,
+                name: name,
+                avatar: avatar,
+                avatarUrl: null,
+                bio: ''
+            };
+            window.currentUser = currentUser;
+            return loadInventoryAndStart();
+        });
+    }).catch(function(err){
+        if(err && err.message === 'nick_taken') return;
+        if(err && err.code === 'auth/email-already-in-use'){
+            showToast('❌ Этот ник уже занят');
+            return;
+        }
+        console.error('[register]', err);
+        showToast(t('toast_error'));
+    });
+}
+
 function loadInventoryAndStart(){
     var name=currentUser.id;
     return db.ref('inventory/'+name).once('value').then(function(invSnap){
@@ -2014,30 +2081,48 @@ document.addEventListener('DOMContentLoaded',function(){
     var saved=localStorage.getItem('dg_user');
     if(saved){
         try{
-            currentUser=JSON.parse(saved);
-            window.currentUser=currentUser;
-            if(!currentUser||!currentUser.id)throw new Error('bad');
-            $('loginScreen').style.display='none';
-            $('mainApp').style.display='block';
-            var av=$('userAvatar');
-            if(currentUser.avatarUrl){av.innerText='';av.parentElement.style.backgroundImage='url('+currentUser.avatarUrl+')';av.parentElement.style.backgroundSize='cover';}
-            else av.innerText=currentUser.avatar||'U';
-            updateSpaceGodUI();
-            db.ref('users/'+currentUser.id).once('value').then(function(chk){
-                if(!chk.exists()||chk.val().blocked){localStorage.removeItem('dg_user');location.reload();return;}
-                currentUser.name=chk.val().name||currentUser.name;
-                currentUser.avatar=chk.val().avatar||currentUser.avatar;
-                currentUser.avatarUrl=chk.val().avatarUrl||null;
-                currentUser.bio=chk.val().bio||'';
+            var savedUser=JSON.parse(saved);
+            if(!savedUser||!savedUser.id)throw new Error('bad');
+            auth.onAuthStateChanged(function(fbUser){
+                if(!fbUser){
+                    localStorage.removeItem('dg_user');
+                    showLoginScreen();
+                    return;
+                }
+                currentUser={
+                    id:fbUser.uid,
+                    name:savedUser.name||fbUser.uid,
+                    avatar:savedUser.avatar||'U',
+                    avatarUrl:savedUser.avatarUrl||null,
+                    bio:savedUser.bio||''
+                };
                 window.currentUser=currentUser;
-                return loadInventoryAndStart();
-            }).catch(function(){loadInventoryAndStart();});
+                $('loginScreen').style.display='none';
+                $('mainApp').style.display='block';
+                var av=$('userAvatar');
+                if(currentUser.avatarUrl){av.innerText='';av.parentElement.style.backgroundImage='url('+currentUser.avatarUrl+')';av.parentElement.style.backgroundSize='cover';}
+                else av.innerText=currentUser.avatar||'U';
+                updateSpaceGodUI();
+                db.ref('users/'+currentUser.id).once('value').then(function(chk){
+                    if(!chk.exists()){
+                        localStorage.removeItem('dg_user');
+                        showLoginScreen();
+                        return;
+                    }
+                    var u=chk.val();
+                    currentUser.name=u.name||currentUser.name;
+                    currentUser.avatar=u.avatar||currentUser.avatar;
+                    currentUser.avatarUrl=u.avatarUrl||null;
+                    currentUser.bio=u.bio||'';
+                    window.currentUser=currentUser;
+                    return loadInventoryAndStart();
+                }).catch(function(){return loadInventoryAndStart();});
+            });
             return;
         }catch(e){localStorage.removeItem('dg_user');}
     }
     showLoginScreen();
-    db.ref('users').on('child_added',function(s){state.users[s.key]=s.val();var cnt=Object.keys(state.users).length;if($('userCount'))$('userCount').innerText=cnt+'/'+MAX;});
-    db.ref('settings/maxUsers').on('value',function(snap){MAX=snap.val()||50;var el=$('userCount');if(el){db.ref('users').once('value').then(function(s){el.innerText=Object.keys(s.val()||{}).length+'/'+MAX;});}});
+    db.ref('settings/maxUsers').on('value',function(snap){MAX=snap.val()||50;var el=$('userCount');if(el)el.innerText=MAX;});
 });
 document.getElementById('photoInput').addEventListener('change',function(e){
     if(e.target.files[0]){
