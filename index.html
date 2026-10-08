@@ -1324,20 +1324,20 @@ function openChat(chatId){
         hasMoreMessages=count>=MSG_LIMIT;
         renderMessages(messageCache[chatId],chatId);
     }).catch(function(){messageCache[chatId]=messageCache[chatId]||{};renderMessages(messageCache[chatId],chatId);});
+
+    // ===== ИСПРАВЛЕНО: полная замена кеша + перерисовка (без "призрачных" старых сообщений) =====
     messagesListener=db.ref('messages/'+chatId).orderByChild('timestamp').limitToLast(MSG_LIMIT).on('value',function(snap){
+        if(chatId!==currentChat) return;
         var msgs=snap.val()||{};
-        Object.keys(msgs).forEach(function(id){
-            if(!messageCache[chatId][id]){
-                messageCache[chatId][id]=msgs[id];
-                var container=$('messagesContainer');
-                if(container){
-                    var empty=container.querySelector('.empty-state');if(empty)empty.remove();
-                    container.appendChild(buildMessageEl(Object.assign({id:id},msgs[id])));
-                    requestAnimationFrame(function(){container.scrollTop=container.scrollHeight;});
-                }
-            }else{messageCache[chatId][id]=msgs[id];}
-        });
+        var container=$('messagesContainer');
+        var wasAtBottom = container ? (container.scrollHeight - container.scrollTop - container.clientHeight < 80) : true;
+        messageCache[chatId] = msgs;
+        renderMessages(messageCache[chatId], chatId, !wasAtBottom);
+        if(wasAtBottom && container){
+            requestAnimationFrame(function(){ container.scrollTop = container.scrollHeight; });
+        }
     });
+
     db.ref('hidden/'+currentUser.id+'/'+chatId).once('value').then(function(s){hiddenMessages[chatId]=s.val()||{};}).catch(function(){hiddenMessages[chatId]={};});
     if(chat.unreadCount){db.ref('userChats/'+currentUser.id+'/'+chatId+'/unreadCount').set(0);}
     setTimeout(saveChatsCache, 500);
@@ -1760,8 +1760,22 @@ document.addEventListener('click',function(e){
         else if(action==='copy'){try{if(navigator.clipboard)navigator.clipboard.writeText(m.text||'');showToast(t('toast_copied'));}catch(e){}}
         else if(action==='edit'){editingMessageId=actionMsgId;var bar=$('editBar');if(bar)bar.classList.add('show');var inp=$('messageInput');if(inp){inp.value=m.text||'';inp.focus();}}
         else if(action==='pin'){var preview=(m.text||(m.mediaType==='photo'?'📷':m.mediaType==='video'?'🎥':'📎')).slice(0,80);db.ref('pinned/'+currentChat).set({msgId:actionMsgId,text:preview,senderName:m.senderName||m.senderId,pinnedBy:currentUser.name,ts:Date.now()});showToast('📌');}
-        else if(action==='delete'){if(!confirm('?'))return;db.ref('messages/'+currentChat+'/'+actionMsgId).remove().then(function(){showToast(t('toast_deleted'));});}
-        else if(action==='delete-me'){if(!hiddenMessages[currentChat])hiddenMessages[currentChat]={};hiddenMessages[currentChat][actionMsgId]=true;db.ref('hidden/'+currentUser.id+'/'+currentChat+'/'+actionMsgId).set(true);var el=document.getElementById('msg_'+actionMsgId);if(el)el.remove();}
+        else if(action==='delete'){
+            // ===== ИСПРАВЛЕНО: мгновенное удаление + корректная перерисовка через слушатель =====
+            var el=document.getElementById('msg_'+actionMsgId);
+            if(el){el.style.transition='opacity .15s, transform .15s';el.style.opacity='0';el.style.transform='scale(.95)';setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},150);}
+            if(messageCache[currentChat]&&messageCache[currentChat][actionMsgId]){delete messageCache[currentChat][actionMsgId];}
+            db.ref('messages/'+currentChat+'/'+actionMsgId).remove().catch(function(){showToast('❌ Не удалось удалить');});
+            showToast(t('toast_deleted'));
+        }
+        else if(action==='delete-me'){
+            if(!hiddenMessages[currentChat])hiddenMessages[currentChat]={};
+            hiddenMessages[currentChat][actionMsgId]=true;
+            db.ref('hidden/'+currentUser.id+'/'+currentChat+'/'+actionMsgId).set(true);
+            var el2=document.getElementById('msg_'+actionMsgId);
+            if(el2){el2.style.transition='opacity .15s';el2.style.opacity='0';setTimeout(function(){if(el2.parentNode)el2.parentNode.removeChild(el2);},150);}
+            if(messageCache[currentChat]&&messageCache[currentChat][actionMsgId]){delete messageCache[currentChat][actionMsgId];}
+        }
         return;
     }
     if(e.target.id==='actionBackdrop'){closeActionSheet();}
@@ -2091,30 +2105,22 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
 })();
 
 /* ============================================================
-   DonorGram Calls v4 — ФИКС ЭХА + РАБОТА НА ЛЮБОМ РАССТОЯНИИ
+   DonorGram Calls v5 — ОПТИМИЗАЦИЯ ТРАФИКА + P2P FIRST
    ============================================================ */
 (function(){
     'use strict';
-    console.log('[DonorGram Calls v4] init');
+    console.log('[DonorGram Calls v5] init — TRAFFIC OPTIMIZED');
 
-    // ===== МНОГО TURN СЕРВЕРОВ — работает из любой точки мира =====
     var ICE_SERVERS = {iceServers: [
         {urls: 'stun:stun.l.google.com:19302'},
         {urls: 'stun:stun1.l.google.com:19302'},
         {urls: 'stun:stun2.l.google.com:19302'},
-        {urls: 'stun:stun3.l.google.com:19302'},
-        {urls: 'stun:stun4.l.google.com:19302'},
-        {urls: 'stun:stun.relay.metered.ca:80'},
-        // OpenRelay TURN (free)
+        {urls: 'stun:stun.cloudflare.com:3478'},
         {urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject'},
-        {urls: 'turn:openrelay.metered.ca:80?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject'},
         {urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject'},
         {urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject'},
-        // Metered TURN (free)
-        {urls: 'turn:standard.relay.metered.ca:80', username: 'e8dd65b92a5c4c2fca5a3f8e', credential: 'PLACEHOLDER'},
-        // Backup: Twilio (нужен свой аккаунт, но часто работает)
         {urls: 'turn:numb.viagenie.ca', username: 'webrtc@live.com', credential: 'muazkh'}
-    ], iceCandidatePoolSize: 10, iceTransportPolicy: 'all', bundlePolicy: 'max-bundle'};
+    ], iceCandidatePoolSize: 2, bundlePolicy: 'max-bundle', rtcpMuxPolicy: 'require'};
 
     var pc=null, localStream=null, remoteStream=null;
     var currentCallId=null, currentCallRef=null, isCaller=false, remoteUid=null;
@@ -2124,8 +2130,9 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
     var callStateListener=null;
     var ringtoneCtx=null, ringtoneInterval=null, dtmfCtx=null;
     var outgoingToneInterval=null, outgoingToneCtx=null;
-    var audioCtx=null, audioUnlocked=false;
-    var lastIceRestart=0;
+    var audioCtx=null;
+    var statsInterval=null;
+    var usedTurn=false;
 
     function $c(id){return document.getElementById(id);}
     function genId(){return 'call_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);}
@@ -2133,20 +2140,17 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
     function getUser(){return window.currentUser || (typeof currentUser !== 'undefined' ? currentUser : null);}
     function safeToast(m){try{ if(typeof showToast==='function') showToast(m);}catch(e){}}
 
-    /* ===== AUDIO UNLOCK ===== */
     function unlockAudio(){
         try{
             var Ctx = window.AudioContext || window.webkitAudioContext;
             if(!Ctx) return;
             if(!audioCtx) audioCtx = new Ctx();
             if(audioCtx.state === 'suspended') audioCtx.resume();
-            audioUnlocked = true;
         }catch(e){}
     }
     document.addEventListener('touchstart', unlockAudio, {passive:true});
     document.addEventListener('click', unlockAudio);
 
-    /* ===== REMOTE AUDIO — ГЛАВНЫЙ ЭЛЕМЕНТ ===== */
     function getRemoteAudio(){
         var a = $c('dgRemoteAudio');
         if(!a){
@@ -2155,7 +2159,6 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
             a.autoplay = true;
             a.setAttribute('playsinline','');
             a.setAttribute('webkit-playsinline','');
-            a.setAttribute('x-webkit-airplay','allow');
             document.body.appendChild(a);
         }
         a.autoplay = true;
@@ -2166,15 +2169,11 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
         return a;
     }
 
-    /* ===== ПОДКЛЮЧЕНИЕ УДАЛЁННОГО ЗВУКА ===== */
     function attachRemoteStream(stream){
         var audio = getRemoteAudio();
         try{
-            if('srcObject' in audio){
-                audio.srcObject = stream;
-            } else {
-                audio.src = URL.createObjectURL(stream);
-            }
+            if('srcObject' in audio){ audio.srcObject = stream; }
+            else { audio.src = URL.createObjectURL(stream); }
         }catch(e){
             try{ audio.srcObject = stream; }catch(e2){ console.error('[call] srcObject fail',e2); }
         }
@@ -2194,29 +2193,6 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
         }
     }
 
-    /* ===== ЭХО-ПОДАВЛЕНИЕ через Web Audio API (доп. страховка) ===== */
-    function setupEchoSuppression(stream){
-        try{
-            var Ctx = window.AudioContext || window.webkitAudioContext;
-            if(!Ctx) return stream;
-            if(!audioCtx) audioCtx = new Ctx();
-            // Создаём источник и направляем в destination для сохранения аудио-обработки
-            // (не обязательно, но помогает некоторым браузерам активировать echoCancellation)
-            var source = audioCtx.createMediaStreamSource(stream);
-            var gainNode = audioCtx.createGain();
-            gainNode.gain.value = 0.0001; // почти без звука, только для активации
-            var dest = audioCtx.createMediaStreamDestination();
-            source.connect(gainNode);
-            gainNode.connect(dest);
-            // Возвращаем оригинальный stream (браузер сам делает echo cancellation через constraints)
-            return stream;
-        }catch(e){
-            console.warn('[call] echo suppression setup fail', e);
-            return stream;
-        }
-    }
-
-    /* ===== RINGTONE (входящий) ===== */
     function startRingtone(){
         stopRingtone();
         try{
@@ -2252,7 +2228,6 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
         try{ if(ringtoneCtx){ ringtoneCtx.close(); ringtoneCtx = null; } }catch(e){}
     }
 
-    /* ===== OUTGOING TONE ===== */
     function startOutgoingTone(){
         stopOutgoingTone();
         try{
@@ -2285,7 +2260,6 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
         try{ if(outgoingToneCtx){ outgoingToneCtx.close(); outgoingToneCtx = null; } }catch(e){}
     }
 
-    /* ===== DTMF ===== */
     function playDTMF(digit){
         try{
             var Ctx = window.AudioContext || window.webkitAudioContext;
@@ -2310,7 +2284,6 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
         }catch(e){}
     }
 
-    /* ===== UI ===== */
     function showCallUI(opts){
         var overlay = $c('dgCallOverlay');
         if(!overlay) return;
@@ -2368,12 +2341,9 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
         }
     }
 
-    /* ===== ГЛАВНАЯ ФИШКА: правильное управление громкостью ===== */
     function toggleSpeaker(){
         speakerOn = !speakerOn;
         var audio = getRemoteAudio();
-        // На мобильных это работает через системный выход,
-        // но всё равно плавно регулируем громкость
         audio.volume = speakerOn ? 1.0 : 0.7;
         var btn=$c('dgCallSpeakerBtn');
         if(btn){
@@ -2383,7 +2353,6 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
         safeToast(speakerOn ? tC('call_speaker_on') : tC('call_speaker_off'));
     }
 
-    /* ===== ПОЛУЧЕНИЕ АУДИО С ПРАВИЛЬНЫМИ КОНСТРЕЙНТАМИ ===== */
     function getLocalAudio(){
         return new Promise(function(resolve, reject){
             if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
@@ -2391,22 +2360,15 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
                 reject(new Error('no mediaDevices'));
                 return;
             }
-            // ВАЖНО: эти constraints критичны для подавления эха
             var constraints = {
                 audio: {
                     echoCancellation: {ideal: true},
                     noiseSuppression: {ideal: true},
                     autoGainControl: {ideal: true},
                     googEchoCancellation: true,
-                    googEchoCancellation2: true,
                     googAutoGainControl: true,
-                    googAutoGainControl2: true,
                     googNoiseSuppression: true,
-                    googNoiseSuppression2: true,
                     googHighpassFilter: true,
-                    googTypingNoiseDetection: true,
-                    googAudioMirroring: false,
-                    // Ключевое: стерео/каналы
                     channelCount: 1,
                     sampleRate: 48000,
                     sampleSize: 16
@@ -2421,7 +2383,6 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
             })
             .catch(function(e){
                 console.error('[call] getUserMedia error:', e);
-                // Пробуем простой fallback
                 navigator.mediaDevices.getUserMedia({audio:true, video:false})
                 .then(function(stream){
                     localStream = stream;
@@ -2435,20 +2396,75 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
         });
     }
 
-    /* ===== PEER CONNECTION ===== */
+    function optimizeSDP(sdp){
+        if(!sdp) return sdp;
+        try{
+            sdp = sdp.replace(
+                /a=fmtp:111 ([^\r\n]+)/,
+                'a=fmtp:111 minptime=10;useinbandfec=1;maxaveragebitrate=24000;stereo=0;sprop-stereo=0'
+            );
+            if(sdp.indexOf('maxaveragebitrate') === -1){
+                sdp = sdp.replace(
+                    'a=rtpmap:111 opus/48000/2',
+                    'a=rtpmap:111 opus/48000/2\r\na=fmtp:111 minptime=10;useinbandfec=1;maxaveragebitrate=24000;stereo=0'
+                );
+            }
+            sdp = sdp.replace(/a=rtpmap:0 PCMU\/8000/g, 'a=rtpmap:0 PCMU/8000');
+            return sdp;
+        }catch(e){
+            console.warn('[call] SDP optimize failed', e);
+            return sdp;
+        }
+    }
+
+    function startStatsMonitoring(){
+        if(statsInterval) clearInterval(statsInterval);
+        statsInterval = setInterval(function(){
+            if(!pc) return;
+            try{
+                pc.getStats(null).then(function(stats){
+                    stats.forEach(function(report){
+                        if(report.type === 'outbound-rtp' && report.kind === 'audio'){
+                            if(report.bytesSent){
+                                window._dgCallStats = {
+                                    bytesSent: report.bytesSent,
+                                    packetsSent: report.packetsSent,
+                                    bitrate: report.targetBitrate || 0
+                                };
+                            }
+                        }
+                        if(report.type === 'candidate-pair' && report.state === 'succeeded'){
+                            if(report.localCandidateId){
+                                pc.getStats(null).then(function(s2){
+                                    s2.forEach(function(r){
+                                        if(r.id === report.localCandidateId && r.candidateType === 'relay'){
+                                            usedTurn = true;
+                                        }
+                                    });
+                                });
+                            }
+                        }
+                    });
+                });
+            }catch(e){}
+        }, 5000);
+    }
+    function stopStatsMonitoring(){
+        if(statsInterval){ clearInterval(statsInterval); statsInterval = null; }
+    }
+
     function createPeerConnection(){
         pc=new RTCPeerConnection(ICE_SERVERS);
+        usedTurn = false;
 
         pc.onicecandidate=function(event){
             if(event.candidate && currentCallRef){
-                // Записываем ВСЕ кандидаты в обе ветки для надёжности
                 currentCallRef.child('callerCandidates').push(event.candidate.toJSON()).catch(function(){});
-                currentCallRef.child('candidates').push(event.candidate.toJSON()).catch(function(){});
             }
         };
 
         pc.ontrack=function(event){
-            console.log('[call] ontrack fired', event.streams.length, 'track kind:', event.track.kind);
+            console.log('[call] ontrack fired');
             var stream = event.streams && event.streams[0];
             if(!stream) return;
             remoteStream = stream;
@@ -2462,7 +2478,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
                 speakerOn = true;
                 var sbtn = $c('dgCallSpeakerBtn');
                 if(sbtn) sbtn.classList.add('active');
-                safeToast('🔊 ' + tC('call_connected'));
+                startStatsMonitoring();
             }, 100);
         };
 
@@ -2474,27 +2490,9 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
                 if(!callTimerInterval) startTimer();
                 if(remoteStream) attachRemoteStream(remoteStream);
             }
-            if(pc.connectionState==='failed'){
-                // Попробуем ICE restart (один раз)
-                if(Date.now() - lastIceRestart > 5000 && isCaller){
-                    lastIceRestart = Date.now();
-                    console.log('[call] trying ICE restart');
-                    try{
-                        pc.createOffer({iceRestart:true}).then(function(offer){
-                            return pc.setLocalDescription(offer);
-                        }).then(function(){
-                            if(currentCallRef){
-                                currentCallRef.child('offer').set({type:pc.localDescription.type, sdp:pc.localDescription.sdp});
-                            }
-                        }).catch(function(e){ console.warn('ICE restart failed', e); });
-                    }catch(e){}
-                } else {
-                    setStatusTop('⚠️ Соединение потеряно');
-                    setTimeout(function(){endCall('disconnected');},3000);
-                }
-            }
-            if(pc.connectionState==='disconnected'){
-                setStatusTop('⚠️ Связь прерывается...');
+            if(pc.connectionState==='failed'||pc.connectionState==='disconnected'){
+                setStatusTop('⚠️ Соединение потеряно');
+                setTimeout(function(){endCall('disconnected');},3000);
             }
         };
 
@@ -2512,6 +2510,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
     function cleanupCall(){
         stopRingtone();
         stopOutgoingTone();
+        stopStatsMonitoring();
         if(callTimeoutHandle){clearTimeout(callTimeoutHandle);callTimeoutHandle=null;}
         if(currentCallRef){
             try{currentCallRef.child('status').set('ended');}catch(e){}
@@ -2531,6 +2530,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
         currentCallId=null;currentCallRef=null;remoteUid=null;isCaller=false;
         incomingCallId=null;incomingCallRef=null;incomingCallData=null;
         speakerOn=false;
+        usedTurn=false;
     }
 
     function endCall(reason){ cleanupCall(); }
@@ -2555,7 +2555,6 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
         }catch(e){}
     }
 
-    /* ===== START CALL ===== */
     function startCall(targetUid, targetName, targetAvatarUrl){
         console.log('[call] startCall ->', targetUid);
         var me = getUser();
@@ -2589,6 +2588,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
                 offerToReceiveVideo: false,
                 iceRestart: false
             }).then(function(offer){
+                offer.sdp = optimizeSDP(offer.sdp);
                 return pc.setLocalDescription(offer).then(function(){
                     currentCallRef=db.ref('calls/'+currentCallId);
                     return currentCallRef.set({
@@ -2616,12 +2616,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
                         .catch(function(e){console.error('[call] setRemoteDescription:', e);});
                 }
             });
-            // Слушаем ОБЕ ветки кандидатов
             currentCallRef.child('calleeCandidates').on('child_added', function(snap){
-                var c=snap.val();
-                if(c && pc) pc.addIceCandidate(new RTCIceCandidate(c)).catch(function(){});
-            });
-            currentCallRef.child('candidates').on('child_added', function(snap){
                 var c=snap.val();
                 if(c && pc) pc.addIceCandidate(new RTCIceCandidate(c)).catch(function(){});
             });
@@ -2658,7 +2653,6 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
         });
     }
 
-    /* ===== INCOMING LISTENER ===== */
     function listenIncoming(){
         var me = getUser();
         if(!me){ console.log('[call] no user, skip listenIncoming'); return; }
@@ -2724,7 +2718,6 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
         });
     }
 
-    /* ===== ACCEPT ===== */
     function acceptIncoming(){
         if(!incomingCallRef || !incomingCallData) return;
         stopRingtone();
@@ -2738,6 +2731,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
             return pc.setRemoteDescription(new RTCSessionDescription(incomingCallData.offer))
                 .then(function(){return pc.createAnswer();})
                 .then(function(answer){
+                    answer.sdp = optimizeSDP(answer.sdp);
                     return pc.setLocalDescription(answer).then(function(){
                         return currentCallRef.update({
                             status:'accepted',
@@ -2747,10 +2741,6 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
                 });
         }).then(function(){
             currentCallRef.child('callerCandidates').on('child_added', function(snap){
-                var c=snap.val();
-                if(c && pc) pc.addIceCandidate(new RTCIceCandidate(c)).catch(function(){});
-            });
-            currentCallRef.child('candidates').on('child_added', function(snap){
                 var c=snap.val();
                 if(c && pc) pc.addIceCandidate(new RTCIceCandidate(c)).catch(function(){});
             });
@@ -2767,15 +2757,14 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
         });
     }
 
-    /* ===== EXPORT ===== */
     window.dgCalls={
         startCall: startCall,
         endCall: endCall,
         listenIncoming: listenIncoming,
-        acceptIncoming: acceptIncoming
+        acceptIncoming: acceptIncoming,
+        getStats: function(){ return window._dgCallStats; }
     };
 
-    /* ===== BIND UI ===== */
     function bindCallButtons(){
         var endBtn=$c('dgCallEndBtn');
         var muteBtn=$c('dgCallMuteBtn');
@@ -2804,7 +2793,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
         var moreInfo=$c('dgCallMoreInfo');
         if(moreInfo) moreInfo.onclick=function(){
             var m=$c('dgCallMore'); if(m) m.classList.remove('show');
-            safeToast('📞 WebRTC защищённое соединение');
+            safeToast('📞 Битрейт: 24 кбит/с · P2P приоритет');
         };
         var moreMin=$c('dgCallMoreMinimize');
         if(moreMin) moreMin.onclick=function(){var m=$c('dgCallMore'); if(m) m.classList.remove('show');};
@@ -2828,7 +2817,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
     }
 
     getRemoteAudio();
-    console.log('[DonorGram Calls v4] ready');
+    console.log('[DonorGram Calls v5] ready — bitrate 24kbps, mono, P2P-first');
 })();
 </script>
 </body>
