@@ -137,6 +137,20 @@ body{background:#1a1a2e;height:100vh;height:100dvh;display:flex;align-items:cent
 .login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#667eea,#764ba2);border:none;border-radius:14px;color:#fff;font-size:16px;font-weight:600;cursor:pointer;margin-top:12px}
 .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center}
 .modal.show{display:flex}
+/* Модалки поверх карты */
+.modal#profileModal{z-index:600!important}
+.modal#chatManageModal{z-index:600!important}
+.modal#membersListModal{z-index:610!important}
+.modal#editProfileModal{z-index:650!important}
+.modal#shopModal{z-index:650!important}
+.modal#settingsModal{z-index:650!important}
+.modal#systemNotifModal{z-index:650!important}
+.modal#usersModal{z-index:650!important}
+.modal#backgroundModal{z-index:650!important}
+.modal#attachMenu{z-index:650!important}
+.modal#createModal{z-index:650!important}
+.modal#membersSelectModal{z-index:650!important}
+.modal#chatMenuModal{z-index:650!important}
 .modal-content{background:#fff;border-radius:24px;padding:24px;width:90%;max-width:450px;max-height:80vh;overflow-y:auto;position:relative}
 .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .modal-header button{background:none;border:none;font-size:26px;cursor:pointer;color:#8e98a3;line-height:1;padding:0 8px}
@@ -273,9 +287,9 @@ input:checked+.slider:before{transform:translateX(26px)}
 .request-card .rc-decline{background:#ff3b30;color:#fff}
 .linked-badge{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#34c759,#28a745);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;margin-left:4px}
 .linked-badge i{font-size:9px}
-.hold-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:299;opacity:0;pointer-events:none;transition:opacity .2s}
+.hold-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:799;opacity:0;pointer-events:none;transition:opacity .2s}
 .hold-backdrop.show{opacity:1;pointer-events:auto}
-.hold-sheet{position:fixed;bottom:0;left:0;width:100%;background:#fff;border-radius:24px 24px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.25);z-index:300;transform:translateY(100%);transition:transform .2s;padding:10px 0 20px}
+.hold-sheet{position:fixed;bottom:0;left:0;width:100%;background:#fff;border-radius:24px 24px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.25);z-index:800;transform:translateY(100%);transition:transform .2s;padding:10px 0 20px}
 .hold-sheet.show{transform:translateY(0)}
 .hold-sheet .hs-header{padding:14px 24px 8px;font-size:13px;color:#8e98a3;font-weight:600;border-bottom:1px solid #e8edf2;margin-bottom:6px}
 .hold-sheet .hs-item{display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer;background:none;border:none;width:100%;text-align:left}
@@ -283,6 +297,7 @@ input:checked+.slider:before{transform:translateX(26px)}
 .hold-sheet .hs-item i{width:22px;color:#667eea}
 .hold-sheet .hs-item.danger{color:#ff3b30}
 .hold-sheet .hs-item.danger i{color:#ff3b30}
+#gpsMapModal{z-index:500!important}
 #gpsMapModal .modal-content{padding:0;max-width:100%;width:100%;height:100vh;border-radius:0;overflow:hidden;display:flex;flex-direction:column}
 .gps-map-header{padding:14px 18px;display:flex;align-items:center;gap:12px;background:#fff;border-bottom:1px solid #e8edf2;z-index:10}
 .gps-map-header h3{flex:1;font-size:16px;font-weight:700;color:#1a1a2e}
@@ -389,7 +404,7 @@ input:checked+.slider:before{transform:translateX(26px)}
 </div>
 <div class="actions">
 <button class="icon-btn" id="gpsBtn" type="button" title="Карта друзей"><i class="fas fa-map-marked-alt"></i></button>
-<button class="icon-btn" id="createBtn" type="button" title="Создать"><i class="fas fa-plus-circle"></i></button>
+<button class="icon-btn" id="createBtn" type="button" title="Создать группу"><i class="fas fa-plus-circle"></i></button>
 <button class="icon-btn" id="settingsBtn" type="button"><i class="fas fa-cog"></i></button>
 <button class="icon-btn" id="logoutBtn" type="button"><i class="fas fa-sign-out-alt"></i></button>
 </div></div>
@@ -431,18 +446,18 @@ input:checked+.slider:before{transform:translateX(26px)}
 </div>
 </div></div></div>
 
-<!-- ===== ACTION SHEET: пользователь (из общего списка / карты) ===== -->
-<div id="userActionBackdrop" style="position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:299;opacity:0;pointer-events:none;transition:opacity .2s"></div>
-<div id="userActionSheet" style="position:fixed;bottom:0;left:0;width:100%;background:#fff;border-radius:24px 24px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.25);z-index:300;transform:translateY(100%);transition:transform .2s;padding:10px 0 20px">
+<!-- ===== ACTION SHEET: пользователь (из списка / карты) ===== -->
+<div id="userActionBackdrop" style="position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:700;opacity:0;pointer-events:none;transition:opacity .2s"></div>
+<div id="userActionSheet" style="position:fixed;bottom:0;left:0;width:100%;background:#fff;border-radius:24px 24px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.25);z-index:710;transform:translateY(100%);transition:transform .2s;padding:10px 0 20px">
 <div id="userActionHeader" style="padding:14px 24px 8px;font-size:13px;color:#8e98a3;font-weight:600;border-bottom:1px solid #e8edf2;margin-bottom:6px">Пользователь</div>
 <div id="userActionBtnProfile" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer"><i class="fas fa-user" style="width:22px;color:#667eea"></i><span>👤 Посмотреть профиль</span></div>
 <div id="userActionBtnDistance" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer"><i class="fas fa-ruler" style="width:22px;color:#667eea"></i><span>📏 Рассчитать расстояние</span></div>
 <div id="userActionBtnChat" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer"><i class="fas fa-comment" style="width:22px;color:#667eea"></i><span>💬 Перейти в чат</span></div>
 </div>
 
-<!-- ===== ACTION SHEET: участник группы/канала ===== -->
-<div id="memberActionBackdrop" style="position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:299;opacity:0;pointer-events:none;transition:opacity .2s"></div>
-<div id="memberActionSheet" style="position:fixed;bottom:0;left:0;width:100%;background:#fff;border-radius:24px 24px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.25);z-index:300;transform:translateY(100%);transition:transform .2s;padding:10px 0 20px">
+<!-- ===== ACTION SHEET: участник группы ===== -->
+<div id="memberActionBackdrop" style="position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:700;opacity:0;pointer-events:none;transition:opacity .2s"></div>
+<div id="memberActionSheet" style="position:fixed;bottom:0;left:0;width:100%;background:#fff;border-radius:24px 24px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.25);z-index:710;transform:translateY(100%);transition:transform .2s;padding:10px 0 20px">
   <div id="memberActionHeader" style="padding:14px 24px 8px;font-size:13px;color:#8e98a3;font-weight:600;border-bottom:1px solid #e8edf2;margin-bottom:6px">Участник</div>
   <div id="memberActionProfile" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer"><i class="fas fa-user" style="width:22px;color:#667eea"></i><span>👤 Посмотреть профиль</span></div>
   <div id="memberActionChat" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer"><i class="fas fa-comment" style="width:22px;color:#667eea"></i><span>💬 Написать в личку</span></div>
@@ -452,7 +467,6 @@ input:checked+.slider:before{transform:translateX(26px)}
   <div id="memberActionUnban" style="display:none;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#34c759;cursor:pointer"><i class="fas fa-check" style="width:22px"></i><span>✅ Разбанить</span></div>
 </div>
 
-<!-- ===== HOLD SHEET для чата ===== -->
 <div class="hold-backdrop" id="chatHoldBackdrop" onclick="closeChatHoldMenu()"></div>
 <div class="hold-sheet" id="chatHoldSheet">
   <div class="hs-header" id="chatHoldHeader">Чат</div>
@@ -461,7 +475,6 @@ input:checked+.slider:before{transform:translateX(26px)}
   <button class="hs-item danger" id="chatHoldDeleteBtn" type="button"><i class="fas fa-trash"></i> 🗑 Удалить чат</button>
 </div>
 
-<!-- ===== ACTION SHEET для сообщений ===== -->
 <div id="actionBackdrop" style="position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:299;opacity:0;pointer-events:none;transition:opacity .2s"></div>
 <div id="actionSheet" style="position:fixed;bottom:0;left:0;width:100%;background:#fff;border-radius:24px 24px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.25);z-index:300;transform:translateY(100%);transition:transform .2s;padding:10px 0 20px">
 <div class="action-sheet-item" data-action="reply" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer"><i class="fas fa-reply" style="width:22px;color:#667eea"></i><span data-i18n="action_reply">Ответить</span></div>
@@ -472,16 +485,14 @@ input:checked+.slider:before{transform:translateX(26px)}
 <div class="action-sheet-item danger" data-action="delete" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#ff3b30;cursor:pointer"><i class="fas fa-trash" style="width:22px"></i><span data-i18n="action_delete">Удалить у всех</span></div>
 </div>
 
-<!-- ===== Модалка создания группы/канала ===== -->
+<!-- ===== Создание группы ===== -->
 <div class="modal" id="createModal">
   <div class="modal-content">
     <div class="modal-header"><h3>➕ Создать</h3><button type="button" data-close="createModal">&times;</button></div>
     <button id="createGroupBtn" class="login-btn" style="background:linear-gradient(135deg,#34c759,#28a745);color:#fff">👥 Создать группу</button>
-    <button id="createChannelBtn" class="login-btn" style="background:linear-gradient(135deg,#007aff,#0051d5);color:#fff">📢 Создать канал</button>
   </div>
 </div>
 
-<!-- ===== Модалка выбора участников ===== -->
 <div class="modal" id="membersSelectModal">
   <div class="modal-content">
     <div class="modal-header"><h3 id="membersSelectTitle">Выберите участников</h3><button type="button" data-close="membersSelectModal">&times;</button></div>
@@ -491,18 +502,16 @@ input:checked+.slider:before{transform:translateX(26px)}
   </div>
 </div>
 
-<!-- ===== Модалка управления чатом ===== -->
 <div class="modal" id="chatManageModal">
   <div class="modal-content">
     <div class="modal-header"><h3 id="chatManageTitle">Управление</h3><button type="button" data-close="chatManageModal">&times;</button></div>
     <div id="chatManageInfo" style="margin-bottom:14px;font-size:14px;color:#555;text-align:center"></div>
     <button id="chatManageMembersBtn" class="login-btn" style="background:linear-gradient(135deg,#667eea,#764ba2);color:#fff">👥 Участники</button>
     <button id="chatManageAddBtn" class="login-btn" style="background:linear-gradient(135deg,#34c759,#28a745);color:#fff">➕ Добавить участников</button>
-    <button id="chatManageLeaveBtn" class="login-btn" style="background:#ff3b30;color:#fff">🚪 Покинуть</button>
+    <button id="chatManageLeaveBtn" class="login-btn" style="background:#ff3b30;color:#fff">🚪 Покинуть / Удалить группу</button>
   </div>
 </div>
 
-<!-- ===== Модалка списка участников ===== -->
 <div class="modal" id="membersListModal">
   <div class="modal-content">
     <div class="modal-header"><h3>👥 Участники</h3><button type="button" data-close="membersListModal">&times;</button></div>
@@ -510,7 +519,6 @@ input:checked+.slider:before{transform:translateX(26px)}
   </div>
 </div>
 
-<!-- ===== Профиль ===== -->
 <div class="modal" id="profileModal"><div class="modal-content" id="profileModalContent">
 <canvas id="profileMatrixCanvas" style="position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.4;border-radius:22px"></canvas>
 <div class="modal-header"><h3 id="profileTitle" data-i18n="profile">👤 Профиль</h3><button type="button" data-close="profileModal">&times;</button></div>
@@ -661,10 +669,9 @@ let myCalcLink=null,myCalcLinkRef=null,calcLinkNotifRef=null;
 var _keepAliveCtx=null,_keepAliveOsc=null,_keepAliveGain=null;
 var _gpsAutoPrompted=false;
 
-// глобальные
+let userActionFromMap = false;
 let selectedUserForAction = null;
 let tempGroupMembers = [];
-let tempChatType = 'group';
 let currentMemberForAction = null;
 let currentManageChatId = null;
 
@@ -755,20 +762,10 @@ function sendMessage(){
     if((!text&&!pendingMedia)||!currentChat)return;
     var chat=state.userChats[currentChat];
     
-    // === ПРОВЕРКИ ДЛЯ КАНАЛА/ГРУППЫ ===
-    if(chat && (chat.type==='channel' || chat.type==='group')){
-        // Бан
+    if(chat && chat.type==='group'){
         if(chat.banned && chat.banned[currentUser.id]){
-            showToast('🚫 Вы забанены в этом чате');
+            showToast('🚫 Вы забанены в этой группе');
             return;
-        }
-        // Канал: только админ
-        if(chat.type==='channel'){
-            var isAdmin = chat.admins && chat.admins[currentUser.id];
-            if(!isAdmin){
-                showToast('📢 Только администратор может писать в канал');
-                return;
-            }
         }
     }
     
@@ -855,19 +852,15 @@ function calculateDistanceToUser(targetUid){
             } else {
                 showToast('📍 Пользователь не делится геолокацией');
             }
-        }).catch(function(){
-            showToast('❌ Ошибка получения данных');
-        });
+        }).catch(function(){ showToast('❌ Ошибка получения данных'); });
     }, function(err){
         showToast('❌ Не удалось получить вашу геолокацию');
     }, {enableHighAccuracy: true, timeout: 10000});
 }
 
-// === СОЗДАНИЕ ГРУПП И КАНАЛОВ ===
 function openCreateModal(){ openModal('createModal'); }
-function openMembersSelect(type){
-    tempChatType = type;
-    $('membersSelectTitle').innerText = type === 'group' ? '👥 Создать группу' : '📢 Создать канал';
+function openMembersSelect(){
+    $('membersSelectTitle').innerText = '👥 Создать группу';
     $('groupNameInput').value = '';
     tempGroupMembers = [];
     closeModal('createModal');
@@ -904,15 +897,14 @@ function openMembersSelect(type){
     }
     openModal('membersSelectModal');
 }
-function createGroupOrChannel(){
+function createGroup(){
     const name = $('groupNameInput').value.trim();
     if(!name){ showToast('❌ Введите название'); return; }
     if(tempGroupMembers.length === 0){ showToast('❌ Выберите хотя бы одного участника'); return; }
     const chatId = 'chat_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
-    const isChannel = tempChatType === 'channel';
     const chatData = {
         id: chatId,
-        type: isChannel ? 'channel' : 'group',
+        type: 'group',
         name: name,
         createdAt: Date.now(),
         creator: currentUser.id,
@@ -927,19 +919,17 @@ function createGroupOrChannel(){
     tempGroupMembers.forEach(function(uid){ chatData.participants[uid] = true; });
     const updates = {};
     updates['chats/' + chatId] = chatData;
-    // текущий пользователь
     updates['userChats/' + currentUser.id + '/' + chatId + '/id'] = chatId;
-    updates['userChats/' + currentUser.id + '/' + chatId + '/type'] = chatData.type;
+    updates['userChats/' + currentUser.id + '/' + chatId + '/type'] = 'group';
     updates['userChats/' + currentUser.id + '/' + chatId + '/name'] = name;
     updates['userChats/' + currentUser.id + '/' + chatId + '/lastMessage'] = '';
     updates['userChats/' + currentUser.id + '/' + chatId + '/lastMessageTime'] = Date.now();
     updates['userChats/' + currentUser.id + '/' + chatId + '/participants'] = chatData.participants;
     updates['userChats/' + currentUser.id + '/' + chatId + '/admins'] = chatData.admins;
     updates['userChats/' + currentUser.id + '/' + chatId + '/creator'] = currentUser.id;
-    // остальные
     tempGroupMembers.forEach(function(uid){
         updates['userChats/' + uid + '/' + chatId + '/id'] = chatId;
-        updates['userChats/' + uid + '/' + chatId + '/type'] = chatData.type;
+        updates['userChats/' + uid + '/' + chatId + '/type'] = 'group';
         updates['userChats/' + uid + '/' + chatId + '/name'] = name;
         updates['userChats/' + uid + '/' + chatId + '/lastMessage'] = '';
         updates['userChats/' + uid + '/' + chatId + '/lastMessageTime'] = Date.now();
@@ -950,29 +940,25 @@ function createGroupOrChannel(){
     db.ref().update(updates).then(function(){
         closeModal('membersSelectModal');
         openChat(chatId);
-        showToast(isChannel ? '📢 Канал создан!' : '👥 Группа создана!');
+        showToast('👥 Группа создана!');
     }).catch(function(){ showToast('❌ Ошибка создания'); });
 }
 
-// === УПРАВЛЕНИЕ ГРУППОЙ/КАНАЛОМ ===
 function openChatManage(chatId){
     if(!chatId) return;
     currentManageChatId = chatId;
     var chat = state.userChats[chatId];
     if(!chat) return;
-    var isGroup = chat.type === 'group';
-    var isChannel = chat.type === 'channel';
-    if(!isGroup && !isChannel) return;
+    if(chat.type !== 'group') return;
     var isAdmin = chat.admins && chat.admins[currentUser.id];
     var memberCount = Object.keys(chat.participants || {}).length;
     var bannedCount = Object.keys(chat.banned || {}).length;
-    $('chatManageTitle').innerText = isGroup ? '👥 Управление группой' : '📢 Управление каналом';
+    $('chatManageTitle').innerText = '👥 Управление группой';
     var infoHtml = '<b>' + esc(chat.name || '') + '</b><br>' +
-        (isGroup ? '👥 Группа' : '📢 Канал') + ' · ' + memberCount + ' участников' +
+        '👥 Группа · ' + memberCount + ' участников' +
         (bannedCount ? '<br>🚫 Забанено: ' + bannedCount : '') +
         (isAdmin ? '<br><span style="color:#ffd700">👑 Вы — администратор</span>' : '');
     $('chatManageInfo').innerHTML = infoHtml;
-    // Показать/скрыть кнопки по роли
     $('chatManageAddBtn').style.display = isAdmin ? 'block' : 'none';
     openModal('chatManageModal');
 }
@@ -987,7 +973,6 @@ function openMembersList(chatId){
     var admins = chat.admins || {};
     var banned = chat.banned || {};
     var list = Object.keys(participants).map(function(uid){ return {uid:uid, isAdmin:!!admins[uid], isBanned:!!banned[uid]}; });
-    // Сначала админы, потом баненые, потом остальные
     list.sort(function(a,b){
         if(a.isAdmin !== b.isAdmin) return a.isAdmin ? -1 : 1;
         if(a.isBanned !== b.isBanned) return a.isBanned ? 1 : -1;
@@ -1017,16 +1002,13 @@ function openMemberActionSheet(chatId, memberUid){
     if(memberUid === currentUser.id){ showToast('Это вы'); return; }
     var chat = state.userChats[chatId];
     if(!chat) return;
-    var isGroup = chat.type === 'group';
-    var isChannel = chat.type === 'channel';
-    if(!isGroup && !isChannel) return;
+    if(chat.type !== 'group') return;
     var isAdmin = chat.admins && chat.admins[currentUser.id];
     var targetIsAdmin = chat.admins && chat.admins[memberUid];
     var targetIsBanned = chat.banned && chat.banned[memberUid];
     currentMemberForAction = { chatId: chatId, uid: memberUid };
     var u = state.users[memberUid] || {name:memberUid};
     $('memberActionHeader').innerText = (u.name || memberUid) + (targetIsAdmin ? ' 👑' : '') + (targetIsBanned ? ' 🚫' : '');
-    // profile и chat всегда
     $('memberActionPromote').style.display = (isAdmin && !targetIsAdmin && !targetIsBanned) ? 'flex' : 'none';
     $('memberActionDemote').style.display = (isAdmin && targetIsAdmin && memberUid !== chat.creator) ? 'flex' : 'none';
     $('memberActionBan').style.display = (isAdmin && !targetIsAdmin && !targetIsBanned) ? 'flex' : 'none';
@@ -1047,13 +1029,12 @@ function memberBan(){ if(!currentMemberForAction) return; if(!confirm('Заба�
 function memberUnban(){ if(!currentMemberForAction) return; var c=currentMemberForAction; db.ref('chats/'+c.chatId+'/banned/'+c.uid).remove(); db.ref('userChats/'+c.uid+'/'+c.chatId+'/banned/'+c.uid).remove(); closeMemberActionSheet(); showToast('✅ Разбанен'); setTimeout(function(){ if(currentManageChatId) openMembersList(currentManageChatId); }, 400); }
 function leaveChat(){
     if(!currentManageChatId) return;
-    if(!confirm('Покинуть чат?')) return;
+    if(!confirm('Покинуть группу? Если вы создатель — она удалится у всех.')) return;
     var chatId = currentManageChatId;
     var chat = state.userChats[chatId];
     if(!chat) return;
-    if(chat.creator === currentUser.id && chat.type !== 'notes'){
-        if(!confirm('Вы создатель. Чат будет удалён у всех. Продолжить?')) return;
-        // Удалить чат у всех участников
+    if(chat.creator === currentUser.id){
+        if(!confirm('Точно удалить группу у всех?')) return;
         var updates = {};
         var parts = chat.participants || {};
         Object.keys(parts).forEach(function(uid){
@@ -1066,11 +1047,10 @@ function leaveChat(){
             closeModal('membersListModal');
             currentChat = null;
             $('mainArea').classList.remove('active');
-            showToast('🗑 Чат удалён');
+            showToast('🗑 Группа удалена');
         });
         return;
     }
-    // Просто покинуть
     var updates2 = {};
     updates2['chats/'+chatId+'/participants/'+currentUser.id] = null;
     updates2['chats/'+chatId+'/admins/'+currentUser.id] = null;
@@ -1081,7 +1061,7 @@ function leaveChat(){
         closeModal('membersListModal');
         currentChat = null;
         $('mainArea').classList.remove('active');
-        showToast('🚪 Вы покинули чат');
+        showToast('🚪 Вы покинули группу');
     });
 }
 function addMembersToChat(){
@@ -1125,34 +1105,27 @@ function addMembersToChat(){
             });
         });
     }
-    // Меняем заголовок и кнопку — переиспользуем модалку
     $('membersSelectTitle').innerText = '➕ Добавить участников';
     var confirmBtn = $('createGroupConfirmBtn');
-    // Заменяем обработчик через клонирование
     var newBtn = confirmBtn.cloneNode(true);
     confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
     newBtn.innerText = '✅ Добавить';
     newBtn.onclick = function(){
         if(tempGroupMembers.length === 0){ showToast('❌ Выберите хотя бы одного'); return; }
         var updates = {};
-        tempGroupMembers.forEach(function(uid){
-            updates['chats/'+chatId+'/participants/'+uid] = true;
-            updates['userChats/'+uid+'/'+chatId+'/id'] = chatId;
-            updates['userChats/'+uid+'/'+chatId+'/type'] = chat.type;
-            updates['userChats/'+uid+'/'+chatId+'/name'] = chat.name;
-            updates['userChats/'+uid+'/'+chatId+'/lastMessage'] = '';
-            updates['userChats/'+uid+'/'+chatId+'/lastMessageTime'] = Date.now();
-            // Получаем обновлённый список участников
-        });
-        // Добавим текущих участников в userChats новых
         var allParts = Object.assign({}, chat.participants || {});
         tempGroupMembers.forEach(function(uid){ allParts[uid] = true; });
         tempGroupMembers.forEach(function(uid){
+            updates['chats/'+chatId+'/participants/'+uid] = true;
+            updates['userChats/'+uid+'/'+chatId+'/id'] = chatId;
+            updates['userChats/'+uid+'/'+chatId+'/type'] = 'group';
+            updates['userChats/'+uid+'/'+chatId+'/name'] = chat.name;
+            updates['userChats/'+uid+'/'+chatId+'/lastMessage'] = '';
+            updates['userChats/'+uid+'/'+chatId+'/lastMessageTime'] = Date.now();
             updates['userChats/'+uid+'/'+chatId+'/participants'] = allParts;
             updates['userChats/'+uid+'/'+chatId+'/admins'] = chat.admins || {};
             updates['userChats/'+uid+'/'+chatId+'/creator'] = chat.creator || currentUser.id;
         });
-        // Обновим у существующих участников
         Object.keys(allParts).forEach(function(uid){
             updates['userChats/'+uid+'/'+chatId+'/participants'] = allParts;
         });
@@ -1291,9 +1264,9 @@ function openChat(chatId){
     if(!chat){db.ref('userChats/'+currentUser.id+'/'+chatId).once('value').then(function(snap){if(snap.exists()){state.userChats[chatId]=snap.val();openChat(chatId);}else showToast('❌');});return;}
     $('mainArea').classList.add('active');
     var chatName=chat.name||'Chat',otherId=null;
-    var isGroupOrChannel = (chat.type==='group'||chat.type==='channel');
-    var isAdmin = isGroupOrChannel && chat.admins && chat.admins[currentUser.id];
-    var isBanned = isGroupOrChannel && chat.banned && chat.banned[currentUser.id];
+    var isGroup = chat.type==='group';
+    var isAdmin = isGroup && chat.admins && chat.admins[currentUser.id];
+    var isBanned = isGroup && chat.banned && chat.banned[currentUser.id];
     
     if(chat.type==='private'){
         otherId=Object.keys(chat.participants||{}).find(function(id){return id!==currentUser.id;});
@@ -1312,27 +1285,15 @@ function openChat(chatId){
         $('chatStatus').innerHTML = '👥 Группа · ' + memberCount + ' участников';
         $('chatAvatar').style.backgroundImage='';$('chatAvatar').innerText='👥';
         $('chatName').innerHTML = esc(chatName) + (isAdmin ? ' <span style="color:#ffd700;font-size:14px">👑</span>' : '');
-    } else if(chat.type==='channel') {
-        var memberCount = Object.keys(chat.participants||{}).length;
-        $('chatStatus').innerHTML = '📢 Канал · ' + memberCount + ' участников';
-        $('chatAvatar').style.backgroundImage='';$('chatAvatar').innerText='📢';
-        $('chatName').innerHTML = esc(chatName) + (isAdmin ? ' <span style="color:#ffd700;font-size:14px">👑</span>' : '');
     } else {
         $('chatStatus').innerHTML=chat.type==='notes'?t('chat_notes'):'';
         $('chatAvatar').style.backgroundImage='';$('chatAvatar').innerText=chat.type==='notes'?'⭐':'👥';
         $('chatName').innerText=chatName;
     }
     
-    // Поле ввода
     const inputArea = $('inputArea');
-    if(isGroupOrChannel){
-        if(chat.type==='channel' && !isAdmin){
-            inputArea.style.display = 'none';
-        } else if(isBanned){
-            inputArea.style.display = 'none';
-        } else {
-            inputArea.style.display = 'flex';
-        }
+    if(isBanned){
+        inputArea.style.display = 'none';
     } else {
         inputArea.style.display = 'flex';
     }
@@ -1471,13 +1432,12 @@ function renderChats(){
             onlineDot='<div class="online-dot '+(os.online?'':'offline')+'"></div>';
         }else if(isNotes){name=t('chat_notes');av='⭐';}
         else if(c.type==='group')av='👥';
-        else if(c.type==='channel')av='📢';
         var badge=c.unreadCount?'<span class="badge">'+c.unreadCount+'</span>':'';
         var nameHtml;
         if(isNotes){nameHtml=t('chat_notes');}
         else if(t2){var cls=t2==='spacecosmos'?'rainbow-cosmos':t2==='spacemint'?'rainbow-mint':t2==='hacker'?'rainbow-hacker':'rainbow-name';nameHtml='<span class="crown-icon">👑</span><span class="'+cls+'">'+esc(name)+'</span>';}
         else nameHtml=esc(name);
-        var avatarCls='chat-avatar '+(c.type==='group'||c.type==='channel'?'group-avatar':'')+(t2?' '+t2:'');
+        var avatarCls='chat-avatar '+(c.type==='group'?'group-avatar':'')+(t2?' '+t2:'');
         return '<div class="chat-item" data-chat="'+c.id+'" data-chat-type="'+(c.type||'private')+'"><div class="'+avatarCls+'" style="'+avatarStyle+'">'+esc(av)+onlineDot+'</div><div class="chat-content"><div class="chat-name">'+nameHtml+' '+badge+'</div><div class="chat-last">'+esc(c.lastMessage||t('chat_no_msgs'))+'</div></div></div>';
     }).join('');
 }
@@ -1495,30 +1455,12 @@ function loadData(){
     db.ref('users/'+currentUser.id+'/gpsSharing').on('value',s=>{const want=!!s.val();if(want&&!gpsShareEnabled)gpsStartSharing();if(!want&&gpsShareEnabled)gpsStopSharing();});
     setInterval(function(){db.ref('users').once('value').then(function(s){var cnt=Object.keys(s.val()||{}).length;var el=$('userCount');if(el)el.innerText=cnt+'/'+MAX;}).catch(function(){});},30000);
 }
-function showAllUsers(){
-    var g=$('usersGrid');
-    var others=Object.keys(state.users).filter(function(id){if(id===currentUser.id)return false;if(isBlocked(id))return false;return true;}).map(function(id){return [id,state.users[id]];});
-    if(others.length===0){g.innerHTML='<p style="grid-column:1/-1;text-align:center;color:#8e98a3;padding:20px">'+t('no_other_users')+'</p>';}
-    else{
-        g.innerHTML=others.map(function(pair){
-            var id=pair[0],u=pair[1];
-            var avatarStyle='',avatarContent='';
-            if(u.avatarUrl){avatarStyle='background-image:url('+u.avatarUrl+');background-size:cover;background-position:center';}
-            else avatarContent=esc(u.avatar||(id[0]?id[0].toUpperCase():'?'));
-            var t2=getSpacegodType(id);
-            var avatarCls='user-card-avatar'+(t2?' '+t2:'');
-            var cls=t2==='spacecosmos'?'rainbow-cosmos':t2==='spacemint'?'rainbow-mint':t2==='hacker'?'rainbow-hacker':'rainbow-name';
-            var nameHtml=t2?'<span class="crown-icon">👑</span><span class="'+cls+'">'+esc(u.name||id)+'</span>':'<b>'+esc(u.name||id)+'</b>';
-            return '<div class="user-card" data-id="'+id+'"><div class="'+avatarCls+'" style="'+avatarStyle+'">'+avatarContent+'</div>'+nameHtml+'</div>';
-        }).join('');
-    }
-    openModal('usersModal');
-}
-function showUserActionSheet(userId){
+function showUserActionSheet(userId, fromMap){
     if(!userId || userId === currentUser.id) return;
     const u = state.users[userId];
     if(!u) return;
     selectedUserForAction = userId;
+    userActionFromMap = !!fromMap;
     $('userActionHeader').innerText = u.name || userId;
     const backdrop = $('userActionBackdrop');
     const sheet = $('userActionSheet');
@@ -1717,7 +1659,8 @@ function gpsLoadFriendsOnMap(){
       if(gpsMarkers[f.uid]){gpsMarkers[f.uid].setLatLng([f.loc.lat,f.loc.lng]).setIcon(icon);}
       else{
         const marker=L.marker([f.loc.lat,f.loc.lng],{icon:icon,riseOnHover:true}).addTo(gpsMap);
-        marker.on('click',()=>{ gpsCloseMap(); setTimeout(()=>{ showUserActionSheet(f.uid); }, 200); });
+        // КЛИК: показываем Action Sheet поверх карты. Карта НЕ закрывается.
+        marker.on('click',()=>{ showUserActionSheet(f.uid, true); });
         gpsMarkers[f.uid]=marker;
       }
     });
@@ -1765,8 +1708,18 @@ function gpsRestoreState(){
     chatHoldChatId=chatId;chatHoldChatType=chatType;chatHoldFired=true;
     $('chatHoldHeader').innerText=chatName||'Чат';
     const blockBtn=$('chatHoldBlockBtn');const deleteBtn=$('chatHoldDeleteBtn');
-    if(chatType==='notes'||chatType==='linked'||chatType==='group'||chatType==='channel'){blockBtn.style.display='none';deleteBtn.style.display='none';}
-    else{blockBtn.style.display='flex';deleteBtn.style.display='flex';}
+    if(chatType==='notes'||chatType==='linked'){
+      blockBtn.style.display='none';
+      deleteBtn.style.display='none';
+    } else if(chatType==='group'){
+      blockBtn.style.display='none';
+      deleteBtn.style.display='flex';
+      deleteBtn.innerHTML='<i class="fas fa-trash"></i> 🗑 Удалить группу';
+    } else {
+      blockBtn.style.display='flex';
+      deleteBtn.style.display='flex';
+      deleteBtn.innerHTML='<i class="fas fa-trash"></i> 🗑 Удалить чат';
+    }
     $('chatHoldBackdrop').classList.add('show');$('chatHoldSheet').classList.add('show');
     document.querySelectorAll('.chat-item').forEach(el=>el.classList.remove('holding'));
     const current=document.querySelector('.chat-item[data-chat="'+chatId+'"]');
@@ -1811,7 +1764,7 @@ function gpsRestoreState(){
 function chatHoldBlockNow(){
   const cid=window.chatHoldChatId||null;const ctype=window.chatHoldChatType||null;
   if(window.closeChatHoldMenu)window.closeChatHoldMenu();
-  if(!cid||ctype==='notes'||ctype==='linked'||ctype==='group'||ctype==='channel')return;
+  if(!cid||ctype==='notes'||ctype==='linked'||ctype==='group')return;
   db.ref('userChats/'+currentUser.id+'/'+cid).once('value').then(snap=>{
     const chat=snap.val();if(!chat||!chat.participants){showToast('❌');return;}
     const otherId=Object.keys(chat.participants).find(id=>id!==currentUser.id);
@@ -1826,6 +1779,59 @@ function chatHoldDeleteNow(){
   const cid=window.chatHoldChatId||null;const ctype=window.chatHoldChatType||null;
   if(window.closeChatHoldMenu)window.closeChatHoldMenu();
   if(!cid||ctype==='notes'||ctype==='linked')return;
+
+  if(ctype==='group'){
+    db.ref('chats/'+cid).once('value').then(function(snap){
+      var chat = snap.val();
+      var isCreator = chat && chat.creator === currentUser.id;
+      if(!chat){
+        db.ref('userChats/'+currentUser.id+'/'+cid).remove().then(function(){
+          if(currentChat===cid){currentChat=null;$('mainArea').classList.remove('active');}
+          showToast('🗑 Удалено');
+          debouncedRenderChats();
+        });
+        return;
+      }
+      if(isCreator){
+        if(confirm('Вы создатель. Удалить группу у всех?')){
+          var updates = {};
+          var parts = chat.participants || {};
+          Object.keys(parts).forEach(function(uid){
+            updates['userChats/'+uid+'/'+cid] = null;
+          });
+          updates['chats/'+cid] = null;
+          updates['messages/'+cid] = null;
+          db.ref().update(updates).then(function(){
+            if(currentChat===cid){currentChat=null;$('mainArea').classList.remove('active');}
+            showToast('🗑 Группа удалена у всех');
+            debouncedRenderChats();
+          }).catch(function(){showToast('❌ Ошибка');});
+        } else {
+          if(!confirm('Удалить только у себя?')) return;
+          db.ref('userChats/'+currentUser.id+'/'+cid).remove().then(function(){
+            if(currentChat===cid){currentChat=null;$('mainArea').classList.remove('active');}
+            showToast('🗑 Удалено у себя');
+            debouncedRenderChats();
+          });
+        }
+      } else {
+        if(!confirm('Удалить группу у себя?')) return;
+        db.ref('userChats/'+currentUser.id+'/'+cid).remove().then(function(){
+          if(currentChat===cid){currentChat=null;$('mainArea').classList.remove('active');}
+          showToast('🗑 Удалено у себя');
+          debouncedRenderChats();
+        }).catch(function(){showToast('❌ Ошибка');});
+      }
+    }).catch(function(){
+      db.ref('userChats/'+currentUser.id+'/'+cid).remove().then(function(){
+        if(currentChat===cid){currentChat=null;$('mainArea').classList.remove('active');}
+        showToast('🗑 Удалено');
+        debouncedRenderChats();
+      });
+    });
+    return;
+  }
+
   if(!confirm('Удалить чат у себя? У собеседника он останется.'))return;
   db.ref('userChats/'+currentUser.id+'/'+cid).remove().then(()=>{showToast('🗑 Чат удалён');debouncedRenderChats();}).catch(()=>showToast('❌ Ошибка'));
 }
@@ -1921,12 +1927,25 @@ document.addEventListener('click',function(e){
     if(e.target.id==='userActionBackdrop'){closeUserActionSheet();}
     if(e.target.id==='memberActionBackdrop'){closeMemberActionSheet();}
     
-    // USER action sheet
-    if(e.target.closest('#userActionBtnProfile')){e.preventDefault();if(selectedUserForAction){showProfile(selectedUserForAction);}closeUserActionSheet();return;}
+    if(e.target.closest('#userActionBtnProfile')){
+        e.preventDefault();
+        if(selectedUserForAction){
+            // Открываем профиль поверх карты
+            showProfile(selectedUserForAction);
+        }
+        closeUserActionSheet();
+        return;
+    }
     if(e.target.closest('#userActionBtnDistance')){e.preventDefault();if(selectedUserForAction){calculateDistanceToUser(selectedUserForAction);}closeUserActionSheet();return;}
-    if(e.target.closest('#userActionBtnChat')){e.preventDefault();if(selectedUserForAction){startChat(selectedUserForAction);}closeUserActionSheet();return;}
+    if(e.target.closest('#userActionBtnChat')){
+        e.preventDefault();
+        if(selectedUserForAction){
+            // НЕ закрываем карту. Чат открывается поверх.
+            startChat(selectedUserForAction);
+        }
+        return;
+    }
     
-    // MEMBER action sheet
     if(e.target.closest('#memberActionProfile')){e.preventDefault();if(currentMemberForAction){showProfile(currentMemberForAction.uid);}closeMemberActionSheet();return;}
     if(e.target.closest('#memberActionChat')){e.preventDefault();if(currentMemberForAction){startChat(currentMemberForAction.uid);}closeMemberActionSheet();return;}
     if(e.target.closest('#memberActionPromote')){e.preventDefault();memberPromote();return;}
@@ -1934,7 +1953,6 @@ document.addEventListener('click',function(e){
     if(e.target.closest('#memberActionBan')){e.preventDefault();memberBan();return;}
     if(e.target.closest('#memberActionUnban')){e.preventDefault();memberUnban();return;}
     
-    // Клик по участнику в списке
     var memberRow=e.target.closest('.member-row');
     if(memberRow && memberRow.dataset.memberUid){
         e.preventDefault();
@@ -1967,9 +1985,8 @@ document.addEventListener('click',function(e){
     if(closest('#myProfileBtn')){e.preventDefault();e.stopPropagation();showProfile(currentUser.id);return;}
     if(closest('#showUsersBtn')){e.preventDefault();showAllUsers();return;}
     if(closest('#createBtn')){e.preventDefault();openCreateModal();return;}
-    if(closest('#createGroupBtn')){e.preventDefault();openMembersSelect('group');return;}
-    if(closest('#createChannelBtn')){e.preventDefault();openMembersSelect('channel');return;}
-    if(closest('#createGroupConfirmBtn')){e.preventDefault();createGroupOrChannel();return;}
+    if(closest('#createGroupBtn')){e.preventDefault();openMembersSelect();return;}
+    if(closest('#createGroupConfirmBtn')){e.preventDefault();createGroup();return;}
     if(closest('#settingsBtn')){e.preventDefault();openModal('settingsModal');return;}
     if(closest('#settingsEditProfileBtn')){e.preventDefault();closeModal('settingsModal');openEditProfile();return;}
     if(closest('#settingsSystemNotifBtn')){e.preventDefault();closeModal('settingsModal');openSystemNotifModal();return;}
@@ -2018,7 +2035,7 @@ document.addEventListener('click',function(e){
     if(closest('#recCancel')){e.preventDefault();stopRecording(false);return;}
     if(closest('#recSend')){e.preventDefault();stopRecording(true);return;}
     var userCard=closest('.user-card');
-    if(userCard&&userCard.dataset.id){e.preventDefault();showUserActionSheet(userCard.dataset.id);return;}
+    if(userCard&&userCard.dataset.id){e.preventDefault();showUserActionSheet(userCard.dataset.id, false);return;}
     var st=closest('.sticker');
     if(st&&st.dataset.sticker){selectedSticker=st.dataset.sticker;closeModal('stickerModal');if(currentChat)sendMessage();return;}
     var img=closest('img[data-img]');
@@ -2031,12 +2048,11 @@ document.addEventListener('click',function(e){
     if(closest('#saveVideoViewerBtn')){e.preventDefault();var u3=$('viewedVideo')&&$('viewedVideo').src;if(u3)saveMediaToDevice(u3,'video');return;}
     if(closest('#notifPermBtn')){e.preventDefault();requestPushPermission().then(function(ok){if(ok)showToast('🔔');$('notifPermBar').classList.remove('show');});return;}
     
-    // === Менеджмент чата ===
     if(closest('#chatInfoBtn')){
         e.preventDefault();
         if(currentChat){
             var chat = state.userChats[currentChat];
-            if(chat && (chat.type==='group'||chat.type==='channel')){
+            if(chat && chat.type==='group'){
                 openChatManage(currentChat);
             }
         }
@@ -2056,21 +2072,32 @@ window.doLogin=function(){
     var pass=$('loginPassword')&&$('loginPassword').value||'';
     var avatar=(($('loginAvatar')&&$('loginAvatar').value||'').trim()||name.substring(0,2)).toUpperCase().slice(0,2);
     if(!name||!pass){showToast(t('err_fill'));return;}
-    db.ref('users/'+name).once('value').then(function(userSnap){
-        if(userSnap.exists()){
-            var u=userSnap.val();
-            if(u.password!==pass){showToast(t('err_pass'));return;}
-            if(u.blocked){showToast(t('err_blocked'));return;}
-            currentUser={id:name,name:u.name||name,avatar:u.avatar||avatar,avatarUrl:u.avatarUrl||null,password:pass,bio:u.bio||''};
-            db.ref('users/'+name).update({status:'online'});
-            return loadInventoryAndStart();
-        }else{
-            var newUser={name:name,avatar:avatar,password:pass,createdAt:Date.now(),status:'online',blocked:false,bio:''};
-            db.ref('users/'+name).set(newUser).then(function(){
-                currentUser={id:name,name:name,avatar:avatar,password:pass,avatarUrl:null,bio:''};
-                return loadInventoryAndStart();
+
+    db.ref('users').once('value').then(function(usersSnap){
+        var usersCount = Object.keys(usersSnap.val() || {}).length;
+        db.ref('settings/maxUsers').once('value').then(function(maxSnap){
+            var maxUsers = maxSnap.val() || 50;
+            db.ref('users/'+name).once('value').then(function(userSnap){
+                if(userSnap.exists()){
+                    var u=userSnap.val();
+                    if(u.password!==pass){showToast(t('err_pass'));return;}
+                    if(u.blocked){showToast(t('err_blocked'));return;}
+                    currentUser={id:name,name:u.name||name,avatar:u.avatar||avatar,avatarUrl:u.avatarUrl||null,password:pass,bio:u.bio||''};
+                    db.ref('users/'+name).update({status:'online'});
+                    return loadInventoryAndStart();
+                } else {
+                    if(usersCount >= maxUsers){
+                        showToast('❌ Достигнут лимит пользователей (' + maxUsers + '). Регистрация закрыта.');
+                        return;
+                    }
+                    var newUser={name:name,avatar:avatar,password:pass,createdAt:Date.now(),status:'online',blocked:false,bio:''};
+                    db.ref('users/'+name).set(newUser).then(function(){
+                        currentUser={id:name,name:name,avatar:avatar,password:pass,avatarUrl:null,bio:''};
+                        return loadInventoryAndStart();
+                    });
+                }
             });
-        }
+        });
     }).catch(function(err){showToast(t('toast_error'));});
 };
 function loadInventoryAndStart(){
@@ -2175,7 +2202,7 @@ document.addEventListener('DOMContentLoaded',function(){
     }
     showLoginScreen();
     db.ref('users').on('child_added',function(s){state.users[s.key]=s.val();var cnt=Object.keys(state.users).length;if($('userCount'))$('userCount').innerText=cnt+'/'+MAX;});
-    db.ref('settings/maxUsers').once('value').then(function(snap){MAX=snap.val()||50;}).catch(function(){MAX=50;});
+    db.ref('settings/maxUsers').on('value',function(snap){MAX=snap.val()||50;var el=$('userCount');if(el){db.ref('users').once('value').then(function(s){el.innerText=Object.keys(s.val()||{}).length+'/'+MAX;});}});
 });
 document.getElementById('photoInput').addEventListener('change',function(e){
     if(e.target.files[0]){
