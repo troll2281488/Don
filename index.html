@@ -752,7 +752,6 @@ let selectedUserForAction=null;
 let tempGroupMembers=[];
 let currentMemberForAction=null;
 let currentManageChatId=null;
-// ==== МИНИМАЛЬНЫЙ ТРАФИК: подписки на пользователей и watchers ====
 let _usersSubscriptions={};
 let _globalUserChatsWatcher=null;
 
@@ -807,16 +806,12 @@ function startKeepAlive(){
   }catch(e){}
 }
 
-// ==== МИНИМАЛЬНЫЙ ТРАФИК: keep-alive без интервалов и записей ====
 function startFirebaseKeepAlive(){
-  // Никаких setInterval с set() и goOnline(). Только реакция на возврат вкладки.
   document.addEventListener('visibilitychange', function(){
     if(document.visibilityState==='visible' && currentUser){
       try{
         db.ref('.info/connected').once('value').then(function(s){
-          if(!s.val()){
-            try{ db.goOnline(); }catch(e){}
-          }
+          if(!s.val()){ try{ db.goOnline(); }catch(e){} }
         }).catch(function(){});
       }catch(e){}
     }
@@ -1348,7 +1343,6 @@ function openChat(chatId){
         renderMessages(messageCache[chatId],chatId);
     }).catch(function(){messageCache[chatId]=messageCache[chatId]||{};renderMessages(messageCache[chatId],chatId);});
 
-    // ==== МИНИМАЛЬНЫЙ ТРАФИК: заменяем кеш и перерисовываем через deletedMessages ====
     messagesListener=db.ref('messages/'+chatId).orderByChild('timestamp').limitToLast(MSG_LIMIT).on('value',function(snap){
         if(chatId!==currentChat) return;
         var msgs=snap.val()||{};
@@ -1411,7 +1405,6 @@ function showMessageNotification(data){
 }
 function closeNotif(el){if(!el||!el.parentNode)return;el.classList.add('hide');setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},250);}
 
-// ==== МИНИМАЛЬНЫЙ ТРАФИК: НЕ слушаем messages для каждого чата. Один watcher на userChats ====
 function startNotificationWatcher(){
   if(!currentUser || notifInitialized) return;
   notifInitialized = true;
@@ -1424,15 +1417,11 @@ function startNotificationWatcher(){
       var lastShown = lastSeenMsgTs[cid]||0;
       if(c.lastMessageTime <= lastShown) return;
       lastSeenMsgTs[cid] = c.lastMessageTime;
-      // Уведомление показываем только если это не тот чат, который открыт
       if(currentChat === cid && !document.hidden) return;
-      // И только если прошло не больше 2 минут (иначе это старое)
       if(Date.now() - c.lastMessageTime > 120000) return;
-      // Проверим, что последнее сообщение не наше
       var text = c.lastMessage || '📎';
       var senderName = c.name || cid;
       var senderAvatarUrl = null;
-      // Попробуем получить инфу о собеседнике из state.users
       if(c.type==='private'){
         var otherId = Object.keys(c.participants||{}).find(function(id){return id!==currentUser.id;});
         if(otherId && state.users[otherId]){
@@ -1494,7 +1483,6 @@ function renderChats(){
 }
 function ensureNotesChat(){if(!currentUser)return Promise.resolve();var notesId='notes_'+currentUser.id;return db.ref('userChats/'+currentUser.id+'/'+notesId).once('value').then(function(snap){if(!snap.exists()){return db.ref('userChats/'+currentUser.id+'/'+notesId).set({id:notesId,type:'notes',name:t('chat_notes'),lastMessage:'',lastMessageTime:Date.now(),participants:{}});}});}
 
-// ==== МИНИМАЛЬНЫЙ ТРАФИК: подписываемся только на нужных пользователей ====
 function subscribeToUser(uid){
   if(!uid || uid===currentUser.id) return;
   if(_usersSubscriptions[uid]) return;
@@ -1520,13 +1508,11 @@ function loadData(){
     startCalcLinkRequestsListener();
     checkCalcLink();
 
-    // ==== МИНИМАЛЬНЫЙ ТРАФИК: вместо db.ref('users').on(...) — подписка на нужных ====
     db.ref('userChats/'+currentUser.id).on('value',function(s){
         state.userChats=s.val()||{};
         _lastChatsHash='';
         debouncedRenderChats();
         saveChatsCache();
-        // При изменении списка чатов — досоздаём подписки на новых пользователей
         syncUserSubscriptions();
     });
 
@@ -1910,14 +1896,13 @@ document.addEventListener('click',function(e){
     if(closest('#callBtn')){
         e.preventDefault();
         e.stopPropagation();
-        console.log('[callBtn] clicked, currentChat=', currentChat);
         if(!currentChat){ showToast('❌ Откройте чат'); return; }
         var c = state.userChats[currentChat];
         if(!c){ showToast('❌ Чат не найден'); return; }
         if(c.type !== 'private'){ showToast('📞 Звонки только в личных чатах'); return; }
         var otherId = Object.keys(c.participants||{}).find(function(id){return id !== currentUser.id;});
         if(!otherId){ showToast('❌ Собеседник не найден'); return; }
-        if(!window.dgCalls){ showToast('❌ Модуль звонков не загружен'); console.error('dgCalls missing'); return; }
+        if(!window.dgCalls){ showToast('❌ Модуль звонков не загружен'); return; }
         var u = state.users[otherId] || {};
         window.dgCalls.startCall(otherId, u.name || otherId, u.avatarUrl || null);
         return;
@@ -2045,7 +2030,6 @@ function startApp(){
     applySidebarTheme();
     applyTranslations();
     gpsRestoreState();
-    // ==== МИНИМАЛЬНЫЙ ТРАФИК: только реагируем на события ====
     startFirebaseKeepAlive();
     setTimeout(function(){ if(window.dgCalls) window.dgCalls.listenIncoming(); }, 500);
     setTimeout(function(){if('Notification' in window&&Notification.permission==='default'){$('notifPermBar').classList.add('show');setTimeout(function(){$('notifPermBar').classList.remove('show');},15000);}},2000);
@@ -2057,7 +2041,6 @@ function setupPresence(){
     var myStatusRef=db.ref('users/'+currentUser.id+'/status');
     db.ref('.info/connected').on('value',function(snap){
         if(snap.val()===true){myStatusRef.onDisconnect().set('offline');myStatusRef.set('online');}
-        // НЕ дёргаем goOnline при false — Firebase сам переподключится
     });
     window.addEventListener('beforeunload',function(){myStatusRef.set('offline');});
 }
@@ -2066,7 +2049,6 @@ document.addEventListener('visibilitychange',function(){
     startKeepAlive();
     if(_keepAliveCtx&&_keepAliveCtx.state==='suspended'){try{_keepAliveCtx.resume();}catch(e){}}
     try{
-      // Перечитываем только свои чаты и не дёргаем goOnline вручную
       db.ref('userChats/'+currentUser.id).once('value').then(function(s){state.userChats=s.val()||{};_lastChatsHash='';debouncedRenderChats();saveChatsCache();syncUserSubscriptions();}).catch(function(){});
       if(!notifInitialized){startNotificationWatcher();}
       if(window.dgCalls){ window.dgCalls.listenIncoming(); }
@@ -2169,11 +2151,11 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
 })();
 
 /* ============================================================
-   DonorGram Calls v6 — «настоящий телефонный звонок»
+   DonorGram Calls v7 — ГРОМКИЙ РИНГТОН + ДВУСТОРОННИЙ СБРОС
    ============================================================ */
 (function(){
     'use strict';
-    console.log('[DonorGram Calls v6] init — PHONE-LIKE INCOMING');
+    console.log('[DonorGram Calls v7] init — LOUD + BIDIRECTIONAL HANGUP');
 
     var ICE_SERVERS = {iceServers: [
         {urls: 'stun:stun.l.google.com:19302'},
@@ -2200,6 +2182,8 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
     var _titleBlinkInterval=null;
     var _origTitle=document.title;
     var _incomingVibrateInterval=null;
+    var _ringtoneInterval=null;
+    var _outgoingRingbackInterval=null;
 
     function $c(id){return document.getElementById(id);}
     function genId(){return 'call_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);}
@@ -2235,10 +2219,10 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
     function startIncomingVibrate(){
         stopIncomingVibrate();
         function vibrateOnce(){
-            try{ if(navigator.vibrate) navigator.vibrate([500,300,500,300,500]); }catch(e){}
+            try{ if(navigator.vibrate) navigator.vibrate([600,300,600,300,600]); }catch(e){}
         }
         vibrateOnce();
-        _incomingVibrateInterval = setInterval(vibrateOnce, 2500);
+        _incomingVibrateInterval = setInterval(vibrateOnce, 2000);
     }
     function stopIncomingVibrate(){
         if(_incomingVibrateInterval){ clearInterval(_incomingVibrateInterval); _incomingVibrateInterval=null; }
@@ -2287,6 +2271,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
         }
     }
 
+    // ==== ФИКС ГРОМКОСТИ: gain 0.95 + приоритетный ритм ====
     function startRingtone(){
         stopRingtone();
         try{
@@ -2298,10 +2283,11 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
                 try{
                     var osc = ringtoneCtx.createOscillator();
                     var gain = ringtoneCtx.createGain();
-                    osc.type = 'sine';
+                    osc.type = 'square'; // square громче sine
                     osc.frequency.value = freq;
                     gain.gain.setValueAtTime(0.0001, ringtoneCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.3, ringtoneCtx.currentTime + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.95, ringtoneCtx.currentTime + 0.03);
+                    gain.gain.setValueAtTime(0.95, ringtoneCtx.currentTime + dur - 0.05);
                     gain.gain.exponentialRampToValueAtTime(0.0001, ringtoneCtx.currentTime + dur);
                     osc.connect(gain);
                     gain.connect(ringtoneCtx.destination);
@@ -2310,19 +2296,22 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
                 }catch(e){}
             };
             var pattern = function(){
-                playBeep(880, 0.3);
-                setTimeout(function(){ playBeep(1046, 0.3); }, 400);
-                setTimeout(function(){ playBeep(880, 0.3); }, 800);
+                playBeep(880, 0.4);
+                setTimeout(function(){ playBeep(1046, 0.4); }, 450);
+                setTimeout(function(){ playBeep(880, 0.4); }, 900);
             };
             pattern();
-            ringtoneInterval = setInterval(pattern, 2000);
+            ringtoneInterval = setInterval(pattern, 1800);
+            _ringtoneInterval = ringtoneInterval;
         }catch(e){}
     }
     function stopRingtone(){
         if(ringtoneInterval){ clearInterval(ringtoneInterval); ringtoneInterval = null; }
+        if(_ringtoneInterval){ clearInterval(_ringtoneInterval); _ringtoneInterval = null; }
         try{ if(ringtoneCtx){ ringtoneCtx.close(); ringtoneCtx = null; } }catch(e){}
     }
 
+    // ==== ФИКС ГРОМКОСТИ: громкий гудок вызова ====
     function startOutgoingTone(){
         stopOutgoingTone();
         try{
@@ -2337,17 +2326,17 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
                     osc.type = 'sine';
                     osc.frequency.value = 425;
                     gain.gain.setValueAtTime(0.0001, outgoingToneCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.15, outgoingToneCtx.currentTime + 0.05);
-                    gain.gain.setValueAtTime(0.15, outgoingToneCtx.currentTime + 1.0);
-                    gain.gain.exponentialRampToValueAtTime(0.0001, outgoingToneCtx.currentTime + 1.1);
+                    gain.gain.exponentialRampToValueAtTime(0.85, outgoingToneCtx.currentTime + 0.05);
+                    gain.gain.setValueAtTime(0.85, outgoingToneCtx.currentTime + 0.9);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, outgoingToneCtx.currentTime + 1.0);
                     osc.connect(gain);
                     gain.connect(outgoingToneCtx.destination);
                     osc.start();
-                    osc.stop(outgoingToneCtx.currentTime + 1.15);
+                    osc.stop(outgoingToneCtx.currentTime + 1.05);
                 }catch(e){}
             };
             playTone();
-            outgoingToneInterval = setInterval(playTone, 3500);
+            outgoingToneInterval = setInterval(playTone, 3000);
         }catch(e){}
     }
     function stopOutgoingTone(){
@@ -2369,7 +2358,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
                 var gain = dtmfCtx.createGain();
                 osc.type = 'sine';
                 osc.frequency.value = f;
-                gain.gain.setValueAtTime(0.15, dtmfCtx.currentTime);
+                gain.gain.setValueAtTime(0.3, dtmfCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.0001, dtmfCtx.currentTime + 0.15);
                 osc.connect(gain);
                 gain.connect(dtmfCtx.destination);
@@ -2479,14 +2468,8 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
             .catch(function(e){
                 console.error('[call] getUserMedia error:', e);
                 navigator.mediaDevices.getUserMedia({audio:true, video:false})
-                .then(function(stream){
-                    localStream = stream;
-                    resolve(stream);
-                })
-                .catch(function(e2){
-                    safeToast(tC('call_no_perm'));
-                    reject(e2);
-                });
+                .then(function(stream){ localStream = stream; resolve(stream); })
+                .catch(function(e2){ safeToast(tC('call_no_perm')); reject(e2); });
             });
         });
     }
@@ -2505,10 +2488,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
                 );
             }
             return sdp;
-        }catch(e){
-            console.warn('[call] SDP optimize failed', e);
-            return sdp;
-        }
+        }catch(e){ return sdp; }
     }
 
     function startStatsMonitoring(){
@@ -2519,22 +2499,14 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
                 pc.getStats(null).then(function(stats){
                     stats.forEach(function(report){
                         if(report.type === 'outbound-rtp' && report.kind === 'audio'){
-                            if(report.bytesSent){
-                                window._dgCallStats = {
-                                    bytesSent: report.bytesSent,
-                                    packetsSent: report.packetsSent,
-                                    bitrate: report.targetBitrate || 0
-                                };
-                            }
+                            if(report.bytesSent){ window._dgCallStats = {bytesSent:report.bytesSent,packetsSent:report.packetsSent,bitrate:report.targetBitrate||0}; }
                         }
                     });
                 });
             }catch(e){}
         }, 5000);
     }
-    function stopStatsMonitoring(){
-        if(statsInterval){ clearInterval(statsInterval); statsInterval = null; }
-    }
+    function stopStatsMonitoring(){ if(statsInterval){ clearInterval(statsInterval); statsInterval = null; } }
 
     function createPeerConnection(){
         pc=new RTCPeerConnection(ICE_SERVERS);
@@ -2619,13 +2591,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
         try{
             var msgRef = db.ref('messages/'+chatId).push();
             var now = Date.now();
-            msgRef.set({
-                senderId: fromUid,
-                senderName: fromName,
-                timestamp: now,
-                callRecord: true,
-                text: text
-            }).then(function(){
+            msgRef.set({senderId:fromUid,senderName:fromName,timestamp:now,callRecord:true,text:text}).then(function(){
                 var upd = {};
                 upd['userChats/'+fromUid+'/'+chatId+'/lastMessage'] = text;
                 upd['userChats/'+fromUid+'/'+chatId+'/lastMessageTime'] = now;
@@ -2635,7 +2601,6 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
     }
 
     function startCall(targetUid, targetName, targetAvatarUrl){
-        console.log('[call] startCall ->', targetUid);
         var me = getUser();
         if(!me){safeToast('❌ Не авторизован');return;}
         if(currentCallId){safeToast('⚠️ Уже идёт звонок');return;}
@@ -2688,10 +2653,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
                 var answer=snap.val();
                 if(answer && pc && pc.signalingState!=='stable'){
                     pc.setRemoteDescription(new RTCSessionDescription(answer))
-                        .then(function(){
-                            setStatusTop('🔗 Соединение...');
-                            stopOutgoingTone();
-                        })
+                        .then(function(){ setStatusTop('🔗 Соединение...'); stopOutgoingTone(); })
                         .catch(function(e){console.error('[call] setRemoteDescription:', e);});
                 }
             });
@@ -2706,13 +2668,8 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
                     writeCallRecord(currentChat, '📞 Звонок отклонён', me.id, me.name);
                     endCall('declined');
                 }
-                if(st==='accepted'){
-                    stopOutgoingTone();
-                    setStatusTop('🔗 Соединение...');
-                }
-                if(st==='ended'){
-                    endCall('remote_ended');
-                }
+                if(st==='accepted'){ stopOutgoingTone(); setStatusTop('🔗 Соединение...'); }
+                if(st==='ended'){ endCall('remote_ended'); }
             });
             callTimeoutHandle=setTimeout(function(){
                 if(currentCallId && pc && pc.connectionState!=='connected'){
@@ -2735,11 +2692,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
     function listenIncoming(){
         var me = getUser();
         if(!me){ console.log('[call] no user, skip listenIncoming'); return; }
-        if(incomingListener){
-            try{incomingListener.off();}catch(e){}
-            incomingListener=null;
-        }
-        console.log('[call] listenIncoming for', me.id);
+        if(incomingListener){ try{incomingListener.off();}catch(e){} incomingListener=null; }
         var ref=db.ref('calls').orderByChild('to').equalTo(me.id);
         incomingListener=ref.on('child_added', function(snap){
             var call=snap.val();
@@ -2778,22 +2731,15 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
             setTimeout(function(){
                 if(incomingCallId===snap.key && !currentCallId){
                     snap.ref.child('status').set('declined');
-                    stopRingtone();
-                    stopTitleBlink();
-                    stopIncomingVibrate();
-                    hideCallUI();
+                    stopRingtone(); stopTitleBlink(); stopIncomingVibrate(); hideCallUI();
                     try{
                         var myChats = state.userChats || {};
                         var chatWithCaller = null;
                         Object.keys(myChats).forEach(function(cid){
                             var c = myChats[cid];
-                            if(c && c.type==='private' && c.participants && c.participants[call.from]){
-                                chatWithCaller = cid;
-                            }
+                            if(c && c.type==='private' && c.participants && c.participants[call.from]){ chatWithCaller = cid; }
                         });
-                        if(chatWithCaller){
-                            writeCallRecord(chatWithCaller, '📞 Пропущенный звонок', call.from, call.fromName||call.from);
-                        }
+                        if(chatWithCaller){ writeCallRecord(chatWithCaller, '📞 Пропущенный звонок', call.from, call.fromName||call.from); }
                     }catch(e){}
                     incomingCallId=null;incomingCallRef=null;incomingCallData=null;
                 }
@@ -2818,10 +2764,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
                 .then(function(answer){
                     answer.sdp = optimizeSDP(answer.sdp);
                     return pc.setLocalDescription(answer).then(function(){
-                        return currentCallRef.update({
-                            status:'accepted',
-                            answer:{type:answer.type, sdp:answer.sdp}
-                        });
+                        return currentCallRef.update({status:'accepted',answer:{type:answer.type, sdp:answer.sdp}});
                     });
                 });
         }).then(function(){
@@ -2857,10 +2800,37 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
         var speakerBtn=$c('dgCallSpeakerBtn');
         var keypadBtn=$c('dgCallKeypadBtn');
         var moreBtn=$c('dgCallMoreBtn');
+
+        // ==== ФИКС СБРОСА: при нажатии красной кнопки ВСЕГДА отправляем declined/ended ====
         if(endBtn) endBtn.onclick=function(){
-            if(isCaller){
-                var me = getUser();
+            var me = getUser();
+            // Если это входящий звонок и мы НЕ приняли — отправляем declined
+            if(incomingCallRef && incomingCallData && !isCaller){
+                try{
+                    incomingCallRef.child('status').set('declined').catch(function(){});
+                }catch(e){}
+                // Запись в чат
+                try{
+                    var myChats = state.userChats || {};
+                    var chatWithCaller = null;
+                    Object.keys(myChats).forEach(function(cid){
+                        var c = myChats[cid];
+                        if(c && c.type==='private' && c.participants && c.participants[incomingCallData.from]){ chatWithCaller = cid; }
+                    });
+                    if(chatWithCaller && me){ writeCallRecord(chatWithCaller, '📞 Звонок отклонён', incomingCallData.from, incomingCallData.fromName||incomingCallData.from); }
+                }catch(e){}
+                stopRingtone(); stopTitleBlink(); stopIncomingVibrate();
+                cleanupCall();
+                return;
+            }
+            // Если это наш исходящий звонок — отправляем ended
+            if(isCaller && currentCallRef){
+                try{ currentCallRef.child('status').set('ended').catch(function(){}); }catch(e){}
                 if(currentChat && me) writeCallRecord(currentChat, '📞 Звонок завершён', me.id, me.name);
+            }
+            // Если мы приняли звонок и теперь завершаем — ended
+            if(!isCaller && currentCallRef){
+                try{ currentCallRef.child('status').set('ended').catch(function(){}); }catch(e){}
             }
             endCall('ended');
         };
@@ -2869,6 +2839,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
         if(speakerBtn) speakerBtn.onclick=toggleSpeaker;
         if(keypadBtn) keypadBtn.onclick=function(){var k=$c('dgCallKeypad'); if(k) k.classList.add('show');};
         if(moreBtn) moreBtn.onclick=function(){var m=$c('dgCallMore'); if(m) m.classList.add('show');};
+
         var kpClose=$c('dgCallKeypadClose');
         if(kpClose) kpClose.onclick=function(){var k=$c('dgCallKeypad'); if(k) k.classList.remove('show');};
         var moreClose=$c('dgCallMoreClose');
@@ -2880,6 +2851,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
         };
         var moreMin=$c('dgCallMoreMinimize');
         if(moreMin) moreMin.onclick=function(){var m=$c('dgCallMore'); if(m) m.classList.remove('show');};
+
         document.querySelectorAll('.dgKeypadBtn').forEach(function(b){
             b.onclick=function(){
                 var d=this.dataset.dtmf;
@@ -2896,7 +2868,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
         bindCallButtons();
     }
     getRemoteAudio();
-    console.log('[DonorGram Calls v6] ready — phone-like incoming');
+    console.log('[DonorGram Calls v7] ready — loud + bidirectional hangup');
 })();
 </script>
 </body>
