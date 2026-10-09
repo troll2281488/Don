@@ -25,6 +25,7 @@ body{background:#1a1a2e;height:100vh;height:100dvh;display:flex;align-items:cent
 @keyframes recPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.1)}}
 @keyframes callPulse{0%,100%{transform:scale(1);box-shadow:0 0 0 8px rgba(102,126,234,.25),0 0 60px rgba(102,126,234,.4)}50%{transform:scale(1.04);box-shadow:0 0 0 16px rgba(102,126,234,.15),0 0 80px rgba(102,126,234,.5)}}
 @keyframes incomingPulse{0%,100%{box-shadow:0 0 0 8px rgba(52,199,89,.25),0 0 60px rgba(52,199,89,.4)}50%{box-shadow:0 0 0 16px rgba(52,199,89,.15),0 0 80px rgba(52,199,89,.5)}}
+@keyframes wavePulse{0%,100%{height:4px}50%{height:16px}}
 .app{width:100%;height:100%;max-width:900px;background:#fff;border-radius:28px;overflow:hidden;display:flex;box-shadow:0 25px 50px rgba(0,0,0,.3);position:relative;z-index:2}
 .sidebar{width:100%;background:#f4f7fc;display:flex;flex-direction:column;min-width:0;position:relative;background-size:200% 200%!important;background-position:center;background-repeat:no-repeat;transition:background .4s}
 .sidebar.matrix-mode{background:#000}
@@ -101,7 +102,6 @@ body{background:#1a1a2e;height:100vh;height:100dvh;display:flex;align-items:cent
 .message-received .message-bubble{background:#fff;border-bottom-left-radius:5px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
 .message-sent .message-bubble{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-bottom-right-radius:5px}
 .message-bubble img,.message-bubble video{cursor:pointer;pointer-events:auto!important;max-width:200px;max-height:300px;border-radius:10px;margin-top:6px;object-fit:cover}
-.message-bubble audio{pointer-events:auto!important;width:100%;max-width:240px;height:38px;margin-top:4px}
 .swipe-reply-icon{position:absolute;top:50%;transform:translateY(-50%) scale(.5);width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#667eea;color:#fff;font-size:15px;opacity:0;transition:opacity .15s,transform .15s;pointer-events:none;z-index:5}
 .message-sent .swipe-reply-icon{right:100%;margin-right:10px}
 .message-received .swipe-reply-icon{left:100%;margin-left:10px}
@@ -355,11 +355,88 @@ input:checked+.slider:before{transform:translateX(26px)}
 .dgCallMoreItem i{font-size:18px;width:22px;text-align:center}
 #dgCallMoreClose{margin-top:30px;padding:14px 40px;border-radius:36px;background:rgba(255,255,255,.1);border:none;color:#fff;font-size:15px;font-weight:600;cursor:pointer}
 
-/* ===== RADIO CALL UI ===== */
+/* ===== RADIO CALL UI (ВХОДЯЩИЙ) ===== */
 #dgRadioOverlay{position:fixed;inset:0;z-index:99997;background:linear-gradient(180deg,#1a2a3e,#0f1a2e);display:none;flex-direction:column;align-items:center;justify-content:space-between;padding:50px 20px 30px;color:#fff;font-family:inherit}
 #dgRadioOverlay.show{display:flex}
 #dgRadioAvatar{width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#00b4db,#0083b0);display:flex;align-items:center;justify-content:center;font-size:44px;font-weight:700;color:#fff;background-size:cover;background-position:center;box-shadow:0 0 0 8px rgba(0,180,219,.2),0 0 60px rgba(0,180,219,.4);animation:callPulse 2.4s ease-in-out infinite}
 #dgRadioIncomingBar{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:99998;background:linear-gradient(135deg,#00b4db,#0083b0);color:#fff;padding:14px 18px;border-radius:18px;display:flex;align-items:center;gap:14px;box-shadow:0 12px 40px rgba(0,0,0,.5);max-width:92%;animation:notifIn .3s}
+
+/* ===== AUDIO MESSAGE UI (КАК НА СКРИНШОТЕ) ===== */
+.audio-msg-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0;
+  min-width: 200px;
+}
+.audio-play-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #667eea;
+  color: #fff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.1s;
+}
+.audio-play-btn:active {
+  transform: scale(0.92);
+}
+.audio-waveform {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 24px;
+}
+.audio-waveform .bar {
+  width: 3px;
+  border-radius: 2px;
+  background: #667eea;
+  animation: wavePulse 1s infinite alternate;
+}
+.audio-waveform .bar:nth-child(2n) { animation-delay: 0.2s; }
+.audio-waveform .bar:nth-child(3n) { animation-delay: 0.4s; }
+.audio-waveform .bar:nth-child(4n) { animation-delay: 0.6s; }
+.audio-waveform .bar:nth-child(5n) { animation-delay: 0.8s; }
+.audio-time {
+  font-size: 12px;
+  color: #8e98a3;
+  font-weight: 600;
+  min-width: 36px;
+  text-align: right;
+}
+.audio-duration {
+  font-size: 12px;
+  color: #8e98a3;
+  margin-left: 4px;
+}
+.audio-check {
+  font-size: 14px;
+  color: #34c759;
+  margin-left: 4px;
+}
+.message-sent .audio-play-btn {
+  background: rgba(255,255,255,.9);
+  color: #667eea;
+}
+.message-sent .audio-waveform .bar {
+  background: rgba(255,255,255,.8);
+}
+.message-sent .audio-time, .message-sent .audio-duration {
+  color: rgba(255,255,255,.7);
+}
+.message-sent .audio-check {
+  color: #fff;
+}
+.message-bubble audio {
+  display: none;
+}
 </style>
 </head>
 <body>
@@ -459,7 +536,7 @@ input:checked+.slider:before{transform:translateX(26px)}
 <div class="chat-header" id="chatHeaderWrap">
 <button class="back-btn" id="backBtn" type="button"><i class="fas fa-arrow-left"></i></button>
 <div class="chat-info" id="chatInfoBtn"><div class="chat-avatar-small" id="chatAvatar">👤</div><div style="flex:1;min-width:0"><h3 id="chatName" data-i18n="chat_select">Выберите чат</h3><p id="chatStatus"></p><p id="typingIndicator" style="display:none;color:#34c759;font-style:italic;font-size:12px;font-weight:600"></p></div></div>
-<button class="icon-btn" id="callBtn" type="button" title="Рация" style="display:none"><i class="fas fa-walkie-talkie"></i></button>
+<button class="icon-btn" id="callBtn" type="button" title="Позвонить" style="display:none"><i class="fas fa-phone"></i></button>
 <button class="icon-btn" id="bgBtn" type="button"><i class="fas fa-palette"></i></button>
 <button class="icon-btn" id="chatMenuBtn" type="button"><i class="fas fa-ellipsis-v"></i></button>
 </div>
@@ -497,7 +574,7 @@ input:checked+.slider:before{transform:translateX(26px)}
 <div id="userActionBtnProfile" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer"><i class="fas fa-user" style="width:22px;color:#667eea"></i><span>👤 Посмотреть профиль</span></div>
 <div id="userActionBtnDistance" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer"><i class="fas fa-ruler" style="width:22px;color:#667eea"></i><span>📏 Рассчитать расстояние</span></div>
 <div id="userActionBtnChat" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer"><i class="fas fa-comment" style="width:22px;color:#667eea"></i><span>💬 Перейти в чат</span></div>
-<div id="userActionBtnCall" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer"><i class="fas fa-walkie-talkie" style="width:22px;color:#00b4db"></i><span>📻 Позвонить (рация)</span></div>
+<div id="userActionBtnCall" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer"><i class="fas fa-phone" style="width:22px;color:#00b4db"></i><span>📞 Позвонить</span></div>
 </div>
 
 <div id="memberActionBackdrop" style="position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:700;opacity:0;pointer-events:none;transition:opacity .2s"></div>
@@ -674,7 +751,7 @@ input:checked+.slider:before{transform:translateX(26px)}
 <div class="image-viewer" id="imageViewer"><button class="close-btn" type="button" id="closeImgBtn">✕</button><img id="viewedImage"><div class="viewer-buttons"><button class="save-media-btn" type="button" id="saveImageViewerBtn" data-i18n="save">💾 СОХРАНИТЬ</button></div></div>
 <div class="video-viewer" id="videoViewer"><button class="close-btn" type="button" id="closeVidBtn">✕</button><video id="viewedVideo" controls></video><div class="viewer-buttons"><button class="save-media-btn" type="button" id="saveVideoViewerBtn" data-i18n="save">💾 СОХРАНИТЬ</button></div></div>
 
-<!-- ===== ЗВОНКИ (обычный WebRTC — как опция) ===== -->
+<!-- ===== ЗВОНКИ (ПОЛНОЭКРАННЫЕ) ===== -->
 <div id="dgCallOverlay">
     <div id="dgCallTop">
         <div id="dgCallStatusTop">Вызов...</div>
@@ -744,7 +821,7 @@ input:checked+.slider:before{transform:translateX(26px)}
         <div id="dgRadioStatus" style="font-size:13px;color:#8e98a3;letter-spacing:1px">🎤 РАЦИЯ-РЕЖИМ</div>
         <div id="dgRadioAvatar">?</div>
         <div id="dgRadioName" style="font-size:26px;font-weight:800;text-align:center;max-width:90%;word-break:break-word;margin-top:12px">Рация</div>
-        <div id="dgRadioHint" style="font-size:13px;color:#8e98a3;text-align:center;max-width:300px;line-height:1.5">Говорите — собеседник услышит через 2–4 сек</div>
+        <div id="dgRadioHint" style="font-size:13px;color:#8e98a3;text-align:center;max-width:300px;line-height:1.5">Говорите — собеседник услышит через 1.5–2.5 сек</div>
         <div id="dgRadioTimer" style="font-size:16px;color:#00b4db;font-weight:700;margin-top:4px;display:none">00:00</div>
         <div style="font-size:11px;color:#34c759;font-weight:600;margin-top:4px">📊 ~2 КБ/сек · экономия в 80 раз</div>
     </div>
@@ -760,7 +837,7 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
 const CALC_URL='https://troll2281488.github.io/Cksksksje/';
 
-const TRANSLATIONS={ru:{welcome_title_0:'DonorGram',welcome_sub_0:'Самый быстрый мессенджер в мире. Бесплатный и безопасный.',welcome_title_1:'Быстро',welcome_sub_1:'DonorGram работает быстрее любых других приложений.',welcome_title_2:'Свободно',welcome_sub_2:'DonorGram — свободный мессенджер. Никакой рекламы.',welcome_title_3:'Мощно',welcome_sub_3:'DonorGram не имеет ограничений на размер файлов.',welcome_title_4:'Облачно',welcome_sub_4:'Доступ к сообщениям с нескольких устройств.',welcome_start:'Начать общение',welcome_choose_lang:'Выберите язык',login_name:'Никнейм',login_pass:'Пароль',login_avatar:'Аватар (2 буквы)',login_btn:'Войти / Регистрация',login_users:'пользователей',chat_search:'🔍 Поиск людей и чатов...',chat_select:'Выберите чат',chat_type:'Сообщение...',chat_online:'🟢 в сети',chat_offline:'⚫ не в сети',chat_notes:'⭐ Избранное',chat_no_msgs:'Нет сообщений',chat_editing:'Редактирование',chat_rec_cancel:'Отмена',chat_rec_send:'➤ Отправить',chat_clear:'🗑 Очистить историю',chat:'⚙️ Чат',chat_started:'Сообщений пока нет. Напишите первым!',action_reply:'Ответить',action_copy:'Копировать',action_edit:'Редактировать',action_pin:'Закрепить',action_delete_me:'Удалить у себя',action_delete:'Удалить у всех',settings:'⚙️ Настройки',settings_lang:'🌐 Язык',settings_push:'🔔 Push-уведомления',settings_notif:'🔔 Уведомления',settings_sound:'🔊 Звук',settings_vibro:'📳 Вибрация',settings_edit_profile:'✏️ Редактировать профиль',profile:'👤 Профиль',profile_name:'Имя:',profile_bio:'Статус:',profile_online:'Онлайн:',profile_edit_btn:'✏️ РЕДАКТИРОВАТЬ ПРОФИЛЬ',profile_shop_btn:'🛍️ МАГАЗИН',profile_settings_btn:'⚙️ НАСТРОЙКИ',profile_sg_off:'🔄 Отключить SpaceGod',profile_sg_on:'✅ Включить SpaceGod',profile_block:'🚫 ЗАБЛОКИРОВАТЬ',profile_unblock:'✅ РАЗБЛОКИРОВАТЬ',profile_no_status:'Нет статуса',profile_my:'👤 Мой профиль',editprofile_title:'✏️ Редактировать профиль',editprofile_avatar:'Аватар (2 буквы)',editprofile_name:'Имя',editprofile_bio:'Описание (статус)',editprofile_pass:'Новый пароль (пусто = не менять)',cancel:'Отмена',save:'💾 Сохранить',shop:'🛍️ Магазин',shop_all_free:'✨ ВСЁ БЕСПЛАТНО',shop_avatars:'👤 Аватарки',shop_bubbles:'💬 Пузыри',shop_special:'🌟 Особые',shop_sg:'🌈 SPACEGOD',shop_upload_theme:'📷 Загрузить своё фото',shop_reset_theme:'🗑 Сбросить тему',attach:'📎 Вложения',attach_photo:'Отправить фото',attach_video:'Отправить видео',users:'👥 Пользователи',bg:'🎨 Обои чата',stickers:'😎 Стикеры',logout_confirm:'Выйти из аккаунта?',logout:'Выйти',notif_enable:'🔔 Включить уведомления?',notif_on:'ВКЛ',err_fill:'❌ Введите ник и пароль',err_pass:'❌ Неверный пароль',err_blocked:'❌ Заблокирован',toast_hello:'✅ Привет,',toast_copied:'📋',toast_deleted:'🗑',toast_saved:'💾',toast_error:'❌ Ошибка',no_other_users:'Пока нет других пользователей',you_offline:'⚫ не в сети',you_online:'🟢 в сети',call_btn:'📻 Рация',call_no_perm:'❌ Нет доступа к микрофону',call_calling:'📻 Вызов...',call_incoming:'📻 Входящий',call_connected:'🔊 Разговор',call_ended:'Разговор завершён',call_declined:'❌ Отклонено',call_timeout:'⏱ Никто не ответил',call_speaker_on:'🔊 Динамик вкл',call_speaker_off:'🔈 Динамик выкл'},en:{welcome_title_0:'DonorGram',welcome_sub_0:'The fastest messenger in the world. Free and secure.',welcome_title_1:'Fast',welcome_sub_1:'DonorGram works faster than any other app.',welcome_title_2:'Free',welcome_sub_2:'DonorGram is a free messenger. No ads.',welcome_title_3:'Powerful',welcome_sub_3:'DonorGram has no file size limits.',welcome_title_4:'Cloud',welcome_sub_4:'Access messages from multiple devices.',welcome_start:'Start Messaging',welcome_choose_lang:'Choose language',login_name:'Nickname',login_pass:'Password',login_avatar:'Avatar (2 letters)',login_btn:'Login / Sign up',login_users:'users',chat_search:'🔍 Search people and chats...',chat_select:'Select chat',chat_type:'Message...',chat_online:'🟢 online',chat_offline:'⚫ offline',chat_notes:'⭐ Saved',chat_no_msgs:'No messages',chat_editing:'Editing',chat_rec_cancel:'Cancel',chat_rec_send:'➤ Send',chat_clear:'🗑 Clear history',chat:'⚙️ Chat',chat_started:'No messages yet. Write first!',action_reply:'Reply',action_copy:'Copy',action_edit:'Edit',action_pin:'Pin',action_delete_me:'Delete for me',action_delete:'Delete for everyone',settings:'⚙️ Settings',settings_lang:'🌐 Language',settings_push:'🔔 Push notifications',settings_notif:'🔔 Notifications',settings_sound:'🔊 Sound',settings_vibro:'📳 Vibration',settings_edit_profile:'✏️ Edit profile',profile:'👤 Profile',profile_name:'Name:',profile_bio:'Status:',profile_online:'Online:',profile_edit_btn:'✏️ EDIT PROFILE',profile_shop_btn:'🛍️ SHOP',profile_settings_btn:'⚙️ SETTINGS',profile_sg_off:'🔄 Disable SpaceGod',profile_sg_on:'✅ Enable SpaceGod',profile_block:'🚫 BLOCK',profile_unblock:'✅ UNBLOCK',profile_no_status:'No status',profile_my:'👤 My profile',editprofile_title:'✏️ Edit profile',editprofile_avatar:'Avatar (2 letters)',editprofile_name:'Name',editprofile_bio:'Bio (status)',editprofile_pass:'New password (empty = keep)',cancel:'Cancel',save:'💾 Save',shop:'🛍️ Shop',shop_all_free:'✨ ALL FREE',shop_avatars:'👤 Avatars',shop_bubbles:'💬 Bubbles',shop_special:'🌟 Special',shop_sg:'🌈 SPACEGOD',shop_upload_theme:'📷 Upload your photo',shop_reset_theme:'🗑 Reset theme',attach:'📎 Attachments',attach_photo:'Send photo',attach_video:'Send video',users:'👥 Users',bg:'🎨 Chat wallpaper',stickers:'😎 Stickers',logout_confirm:'Logout from account?',logout:'Logout',notif_enable:'🔔 Enable notifications?',notif_on:'ON',err_fill:'❌ Enter nickname and password',err_pass:'❌ Wrong password',err_blocked:'❌ Blocked',toast_hello:'✅ Hi,',toast_copied:'📋',toast_deleted:'🗑',toast_saved:'💾',toast_error:'❌ Error',no_other_users:'No other users yet',you_offline:'⚫ offline',you_online:'🟢 online',call_btn:'📻 Radio',call_no_perm:'❌ No microphone access',call_calling:'📻 Calling...',call_incoming:'📻 Incoming',call_connected:'🔊 Connected',call_ended:'Call ended',call_declined:'❌ Declined',call_timeout:'⏱ No answer',call_speaker_on:'🔊 Speaker on',call_speaker_off:'🔈 Speaker off'},uk:{welcome_title_0:'DonorGram',welcome_sub_0:'Найшвидший месенджер у світі. Безкоштовний і безпечний.',welcome_title_1:'Швидко',welcome_sub_1:'DonorGram працює швидше за будь-які інші додатки.',welcome_title_2:'Вільно',welcome_sub_2:'DonorGram — вільний месенджер. Жодної реклами.',welcome_title_3:'Потужно',welcome_sub_3:'DonorGram не має обмежень на розмір файлів.',welcome_title_4:'У хмарі',welcome_sub_4:'Доступ до повідомлень з кількох пристроїв.',welcome_start:'Почати спілкування',welcome_choose_lang:'Виберіть мову',login_name:'Нікнейм',login_pass:'Пароль',login_avatar:'Аватар (2 літери)',login_btn:'Увійти / Реєстрація',login_users:'користувачів',chat_search:'🔍 Пошук людей і чатів...',chat_select:'Виберіть чат',chat_type:'Повідомлення...',chat_online:'🟢 онлайн',chat_offline:'⚫ офлайн',chat_notes:'⭐ Обране',chat_no_msgs:'Немає повідомлень',chat_editing:'Редагування',chat_rec_cancel:'Скасувати',chat_rec_send:'➤ Надіслати',chat_clear:'🗑 Очистити історію',chat:'⚙️ Чат',chat_started:'Повідомлень поки немає. Напишіть першим!',action_reply:'Відповісти',action_copy:'Копіювати',action_edit:'Редагувати',action_pin:'Закріпити',action_delete_me:'Видалити у себе',action_delete:'Видалити у всіх',settings:'⚙️ Налаштування',settings_lang:'🌐 Мова',settings_push:'🔔 Push-повідомлення',settings_notif:'🔔 Повідомлення',settings_sound:'🔊 Звук',settings_vibro:'📳 Вібрація',settings_edit_profile:'✏️ Редагувати профіль',profile:'👤 Профіль',profile_name:"Ім'я:",profile_bio:'Статус:',profile_online:'Онлайн:',profile_edit_btn:'✏️ РЕДАГУВАТИ ПРОФІЛЬ',profile_shop_btn:'🛍️ МАГАЗИН',profile_settings_btn:'⚙️ НАЛАШТУВАННЯ',profile_sg_off:'🔄 Вимкнути SpaceGod',profile_sg_on:'✅ Увімкнути SpaceGod',profile_block:'🚫 ЗАБЛОКУВАТИ',profile_unblock:'✅ РОЗБЛОКУВАТИ',profile_no_status:'Немає статусу',profile_my:'👤 Мій профіль',editprofile_title:'✏️ Редагувати профіль',editprofile_avatar:'Аватар (2 літери)',editprofile_name:"Ім'я",editprofile_bio:'Опис (статус)',editprofile_pass:'Новий пароль (пусто = не змінювати)',cancel:'Скасувати',save:'💾 Зберегти',shop:'🛍️ Магазин',shop_all_free:'✨ ВСЕ БЕЗКОШТОВНО',shop_avatars:'👤 Аватарки',shop_bubbles:'💬 Бульбашки',shop_special:'🌟 Особливі',shop_sg:'🌈 SPACEGOD',shop_upload_theme:'📷 Завантажити своє фото',shop_reset_theme:'🗑 Скинути тему',attach:'📎 Вкладення',attach_photo:'Надіслати фото',attach_video:'Надіслати відео',users:'👥 Користувачі',bg:'🎨 Шпалери чату',stickers:'😎 Стікери',logout_confirm:'Вийти з акаунта?',logout:'Вийти',notif_enable:'🔔 Увімкнути повідомлення?',notif_on:'УВІМК',err_fill:'❌ Введіть нік та пароль',err_pass:'❌ Невірний пароль',err_blocked:'❌ Заблоковано',toast_hello:'✅ Привіт,',toast_copied:'📋',toast_deleted:'🗑',toast_saved:'💾',toast_error:'❌ Помилка',no_other_users:'Поки немає інших користувачів',you_offline:'⚫ офлайн',you_online:'🟢 онлайн',call_btn:'📻 Рація',call_no_perm:'❌ Немає доступу до мікрофона',call_calling:'📻 Виклик...',call_incoming:'📻 Вхідний',call_connected:'🔊 Розмова',call_ended:'Виклик завершено',call_declined:'❌ Відхилено',call_timeout:'⏱ Ніхто не відповів',call_speaker_on:'🔊 Динамік увімк',call_speaker_off:'🔈 Динамік вимк'}};
+const TRANSLATIONS={ru:{welcome_title_0:'DonorGram',welcome_sub_0:'Самый быстрый мессенджер в мире. Бесплатный и безопасный.',welcome_title_1:'Быстро',welcome_sub_1:'DonorGram работает быстрее любых других приложений.',welcome_title_2:'Свободно',welcome_sub_2:'DonorGram — свободный мессенджер. Никакой рекламы.',welcome_title_3:'Мощно',welcome_sub_3:'DonorGram не имеет ограничений на размер файлов.',welcome_title_4:'Облачно',welcome_sub_4:'Доступ к сообщениям с нескольких устройств.',welcome_start:'Начать общение',welcome_choose_lang:'Выберите язык',login_name:'Никнейм',login_pass:'Пароль',login_avatar:'Аватар (2 буквы)',login_btn:'Войти / Регистрация',login_users:'пользователей',chat_search:'🔍 Поиск людей и чатов...',chat_select:'Выберите чат',chat_type:'Сообщение...',chat_online:'🟢 в сети',chat_offline:'⚫ не в сети',chat_notes:'⭐ Избранное',chat_no_msgs:'Нет сообщений',chat_editing:'Редактирование',chat_rec_cancel:'Отмена',chat_rec_send:'➤ Отправить',chat_clear:'🗑 Очистить историю',chat:'⚙️ Чат',chat_started:'Сообщений пока нет. Напишите первым!',action_reply:'Ответить',action_copy:'Копировать',action_edit:'Редактировать',action_pin:'Закрепить',action_delete_me:'Удалить у себя',action_delete:'Удалить у всех',settings:'⚙️ Настройки',settings_lang:'🌐 Язык',settings_push:'🔔 Push-уведомления',settings_notif:'🔔 Уведомления',settings_sound:'🔊 Звук',settings_vibro:'📳 Вибрация',settings_edit_profile:'✏️ Редактировать профиль',profile:'👤 Профиль',profile_name:'Имя:',profile_bio:'Статус:',profile_online:'Онлайн:',profile_edit_btn:'✏️ РЕДАКТИРОВАТЬ ПРОФИЛЬ',profile_shop_btn:'🛍️ МАГАЗИН',profile_settings_btn:'⚙️ НАСТРОЙКИ',profile_sg_off:'🔄 Отключить SpaceGod',profile_sg_on:'✅ Включить SpaceGod',profile_block:'🚫 ЗАБЛОКИРОВАТЬ',profile_unblock:'✅ РАЗБЛОКИРОВАТЬ',profile_no_status:'Нет статуса',profile_my:'👤 Мой профиль',editprofile_title:'✏️ Редактировать профиль',editprofile_avatar:'Аватар (2 буквы)',editprofile_name:'Имя',editprofile_bio:'Описание (статус)',editprofile_pass:'Новый пароль (пусто = не менять)',cancel:'Отмена',save:'💾 Сохранить',shop:'🛍️ Магазин',shop_all_free:'✨ ВСЁ БЕСПЛАТНО',shop_avatars:'👤 Аватарки',shop_bubbles:'💬 Пузыри',shop_special:'🌟 Особые',shop_sg:'🌈 SPACEGOD',shop_upload_theme:'📷 Загрузить своё фото',shop_reset_theme:'🗑 Сбросить тему',attach:'📎 Вложения',attach_photo:'Отправить фото',attach_video:'Отправить видео',users:'👥 Пользователи',bg:'🎨 Обои чата',stickers:'😎 Стикеры',logout_confirm:'Выйти из аккаунта?',logout:'Выйти',notif_enable:'🔔 Включить уведомления?',notif_on:'ВКЛ',err_fill:'❌ Введите ник и пароль',err_pass:'❌ Неверный пароль',err_blocked:'❌ Заблокирован',toast_hello:'✅ Привет,',toast_copied:'📋',toast_deleted:'🗑',toast_saved:'💾',toast_error:'❌ Ошибка',no_other_users:'Пока нет других пользователей',you_offline:'⚫ не в сети',you_online:'🟢 в сети',call_btn:'📞 Позвонить',call_no_perm:'❌ Нет доступа к микрофону',call_calling:'📞 Вызов...',call_incoming:'📞 Входящий',call_connected:'🔊 Разговор',call_ended:'Разговор завершён',call_declined:'❌ Отклонено',call_timeout:'⏱ Никто не ответил',call_speaker_on:'🔊 Динамик вкл',call_speaker_off:'🔈 Динамик выкл'},en:{welcome_title_0:'DonorGram',welcome_sub_0:'The fastest messenger in the world. Free and secure.',welcome_title_1:'Fast',welcome_sub_1:'DonorGram works faster than any other app.',welcome_title_2:'Free',welcome_sub_2:'DonorGram is a free messenger. No ads.',welcome_title_3:'Powerful',welcome_sub_3:'DonorGram has no file size limits.',welcome_title_4:'Cloud',welcome_sub_4:'Access messages from multiple devices.',welcome_start:'Start Messaging',welcome_choose_lang:'Choose language',login_name:'Nickname',login_pass:'Password',login_avatar:'Avatar (2 letters)',login_btn:'Login / Sign up',login_users:'users',chat_search:'🔍 Search people and chats...',chat_select:'Select chat',chat_type:'Message...',chat_online:'🟢 online',chat_offline:'⚫ offline',chat_notes:'⭐ Saved',chat_no_msgs:'No messages',chat_editing:'Editing',chat_rec_cancel:'Cancel',chat_rec_send:'➤ Send',chat_clear:'🗑 Clear history',chat:'⚙️ Chat',chat_started:'No messages yet. Write first!',action_reply:'Reply',action_copy:'Copy',action_edit:'Edit',action_pin:'Pin',action_delete_me:'Delete for me',action_delete:'Delete for everyone',settings:'⚙️ Settings',settings_lang:'🌐 Language',settings_push:'🔔 Push notifications',settings_notif:'🔔 Notifications',settings_sound:'🔊 Sound',settings_vibro:'📳 Vibration',settings_edit_profile:'✏️ Edit profile',profile:'👤 Profile',profile_name:'Name:',profile_bio:'Status:',profile_online:'Online:',profile_edit_btn:'✏️ EDIT PROFILE',profile_shop_btn:'🛍️ SHOP',profile_settings_btn:'⚙️ SETTINGS',profile_sg_off:'🔄 Disable SpaceGod',profile_sg_on:'✅ Enable SpaceGod',profile_block:'🚫 BLOCK',profile_unblock:'✅ UNBLOCK',profile_no_status:'No status',profile_my:'👤 My profile',editprofile_title:'✏️ Edit profile',editprofile_avatar:'Avatar (2 letters)',editprofile_name:'Name',editprofile_bio:'Bio (status)',editprofile_pass:'New password (empty = keep)',cancel:'Cancel',save:'💾 Save',shop:'🛍️ Shop',shop_all_free:'✨ ALL FREE',shop_avatars:'👤 Avatars',shop_bubbles:'💬 Bubbles',shop_special:'🌟 Special',shop_sg:'🌈 SPACEGOD',shop_upload_theme:'📷 Upload your photo',shop_reset_theme:'🗑 Reset theme',attach:'📎 Attachments',attach_photo:'Send photo',attach_video:'Send video',users:'👥 Users',bg:'🎨 Chat wallpaper',stickers:'😎 Stickers',logout_confirm:'Logout from account?',logout:'Logout',notif_enable:'🔔 Enable notifications?',notif_on:'ON',err_fill:'❌ Enter nickname and password',err_pass:'❌ Wrong password',err_blocked:'❌ Blocked',toast_hello:'✅ Hi,',toast_copied:'📋',toast_deleted:'🗑',toast_saved:'💾',toast_error:'❌ Error',no_other_users:'No other users yet',you_offline:'⚫ offline',you_online:'🟢 online',call_btn:'📞 Call',call_no_perm:'❌ No microphone access',call_calling:'📞 Calling...',call_incoming:'📞 Incoming',call_connected:'🔊 Connected',call_ended:'Call ended',call_declined:'❌ Declined',call_timeout:'⏱ No answer',call_speaker_on:'🔊 Speaker on',call_speaker_off:'🔈 Speaker off'},uk:{welcome_title_0:'DonorGram',welcome_sub_0:'Найшвидший месенджер у світі. Безкоштовний і безпечний.',welcome_title_1:'Швидко',welcome_sub_1:'DonorGram працює швидше за будь-які інші додатки.',welcome_title_2:'Вільно',welcome_sub_2:'DonorGram — вільний месенджер. Жодної реклами.',welcome_title_3:'Потужно',welcome_sub_3:'DonorGram не має обмежень на розмір файлів.',welcome_title_4:'У хмарі',welcome_sub_4:'Доступ до повідомлень з кількох пристроїв.',welcome_start:'Почати спілкування',welcome_choose_lang:'Виберіть мову',login_name:'Нікнейм',login_pass:'Пароль',login_avatar:'Аватар (2 літери)',login_btn:'Увійти / Реєстрація',login_users:'користувачів',chat_search:'🔍 Пошук людей і чатів...',chat_select:'Виберіть чат',chat_type:'Повідомлення...',chat_online:'🟢 онлайн',chat_offline:'⚫ офлайн',chat_notes:'⭐ Обране',chat_no_msgs:'Немає повідомлень',chat_editing:'Редагування',chat_rec_cancel:'Скасувати',chat_rec_send:'➤ Надіслати',chat_clear:'🗑 Очистити історію',chat:'⚙️ Чат',chat_started:'Повідомлень поки немає. Напишіть першим!',action_reply:'Відповісти',action_copy:'Копіювати',action_edit:'Редагувати',action_pin:'Закріпити',action_delete_me:'Видалити у себе',action_delete:'Видалити у всіх',settings:'⚙️ Налаштування',settings_lang:'🌐 Мова',settings_push:'🔔 Push-повідомлення',settings_notif:'🔔 Повідомлення',settings_sound:'🔊 Звук',settings_vibro:'📳 Вібрація',settings_edit_profile:'✏️ Редагувати профіль',profile:'👤 Профіль',profile_name:"Ім'я:",profile_bio:'Статус:',profile_online:'Онлайн:',profile_edit_btn:'✏️ РЕДАГУВАТИ ПРОФІЛЬ',profile_shop_btn:'🛍️ МАГАЗИН',profile_settings_btn:'⚙️ НАЛАШТУВАННЯ',profile_sg_off:'🔄 Вимкнути SpaceGod',profile_sg_on:'✅ Увімкнути SpaceGod',profile_block:'🚫 ЗАБЛОКУВАТИ',profile_unblock:'✅ РОЗБЛОКУВАТИ',profile_no_status:'Немає статусу',profile_my:'👤 Мій профіль',editprofile_title:'✏️ Редагувати профіль',editprofile_avatar:'Аватар (2 літери)',editprofile_name:"Ім'я",editprofile_bio:'Опис (статус)',editprofile_pass:'Новий пароль (пусто = не змінювати)',cancel:'Скасувати',save:'💾 Зберегти',shop:'🛍️ Магазин',shop_all_free:'✨ ВСЕ БЕЗКОШТОВНО',shop_avatars:'👤 Аватарки',shop_bubbles:'💬 Бульбашки',shop_special:'🌟 Особливі',shop_sg:'🌈 SPACEGOD',shop_upload_theme:'📷 Завантажити своє фото',shop_reset_theme:'🗑 Скинути тему',attach:'📎 Вкладення',attach_photo:'Надіслати фото',attach_video:'Надіслати відео',users:'👥 Користувачі',bg:'🎨 Шпалери чату',stickers:'😎 Стікери',logout_confirm:'Вийти з акаунта?',logout:'Вийти',notif_enable:'🔔 Увімкнути повідомлення?',notif_on:'УВІМК',err_fill:'❌ Введіть нік та пароль',err_pass:'❌ Невірний пароль',err_blocked:'❌ Заблоковано',toast_hello:'✅ Привіт,',toast_copied:'📋',toast_deleted:'🗑',toast_saved:'💾',toast_error:'❌ Помилка',no_other_users:'Поки немає інших користувачів',you_offline:'⚫ офлайн',you_online:'🟢 онлайн',call_btn:'📞 Подзвонити',call_no_perm:'❌ Немає доступу до мікрофона',call_calling:'📞 Виклик...',call_incoming:'📞 Вхідний',call_connected:'🔊 Розмова',call_ended:'Виклик завершено',call_declined:'❌ Відхилено',call_timeout:'⏱ Ніхто не відповів',call_speaker_on:'🔊 Динамік увімк',call_speaker_off:'🔈 Динамік вимк'}};
 
 const LANGUAGES=[{code:'ru',flag:'🇷🇺',name:'Русский',native:'Русский'},{code:'en',flag:'🇬🇧',name:'English',native:'English'},{code:'uk',flag:'🇺🇦',name:'Українська',native:'Українська'}];
 let currentLang=localStorage.getItem('dg_lang')||'ru';
@@ -1022,7 +1099,7 @@ function cancelReply(){replyToMessage=null;var bar=$('replyBar');if(bar)bar.clas
 function scrollToMessage(msgId){var el=document.getElementById('msg_'+msgId);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('selected');setTimeout(function(){el.classList.remove('selected');},1200);}}
 function buildReplyQuoteHtml(reply){if(!reply)return'';return '<div class="reply-quote" data-reply="'+esc(reply.msgId||'')+'"><div class="rq-name">'+esc(reply.senderName||'?')+'</div><div class="rq-text">'+esc(reply.text||'')+'</div></div>';}
 
-/* ===== ЗАПИСЬ ГОЛОСОВЫХ (ИСПРАВЛЕНО) ===== */
+/* ===== ЗАПИСЬ ГОЛОСОВЫХ ===== */
 function startRecording(){
   if(isRecording) return;
   if(!currentChat){ showToast('❌ Откройте чат'); return; }
@@ -1443,7 +1520,10 @@ function buildMessageEl(m){
     var media='';
     if(m.mediaType==='photo'&&m.mediaUrl)media='<img src="'+m.mediaUrl+'" loading="lazy" data-img="'+m.mediaUrl+'">';
     else if(m.mediaType==='video'&&m.mediaUrl)media='<video src="'+m.mediaUrl+'" controls preload="metadata" data-vid="'+m.mediaUrl+'"></video>';
-    else if(m.mediaType==='audio'&&m.mediaUrl)media='<audio controls src="'+m.mediaUrl+'" preload="metadata"></audio>';
+    else if(m.mediaType==='audio'&&m.mediaUrl){
+        var duration = m.duration || '0:01';
+        media = '<div class="audio-msg-wrapper"><button class="audio-play-btn" data-audio="'+m.mediaUrl+'"><i class="fas fa-play"></i></button><div class="audio-waveform"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><span class="audio-time">'+duration+'</span><span class="audio-check"><i class="fas fa-check"></i></span></div><audio src="'+m.mediaUrl+'" preload="metadata" style="display:none"></audio>';
+    }
     var sender=state.users[m.senderId];
     var senderName=(sender&&sender.name)||m.senderName||m.senderId;
     var isSent=m.senderId===currentUser.id;
@@ -1464,6 +1544,31 @@ function buildMessageEl(m){
     div.innerHTML='<div class="swipe-reply-icon"><i class="fas fa-reply"></i></div><div class="message-bubble '+bubbleClass+'">'+replyHtml+(!isSent?senderHtml+' ':'')+(m.text?esc(m.text):'')+media+'<div class="message-time">'+formatTime(m.timestamp)+editedMark+'</div></div>';
     return div;
 }
+
+/* Обработчик клика по аудио-плееру */
+document.addEventListener('click', function(e){
+    var playBtn = e.target.closest('.audio-play-btn');
+    if(playBtn){
+        e.preventDefault();
+        e.stopPropagation();
+        var audio = playBtn.parentElement.querySelector('audio');
+        if(!audio) return;
+        if(audio.paused){
+            // Останавливаем все другие
+            document.querySelectorAll('audio').forEach(function(a){ if(a !== audio) a.pause(); });
+            audio.play();
+            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            audio.onended = function(){
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
+            };
+        } else {
+            audio.pause();
+            playBtn.innerHTML = '<i class="fas fa-play"></i>';
+        }
+        return;
+    }
+});
+
 function openChat(chatId){
     if(messagesListener&&currentChat){db.ref('messages/'+currentChat).off('value',messagesListener);messagesListener=null;}
     if(typingListenerRef&&typingListenerCb){try{typingListenerRef.off('value',typingListenerCb);}catch(e){}}
@@ -1931,7 +2036,7 @@ function chatHoldDeleteNow(){
         var t=e.touches[0];
         touchStartX=t.clientX;touchStartY=t.clientY;swipeStartX=t.clientX;swipeCurrentX=0;isScrolling=false;swiping=false;
         var msgEl=e.target.closest('.message');
-        if(msgEl&&!e.target.closest('img,video,audio')&&!e.target.closest('.reply-quote')){
+        if(msgEl&&!e.target.closest('img,video,audio')&&!e.target.closest('.reply-quote')&&!e.target.closest('.audio-play-btn')){
             activeMsgId=msgEl.dataset.msgid;activeMsgEl=msgEl;clearLongPress();longPressFired=false;
             longPressTimer=setTimeout(function(){longPressTimer=null;if(isScrolling||swiping)return;longPressFired=true;openActionSheet(activeMsgId);},500);
         }else{activeMsgEl=null;activeMsgId=null;}
@@ -2055,14 +2160,14 @@ document.addEventListener('click',function(e){
         if(!currentChat){ showToast('❌ Откройте чат'); return; }
         var c = state.userChats[currentChat];
         if(!c){ showToast('❌ Чат не найден'); return; }
-        if(c.type !== 'private'){ showToast('📻 Рация только в личных чатах'); return; }
+        if(c.type !== 'private'){ showToast('📞 Звонки только в личных чатах'); return; }
         var otherId = Object.keys(c.participants||{}).find(function(id){return id !== currentUser.id;});
         if(!otherId){ showToast('❌ Собеседник не найден'); return; }
         var u = state.users[otherId] || {};
         if(window.dgRadio){
             window.dgRadio.start(otherId, u.name || otherId, u.avatarUrl || null);
         } else {
-            showToast('❌ Модуль рации не загружен');
+            showToast('❌ Модуль звонков не загружен');
         }
         return;
     }
@@ -2311,13 +2416,13 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
 })();
 
 /* ═══════════════════════════════════════════════════════════════════
-   RADIO CALL v1 — Звонки через голосовые куски
-   Работает везде, где есть интернет. Не требует TURN.
-   Трафик: ~2 КБ/сек (в 80 раз меньше обычного звонка).
+   RADIO CALL v2 — Голосовые куски (ОПТИМИЗИРОВАННЫЙ ТРАФИК)
+   Трафик: ~2-3 КБ/сек (в 80 раз меньше обычного звонка).
+   Задержка: 1.5-2.5 сек.
    ═══════════════════════════════════════════════════════════════════ */
 (function(){
   'use strict';
-  console.log('[Radio Call] init');
+  console.log('[Radio Call v2] init');
 
   var radio = {
     active: false, callId: null, chatId: null, otherId: null, isCaller: false,
@@ -2325,11 +2430,12 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
     playingQueue: [], isPlaying: false,
     stream: null, recorder: null, chunks: [], chunkTimer: null,
     myLastSeq: 0, theirLastSeq: 0,
-    startTime: null, timerInterval: null
+    startTime: null, timerInterval: null, incomingCheck: null
   };
 
-  var CHUNK_MS = 2000;
-  var MAX_CHUNK_KB = 60;
+  // Уменьшаем чанк для снижения трафика и задержки
+  var CHUNK_MS = 1500; 
+  var MAX_CHUNK_KB = 20; // Жесткое ограничение ~20 КБ на чанк
   var STALE_MS = 15000;
 
   function $r(id){ return document.getElementById(id); }
@@ -2356,7 +2462,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
     ov.classList.add('show');
     setRadioStatus(opts.statusTop || '🎤 РАЦИЯ-РЕЖИМ', null);
     $r('dgRadioName').innerText = opts.name || 'Рация';
-    $r('dgRadioHint').innerText = opts.hint || 'Говорите — собеседник услышит через 2–4 сек';
+    $r('dgRadioHint').innerText = opts.hint || 'Говорите — собеседник услышит через 1.5–2.5 сек';
     var av = $r('dgRadioAvatar');
     if(opts.avatarUrl){ av.style.backgroundImage = "url('"+opts.avatarUrl+"')"; av.innerText=''; }
     else { av.style.backgroundImage=''; av.innerText=(opts.name||'?').slice(0,1).toUpperCase(); }
@@ -2403,6 +2509,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
       var blob = new Blob(radio.chunks, {type: radio.recorder.mimeType || 'audio/webm'});
       radio.chunks = [];
       if(blob.size < 200) return;
+      // ЖЕСТКОЕ ОГРАНИЧЕНИЕ: если чанк больше 20 КБ, пропускаем его (защита от багов микрофона)
       if(blob.size > MAX_CHUNK_KB*1024) return;
       blobToBase64R(blob).then(function(b64){
         if(!radio.active || !radio.pushRef) return;
@@ -2426,7 +2533,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
         if(!radio.active) return;
         startRecordingChunk();
         scheduleNextChunk();
-      }, 100);
+      }, 50); // Уменьшили паузу с 100 до 50 мс
     }, CHUNK_MS);
   }
   function stopChunkLoop(){
@@ -2494,7 +2601,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
   function beginRadioSession(){
     setRadioStatus('🔊 РАЦИЯ АКТИВНА', '#34c759');
     var hint = $r('dgRadioHint');
-    if(hint) hint.innerText = 'Говорите — каждые 2 сек отправляется кусок. Собеседник услышит через 2–4 сек.';
+    if(hint) hint.innerText = 'Говорите — каждые 1.5 сек отправляется кусок. Собеседник услышит через 1.5–2.5 сек.';
     radio.pushRef = db.ref('radioStreams/' + radio.callId + '/' + window.currentUser.id);
     var listenId = radio.otherId;
     radio.listenRef = db.ref('radioStreams/' + radio.callId + '/' + listenId);
@@ -2534,7 +2641,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
         db.ref('radioCalls/' + me.id + '/incoming').remove().catch(function(){});
         setRadioStatus('🔊 РАЦИЯ АКТИВНА', '#34c759');
         var hint = $r('dgRadioHint');
-        if(hint) hint.innerText = 'Говорите — собеседник услышит через 2–4 сек.';
+        if(hint) hint.innerText = 'Говорите — собеседник услышит через 1.5–2.5 сек.';
         radio.pushRef = db.ref('radioStreams/' + radio.callId + '/' + me.id);
         radio.listenRef = db.ref('radioStreams/' + radio.callId + '/' + radio.otherId);
         radio.listenRef.on('child_added', function(snap){
@@ -2567,6 +2674,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
       db.ref('radioCalls/' + v.from + '/accepted/' + v.callId).set({accepted:false, ts:Date.now()});
       db.ref('radioCalls/' + me.id + '/incoming').remove();
       hideIncomingBar();
+      hideRadioUI();
     });
   }
 
@@ -2592,30 +2700,63 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
     if(reason && wasActive) showRT(reason);
   }
 
-  function showIncomingBar(fromName){
-    var el = document.getElementById('dgRadioIncomingBar');
-    if(el) el.remove();
-    var bar = document.createElement('div');
-    bar.id = 'dgRadioIncomingBar';
-    bar.style.cssText = 'position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:99998;background:linear-gradient(135deg,#00b4db,#0083b0);color:#fff;padding:14px 18px;border-radius:18px;display:flex;align-items:center;gap:14px;box-shadow:0 12px 40px rgba(0,0,0,.5);max-width:92%;animation:notifIn .3s';
-    bar.innerHTML = '<div style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:20px"><i class="fas fa-walkie-talkie"></i></div><div style="flex:1;min-width:0"><div style="font-weight:800;font-size:14px">📻 Рация</div><div style="font-size:12px;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (fromName||'Входящий вызов') + '</div></div><button id="dgRadioAcceptBtn" style="background:#34c759;color:#fff;border:none;border-radius:12px;padding:10px 16px;font-weight:800;font-size:13px;cursor:pointer">✅</button><button id="dgRadioDeclineBtn" style="background:#ff3b30;color:#fff;border:none;border-radius:12px;padding:10px 16px;font-weight:800;font-size:13px;cursor:pointer">✕</button>';
-    document.body.appendChild(bar);
+  // ФУНКЦИЯ ПОКАЗА ПОЛНОЭКРАННОГО ВХОДЯЩЕГО ЗВОНКА
+  function showIncomingBar(fromName, fromAvatarUrl, callId, chatId) {
+    // Удаляем старую панель, если есть
+    var oldBar = document.getElementById('dgRadioIncomingBar');
+    if (oldBar) oldBar.remove();
+
+    // Создаем ПОЛНОЭКРАННОЕ окно
+    var overlay = document.createElement('div');
+    overlay.id = 'dgRadioIncomingBar';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:linear-gradient(180deg,#1a2a3e,#0f1a2e);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:60px 20px 40px;color:#fff;font-family:inherit;animation:notifIn .3s';
+    
+    var avatarHtml = '';
+    if (fromAvatarUrl) {
+        avatarHtml = '<div style="width:120px;height:120px;border-radius:50%;background-image:url('+fromAvatarUrl+');background-size:cover;background-position:center;box-shadow:0 0 0 8px rgba(52,199,89,.25),0 0 60px rgba(52,199,89,.4);animation:incomingPulse 1.4s infinite;margin-top:20px;"></div>';
+    } else {
+        avatarHtml = '<div style="width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#00b4db,#0083b0);display:flex;align-items:center;justify-content:center;font-size:44px;font-weight:700;color:#fff;box-shadow:0 0 0 8px rgba(52,199,89,.25),0 0 60px rgba(52,199,89,.4);animation:incomingPulse 1.4s infinite;margin-top:20px;">' + (fromName || '?').slice(0,1).toUpperCase() + '</div>';
+    }
+
+    overlay.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;width:100%">
+            <div style="font-size:16px;color:#8e98a3;letter-spacing:1px">📞 ВХОДЯЩИЙ ЗВОНОК</div>
+            ${avatarHtml}
+            <div style="font-size:32px;font-weight:800;text-align:center;max-width:90%;word-break:break-word;margin-top:12px">${fromName || 'Неизвестный'}</div>
+            <div style="font-size:14px;color:#8e98a3;margin-top:4px">Говорите — собеседник услышит через 1.5–2.5 сек</div>
+            <div style="font-size:11px;color:#34c759;font-weight:600;margin-top:4px">📊 ~2 КБ/сек · экономия в 80 раз</div>
+        </div>
+        <div style="display:flex;gap:40px;align-items:center;justify-content:center;margin-top:10px">
+            <button id="dgRadioAcceptBtn" style="width:72px;height:72px;border-radius:50%;background:#34c759;border:none;color:#fff;font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(52,199,89,.6);transition:transform .1s;animation:callPulse 1.5s ease-in-out infinite">
+                <i class="fas fa-phone"></i>
+            </button>
+            <button id="dgRadioDeclineBtn" style="width:72px;height:72px;border-radius:50%;background:#ff3b30;border:none;color:#fff;font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(255,59,48,.6);transition:transform .1s">
+                <i class="fas fa-phone-slash"></i>
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+    
     document.getElementById('dgRadioAcceptBtn').onclick = acceptIncomingRadio;
     document.getElementById('dgRadioDeclineBtn').onclick = declineIncomingRadio;
   }
+
   function hideIncomingBar(){
     var el = document.getElementById('dgRadioIncomingBar');
     if(el) el.remove();
   }
+
   function listenRadioIncoming(){
     var me = window.currentUser; if(!me) return;
-    db.ref('radioCalls/' + me.id + '/incoming').on('value', function(snap){
+    if(radio.incomingCheck) { try{ radio.incomingCheck.off(); }catch(e){} }
+    radio.incomingCheck = db.ref('radioCalls/' + me.id + '/incoming').on('value', function(snap){
       var v = snap.val();
       if(!v){ hideIncomingBar(); return; }
       if(v.status !== 'ringing'){ hideIncomingBar(); return; }
       if(Date.now() - (v.ts||0) > 60000){ hideIncomingBar(); return; }
       if(radio.active) return;
-      showIncomingBar(v.fromName || v.from);
+      showIncomingBar(v.fromName || v.from, v.fromAvatarUrl || null, v.callId, v.chatId);
     });
   }
 
@@ -2636,7 +2777,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
   else bindEndBtn();
   setInterval(bindEndBtn, 2000);
 
-  console.log('[Radio Call] ready');
+  console.log('[Radio Call v2] ready');
 })();
 </script>
 </body>
