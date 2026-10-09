@@ -354,6 +354,12 @@ input:checked+.slider:before{transform:translateX(26px)}
 .dgCallMoreItem:active{background:rgba(255,255,255,.15)}
 .dgCallMoreItem i{font-size:18px;width:22px;text-align:center}
 #dgCallMoreClose{margin-top:30px;padding:14px 40px;border-radius:36px;background:rgba(255,255,255,.1);border:none;color:#fff;font-size:15px;font-weight:600;cursor:pointer}
+
+/* ===== RADIO CALL UI ===== */
+#dgRadioOverlay{position:fixed;inset:0;z-index:99997;background:linear-gradient(180deg,#1a2a3e,#0f1a2e);display:none;flex-direction:column;align-items:center;justify-content:space-between;padding:50px 20px 30px;color:#fff;font-family:inherit}
+#dgRadioOverlay.show{display:flex}
+#dgRadioAvatar{width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#00b4db,#0083b0);display:flex;align-items:center;justify-content:center;font-size:44px;font-weight:700;color:#fff;background-size:cover;background-position:center;box-shadow:0 0 0 8px rgba(0,180,219,.2),0 0 60px rgba(0,180,219,.4);animation:callPulse 2.4s ease-in-out infinite}
+#dgRadioIncomingBar{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:99998;background:linear-gradient(135deg,#00b4db,#0083b0);color:#fff;padding:14px 18px;border-radius:18px;display:flex;align-items:center;gap:14px;box-shadow:0 12px 40px rgba(0,0,0,.5);max-width:92%;animation:notifIn .3s}
 </style>
 </head>
 <body>
@@ -453,7 +459,7 @@ input:checked+.slider:before{transform:translateX(26px)}
 <div class="chat-header" id="chatHeaderWrap">
 <button class="back-btn" id="backBtn" type="button"><i class="fas fa-arrow-left"></i></button>
 <div class="chat-info" id="chatInfoBtn"><div class="chat-avatar-small" id="chatAvatar">👤</div><div style="flex:1;min-width:0"><h3 id="chatName" data-i18n="chat_select">Выберите чат</h3><p id="chatStatus"></p><p id="typingIndicator" style="display:none;color:#34c759;font-style:italic;font-size:12px;font-weight:600"></p></div></div>
-<button class="icon-btn" id="callBtn" type="button" title="Позвонить" style="display:none"><i class="fas fa-phone"></i></button>
+<button class="icon-btn" id="callBtn" type="button" title="Рация" style="display:none"><i class="fas fa-walkie-talkie"></i></button>
 <button class="icon-btn" id="bgBtn" type="button"><i class="fas fa-palette"></i></button>
 <button class="icon-btn" id="chatMenuBtn" type="button"><i class="fas fa-ellipsis-v"></i></button>
 </div>
@@ -491,7 +497,7 @@ input:checked+.slider:before{transform:translateX(26px)}
 <div id="userActionBtnProfile" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer"><i class="fas fa-user" style="width:22px;color:#667eea"></i><span>👤 Посмотреть профиль</span></div>
 <div id="userActionBtnDistance" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer"><i class="fas fa-ruler" style="width:22px;color:#667eea"></i><span>📏 Рассчитать расстояние</span></div>
 <div id="userActionBtnChat" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer"><i class="fas fa-comment" style="width:22px;color:#667eea"></i><span>💬 Перейти в чат</span></div>
-<div id="userActionBtnCall" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer"><i class="fas fa-phone" style="width:22px;color:#34c759"></i><span>📞 Позвонить</span></div>
+<div id="userActionBtnCall" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer"><i class="fas fa-walkie-talkie" style="width:22px;color:#00b4db"></i><span>📻 Позвонить (рация)</span></div>
 </div>
 
 <div id="memberActionBackdrop" style="position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:700;opacity:0;pointer-events:none;transition:opacity .2s"></div>
@@ -668,7 +674,7 @@ input:checked+.slider:before{transform:translateX(26px)}
 <div class="image-viewer" id="imageViewer"><button class="close-btn" type="button" id="closeImgBtn">✕</button><img id="viewedImage"><div class="viewer-buttons"><button class="save-media-btn" type="button" id="saveImageViewerBtn" data-i18n="save">💾 СОХРАНИТЬ</button></div></div>
 <div class="video-viewer" id="videoViewer"><button class="close-btn" type="button" id="closeVidBtn">✕</button><video id="viewedVideo" controls></video><div class="viewer-buttons"><button class="save-media-btn" type="button" id="saveVideoViewerBtn" data-i18n="save">💾 СОХРАНИТЬ</button></div></div>
 
-<!-- ===== ЗВОНКИ ===== -->
+<!-- ===== ЗВОНКИ (обычный WebRTC — как опция) ===== -->
 <div id="dgCallOverlay">
     <div id="dgCallTop">
         <div id="dgCallStatusTop">Вызов...</div>
@@ -732,13 +738,29 @@ input:checked+.slider:before{transform:translateX(26px)}
     <button id="dgCallMoreClose">Закрыть</button>
 </div>
 
+<!-- ===== РАЦИЯ UI ===== -->
+<div id="dgRadioOverlay">
+    <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;width:100%">
+        <div id="dgRadioStatus" style="font-size:13px;color:#8e98a3;letter-spacing:1px">🎤 РАЦИЯ-РЕЖИМ</div>
+        <div id="dgRadioAvatar">?</div>
+        <div id="dgRadioName" style="font-size:26px;font-weight:800;text-align:center;max-width:90%;word-break:break-word;margin-top:12px">Рация</div>
+        <div id="dgRadioHint" style="font-size:13px;color:#8e98a3;text-align:center;max-width:300px;line-height:1.5">Говорите — собеседник услышит через 2–4 сек</div>
+        <div id="dgRadioTimer" style="font-size:16px;color:#00b4db;font-weight:700;margin-top:4px;display:none">00:00</div>
+        <div style="font-size:11px;color:#34c759;font-weight:600;margin-top:4px">📊 ~2 КБ/сек · экономия в 80 раз</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:16px;width:100%">
+        <div id="dgRadioMicIndicator" style="padding:14px 24px;border-radius:40px;background:rgba(255,255,255,.08);font-size:14px;font-weight:700;display:flex;align-items:center;gap:10px;backdrop-filter:blur(8px)"><i class="fas fa-microphone" style="font-size:18px"></i><span>Готов</span></div>
+        <button id="dgRadioEndBtn" type="button" style="width:72px;height:72px;border-radius:50%;background:#ff3b30;border:none;color:#fff;font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(255,59,48,.6)"><i class="fas fa-phone-slash"></i></button>
+    </div>
+</div>
+
 <script>
 const firebaseConfig={apiKey:"AIzaSyA2CuM61jyNiMcXstm_aUsIOwabfiTkKuo",authDomain:"donor-fd6ea.firebaseapp.com",databaseURL:"https://donor-fd6ea-default-rtdb.firebaseio.com",projectId:"donor-fd6ea",storageBucket:"donor-fd6ea.firebasestorage.app",messagingSenderId:"825423285184",appId:"1:825423285184:web:77f0160f05609e81381625"};
 firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
 const CALC_URL='https://troll2281488.github.io/Cksksksje/';
 
-const TRANSLATIONS={ru:{welcome_title_0:'DonorGram',welcome_sub_0:'Самый быстрый мессенджер в мире. Бесплатный и безопасный.',welcome_title_1:'Быстро',welcome_sub_1:'DonorGram работает быстрее любых других приложений.',welcome_title_2:'Свободно',welcome_sub_2:'DonorGram — свободный мессенджер. Никакой рекламы.',welcome_title_3:'Мощно',welcome_sub_3:'DonorGram не имеет ограничений на размер файлов.',welcome_title_4:'Облачно',welcome_sub_4:'Доступ к сообщениям с нескольких устройств.',welcome_start:'Начать общение',welcome_choose_lang:'Выберите язык',login_name:'Никнейм',login_pass:'Пароль',login_avatar:'Аватар (2 буквы)',login_btn:'Войти / Регистрация',login_users:'пользователей',chat_search:'🔍 Поиск людей и чатов...',chat_select:'Выберите чат',chat_type:'Сообщение...',chat_online:'🟢 в сети',chat_offline:'⚫ не в сети',chat_notes:'⭐ Избранное',chat_no_msgs:'Нет сообщений',chat_editing:'Редактирование',chat_rec_cancel:'Отмена',chat_rec_send:'➤ Отправить',chat_clear:'🗑 Очистить историю',chat:'⚙️ Чат',chat_started:'Сообщений пока нет. Напишите первым!',action_reply:'Ответить',action_copy:'Копировать',action_edit:'Редактировать',action_pin:'Закрепить',action_delete_me:'Удалить у себя',action_delete:'Удалить у всех',settings:'⚙️ Настройки',settings_lang:'🌐 Язык',settings_push:'🔔 Push-уведомления',settings_notif:'🔔 Уведомления',settings_sound:'🔊 Звук',settings_vibro:'📳 Вибрация',settings_edit_profile:'✏️ Редактировать профиль',profile:'👤 Профиль',profile_name:'Имя:',profile_bio:'Статус:',profile_online:'Онлайн:',profile_edit_btn:'✏️ РЕДАКТИРОВАТЬ ПРОФИЛЬ',profile_shop_btn:'🛍️ МАГАЗИН',profile_settings_btn:'⚙️ НАСТРОЙКИ',profile_sg_off:'🔄 Отключить SpaceGod',profile_sg_on:'✅ Включить SpaceGod',profile_block:'🚫 ЗАБЛОКИРОВАТЬ',profile_unblock:'✅ РАЗБЛОКИРОВАТЬ',profile_no_status:'Нет статуса',profile_my:'👤 Мой профиль',editprofile_title:'✏️ Редактировать профиль',editprofile_avatar:'Аватар (2 буквы)',editprofile_name:'Имя',editprofile_bio:'Описание (статус)',editprofile_pass:'Новый пароль (пусто = не менять)',cancel:'Отмена',save:'💾 Сохранить',shop:'🛍️ Магазин',shop_all_free:'✨ ВСЁ БЕСПЛАТНО',shop_avatars:'👤 Аватарки',shop_bubbles:'💬 Пузыри',shop_special:'🌟 Особые',shop_sg:'🌈 SPACEGOD',shop_upload_theme:'📷 Загрузить своё фото',shop_reset_theme:'🗑 Сбросить тему',attach:'📎 Вложения',attach_photo:'Отправить фото',attach_video:'Отправить видео',users:'👥 Пользователи',bg:'🎨 Обои чата',stickers:'😎 Стикеры',logout_confirm:'Выйти из аккаунта?',logout:'Выйти',notif_enable:'🔔 Включить уведомления?',notif_on:'ВКЛ',err_fill:'❌ Введите ник и пароль',err_pass:'❌ Неверный пароль',err_blocked:'❌ Заблокирован',toast_hello:'✅ Привет,',toast_copied:'📋',toast_deleted:'🗑',toast_saved:'💾',toast_error:'❌ Ошибка',no_other_users:'Пока нет других пользователей',you_offline:'⚫ не в сети',you_online:'🟢 в сети',call_btn:'📞 Позвонить',call_no_perm:'❌ Нет доступа к микрофону',call_calling:'📞 Вызов...',call_incoming:'📞 Входящий звонок',call_connected:'🔊 Разговор',call_ended:'Звонок завершён',call_declined:'❌ Звонок отклонён',call_timeout:'⏱ Никто не ответил',call_speaker_on:'🔊 Динамик вкл',call_speaker_off:'🔈 Динамик выкл'},en:{welcome_title_0:'DonorGram',welcome_sub_0:'The fastest messenger in the world. Free and secure.',welcome_title_1:'Fast',welcome_sub_1:'DonorGram works faster than any other app.',welcome_title_2:'Free',welcome_sub_2:'DonorGram is a free messenger. No ads.',welcome_title_3:'Powerful',welcome_sub_3:'DonorGram has no file size limits.',welcome_title_4:'Cloud',welcome_sub_4:'Access messages from multiple devices.',welcome_start:'Start Messaging',welcome_choose_lang:'Choose language',login_name:'Nickname',login_pass:'Password',login_avatar:'Avatar (2 letters)',login_btn:'Login / Sign up',login_users:'users',chat_search:'🔍 Search people and chats...',chat_select:'Select chat',chat_type:'Message...',chat_online:'🟢 online',chat_offline:'⚫ offline',chat_notes:'⭐ Saved',chat_no_msgs:'No messages',chat_editing:'Editing',chat_rec_cancel:'Cancel',chat_rec_send:'➤ Send',chat_clear:'🗑 Clear history',chat:'⚙️ Chat',chat_started:'No messages yet. Write first!',action_reply:'Reply',action_copy:'Copy',action_edit:'Edit',action_pin:'Pin',action_delete_me:'Delete for me',action_delete:'Delete for everyone',settings:'⚙️ Settings',settings_lang:'🌐 Language',settings_push:'🔔 Push notifications',settings_notif:'🔔 Notifications',settings_sound:'🔊 Sound',settings_vibro:'📳 Vibration',settings_edit_profile:'✏️ Edit profile',profile:'👤 Profile',profile_name:'Name:',profile_bio:'Status:',profile_online:'Online:',profile_edit_btn:'✏️ EDIT PROFILE',profile_shop_btn:'🛍️ SHOP',profile_settings_btn:'⚙️ SETTINGS',profile_sg_off:'🔄 Disable SpaceGod',profile_sg_on:'✅ Enable SpaceGod',profile_block:'🚫 BLOCK',profile_unblock:'✅ UNBLOCK',profile_no_status:'No status',profile_my:'👤 My profile',editprofile_title:'✏️ Edit profile',editprofile_avatar:'Avatar (2 letters)',editprofile_name:'Name',editprofile_bio:'Bio (status)',editprofile_pass:'New password (empty = keep)',cancel:'Cancel',save:'💾 Save',shop:'🛍️ Shop',shop_all_free:'✨ ALL FREE',shop_avatars:'👤 Avatars',shop_bubbles:'💬 Bubbles',shop_special:'🌟 Special',shop_sg:'🌈 SPACEGOD',shop_upload_theme:'📷 Upload your photo',shop_reset_theme:'🗑 Reset theme',attach:'📎 Attachments',attach_photo:'Send photo',attach_video:'Send video',users:'👥 Users',bg:'🎨 Chat wallpaper',stickers:'😎 Stickers',logout_confirm:'Logout from account?',logout:'Logout',notif_enable:'🔔 Enable notifications?',notif_on:'ON',err_fill:'❌ Enter nickname and password',err_pass:'❌ Wrong password',err_blocked:'❌ Blocked',toast_hello:'✅ Hi,',toast_copied:'📋',toast_deleted:'🗑',toast_saved:'💾',toast_error:'❌ Error',no_other_users:'No other users yet',you_offline:'⚫ offline',you_online:'🟢 online',call_btn:'📞 Call',call_no_perm:'❌ No microphone access',call_calling:'📞 Calling...',call_incoming:'📞 Incoming call',call_connected:'🔊 Connected',call_ended:'Call ended',call_declined:'❌ Call declined',call_timeout:'⏱ No answer',call_speaker_on:'🔊 Speaker on',call_speaker_off:'🔈 Speaker off'},uk:{welcome_title_0:'DonorGram',welcome_sub_0:'Найшвидший месенджер у світі. Безкоштовний і безпечний.',welcome_title_1:'Швидко',welcome_sub_1:'DonorGram працює швидше за будь-які інші додатки.',welcome_title_2:'Вільно',welcome_sub_2:'DonorGram — вільний месенджер. Жодної реклами.',welcome_title_3:'Потужно',welcome_sub_3:'DonorGram не має обмежень на розмір файлів.',welcome_title_4:'У хмарі',welcome_sub_4:'Доступ до повідомлень з кількох пристроїв.',welcome_start:'Почати спілкування',welcome_choose_lang:'Виберіть мову',login_name:'Нікнейм',login_pass:'Пароль',login_avatar:'Аватар (2 літери)',login_btn:'Увійти / Реєстрація',login_users:'користувачів',chat_search:'🔍 Пошук людей і чатів...',chat_select:'Виберіть чат',chat_type:'Повідомлення...',chat_online:'🟢 онлайн',chat_offline:'⚫ офлайн',chat_notes:'⭐ Обране',chat_no_msgs:'Немає повідомлень',chat_editing:'Редагування',chat_rec_cancel:'Скасувати',chat_rec_send:'➤ Надіслати',chat_clear:'🗑 Очистити історію',chat:'⚙️ Чат',chat_started:'Повідомлень поки немає. Напишіть першим!',action_reply:'Відповісти',action_copy:'Копіювати',action_edit:'Редагувати',action_pin:'Закріпити',action_delete_me:'Видалити у себе',action_delete:'Видалити у всіх',settings:'⚙️ Налаштування',settings_lang:'🌐 Мова',settings_push:'🔔 Push-повідомлення',settings_notif:'🔔 Повідомлення',settings_sound:'🔊 Звук',settings_vibro:'📳 Вібрація',settings_edit_profile:'✏️ Редагувати профіль',profile:'👤 Профіль',profile_name:"Ім'я:",profile_bio:'Статус:',profile_online:'Онлайн:',profile_edit_btn:'✏️ РЕДАГУВАТИ ПРОФІЛЬ',profile_shop_btn:'🛍️ МАГАЗИН',profile_settings_btn:'⚙️ НАЛАШТУВАННЯ',profile_sg_off:'🔄 Вимкнути SpaceGod',profile_sg_on:'✅ Увімкнути SpaceGod',profile_block:'🚫 ЗАБЛОКУВАТИ',profile_unblock:'✅ РОЗБЛОКУВАТИ',profile_no_status:'Немає статусу',profile_my:'👤 Мій профіль',editprofile_title:'✏️ Редагувати профіль',editprofile_avatar:'Аватар (2 літери)',editprofile_name:"Ім'я",editprofile_bio:'Опис (статус)',editprofile_pass:'Новий пароль (пусто = не змінювати)',cancel:'Скасувати',save:'💾 Зберегти',shop:'🛍️ Магазин',shop_all_free:'✨ ВСЕ БЕЗКОШТОВНО',shop_avatars:'👤 Аватарки',shop_bubbles:'💬 Бульбашки',shop_special:'🌟 Особливі',shop_sg:'🌈 SPACEGOD',shop_upload_theme:'📷 Завантажити своє фото',shop_reset_theme:'🗑 Скинути тему',attach:'📎 Вкладення',attach_photo:'Надіслати фото',attach_video:'Надіслати відео',users:'👥 Користувачі',bg:'🎨 Шпалери чату',stickers:'😎 Стікери',logout_confirm:'Вийти з акаунта?',logout:'Вийти',notif_enable:'🔔 Увімкнути повідомлення?',notif_on:'УВІМК',err_fill:'❌ Введіть нік та пароль',err_pass:'❌ Невірний пароль',err_blocked:'❌ Заблоковано',toast_hello:'✅ Привіт,',toast_copied:'📋',toast_deleted:'🗑',toast_saved:'💾',toast_error:'❌ Помилка',no_other_users:'Поки немає інших користувачів',you_offline:'⚫ офлайн',you_online:'🟢 онлайн',call_btn:'📞 Подзвонити',call_no_perm:'❌ Немає доступу до мікрофона',call_calling:'📞 Виклик...',call_incoming:'📞 Вхідний виклик',call_connected:'🔊 Розмова',call_ended:'Виклик завершено',call_declined:'❌ Виклик відхилено',call_timeout:'⏱ Ніхто не відповів',call_speaker_on:'🔊 Динамік увімк',call_speaker_off:'🔈 Динамік вимк'}};
+const TRANSLATIONS={ru:{welcome_title_0:'DonorGram',welcome_sub_0:'Самый быстрый мессенджер в мире. Бесплатный и безопасный.',welcome_title_1:'Быстро',welcome_sub_1:'DonorGram работает быстрее любых других приложений.',welcome_title_2:'Свободно',welcome_sub_2:'DonorGram — свободный мессенджер. Никакой рекламы.',welcome_title_3:'Мощно',welcome_sub_3:'DonorGram не имеет ограничений на размер файлов.',welcome_title_4:'Облачно',welcome_sub_4:'Доступ к сообщениям с нескольких устройств.',welcome_start:'Начать общение',welcome_choose_lang:'Выберите язык',login_name:'Никнейм',login_pass:'Пароль',login_avatar:'Аватар (2 буквы)',login_btn:'Войти / Регистрация',login_users:'пользователей',chat_search:'🔍 Поиск людей и чатов...',chat_select:'Выберите чат',chat_type:'Сообщение...',chat_online:'🟢 в сети',chat_offline:'⚫ не в сети',chat_notes:'⭐ Избранное',chat_no_msgs:'Нет сообщений',chat_editing:'Редактирование',chat_rec_cancel:'Отмена',chat_rec_send:'➤ Отправить',chat_clear:'🗑 Очистить историю',chat:'⚙️ Чат',chat_started:'Сообщений пока нет. Напишите первым!',action_reply:'Ответить',action_copy:'Копировать',action_edit:'Редактировать',action_pin:'Закрепить',action_delete_me:'Удалить у себя',action_delete:'Удалить у всех',settings:'⚙️ Настройки',settings_lang:'🌐 Язык',settings_push:'🔔 Push-уведомления',settings_notif:'🔔 Уведомления',settings_sound:'🔊 Звук',settings_vibro:'📳 Вибрация',settings_edit_profile:'✏️ Редактировать профиль',profile:'👤 Профиль',profile_name:'Имя:',profile_bio:'Статус:',profile_online:'Онлайн:',profile_edit_btn:'✏️ РЕДАКТИРОВАТЬ ПРОФИЛЬ',profile_shop_btn:'🛍️ МАГАЗИН',profile_settings_btn:'⚙️ НАСТРОЙКИ',profile_sg_off:'🔄 Отключить SpaceGod',profile_sg_on:'✅ Включить SpaceGod',profile_block:'🚫 ЗАБЛОКИРОВАТЬ',profile_unblock:'✅ РАЗБЛОКИРОВАТЬ',profile_no_status:'Нет статуса',profile_my:'👤 Мой профиль',editprofile_title:'✏️ Редактировать профиль',editprofile_avatar:'Аватар (2 буквы)',editprofile_name:'Имя',editprofile_bio:'Описание (статус)',editprofile_pass:'Новый пароль (пусто = не менять)',cancel:'Отмена',save:'💾 Сохранить',shop:'🛍️ Магазин',shop_all_free:'✨ ВСЁ БЕСПЛАТНО',shop_avatars:'👤 Аватарки',shop_bubbles:'💬 Пузыри',shop_special:'🌟 Особые',shop_sg:'🌈 SPACEGOD',shop_upload_theme:'📷 Загрузить своё фото',shop_reset_theme:'🗑 Сбросить тему',attach:'📎 Вложения',attach_photo:'Отправить фото',attach_video:'Отправить видео',users:'👥 Пользователи',bg:'🎨 Обои чата',stickers:'😎 Стикеры',logout_confirm:'Выйти из аккаунта?',logout:'Выйти',notif_enable:'🔔 Включить уведомления?',notif_on:'ВКЛ',err_fill:'❌ Введите ник и пароль',err_pass:'❌ Неверный пароль',err_blocked:'❌ Заблокирован',toast_hello:'✅ Привет,',toast_copied:'📋',toast_deleted:'🗑',toast_saved:'💾',toast_error:'❌ Ошибка',no_other_users:'Пока нет других пользователей',you_offline:'⚫ не в сети',you_online:'🟢 в сети',call_btn:'📻 Рация',call_no_perm:'❌ Нет доступа к микрофону',call_calling:'📻 Вызов...',call_incoming:'📻 Входящий',call_connected:'🔊 Разговор',call_ended:'Разговор завершён',call_declined:'❌ Отклонено',call_timeout:'⏱ Никто не ответил',call_speaker_on:'🔊 Динамик вкл',call_speaker_off:'🔈 Динамик выкл'},en:{welcome_title_0:'DonorGram',welcome_sub_0:'The fastest messenger in the world. Free and secure.',welcome_title_1:'Fast',welcome_sub_1:'DonorGram works faster than any other app.',welcome_title_2:'Free',welcome_sub_2:'DonorGram is a free messenger. No ads.',welcome_title_3:'Powerful',welcome_sub_3:'DonorGram has no file size limits.',welcome_title_4:'Cloud',welcome_sub_4:'Access messages from multiple devices.',welcome_start:'Start Messaging',welcome_choose_lang:'Choose language',login_name:'Nickname',login_pass:'Password',login_avatar:'Avatar (2 letters)',login_btn:'Login / Sign up',login_users:'users',chat_search:'🔍 Search people and chats...',chat_select:'Select chat',chat_type:'Message...',chat_online:'🟢 online',chat_offline:'⚫ offline',chat_notes:'⭐ Saved',chat_no_msgs:'No messages',chat_editing:'Editing',chat_rec_cancel:'Cancel',chat_rec_send:'➤ Send',chat_clear:'🗑 Clear history',chat:'⚙️ Chat',chat_started:'No messages yet. Write first!',action_reply:'Reply',action_copy:'Copy',action_edit:'Edit',action_pin:'Pin',action_delete_me:'Delete for me',action_delete:'Delete for everyone',settings:'⚙️ Settings',settings_lang:'🌐 Language',settings_push:'🔔 Push notifications',settings_notif:'🔔 Notifications',settings_sound:'🔊 Sound',settings_vibro:'📳 Vibration',settings_edit_profile:'✏️ Edit profile',profile:'👤 Profile',profile_name:'Name:',profile_bio:'Status:',profile_online:'Online:',profile_edit_btn:'✏️ EDIT PROFILE',profile_shop_btn:'🛍️ SHOP',profile_settings_btn:'⚙️ SETTINGS',profile_sg_off:'🔄 Disable SpaceGod',profile_sg_on:'✅ Enable SpaceGod',profile_block:'🚫 BLOCK',profile_unblock:'✅ UNBLOCK',profile_no_status:'No status',profile_my:'👤 My profile',editprofile_title:'✏️ Edit profile',editprofile_avatar:'Avatar (2 letters)',editprofile_name:'Name',editprofile_bio:'Bio (status)',editprofile_pass:'New password (empty = keep)',cancel:'Cancel',save:'💾 Save',shop:'🛍️ Shop',shop_all_free:'✨ ALL FREE',shop_avatars:'👤 Avatars',shop_bubbles:'💬 Bubbles',shop_special:'🌟 Special',shop_sg:'🌈 SPACEGOD',shop_upload_theme:'📷 Upload your photo',shop_reset_theme:'🗑 Reset theme',attach:'📎 Attachments',attach_photo:'Send photo',attach_video:'Send video',users:'👥 Users',bg:'🎨 Chat wallpaper',stickers:'😎 Stickers',logout_confirm:'Logout from account?',logout:'Logout',notif_enable:'🔔 Enable notifications?',notif_on:'ON',err_fill:'❌ Enter nickname and password',err_pass:'❌ Wrong password',err_blocked:'❌ Blocked',toast_hello:'✅ Hi,',toast_copied:'📋',toast_deleted:'🗑',toast_saved:'💾',toast_error:'❌ Error',no_other_users:'No other users yet',you_offline:'⚫ offline',you_online:'🟢 online',call_btn:'📻 Radio',call_no_perm:'❌ No microphone access',call_calling:'📻 Calling...',call_incoming:'📻 Incoming',call_connected:'🔊 Connected',call_ended:'Call ended',call_declined:'❌ Declined',call_timeout:'⏱ No answer',call_speaker_on:'🔊 Speaker on',call_speaker_off:'🔈 Speaker off'},uk:{welcome_title_0:'DonorGram',welcome_sub_0:'Найшвидший месенджер у світі. Безкоштовний і безпечний.',welcome_title_1:'Швидко',welcome_sub_1:'DonorGram працює швидше за будь-які інші додатки.',welcome_title_2:'Вільно',welcome_sub_2:'DonorGram — вільний месенджер. Жодної реклами.',welcome_title_3:'Потужно',welcome_sub_3:'DonorGram не має обмежень на розмір файлів.',welcome_title_4:'У хмарі',welcome_sub_4:'Доступ до повідомлень з кількох пристроїв.',welcome_start:'Почати спілкування',welcome_choose_lang:'Виберіть мову',login_name:'Нікнейм',login_pass:'Пароль',login_avatar:'Аватар (2 літери)',login_btn:'Увійти / Реєстрація',login_users:'користувачів',chat_search:'🔍 Пошук людей і чатів...',chat_select:'Виберіть чат',chat_type:'Повідомлення...',chat_online:'🟢 онлайн',chat_offline:'⚫ офлайн',chat_notes:'⭐ Обране',chat_no_msgs:'Немає повідомлень',chat_editing:'Редагування',chat_rec_cancel:'Скасувати',chat_rec_send:'➤ Надіслати',chat_clear:'🗑 Очистити історію',chat:'⚙️ Чат',chat_started:'Повідомлень поки немає. Напишіть першим!',action_reply:'Відповісти',action_copy:'Копіювати',action_edit:'Редагувати',action_pin:'Закріпити',action_delete_me:'Видалити у себе',action_delete:'Видалити у всіх',settings:'⚙️ Налаштування',settings_lang:'🌐 Мова',settings_push:'🔔 Push-повідомлення',settings_notif:'🔔 Повідомлення',settings_sound:'🔊 Звук',settings_vibro:'📳 Вібрація',settings_edit_profile:'✏️ Редагувати профіль',profile:'👤 Профіль',profile_name:"Ім'я:",profile_bio:'Статус:',profile_online:'Онлайн:',profile_edit_btn:'✏️ РЕДАГУВАТИ ПРОФІЛЬ',profile_shop_btn:'🛍️ МАГАЗИН',profile_settings_btn:'⚙️ НАЛАШТУВАННЯ',profile_sg_off:'🔄 Вимкнути SpaceGod',profile_sg_on:'✅ Увімкнути SpaceGod',profile_block:'🚫 ЗАБЛОКУВАТИ',profile_unblock:'✅ РОЗБЛОКУВАТИ',profile_no_status:'Немає статусу',profile_my:'👤 Мій профіль',editprofile_title:'✏️ Редагувати профіль',editprofile_avatar:'Аватар (2 літери)',editprofile_name:"Ім'я",editprofile_bio:'Опис (статус)',editprofile_pass:'Новий пароль (пусто = не змінювати)',cancel:'Скасувати',save:'💾 Зберегти',shop:'🛍️ Магазин',shop_all_free:'✨ ВСЕ БЕЗКОШТОВНО',shop_avatars:'👤 Аватарки',shop_bubbles:'💬 Бульбашки',shop_special:'🌟 Особливі',shop_sg:'🌈 SPACEGOD',shop_upload_theme:'📷 Завантажити своє фото',shop_reset_theme:'🗑 Скинути тему',attach:'📎 Вкладення',attach_photo:'Надіслати фото',attach_video:'Надіслати відео',users:'👥 Користувачі',bg:'🎨 Шпалери чату',stickers:'😎 Стікери',logout_confirm:'Вийти з акаунта?',logout:'Вийти',notif_enable:'🔔 Увімкнути повідомлення?',notif_on:'УВІМК',err_fill:'❌ Введіть нік та пароль',err_pass:'❌ Невірний пароль',err_blocked:'❌ Заблоковано',toast_hello:'✅ Привіт,',toast_copied:'📋',toast_deleted:'🗑',toast_saved:'💾',toast_error:'❌ Помилка',no_other_users:'Поки немає інших користувачів',you_offline:'⚫ офлайн',you_online:'🟢 онлайн',call_btn:'📻 Рація',call_no_perm:'❌ Немає доступу до мікрофона',call_calling:'📻 Виклик...',call_incoming:'📻 Вхідний',call_connected:'🔊 Розмова',call_ended:'Виклик завершено',call_declined:'❌ Відхилено',call_timeout:'⏱ Ніхто не відповів',call_speaker_on:'🔊 Динамік увімк',call_speaker_off:'🔈 Динамік вимк'}};
 
 const LANGUAGES=[{code:'ru',flag:'🇷🇺',name:'Русский',native:'Русский'},{code:'en',flag:'🇬🇧',name:'English',native:'English'},{code:'uk',flag:'🇺🇦',name:'Українська',native:'Українська'}];
 let currentLang=localStorage.getItem('dg_lang')||'ru';
@@ -747,7 +769,7 @@ function applyTranslations(){document.querySelectorAll('[data-i18n]').forEach(fu
 function setLanguage(code){if(!LANGUAGES.find(function(l){return l.code===code;}))return;currentLang=code;localStorage.setItem('dg_lang',code);applyTranslations();renderLangList();if(currentUser)debouncedRenderChats();if(currentChat&&messageCache[currentChat])renderMessages(messageCache[currentChat],currentChat);}
 function renderLangList(){var list=document.getElementById('welcomeLangList');if(!list)return;list.innerHTML=LANGUAGES.map(function(l){return '<div class="lang-item '+(l.code===currentLang?'active':'')+'" data-lang="'+l.code+'"><span class="lang-flag">'+l.flag+'</span><span class="lang-name">'+l.name+'</span><span class="lang-native">'+l.native+'</span></div>';}).join('');}
 
-const MSG_LIMIT=30;const PAGE_SIZE=30;const MAX_MEDIA_SIZE=800*1024;
+const MSG_LIMIT=30;const PAGE_SIZE=30;const MAX_MEDIA_SIZE=5*1024*1024;
 let MAX=50,currentUser=null,currentChat=null,pendingMedia=null,messagesListener=null,isRecording=false,messageCache={};
 let isSendingMessage=false,editingMessageId=null,currentActionMessage=null,currentProfileUid=null;
 let blockedUsers={},hiddenMessages={},replyToMessage=null,hasMoreMessages=true,isLoadingMore=false;
@@ -884,16 +906,9 @@ function handleUserSearch(q){
   const box = document.getElementById('usersSearchResults');
   const list = document.getElementById('usersSearchList');
   if(!box || !list) return;
-
-  if(!q || q.length < 1){
-    box.style.display = 'none';
-    list.innerHTML = '';
-    return;
-  }
-
+  if(!q || q.length < 1){ box.style.display = 'none'; list.innerHTML = ''; return; }
   box.style.display = 'block';
   list.innerHTML = '<div class="user-search-empty">⏳ Поиск...</div>';
-
   _userSearchTimer = setTimeout(function(){
     loadAllUsersForSearch().then(function(all){
       const qLower = q.toLowerCase();
@@ -902,22 +917,14 @@ function handleUserSearch(q){
           if(uid === currentUser.id) return false;
           if(isBlocked(uid)) return false;
           const u = all[uid] || {};
-          const nameMatch = (u.name || '').toLowerCase().indexOf(qLower) >= 0;
-          const idMatch = uid.toLowerCase().indexOf(qLower) >= 0;
-          return nameMatch || idMatch;
+          return (u.name || '').toLowerCase().indexOf(qLower) >= 0 || uid.toLowerCase().indexOf(qLower) >= 0;
         })
         .sort(function(a, b){
           const ao = (all[a].status === 'online') ? 1 : 0;
           const bo = (all[b].status === 'online') ? 1 : 0;
           return bo - ao;
-        })
-        .slice(0, 30);
-
-      if(results.length === 0){
-        list.innerHTML = '<div class="user-search-empty">😕 Никого не найдено по "' + esc(q) + '"</div>';
-        return;
-      }
-
+        }).slice(0, 30);
+      if(results.length === 0){ list.innerHTML = '<div class="user-search-empty">😕 Никого не найдено по "' + esc(q) + '"</div>'; return; }
       list.innerHTML = results.map(function(uid){
         const u = all[uid] || {};
         state.users[uid] = Object.assign(state.users[uid] || {}, u);
@@ -931,16 +938,8 @@ function handleUserSearch(q){
         const existingChatId = [currentUser.id, uid].sort().join('_');
         const hasChat = !!(state.userChats[existingChatId]);
         const btnText = hasChat ? '💬 Открыть' : '✉️ Написать';
-        return '<div class="user-search-item" data-uid="' + esc(uid) + '">' +
-          '<div class="us-av" style="' + avStyle + '">' + avText + dot + '</div>' +
-          '<div class="us-info">' +
-            '<div class="us-name">' + esc(name) + '</div>' +
-            '<div class="us-bio">' + bio + '</div>' +
-          '</div>' +
-          '<button class="us-btn" data-uid="' + esc(uid) + '">' + btnText + '</button>' +
-        '</div>';
+        return '<div class="user-search-item" data-uid="' + esc(uid) + '"><div class="us-av" style="' + avStyle + '">' + avText + dot + '</div><div class="us-info"><div class="us-name">' + esc(name) + '</div><div class="us-bio">' + bio + '</div></div><button class="us-btn" data-uid="' + esc(uid) + '">' + btnText + '</button></div>';
       }).join('');
-
       list.querySelectorAll('.user-search-item').forEach(function(el){
         el.addEventListener('click', function(e){
           const uid = this.dataset.uid;
@@ -949,9 +948,7 @@ function handleUserSearch(q){
           startChatWithUser(uid);
         });
       });
-    }).catch(function(err){
-      list.innerHTML = '<div class="user-search-empty">❌ Ошибка: ' + esc(err.message) + '</div>';
-    });
+    }).catch(function(err){ list.innerHTML = '<div class="user-search-empty">❌ Ошибка: ' + esc(err.message) + '</div>'; });
   }, 200);
 }
 
@@ -976,18 +973,10 @@ function sendMessage(){
     if(selectedSticker){text=selectedSticker;selectedSticker=null;}
     if((!text&&!pendingMedia)||!currentChat)return;
     var chat=state.userChats[currentChat];
-    if(chat && chat.type==='group'){
-        if(chat.banned && chat.banned[currentUser.id]){
-            showToast('🚫 Вы забанены в этой группе');
-            return;
-        }
-    }
+    if(chat && chat.type==='group'){ if(chat.banned && chat.banned[currentUser.id]){ showToast('🚫 Вы забанены в этой группе'); return; } }
     if(chat&&chat.type==='private'){
         var otherId=Object.keys(chat.participants||{}).find(function(id){return id!==currentUser.id;});
-        if(otherId){
-            if(isBlocked(otherId)){showToast('❌');return;}
-            if(amIBlockedBy(otherId)){showToast('❌');return;}
-        }
+        if(otherId){ if(isBlocked(otherId)){showToast('❌');return;} if(amIBlockedBy(otherId)){showToast('❌');return;} }
     }
     if(editingMessageId){
         if(!text){showToast('❌');return;}
@@ -1032,8 +1021,97 @@ function startReply(msgId){var msgs=messageCache[currentChat]||{};var m=msgs[msg
 function cancelReply(){replyToMessage=null;var bar=$('replyBar');if(bar)bar.classList.remove('show');}
 function scrollToMessage(msgId){var el=document.getElementById('msg_'+msgId);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('selected');setTimeout(function(){el.classList.remove('selected');},1200);}}
 function buildReplyQuoteHtml(reply){if(!reply)return'';return '<div class="reply-quote" data-reply="'+esc(reply.msgId||'')+'"><div class="rq-name">'+esc(reply.senderName||'?')+'</div><div class="rq-text">'+esc(reply.text||'')+'</div></div>';}
-function startRecording(){if(isRecording)return;if(!currentChat){showToast('❌');return;}if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){showToast('❌');return;}navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){recordingStream=stream;audioChunks=[];var options={};if(MediaRecorder.isTypeSupported('audio/webm;codecs=opus'))options={mimeType:'audio/webm;codecs=opus'};else if(MediaRecorder.isTypeSupported('audio/webm'))options={mimeType:'audio/webm'};mediaRecorder=new MediaRecorder(stream,options);mediaRecorder.ondataavailable=function(e){if(e.data&&e.data.size>0)audioChunks.push(e.data);};mediaRecorder.onstop=function(){var blob=new Blob(audioChunks,{type:mediaRecorder.mimeType||'audio/webm'});if(blob.size>MAX_MEDIA_SIZE){showToast('❌ > '+Math.round(MAX_MEDIA_SIZE/1024)+'КБ');return;}blobToBase64(blob).then(function(b64){pendingMedia={type:'audio',url:b64};sendMessage();});};mediaRecorder.start();isRecording=true;recordingStartTime=Date.now();$('micBtn').classList.add('recording');$('recordingBar').classList.add('show');$('inputArea').style.paddingBottom='70px';recordingTimerInterval=setInterval(function(){var sec=Math.floor((Date.now()-recordingStartTime)/1000);var m=Math.floor(sec/60);var s=sec%60;$('recTime').innerText=m+':'+String(s).padStart(2,'0');if(sec>=60){stopRecording(true);}},200);}).catch(function(e){showToast('❌');});}
-function stopRecording(send){if(!isRecording||!mediaRecorder)return;isRecording=false;clearInterval(recordingTimerInterval);$('micBtn').classList.remove('recording');$('recordingBar').classList.remove('show');$('inputArea').style.paddingBottom='';$('recTime').innerText='0:00';try{if(send)mediaRecorder.stop();else{mediaRecorder.onstop=null;mediaRecorder.stop();audioChunks=[];}}catch(e){}if(recordingStream){try{recordingStream.getTracks().forEach(function(t){t.stop();});}catch(e){}recordingStream=null;}mediaRecorder=null;}
+
+/* ===== ЗАПИСЬ ГОЛОСОВЫХ (ИСПРАВЛЕНО) ===== */
+function startRecording(){
+  if(isRecording) return;
+  if(!currentChat){ showToast('❌ Откройте чат'); return; }
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ showToast('❌ Нет доступа к микрофону'); return; }
+  navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+    recordingStream = stream;
+    audioChunks = [];
+    var options = {};
+    if(MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) options = {mimeType:'audio/webm;codecs=opus'};
+    else if(MediaRecorder.isTypeSupported('audio/webm')) options = {mimeType:'audio/webm'};
+    else if(MediaRecorder.isTypeSupported('audio/mp4')) options = {mimeType:'audio/mp4'};
+    try{
+      mediaRecorder = new MediaRecorder(stream, options);
+    }catch(e){
+      showToast('❌ Ошибка записи');
+      try{stream.getTracks().forEach(function(t){t.stop();});}catch(_e){}
+      return;
+    }
+    mediaRecorder._cancelled = false;
+    mediaRecorder.ondataavailable = function(e){
+      if(e.data && e.data.size > 0) audioChunks.push(e.data);
+    };
+    mediaRecorder.onerror = function(e){
+      console.error('[rec] error', e);
+      stopRecording(false);
+    };
+    mediaRecorder.onstop = function(){
+      var wasCancelled = mediaRecorder && mediaRecorder._cancelled === true;
+      var blob = new Blob(audioChunks, {type: (mediaRecorder && mediaRecorder.mimeType) || 'audio/webm'});
+      audioChunks = [];
+      if(wasCancelled){ cleanupRecorder(); showToast('🗑 Отменено'); return; }
+      if(blob.size < 500){ cleanupRecorder(); showToast('❌ Слишком коротко'); return; }
+      if(blob.size > MAX_MEDIA_SIZE){ cleanupRecorder(); showToast('❌ > ' + Math.round(MAX_MEDIA_SIZE/1024) + ' КБ'); return; }
+      blobToBase64(blob).then(function(b64){
+        pendingMedia = {type:'audio', url:b64};
+        sendMessage();
+      }).catch(function(e){
+        console.error('[rec] base64 fail', e);
+        showToast('❌ Ошибка кодирования');
+      }).then(function(){
+        cleanupRecorder();
+      });
+    };
+    mediaRecorder.start(100);
+    isRecording = true;
+    recordingStartTime = Date.now();
+    $('micBtn').classList.add('recording');
+    $('recordingBar').classList.add('show');
+    $('inputArea').style.paddingBottom = '70px';
+    recordingTimerInterval = setInterval(function(){
+      var sec = Math.floor((Date.now() - recordingStartTime)/1000);
+      var m = Math.floor(sec/60);
+      var s = sec % 60;
+      $('recTime').innerText = m + ':' + String(s).padStart(2,'0');
+      if(sec >= 300){ stopRecording(true); }
+    }, 200);
+  }).catch(function(e){
+    console.error('[rec] getUserMedia fail', e);
+    showToast('❌ Нет доступа к микрофону');
+  });
+}
+
+function cleanupRecorder(){
+  isRecording = false;
+  if(recordingTimerInterval){ clearInterval(recordingTimerInterval); recordingTimerInterval = null; }
+  var micBtn = $('micBtn'); if(micBtn) micBtn.classList.remove('recording');
+  var recBar = $('recordingBar'); if(recBar) recBar.classList.remove('show');
+  var inputArea = $('inputArea'); if(inputArea) inputArea.style.paddingBottom = '';
+  var recTime = $('recTime'); if(recTime) recTime.innerText = '0:00';
+  if(recordingStream){
+    try{ recordingStream.getTracks().forEach(function(t){ t.stop(); }); }catch(e){}
+    recordingStream = null;
+  }
+  mediaRecorder = null;
+  audioChunks = [];
+}
+
+function stopRecording(send){
+  if(!isRecording || !mediaRecorder) return;
+  try{
+    mediaRecorder._cancelled = !send;
+    if(mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+    else cleanupRecorder();
+  }catch(e){
+    console.error('[rec] stop fail', e);
+    cleanupRecorder();
+  }
+}
+
 function openActionSheet(msgId){var msgs=messageCache[currentChat]||{};var m=msgs[msgId];if(!m)return;currentActionMessage=msgId;var isMine=m.senderId===currentUser.id;var editBtn=document.querySelector('[data-action="edit"]');var deleteBtn=document.querySelector('[data-action="delete"]');var deleteMeBtn=document.querySelector('[data-action="delete-me"]');var copyBtn=document.querySelector('[data-action="copy"]');var replyBtn=document.querySelector('[data-action="reply"]');if(editBtn)editBtn.style.display=isMine?'flex':'none';if(deleteBtn)deleteBtn.style.display=isMine?'flex':'none';if(deleteMeBtn)deleteMeBtn.style.display=isMine?'none':'flex';if(copyBtn)copyBtn.style.display=m.text?'flex':'none';if(replyBtn)replyBtn.style.display='flex';document.querySelectorAll('.message.selected').forEach(function(el){el.classList.remove('selected');});var el=document.getElementById('msg_'+msgId);if(el)el.classList.add('selected');var sheet=document.getElementById('actionSheet');var backdrop=document.getElementById('actionBackdrop');if(sheet)sheet.style.transform='translateY(0)';if(backdrop){backdrop.style.opacity='1';backdrop.style.pointerEvents='auto';}}
 function closeActionSheet(){var sheet=document.getElementById('actionSheet');var backdrop=document.getElementById('actionBackdrop');if(sheet)sheet.style.transform='translateY(100%)';if(backdrop){backdrop.style.opacity='0';backdrop.style.pointerEvents='none';}document.querySelectorAll('.message.selected').forEach(function(el){el.classList.remove('selected');});currentActionMessage=null;}
 function clearChat(){if(!currentChat||!confirm(t('chat_clear')))return;db.ref('messages/'+currentChat).remove().then(function(){closeModal('chatMenuModal');showToast(t('toast_deleted'));});}
@@ -1046,9 +1124,7 @@ function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2){
     const R = 6371;
     const dLat = (lat2-lat1) * Math.PI / 180;
     const dLon = (lon2-lon1) * Math.PI / 180;
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     return R * c;
 }
@@ -1062,13 +1138,9 @@ function calculateDistanceToUser(targetUid){
             if(loc && loc.lat && loc.lng && loc.sharing){
                 const dist = getDistanceFromLatLonInKm(myLat, myLng, loc.lat, loc.lng);
                 showToast('📏 Расстояние: ' + dist.toFixed(2) + ' км');
-            } else {
-                showToast('📍 Пользователь не делится геолокацией');
-            }
+            } else { showToast('📍 Пользователь не делится геолокацией'); }
         }).catch(function(){ showToast('❌ Ошибка получения данных'); });
-    }, function(err){
-        showToast('❌ Не удалось получить вашу геолокацию');
-    }, {enableHighAccuracy: true, timeout: 10000});
+    }, function(err){ showToast('❌ Не удалось получить вашу геолокацию'); }, {enableHighAccuracy: true, timeout: 10000});
 }
 
 function openCreateModal(){ openModal('createModal'); }
@@ -1079,32 +1151,21 @@ function openMembersSelect(){
     closeModal('createModal');
     const list = $('membersSelectList');
     const others = Object.keys(state.users).filter(function(id){ return id !== currentUser.id && !isBlocked(id); });
-    if(others.length === 0){
-        list.innerHTML = '<p style="text-align:center;color:#8e98a3;padding:20px">Нет других пользователей. Найди людей через поиск!</p>';
-    } else {
+    if(others.length === 0){ list.innerHTML = '<p style="text-align:center;color:#8e98a3;padding:20px">Нет других пользователей. Найди людей через поиск!</p>'; }
+    else {
         list.innerHTML = others.map(function(id){
             const u = state.users[id];
             const av = u.avatar || (id[0] ? id[0].toUpperCase() : '?');
-            return '<div class="user-card" style="display:flex;align-items:center;gap:12px;padding:10px;background:#f4f7fc;border-radius:12px;cursor:pointer;text-align:left" data-select-id="' + id + '">' +
-                   '<div style="width:36px;height:36px;border-radius:50%;background:#667eea;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;background-size:cover;background-position:center;'+(u.avatarUrl?'background-image:url('+u.avatarUrl+')':'')+'">'+(u.avatarUrl?'':esc(av))+'</div>' +
-                   '<div style="flex:1;font-weight:600;font-size:14px;color:#1a1a2e">' + esc(u.name || id) + '</div>' +
-                   '<div class="select-check" style="width:24px;height:24px;border-radius:50%;border:2px solid #ccc;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px">✓</div>' +
-                   '</div>';
+            return '<div class="user-card" style="display:flex;align-items:center;gap:12px;padding:10px;background:#f4f7fc;border-radius:12px;cursor:pointer;text-align:left" data-select-id="' + id + '"><div style="width:36px;height:36px;border-radius:50%;background:#667eea;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;background-size:cover;background-position:center;'+(u.avatarUrl?'background-image:url('+u.avatarUrl+')':'')+'">'+(u.avatarUrl?'':esc(av))+'</div><div style="flex:1;font-weight:600;font-size:14px;color:#1a1a2e">' + esc(u.name || id) + '</div><div class="select-check" style="width:24px;height:24px;border-radius:50%;border:2px solid #ccc;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px">✓</div></div>';
         }).join('');
         list.querySelectorAll('[data-select-id]').forEach(function(el){
             el.addEventListener('click', function(){
                 const id = this.dataset.selectId;
                 const idx = tempGroupMembers.indexOf(id);
-                if(idx >= 0) tempGroupMembers.splice(idx, 1);
-                else tempGroupMembers.push(id);
+                if(idx >= 0) tempGroupMembers.splice(idx, 1); else tempGroupMembers.push(id);
                 const check = this.querySelector('.select-check');
-                if(tempGroupMembers.includes(id)){
-                    check.style.background = '#34c759';
-                    check.style.borderColor = '#34c759';
-                } else {
-                    check.style.background = 'transparent';
-                    check.style.borderColor = '#ccc';
-                }
+                if(tempGroupMembers.includes(id)){ check.style.background = '#34c759'; check.style.borderColor = '#34c759'; }
+                else { check.style.background = 'transparent'; check.style.borderColor = '#ccc'; }
             });
         });
     }
@@ -1116,8 +1177,7 @@ function createGroup(){
     if(tempGroupMembers.length === 0){ showToast('❌ Выберите хотя бы одного участника'); return; }
     const chatId = 'chat_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
     const chatData = {id:chatId,type:'group',name:name,createdAt:Date.now(),creator:currentUser.id,lastMessage:'',lastMessageTime:Date.now(),participants:{},admins:{},banned:{}};
-    chatData.participants[currentUser.id] = true;
-    chatData.admins[currentUser.id] = true;
+    chatData.participants[currentUser.id] = true; chatData.admins[currentUser.id] = true;
     tempGroupMembers.forEach(function(uid){ chatData.participants[uid] = true; });
     const updates = {};
     updates['chats/' + chatId] = chatData;
@@ -1139,11 +1199,7 @@ function createGroup(){
         updates['userChats/' + uid + '/' + chatId + '/admins'] = chatData.admins;
         updates['userChats/' + uid + '/' + chatId + '/creator'] = currentUser.id;
     });
-    db.ref().update(updates).then(function(){
-        closeModal('membersSelectModal');
-        openChat(chatId);
-        showToast('👥 Группа создана!');
-    }).catch(function(){ showToast('❌ Ошибка создания'); });
+    db.ref().update(updates).then(function(){ closeModal('membersSelectModal'); openChat(chatId); showToast('👥 Группа создана!'); }).catch(function(){ showToast('❌ Ошибка создания'); });
 }
 
 function openChatManage(chatId){
@@ -1166,7 +1222,6 @@ function openMembersList(chatId){
     if(!chatId) return;
     var chat = state.userChats[chatId];
     if(!chat) return;
-    var isAdmin = chat.admins && chat.admins[currentUser.id];
     var container = $('membersListContainer');
     var participants = chat.participants || {};
     var admins = chat.admins || {};
@@ -1463,24 +1518,16 @@ function openChat(chatId){
         hasMoreMessages=count>=MSG_LIMIT;
         renderMessages(messageCache[chatId],chatId);
     }).catch(function(){messageCache[chatId]=messageCache[chatId]||{};renderMessages(messageCache[chatId],chatId);});
-
     messagesListener=db.ref('messages/'+chatId).orderByChild('timestamp').limitToLast(MSG_LIMIT).on('value',function(snap){
         if(chatId!==currentChat) return;
         var msgs=snap.val()||{};
         var container=$('messagesContainer');
         var wasAtBottom = container ? (container.scrollHeight - container.scrollTop - container.clientHeight < 80) : true;
         messageCache[chatId] = msgs;
-        if(deletedMessages[chatId]){
-            Object.keys(deletedMessages[chatId]).forEach(function(id){
-                if(!msgs[id]) delete deletedMessages[chatId][id];
-            });
-        }
+        if(deletedMessages[chatId]){ Object.keys(deletedMessages[chatId]).forEach(function(id){ if(!msgs[id]) delete deletedMessages[chatId][id]; }); }
         renderMessages(messageCache[chatId], chatId, !wasAtBottom);
-        if(wasAtBottom && container){
-            requestAnimationFrame(function(){ container.scrollTop = container.scrollHeight; });
-        }
+        if(wasAtBottom && container){ requestAnimationFrame(function(){ container.scrollTop = container.scrollHeight; }); }
     });
-
     db.ref('hidden/'+currentUser.id+'/'+chatId).once('value').then(function(s){hiddenMessages[chatId]=s.val()||{};}).catch(function(){hiddenMessages[chatId]={};});
     if(chat.unreadCount){db.ref('userChats/'+currentUser.id+'/'+chatId+'/unreadCount').set(0);}
     setTimeout(saveChatsCache, 500);
@@ -1501,17 +1548,13 @@ function applyChatWallpaper(chatId){
 function setChatWallpaper(chatId,bg){if(!currentUser||!chatId)return;db.ref('wallpapers/'+currentUser.id+'/'+chatId).set(bg).then(function(){applyChatWallpaper(chatId);});}
 var notifInitialized=false,lastSeenMsgTs={},notifEnabled=localStorage.getItem('notif_enabled')!=='false';
 function requestPushPermission(){return new Promise(function(resolve){try{if(!('Notification' in window)){resolve(false);return;}if(Notification.permission==='granted'){pushEnabled=true;resolve(true);return;}if(Notification.permission==='denied'){pushEnabled=false;resolve(false);return;}Notification.requestPermission().then(function(perm){pushEnabled=perm==='granted';resolve(pushEnabled);});}catch(e){resolve(false);}});}
-function showSystemNotification(title,body,icon,tag){try{if(!('Notification' in window))return false;if(Notification.permission!=='granted')return false;var opts={body:body||'',icon:icon||null,badge:icon,tag:tag||('dg-'+Date.now())};var notif=new Notification(title,opts);notif.onclick=function(){window.focus();this.close();if(tag&&tag.indexOf('chat-')===0){var cid=tag.replace('chat-','');setTimeout(function(){openChat(cid);},100);}if(tag&&tag.indexOf('call-')===0){setTimeout(function(){if(window.dgCalls)window.dgCalls.listenIncoming();},100);}};setTimeout(function(){try{notif.close()}catch(e){}},10000);return true;}catch(e){return false;}}
+function showSystemNotification(title,body,icon,tag){try{if(!('Notification' in window))return false;if(Notification.permission!=='granted')return false;var opts={body:body||'',icon:icon||null,badge:icon,tag:tag||('dg-'+Date.now())};var notif=new Notification(title,opts);notif.onclick=function(){window.focus();this.close();if(tag&&tag.indexOf('chat-')===0){var cid=tag.replace('chat-','');setTimeout(function(){openChat(cid);},100);}};setTimeout(function(){try{notif.close()}catch(e){}},10000);return true;}catch(e){return false;}}
 function vibrate(pattern){if(!vibroEnabled)return;try{if(navigator.vibrate)navigator.vibrate(pattern);}catch(e){}}
 function bindNotifSettings(){var ns=$('notifSwitch');var vs=$('vibroSwitch');if(ns){ns.checked=notifEnabled;ns.onchange=function(){notifEnabled=ns.checked;localStorage.setItem('notif_enabled',notifEnabled?'true':'false');};}if(vs){vs.checked=vibroEnabled;vs.onchange=function(){vibroEnabled=vs.checked;localStorage.setItem('vibro_enabled',vibroEnabled?'true':'false');};}}
 function showMessageNotification(data){
   if(!data||!currentUser)return;
   if(!notifEnabled)return;
-  if(document.hidden){
-    vibrate([300,100,300,100,400]);
-    showSystemNotification((data.senderName||'Message'),data.text||'📎',data.senderAvatarUrl||null,'chat-'+data.chatId);
-    return;
-  }
+  if(document.hidden){ vibrate([300,100,300,100,400]); showSystemNotification((data.senderName||'Message'),data.text||'📎',data.senderAvatarUrl||null,'chat-'+data.chatId); return; }
   if(currentChat === data.chatId) return;
   var container=$('notifContainer');if(!container)return;
   var el=document.createElement('div');el.className='notif';el.dataset.chatId=data.chatId;
@@ -1545,10 +1588,7 @@ function startNotificationWatcher(){
       var senderAvatarUrl = null;
       if(c.type==='private'){
         var otherId = Object.keys(c.participants||{}).find(function(id){return id!==currentUser.id;});
-        if(otherId && state.users[otherId]){
-          senderName = state.users[otherId].name || otherId;
-          senderAvatarUrl = state.users[otherId].avatarUrl || null;
-        }
+        if(otherId && state.users[otherId]){ senderName = state.users[otherId].name || otherId; senderAvatarUrl = state.users[otherId].avatarUrl || null; }
       }
       if(text.length>60) text = text.slice(0,57)+'...';
       showMessageNotification({chatId:cid, senderId:null, senderName:senderName, senderAvatar:null, senderAvatarUrl:senderAvatarUrl, text:text, ts:c.lastMessageTime});
@@ -1628,7 +1668,6 @@ function loadData(){
     startNotificationWatcher();
     startCalcLinkRequestsListener();
     checkCalcLink();
-
     db.ref('userChats/'+currentUser.id).on('value',function(s){
         state.userChats=s.val()||{};
         _lastChatsHash='';
@@ -1636,7 +1675,6 @@ function loadData(){
         saveChatsCache();
         syncUserSubscriptions();
     });
-
     db.ref('inventory/'+currentUser.id).on('value',function(s){var v=s.val();if(v){userInventory=Object.assign({},userInventory,v);userInventory.balance=Number(userInventory.balance)||0;if(!userInventory.ownedSpacegods)userInventory.ownedSpacegods=[];updateSpaceGodUI();applySidebarTheme();}});
     db.ref('users/'+currentUser.id+'/blockedUsers').on('value',function(s){blockedUsers=s.val()||{};debouncedRenderChats();});
     db.ref('users/'+currentUser.id+'/gpsSharing').on('value',s=>{const want=!!s.val();if(want&&!gpsShareEnabled)gpsStartSharing();if(!want&&gpsShareEnabled)gpsStopSharing();});
@@ -1670,10 +1708,7 @@ function startChat(userId){
         state.userChats[chatId].participants[currentUser.id]=true;
         state.userChats[chatId].participants[userId]=true;
     }
-    closeModal('usersModal');
-    closeUserActionSheet();
-    closeModal('membersListModal');
-    closeMemberActionSheet();
+    closeModal('usersModal'); closeUserActionSheet(); closeModal('membersListModal'); closeMemberActionSheet();
     openChat(chatId);
     db.ref('chats/'+chatId).once('value').then(function(snap){
         if(!snap.exists()){
@@ -1966,9 +2001,9 @@ document.addEventListener('click',function(e){
     if(e.target.closest('#userActionBtnChat')){e.preventDefault();if(selectedUserForAction){startChat(selectedUserForAction);}return;}
     if(e.target.closest('#userActionBtnCall')){
         e.preventDefault();
-        if(selectedUserForAction && window.dgCalls){
+        if(selectedUserForAction && window.dgRadio){
             var uu = state.users[selectedUserForAction] || {};
-            window.dgCalls.startCall(selectedUserForAction, uu.name || selectedUserForAction, uu.avatarUrl || null);
+            window.dgRadio.start(selectedUserForAction, uu.name || selectedUserForAction, uu.avatarUrl || null);
         }
         closeUserActionSheet();
         return;
@@ -2017,16 +2052,18 @@ document.addEventListener('click',function(e){
     if(closest('#callBtn')){
         e.preventDefault();
         e.stopPropagation();
-        console.log('[callBtn] clicked, currentChat=', currentChat);
         if(!currentChat){ showToast('❌ Откройте чат'); return; }
         var c = state.userChats[currentChat];
         if(!c){ showToast('❌ Чат не найден'); return; }
-        if(c.type !== 'private'){ showToast('📞 Звонки только в личных чатах'); return; }
+        if(c.type !== 'private'){ showToast('📻 Рация только в личных чатах'); return; }
         var otherId = Object.keys(c.participants||{}).find(function(id){return id !== currentUser.id;});
         if(!otherId){ showToast('❌ Собеседник не найден'); return; }
-        if(!window.dgCalls){ showToast('❌ Модуль звонков не загружен'); console.error('dgCalls missing'); return; }
         var u = state.users[otherId] || {};
-        window.dgCalls.startCall(otherId, u.name || otherId, u.avatarUrl || null);
+        if(window.dgRadio){
+            window.dgRadio.start(otherId, u.name || otherId, u.avatarUrl || null);
+        } else {
+            showToast('❌ Модуль рации не загружен');
+        }
         return;
     }
     if(closest('#bgBtn')){e.preventDefault();if(currentChat){openModal('backgroundModal');}return;}
@@ -2153,7 +2190,7 @@ function startApp(){
     applyTranslations();
     gpsRestoreState();
     startFirebaseKeepAlive();
-    setTimeout(function(){ if(window.dgCalls) window.dgCalls.listenIncoming(); }, 500);
+    setTimeout(function(){ if(window.dgRadio) window.dgRadio.listenIncoming(); }, 500);
     setTimeout(function(){if('Notification' in window&&Notification.permission==='default'){$('notifPermBar').classList.add('show');setTimeout(function(){$('notifPermBar').classList.remove('show');},15000);}},2000);
     showToast(t('toast_hello')+' '+currentUser.name+'!');
     setTimeout(startKeepAlive, 500);
@@ -2173,15 +2210,13 @@ document.addEventListener('visibilitychange',function(){
     try{
       db.ref('userChats/'+currentUser.id).once('value').then(function(s){state.userChats=s.val()||{};_lastChatsHash='';debouncedRenderChats();saveChatsCache();syncUserSubscriptions();}).catch(function(){});
       if(!notifInitialized){startNotificationWatcher();}
-      if(window.dgCalls){ window.dgCalls.listenIncoming(); }
+      if(window.dgRadio){ window.dgRadio.listenIncoming(); }
     }catch(e){}
   }
 });
 window.addEventListener('focus',function(){
   if(currentUser&&db){
-    try{
-      if(window.dgCalls){ window.dgCalls.listenIncoming(); }
-    }catch(e){}
+    try{ if(window.dgRadio){ window.dgRadio.listenIncoming(); } }catch(e){}
   }
 });
 document.addEventListener('touchstart',function once(){startKeepAlive();document.removeEventListener('touchstart',once);},{once:true});
@@ -2275,735 +2310,333 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
   if(window.ResizeObserver){new ResizeObserver(adjust).observe(document.body);}
 })();
 
-/* ============================================================
-   DonorGram Calls v6 — «настоящий телефонный звонок»
-   ============================================================ */
+/* ═══════════════════════════════════════════════════════════════════
+   RADIO CALL v1 — Звонки через голосовые куски
+   Работает везде, где есть интернет. Не требует TURN.
+   Трафик: ~2 КБ/сек (в 80 раз меньше обычного звонка).
+   ═══════════════════════════════════════════════════════════════════ */
 (function(){
-    'use strict';
-    console.log('[DonorGram Calls v6] init — PHONE-LIKE INCOMING');
+  'use strict';
+  console.log('[Radio Call] init');
 
-    var ICE_SERVERS = {iceServers: [
-        {urls: 'stun:stun.l.google.com:19302'},
-        {urls: 'stun:stun1.l.google.com:19302'},
-        {urls: 'stun:stun2.l.google.com:19302'},
-        {urls: 'stun:stun.cloudflare.com:3478'},
-        {urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject'},
-        {urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject'},
-        {urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject'},
-        {urls: 'turn:numb.viagenie.ca', username: 'webrtc@live.com', credential: 'muazkh'}
-    ], iceCandidatePoolSize: 2, bundlePolicy: 'max-bundle', rtcpMuxPolicy: 'require'};
+  var radio = {
+    active: false, callId: null, chatId: null, otherId: null, isCaller: false,
+    pushRef: null, listenRef: null, recordingLoop: null,
+    playingQueue: [], isPlaying: false,
+    stream: null, recorder: null, chunks: [], chunkTimer: null,
+    myLastSeq: 0, theirLastSeq: 0,
+    startTime: null, timerInterval: null
+  };
 
-    var pc=null, localStream=null, remoteStream=null;
-    var currentCallId=null, currentCallRef=null, isCaller=false, remoteUid=null;
-    var callStartTime=null, callTimerInterval=null, incomingListener=null;
-    var incomingCallId=null, incomingCallRef=null, incomingCallData=null;
-    var callTimeoutHandle=null, speakerOn=false;
-    var callStateListener=null;
-    var ringtoneCtx=null, ringtoneInterval=null, dtmfCtx=null;
-    var outgoingToneInterval=null, outgoingToneCtx=null;
-    var audioCtx=null;
-    var statsInterval=null;
-    var usedTurn=false;
-    var _titleBlinkInterval=null;
-    var _origTitle=document.title;
-    var _incomingVibrateInterval=null;
+  var CHUNK_MS = 2000;
+  var MAX_CHUNK_KB = 60;
+  var STALE_MS = 15000;
 
-    function $c(id){return document.getElementById(id);}
-    function genId(){return 'call_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);}
-    function tC(key){try{return (typeof t === 'function') ? t(key) : key;}catch(e){return key;}}
-    function getUser(){return window.currentUser || (typeof currentUser !== 'undefined' ? currentUser : null);}
-    function safeToast(m){try{ if(typeof showToast==='function') showToast(m);}catch(e){}}
+  function $r(id){ return document.getElementById(id); }
+  function showRT(m){ try{ showToast(m); }catch(e){} }
 
-    function unlockAudio(){
-        try{
-            var Ctx = window.AudioContext || window.webkitAudioContext;
-            if(!Ctx) return;
-            if(!audioCtx) audioCtx = new Ctx();
-            if(audioCtx.state === 'suspended') audioCtx.resume();
-        }catch(e){}
-    }
-    document.addEventListener('touchstart', unlockAudio, {passive:true});
-    document.addEventListener('click', unlockAudio);
-
-    function startTitleBlink(text){
-        stopTitleBlink();
-        _origTitle = document.title;
-        var toggle = false;
-        _titleBlinkInterval = setInterval(function(){
-            document.title = toggle ? (text || '📞 Входящий звонок') : _origTitle;
-            toggle = !toggle;
-        }, 700);
-        document.title = text || '📞 Входящий звонок';
-    }
-    function stopTitleBlink(){
-        if(_titleBlinkInterval){ clearInterval(_titleBlinkInterval); _titleBlinkInterval = null; }
-        document.title = _origTitle || '✨ DonorGram Pro';
-    }
-    function startIncomingVibrate(){
-        stopIncomingVibrate();
-        function vibrateOnce(){
-            try{ if(navigator.vibrate) navigator.vibrate([500,300,500,300,500]); }catch(e){}
-        }
-        vibrateOnce();
-        _incomingVibrateInterval = setInterval(vibrateOnce, 2500);
-    }
-    function stopIncomingVibrate(){
-        if(_incomingVibrateInterval){ clearInterval(_incomingVibrateInterval); _incomingVibrateInterval=null; }
-        try{ if(navigator.vibrate) navigator.vibrate(0); }catch(e){}
-    }
-
-    function getRemoteAudio(){
-        var a = $c('dgRemoteAudio');
-        if(!a){
-            a = document.createElement('audio');
-            a.id = 'dgRemoteAudio';
-            a.autoplay = true;
-            a.setAttribute('playsinline','');
-            a.setAttribute('webkit-playsinline','');
-            document.body.appendChild(a);
-        }
-        a.autoplay = true;
-        a.setAttribute('playsinline','');
-        a.setAttribute('webkit-playsinline','');
-        a.muted = false;
-        a.volume = 1.0;
-        return a;
-    }
-
-    function attachRemoteStream(stream){
-        var audio = getRemoteAudio();
-        try{
-            if('srcObject' in audio){ audio.srcObject = stream; }
-            else { audio.src = URL.createObjectURL(stream); }
-        }catch(e){
-            try{ audio.srcObject = stream; }catch(e2){ console.error('[call] srcObject fail',e2); }
-        }
-        unlockAudio();
-        var playPromise = audio.play();
-        if(playPromise && playPromise.catch){
-            playPromise.catch(function(err){
-                console.warn('[call] play() rejected:', err);
-                var retry = function(){
-                    audio.play().catch(function(){});
-                    document.removeEventListener('touchstart', retry);
-                    document.removeEventListener('click', retry);
-                };
-                document.addEventListener('touchstart', retry, {once:true});
-                document.addEventListener('click', retry, {once:true});
-            });
-        }
-    }
-
-    function startRingtone(){
-        stopRingtone();
-        try{
-            var Ctx = window.AudioContext || window.webkitAudioContext;
-            if(!Ctx) return;
-            ringtoneCtx = new Ctx();
-            if(ringtoneCtx.state === 'suspended') ringtoneCtx.resume();
-            var playBeep = function(freq, dur){
-                try{
-                    var osc = ringtoneCtx.createOscillator();
-                    var gain = ringtoneCtx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.value = freq;
-                    gain.gain.setValueAtTime(0.0001, ringtoneCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.3, ringtoneCtx.currentTime + 0.02);
-                    gain.gain.exponentialRampToValueAtTime(0.0001, ringtoneCtx.currentTime + dur);
-                    osc.connect(gain);
-                    gain.connect(ringtoneCtx.destination);
-                    osc.start();
-                    osc.stop(ringtoneCtx.currentTime + dur + 0.05);
-                }catch(e){}
-            };
-            var pattern = function(){
-                playBeep(880, 0.3);
-                setTimeout(function(){ playBeep(1046, 0.3); }, 400);
-                setTimeout(function(){ playBeep(880, 0.3); }, 800);
-            };
-            pattern();
-            ringtoneInterval = setInterval(pattern, 2000);
-        }catch(e){}
-    }
-    function stopRingtone(){
-        if(ringtoneInterval){ clearInterval(ringtoneInterval); ringtoneInterval = null; }
-        try{ if(ringtoneCtx){ ringtoneCtx.close(); ringtoneCtx = null; } }catch(e){}
-    }
-
-    function startOutgoingTone(){
-        stopOutgoingTone();
-        try{
-            var Ctx = window.AudioContext || window.webkitAudioContext;
-            if(!Ctx) return;
-            outgoingToneCtx = new Ctx();
-            if(outgoingToneCtx.state === 'suspended') outgoingToneCtx.resume();
-            var playTone = function(){
-                try{
-                    var osc = outgoingToneCtx.createOscillator();
-                    var gain = outgoingToneCtx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.value = 425;
-                    gain.gain.setValueAtTime(0.0001, outgoingToneCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.15, outgoingToneCtx.currentTime + 0.05);
-                    gain.gain.setValueAtTime(0.15, outgoingToneCtx.currentTime + 1.0);
-                    gain.gain.exponentialRampToValueAtTime(0.0001, outgoingToneCtx.currentTime + 1.1);
-                    osc.connect(gain);
-                    gain.connect(outgoingToneCtx.destination);
-                    osc.start();
-                    osc.stop(outgoingToneCtx.currentTime + 1.15);
-                }catch(e){}
-            };
-            playTone();
-            outgoingToneInterval = setInterval(playTone, 3500);
-        }catch(e){}
-    }
-    function stopOutgoingTone(){
-        if(outgoingToneInterval){ clearInterval(outgoingToneInterval); outgoingToneInterval = null; }
-        try{ if(outgoingToneCtx){ outgoingToneCtx.close(); outgoingToneCtx = null; } }catch(e){}
-    }
-
-    function playDTMF(digit){
-        try{
-            var Ctx = window.AudioContext || window.webkitAudioContext;
-            if(!Ctx) return;
-            if(!dtmfCtx) dtmfCtx = new Ctx();
-            if(dtmfCtx.state === 'suspended') dtmfCtx.resume();
-            var map = {'1':[697,1209],'2':[697,1336],'3':[697,1477],'4':[770,1209],'5':[770,1336],'6':[770,1477],'7':[852,1209],'8':[852,1336],'9':[852,1477],'*':[941,1209],'0':[941,1336],'#':[941,1477]};
-            var freqs = map[digit];
-            if(!freqs) return;
-            freqs.forEach(function(f){
-                var osc = dtmfCtx.createOscillator();
-                var gain = dtmfCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.value = f;
-                gain.gain.setValueAtTime(0.15, dtmfCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.0001, dtmfCtx.currentTime + 0.15);
-                osc.connect(gain);
-                gain.connect(dtmfCtx.destination);
-                osc.start();
-                osc.stop(dtmfCtx.currentTime + 0.2);
-            });
-        }catch(e){}
-    }
-
-    function showCallUI(opts){
-        var overlay = $c('dgCallOverlay');
-        if(!overlay) return;
-        overlay.style.display='flex';
-        if(opts.incoming) overlay.classList.add('incoming');
-        else overlay.classList.remove('incoming');
-        $c('dgCallStatusTop').innerText = opts.statusTop || 'Вызов...';
-        $c('dgCallName').innerText = opts.name || 'Звонок';
-        $c('dgCallSubStatus').innerText = opts.subStatus || '';
-        $c('dgCallSecure').style.display = opts.secure ? 'block' : 'none';
-        var av = $c('dgCallAvatar');
-        if(opts.avatarUrl){av.style.backgroundImage = "url('"+opts.avatarUrl+"')"; av.innerText='';}
-        else {av.style.backgroundImage = ''; av.innerText = (opts.name||'?').slice(0,1).toUpperCase();}
-        $c('dgCallAcceptBtn').style.display = opts.showAccept ? 'flex' : 'none';
-        $c('dgCallActions').style.display = (opts.showActions === false) ? 'none' : 'flex';
-    }
-    function hideCallUI(){
-        var overlay = $c('dgCallOverlay');
-        if(overlay){ overlay.style.display='none'; overlay.classList.remove('incoming'); }
-        if(callTimerInterval){clearInterval(callTimerInterval);callTimerInterval=null;}
-        var tEl=$c('dgCallTimerBig');
-        if(tEl){tEl.style.display='none';tEl.innerText='00:00';}
-        var kp=$c('dgCallKeypad'); if(kp) kp.classList.remove('show');
-        var mr=$c('dgCallMore'); if(mr) mr.classList.remove('show');
-        stopTitleBlink();
-        stopIncomingVibrate();
-    }
-    function setStatusTop(text){var el=$c('dgCallStatusTop'); if(el) el.innerText=text;}
-    function startTimer(){
-        callStartTime=Date.now();
-        var tEl=$c('dgCallTimerBig');
-        if(!tEl) return;
-        tEl.style.display='block';
-        tEl.innerText='00:00';
-        if(callTimerInterval)clearInterval(callTimerInterval);
-        callTimerInterval=setInterval(function(){
-            var sec=Math.floor((Date.now()-callStartTime)/1000);
-            var m=Math.floor(sec/60), s=sec%60;
-            tEl.innerText=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-        },500);
-    }
-
-    function toggleMute(){
-        if(!localStream)return;
-        var track=localStream.getAudioTracks()[0];
-        if(!track)return;
-        track.enabled=!track.enabled;
-        var btn=$c('dgCallMuteBtn');
-        if(!btn) return;
-        var icon = btn.querySelector('.dgIconCircle');
-        if(track.enabled){
-            btn.classList.remove('muted');
-            if(icon) icon.innerHTML='<i class="fas fa-microphone"></i>';
-            safeToast('🎤 Микрофон включён');
-        } else {
-            btn.classList.add('muted');
-            if(icon) icon.innerHTML='<i class="fas fa-microphone-slash"></i>';
-            safeToast('🔇 Микрофон выключен');
-        }
-    }
-
-    function toggleSpeaker(){
-        speakerOn = !speakerOn;
-        var audio = getRemoteAudio();
-        audio.volume = speakerOn ? 1.0 : 0.7;
-        var btn=$c('dgCallSpeakerBtn');
-        if(btn){
-            if(speakerOn) btn.classList.add('active');
-            else btn.classList.remove('active');
-        }
-        safeToast(speakerOn ? tC('call_speaker_on') : tC('call_speaker_off'));
-    }
-
-    function getLocalAudio(){
-        return new Promise(function(resolve, reject){
-            if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
-                safeToast(tC('call_no_perm'));
-                reject(new Error('no mediaDevices'));
-                return;
-            }
-            var constraints = {
-                audio: {
-                    echoCancellation: {ideal: true},
-                    noiseSuppression: {ideal: true},
-                    autoGainControl: {ideal: true},
-                    channelCount: 1,
-                    sampleRate: 48000,
-                    sampleSize: 16
-                },
-                video: false
-            };
-            navigator.mediaDevices.getUserMedia(constraints)
-            .then(function(stream){
-                localStream = stream;
-                stream.getAudioTracks().forEach(function(t){ t.enabled = true; });
-                resolve(stream);
-            })
-            .catch(function(e){
-                console.error('[call] getUserMedia error:', e);
-                navigator.mediaDevices.getUserMedia({audio:true, video:false})
-                .then(function(stream){
-                    localStream = stream;
-                    resolve(stream);
-                })
-                .catch(function(e2){
-                    safeToast(tC('call_no_perm'));
-                    reject(e2);
-                });
-            });
-        });
-    }
-
-    function optimizeSDP(sdp){
-        if(!sdp) return sdp;
-        try{
-            sdp = sdp.replace(
-                /a=fmtp:111 ([^\r\n]+)/,
-                'a=fmtp:111 minptime=10;useinbandfec=1;maxaveragebitrate=24000;stereo=0;sprop-stereo=0'
-            );
-            if(sdp.indexOf('maxaveragebitrate') === -1){
-                sdp = sdp.replace(
-                    'a=rtpmap:111 opus/48000/2',
-                    'a=rtpmap:111 opus/48000/2\r\na=fmtp:111 minptime=10;useinbandfec=1;maxaveragebitrate=24000;stereo=0'
-                );
-            }
-            return sdp;
-        }catch(e){
-            console.warn('[call] SDP optimize failed', e);
-            return sdp;
-        }
-    }
-
-    function startStatsMonitoring(){
-        if(statsInterval) clearInterval(statsInterval);
-        statsInterval = setInterval(function(){
-            if(!pc) return;
-            try{
-                pc.getStats(null).then(function(stats){
-                    stats.forEach(function(report){
-                        if(report.type === 'outbound-rtp' && report.kind === 'audio'){
-                            if(report.bytesSent){
-                                window._dgCallStats = {
-                                    bytesSent: report.bytesSent,
-                                    packetsSent: report.packetsSent,
-                                    bitrate: report.targetBitrate || 0
-                                };
-                            }
-                        }
-                    });
-                });
-            }catch(e){}
-        }, 5000);
-    }
-    function stopStatsMonitoring(){
-        if(statsInterval){ clearInterval(statsInterval); statsInterval = null; }
-    }
-
-    function createPeerConnection(){
-        pc=new RTCPeerConnection(ICE_SERVERS);
-        usedTurn = false;
-        pc.onicecandidate=function(event){
-            if(event.candidate && currentCallRef){
-                currentCallRef.child('callerCandidates').push(event.candidate.toJSON()).catch(function(){});
-            }
-        };
-        pc.ontrack=function(event){
-            var stream = event.streams && event.streams[0];
-            if(!stream) return;
-            remoteStream = stream;
-            setTimeout(function(){
-                attachRemoteStream(stream);
-                setStatusTop(tC('call_connected'));
-                var sec=$c('dgCallSecure'); if(sec) sec.style.display='block';
-                if(!callTimerInterval) startTimer();
-                var audio = getRemoteAudio();
-                audio.volume = 1.0;
-                speakerOn = true;
-                var sbtn = $c('dgCallSpeakerBtn');
-                if(sbtn) sbtn.classList.add('active');
-                startStatsMonitoring();
-            }, 100);
-        };
-        pc.onconnectionstatechange=function(){
-            if(!pc) return;
-            if(pc.connectionState==='connected'){
-                setStatusTop(tC('call_connected'));
-                if(!callTimerInterval) startTimer();
-                if(remoteStream) attachRemoteStream(remoteStream);
-            }
-            if(pc.connectionState==='failed'||pc.connectionState==='disconnected'){
-                setStatusTop('⚠️ Соединение потеряно');
-                setTimeout(function(){endCall('disconnected');},3000);
-            }
-        };
-        pc.onaddstream = function(event){
-            if(event.stream){
-                remoteStream = event.stream;
-                attachRemoteStream(event.stream);
-                setStatusTop(tC('call_connected'));
-                if(!callTimerInterval) startTimer();
-            }
-        };
-        return pc;
-    }
-
-    function cleanupCall(){
-        stopRingtone();
-        stopOutgoingTone();
-        stopStatsMonitoring();
-        stopTitleBlink();
-        stopIncomingVibrate();
-        if(callTimeoutHandle){clearTimeout(callTimeoutHandle);callTimeoutHandle=null;}
-        if(currentCallRef){
-            try{currentCallRef.child('status').set('ended');}catch(e){}
-            var refToRemove=currentCallRef;
-            setTimeout(function(){try{refToRemove.remove();}catch(e){}},1500);
-        }
-        if(callStateListener && currentCallRef){
-            try{currentCallRef.off('value', callStateListener);}catch(e){}
-            callStateListener=null;
-        }
-        if(pc){try{pc.close();}catch(e){}pc=null;}
-        if(localStream){try{localStream.getTracks().forEach(function(t){t.stop();});}catch(e){}localStream=null;}
-        remoteStream=null;
-        var audio = $c('dgRemoteAudio');
-        if(audio) audio.srcObject = null;
-        hideCallUI();
-        currentCallId=null;currentCallRef=null;remoteUid=null;isCaller=false;
-        incomingCallId=null;incomingCallRef=null;incomingCallData=null;
-        speakerOn=false;
-        usedTurn=false;
-    }
-
-    function endCall(reason){ cleanupCall(); }
-
-    function writeCallRecord(chatId, text, fromUid, fromName){
-        if(!chatId) return;
-        try{
-            var msgRef = db.ref('messages/'+chatId).push();
-            var now = Date.now();
-            msgRef.set({
-                senderId: fromUid,
-                senderName: fromName,
-                timestamp: now,
-                callRecord: true,
-                text: text
-            }).then(function(){
-                var upd = {};
-                upd['userChats/'+fromUid+'/'+chatId+'/lastMessage'] = text;
-                upd['userChats/'+fromUid+'/'+chatId+'/lastMessageTime'] = now;
-                db.ref().update(upd).catch(function(){});
-            }).catch(function(){});
-        }catch(e){}
-    }
-
-    function startCall(targetUid, targetName, targetAvatarUrl){
-        console.log('[call] startCall ->', targetUid);
-        var me = getUser();
-        if(!me){safeToast('❌ Не авторизован');return;}
-        if(currentCallId){safeToast('⚠️ Уже идёт звонок');return;}
-        if(!targetUid || targetUid===me.id) return;
-
-        unlockAudio();
-
-        remoteUid=targetUid;
-        isCaller=true;
-        currentCallId=genId();
-        speakerOn = true;
-
-        showCallUI({
-            name: targetName||targetUid,
-            avatarUrl: targetAvatarUrl,
-            statusTop: tC('call_calling'),
-            subStatus: '',
-            showAccept: false,
-            secure: false
-        });
-
-        startOutgoingTone();
-
-        getLocalAudio().then(function(){
-            createPeerConnection();
-            localStream.getTracks().forEach(function(track){pc.addTrack(track, localStream);});
-            return pc.createOffer({
-                offerToReceiveAudio: true,
-                offerToReceiveVideo: false,
-                iceRestart: false
-            }).then(function(offer){
-                offer.sdp = optimizeSDP(offer.sdp);
-                return pc.setLocalDescription(offer).then(function(){
-                    currentCallRef=db.ref('calls/'+currentCallId);
-                    return currentCallRef.set({
-                        from: me.id,
-                        fromName: me.name||me.id,
-                        fromAvatar: me.avatar||'',
-                        fromAvatarUrl: me.avatarUrl||null,
-                        to: targetUid,
-                        type: 'audio',
-                        status: 'ringing',
-                        createdAt: Date.now(),
-                        offer: {type: offer.type, sdp: offer.sdp}
-                    });
-                });
-            });
-        }).then(function(){
-            currentCallRef.child('answer').on('value', function(snap){
-                var answer=snap.val();
-                if(answer && pc && pc.signalingState!=='stable'){
-                    pc.setRemoteDescription(new RTCSessionDescription(answer))
-                        .then(function(){
-                            setStatusTop('🔗 Соединение...');
-                            stopOutgoingTone();
-                        })
-                        .catch(function(e){console.error('[call] setRemoteDescription:', e);});
-                }
-            });
-            currentCallRef.child('calleeCandidates').on('child_added', function(snap){
-                var c=snap.val();
-                if(c && pc) pc.addIceCandidate(new RTCIceCandidate(c)).catch(function(){});
-            });
-            callStateListener = currentCallRef.child('status').on('value', function(snap){
-                var st=snap.val();
-                if(st==='declined'){
-                    safeToast(tC('call_declined'));
-                    writeCallRecord(currentChat, '📞 Звонок отклонён', me.id, me.name);
-                    endCall('declined');
-                }
-                if(st==='accepted'){
-                    stopOutgoingTone();
-                    setStatusTop('🔗 Соединение...');
-                }
-                if(st==='ended'){
-                    endCall('remote_ended');
-                }
-            });
-            callTimeoutHandle=setTimeout(function(){
-                if(currentCallId && pc && pc.connectionState!=='connected'){
-                    currentCallRef.child('status').once('value').then(function(s){
-                        if(s.val()==='ringing'){
-                            safeToast(tC('call_timeout'));
-                            writeCallRecord(currentChat, '📞 Пропущенный звонок', me.id, me.name);
-                            endCall('timeout');
-                        }
-                    });
-                }
-            },60000);
-        }).catch(function(e){
-            console.error('[call] startCall error:', e);
-            stopOutgoingTone();
-            cleanupCall();
-        });
-    }
-
-    function listenIncoming(){
-        var me = getUser();
-        if(!me){ console.log('[call] no user, skip listenIncoming'); return; }
-        if(incomingListener){
-            try{incomingListener.off();}catch(e){}
-            incomingListener=null;
-        }
-        console.log('[call] listenIncoming for', me.id);
-        var ref=db.ref('calls').orderByChild('to').equalTo(me.id);
-        incomingListener=ref.on('child_added', function(snap){
-            var call=snap.val();
-            if(!call) return;
-            if(call.status!=='ringing') return;
-            if(Date.now()-(call.createdAt||0)>120000) return;
-            if(currentCallId){ snap.ref.child('status').set('declined'); return; }
-
-            incomingCallId=snap.key;
-            incomingCallRef=snap.ref;
-            incomingCallData=call;
-            remoteUid=call.from;
-            isCaller=false;
-
-            showCallUI({
-                name: call.fromName||call.from,
-                avatarUrl: call.fromAvatarUrl||null,
-                statusTop: tC('call_incoming'),
-                subStatus: '📞 Нажмите зелёную кнопку, чтобы ответить',
-                showAccept: true,
-                showActions: false,
-                secure: false,
-                incoming: true
-            });
-
-            startTitleBlink('📞 ' + (call.fromName||call.from));
-            startIncomingVibrate();
-            startRingtone();
-
-            try{
-                if(typeof showSystemNotification === 'function'){
-                    showSystemNotification('📞 Входящий звонок', call.fromName||call.from, call.fromAvatarUrl||null, 'call-'+snap.key);
-                }
-            }catch(e){}
-
-            setTimeout(function(){
-                if(incomingCallId===snap.key && !currentCallId){
-                    snap.ref.child('status').set('declined');
-                    stopRingtone();
-                    stopTitleBlink();
-                    stopIncomingVibrate();
-                    hideCallUI();
-                    try{
-                        var myChats = state.userChats || {};
-                        var chatWithCaller = null;
-                        Object.keys(myChats).forEach(function(cid){
-                            var c = myChats[cid];
-                            if(c && c.type==='private' && c.participants && c.participants[call.from]){
-                                chatWithCaller = cid;
-                            }
-                        });
-                        if(chatWithCaller){
-                            writeCallRecord(chatWithCaller, '📞 Пропущенный звонок', call.from, call.fromName||call.from);
-                        }
-                    }catch(e){}
-                    incomingCallId=null;incomingCallRef=null;incomingCallData=null;
-                }
-            },60000);
-        });
-    }
-
-    function acceptIncoming(){
-        if(!incomingCallRef || !incomingCallData) return;
-        stopRingtone();
-        stopTitleBlink();
-        stopIncomingVibrate();
-        unlockAudio();
-        currentCallId=incomingCallId;
-        currentCallRef=incomingCallRef;
-
-        getLocalAudio().then(function(){
-            createPeerConnection();
-            localStream.getTracks().forEach(function(track){pc.addTrack(track, localStream);});
-            return pc.setRemoteDescription(new RTCSessionDescription(incomingCallData.offer))
-                .then(function(){return pc.createAnswer();})
-                .then(function(answer){
-                    answer.sdp = optimizeSDP(answer.sdp);
-                    return pc.setLocalDescription(answer).then(function(){
-                        return currentCallRef.update({
-                            status:'accepted',
-                            answer:{type:answer.type, sdp:answer.sdp}
-                        });
-                    });
-                });
-        }).then(function(){
-            currentCallRef.child('callerCandidates').on('child_added', function(snap){
-                var c=snap.val();
-                if(c && pc) pc.addIceCandidate(new RTCIceCandidate(c)).catch(function(){});
-            });
-            var acc=$c('dgCallAcceptBtn'); if(acc) acc.style.display='none';
-            var acts=$c('dgCallActions'); if(acts) acts.style.display='flex';
-            setStatusTop('🔗 Соединение...');
-            callStateListener = currentCallRef.child('status').on('value', function(snap){
-                if(snap.val()==='ended') endCall('remote_ended');
-            });
-        }).catch(function(e){
-            console.error('[call] acceptIncoming error:', e);
-            try{currentCallRef.child('status').set('declined');}catch(_e){}
-            cleanupCall();
-        });
-    }
-
-    window.dgCalls={
-        startCall: startCall,
-        endCall: endCall,
-        listenIncoming: listenIncoming,
-        acceptIncoming: acceptIncoming,
-        getStats: function(){ return window._dgCallStats; }
-    };
-
-    function bindCallButtons(){
-        var endBtn=$c('dgCallEndBtn');
-        var muteBtn=$c('dgCallMuteBtn');
-        var acceptBtn=$c('dgCallAcceptBtn');
-        var speakerBtn=$c('dgCallSpeakerBtn');
-        var keypadBtn=$c('dgCallKeypadBtn');
-        var moreBtn=$c('dgCallMoreBtn');
-        if(endBtn) endBtn.onclick=function(){
-            if(isCaller){
-                var me = getUser();
-                if(currentChat && me) writeCallRecord(currentChat, '📞 Звонок завершён', me.id, me.name);
-            }
-            endCall('ended');
-        };
-        if(muteBtn) muteBtn.onclick=toggleMute;
-        if(acceptBtn) acceptBtn.onclick=acceptIncoming;
-        if(speakerBtn) speakerBtn.onclick=toggleSpeaker;
-        if(keypadBtn) keypadBtn.onclick=function(){var k=$c('dgCallKeypad'); if(k) k.classList.add('show');};
-        if(moreBtn) moreBtn.onclick=function(){var m=$c('dgCallMore'); if(m) m.classList.add('show');};
-        var kpClose=$c('dgCallKeypadClose');
-        if(kpClose) kpClose.onclick=function(){var k=$c('dgCallKeypad'); if(k) k.classList.remove('show');};
-        var moreClose=$c('dgCallMoreClose');
-        if(moreClose) moreClose.onclick=function(){var m=$c('dgCallMore'); if(m) m.classList.remove('show');};
-        var moreInfo=$c('dgCallMoreInfo');
-        if(moreInfo) moreInfo.onclick=function(){
-            var m=$c('dgCallMore'); if(m) m.classList.remove('show');
-            safeToast('📞 Битрейт: 24 кбит/с · P2P приоритет');
-        };
-        var moreMin=$c('dgCallMoreMinimize');
-        if(moreMin) moreMin.onclick=function(){var m=$c('dgCallMore'); if(m) m.classList.remove('show');};
-        document.querySelectorAll('.dgKeypadBtn').forEach(function(b){
-            b.onclick=function(){
-                var d=this.dataset.dtmf;
-                var disp=$c('dgCallKeypadDisplay');
-                if(disp) disp.innerText += d;
-                playDTMF(d);
-            };
-        });
-        if(speakerBtn) speakerBtn.classList.add('active');
-    }
-    if(document.readyState==='loading'){
-        document.addEventListener('DOMContentLoaded', bindCallButtons);
+  function setRadioStatus(text, color){
+    var el = $r('dgRadioStatus'); if(el){ el.innerText = text; el.style.color = color || '#8e98a3'; }
+  }
+  function setMicIndicator(text, active){
+    var el = $r('dgRadioMicIndicator'); if(!el) return;
+    if(active){
+      el.style.background = 'rgba(52,199,89,.25)';
+      el.style.border = '2px solid #34c759';
+      el.innerHTML = '<i class="fas fa-circle" style="font-size:10px;color:#34c759;animation:recPulse 1s infinite"></i><span style="color:#34c759">'+(text||'ЗАПИСЬ')+'</span>';
     } else {
-        bindCallButtons();
+      el.style.background = 'rgba(255,255,255,.08)';
+      el.style.border = 'none';
+      el.innerHTML = '<i class="fas fa-microphone" style="font-size:18px"></i><span>'+(text||'Готов')+'</span>';
     }
-    getRemoteAudio();
-    console.log('[DonorGram Calls v6] ready — phone-like incoming');
+  }
+  function showRadioUI(opts){
+    var ov = $r('dgRadioOverlay');
+    if(!ov) return;
+    ov.classList.add('show');
+    setRadioStatus(opts.statusTop || '🎤 РАЦИЯ-РЕЖИМ', null);
+    $r('dgRadioName').innerText = opts.name || 'Рация';
+    $r('dgRadioHint').innerText = opts.hint || 'Говорите — собеседник услышит через 2–4 сек';
+    var av = $r('dgRadioAvatar');
+    if(opts.avatarUrl){ av.style.backgroundImage = "url('"+opts.avatarUrl+"')"; av.innerText=''; }
+    else { av.style.backgroundImage=''; av.innerText=(opts.name||'?').slice(0,1).toUpperCase(); }
+  }
+  function hideRadioUI(){ var ov=$r('dgRadioOverlay'); if(ov) ov.classList.remove('show'); }
+  function startTimer(){
+    radio.startTime = Date.now();
+    var el = $r('dgRadioTimer');
+    if(el){ el.style.display='block'; el.innerText='00:00'; }
+    if(radio.timerInterval) clearInterval(radio.timerInterval);
+    radio.timerInterval = setInterval(function(){
+      var s = Math.floor((Date.now()-radio.startTime)/1000);
+      var m = Math.floor(s/60), ss = s%60;
+      if(el) el.innerText = String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0');
+    }, 500);
+  }
+  function stopTimer(){
+    if(radio.timerInterval){ clearInterval(radio.timerInterval); radio.timerInterval = null; }
+    var el = $r('dgRadioTimer'); if(el){ el.style.display='none'; el.innerText='00:00'; }
+  }
+  function blobToBase64R(blob){ return new Promise(function(res, rej){ var r=new FileReader(); r.onload=function(){res(r.result);}; r.onerror=rej; r.readAsDataURL(blob); }); }
+  function base64ToBlobR(b64, type){
+    try{
+      var parts = b64.split(',');
+      var mime = (parts[0].match(/:(.*?);/) || [null, type||'audio/webm'])[1];
+      var bin = atob(parts[1]);
+      var len = bin.length;
+      var arr = new Uint8Array(len);
+      for(var i=0;i<len;i++) arr[i] = bin.charCodeAt(i);
+      return new Blob([arr], {type: mime});
+    }catch(e){ return null; }
+  }
+
+  function startRecordingChunk(){
+    if(!radio.stream || !radio.active) return;
+    if(radio.recorder && radio.recorder.state === 'recording') return;
+    radio.chunks = [];
+    var options = {};
+    if(MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) options = {mimeType:'audio/webm;codecs=opus'};
+    else if(MediaRecorder.isTypeSupported('audio/webm')) options = {mimeType:'audio/webm'};
+    try{ radio.recorder = new MediaRecorder(radio.stream, options); }catch(e){ console.warn('recorder start fail', e); return; }
+    radio.recorder.ondataavailable = function(e){ if(e.data && e.data.size > 0) radio.chunks.push(e.data); };
+    radio.recorder.onstop = function(){
+      var blob = new Blob(radio.chunks, {type: radio.recorder.mimeType || 'audio/webm'});
+      radio.chunks = [];
+      if(blob.size < 200) return;
+      if(blob.size > MAX_CHUNK_KB*1024) return;
+      blobToBase64R(blob).then(function(b64){
+        if(!radio.active || !radio.pushRef) return;
+        var seq = ++radio.myLastSeq;
+        radio.pushRef.child(String(seq)).set({from:'me', ts:Date.now(), data:b64}).catch(function(e){ console.warn('push fail', e); });
+      });
+    };
+    try{ radio.recorder.start(); }catch(e){ return; }
+    setMicIndicator('ЗАПИСЬ', true);
+  }
+  function stopRecordingChunk(){
+    if(radio.recorder && radio.recorder.state === 'recording'){ try{ radio.recorder.stop(); }catch(e){} }
+    setMicIndicator('Готов', false);
+  }
+  function scheduleNextChunk(){
+    if(!radio.active) return;
+    radio.chunkTimer = setTimeout(function(){
+      if(!radio.active) return;
+      stopRecordingChunk();
+      setTimeout(function(){
+        if(!radio.active) return;
+        startRecordingChunk();
+        scheduleNextChunk();
+      }, 100);
+    }, CHUNK_MS);
+  }
+  function stopChunkLoop(){
+    if(radio.chunkTimer){ clearTimeout(radio.chunkTimer); radio.chunkTimer = null; }
+    stopRecordingChunk();
+  }
+  function enqueueChunk(b64){
+    if(!b64) return;
+    var blob = base64ToBlobR(b64);
+    if(!blob) return;
+    radio.playingQueue.push(blob);
+    if(!radio.isPlaying) playNextChunk();
+  }
+  function playNextChunk(){
+    if(radio.playingQueue.length === 0){ radio.isPlaying = false; return; }
+    radio.isPlaying = true;
+    var blob = radio.playingQueue.shift();
+    var url = URL.createObjectURL(blob);
+    var audio = new Audio(url);
+    audio.volume = 1.0;
+    audio.onended = function(){ URL.revokeObjectURL(url); playNextChunk(); };
+    audio.onerror = function(){ URL.revokeObjectURL(url); playNextChunk(); };
+    audio.play().catch(function(e){ console.warn('play fail', e); URL.revokeObjectURL(url); playNextChunk(); });
+  }
+
+  function startRadio(targetUid, targetName, targetAvatarUrl){
+    var me = window.currentUser;
+    if(!me){ showRT('❌ Не авторизован'); return; }
+    if(radio.active){ showRT('⚠️ Уже идёт разговор'); return; }
+    if(!targetUid || targetUid === me.id) return;
+
+    var chatId = [me.id, targetUid].sort().join('_');
+    radio.active = true;
+    radio.callId = 'radio_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+    radio.chatId = chatId;
+    radio.otherId = targetUid;
+    radio.isCaller = true;
+    radio.myLastSeq = 0;
+    radio.theirLastSeq = 0;
+
+    showRadioUI({ name: targetName || targetUid, avatarUrl: targetAvatarUrl, statusTop: '📡 Установка канала...', hint: 'Ожидаем собеседника...' });
+
+    navigator.mediaDevices.getUserMedia({ audio: {echoCancellation:true, noiseSuppression:true, autoGainControl:true, channelCount:1, sampleRate:16000} }).then(function(stream){
+      radio.stream = stream;
+      var signalRef = db.ref('radioCalls/' + targetUid + '/incoming');
+      signalRef.set({ from: me.id, fromName: me.name || me.id, fromAvatarUrl: me.avatarUrl || null, callId: radio.callId, chatId: chatId, ts: Date.now(), status: 'ringing' });
+      var acceptedRef = db.ref('radioCalls/' + me.id + '/accepted/' + radio.callId);
+      acceptedRef.on('value', function(snap){
+        if(!radio.active) return;
+        var v = snap.val();
+        if(v && v.accepted === true){ acceptedRef.off(); beginRadioSession(); }
+      });
+      setTimeout(function(){
+        if(radio.active && !radio.pushRef){
+          signalRef.remove().catch(function(){});
+          stopRadio('Никто не ответил');
+        }
+      }, 30000);
+    }).catch(function(e){
+      console.error('mic fail', e);
+      stopRadio('❌ Нет доступа к микрофону');
+    });
+  }
+
+  function beginRadioSession(){
+    setRadioStatus('🔊 РАЦИЯ АКТИВНА', '#34c759');
+    var hint = $r('dgRadioHint');
+    if(hint) hint.innerText = 'Говорите — каждые 2 сек отправляется кусок. Собеседник услышит через 2–4 сек.';
+    radio.pushRef = db.ref('radioStreams/' + radio.callId + '/' + window.currentUser.id);
+    var listenId = radio.otherId;
+    radio.listenRef = db.ref('radioStreams/' + radio.callId + '/' + listenId);
+    radio.listenRef.on('child_added', function(snap){
+      var v = snap.val();
+      if(!v) return;
+      if(Date.now() - (v.ts||0) > STALE_MS) return;
+      if(v.from !== 'me') return;
+      enqueueChunk(v.data);
+      try{ snap.ref.remove(); }catch(e){}
+    });
+    startRecordingChunk();
+    scheduleNextChunk();
+    startTimer();
+    var endRef = db.ref('radioCalls/' + window.currentUser.id + '/ended/' + radio.callId);
+    endRef.on('value', function(snap){
+      if(snap.val() === true){ endRef.off(); stopRadio('📞 Собеседник завершил'); }
+    });
+  }
+
+  function acceptIncomingRadio(){
+    var me = window.currentUser;
+    if(!me || radio.active) return;
+    db.ref('radioCalls/' + me.id + '/incoming').once('value').then(function(snap){
+      var v = snap.val();
+      if(!v || v.status !== 'ringing') return;
+      if(Date.now() - (v.ts||0) > 60000) return;
+      radio.active = true;
+      radio.callId = v.callId;
+      radio.chatId = v.chatId;
+      radio.otherId = v.from;
+      radio.isCaller = false;
+      showRadioUI({ name: v.fromName || v.from, avatarUrl: v.fromAvatarUrl || null, statusTop: '📡 Соединение...', hint: 'Принимаем канал...' });
+      navigator.mediaDevices.getUserMedia({ audio: {echoCancellation:true, noiseSuppression:true, autoGainControl:true, channelCount:1, sampleRate:16000} }).then(function(stream){
+        radio.stream = stream;
+        db.ref('radioCalls/' + v.from + '/accepted/' + v.callId).set({accepted:true, ts:Date.now()});
+        db.ref('radioCalls/' + me.id + '/incoming').remove().catch(function(){});
+        setRadioStatus('🔊 РАЦИЯ АКТИВНА', '#34c759');
+        var hint = $r('dgRadioHint');
+        if(hint) hint.innerText = 'Говорите — собеседник услышит через 2–4 сек.';
+        radio.pushRef = db.ref('radioStreams/' + radio.callId + '/' + me.id);
+        radio.listenRef = db.ref('radioStreams/' + radio.callId + '/' + radio.otherId);
+        radio.listenRef.on('child_added', function(snap){
+          var v2 = snap.val();
+          if(!v2) return;
+          if(Date.now() - (v2.ts||0) > STALE_MS) return;
+          if(v2.from !== 'me') return;
+          enqueueChunk(v2.data);
+          try{ snap.ref.remove(); }catch(e){}
+        });
+        startRecordingChunk();
+        scheduleNextChunk();
+        startTimer();
+        var endRef = db.ref('radioCalls/' + me.id + '/ended/' + radio.callId);
+        endRef.on('value', function(snap2){
+          if(snap2.val() === true){ endRef.off(); stopRadio('📞 Собеседник завершил'); }
+        });
+      }).catch(function(e){
+        console.error('mic fail', e);
+        db.ref('radioCalls/' + v.from + '/accepted/' + v.callId).set({accepted:false, ts:Date.now()});
+        stopRadio('❌ Нет доступа к микрофону');
+      });
+    });
+  }
+
+  function declineIncomingRadio(){
+    var me = window.currentUser; if(!me) return;
+    db.ref('radioCalls/' + me.id + '/incoming').once('value').then(function(snap){
+      var v = snap.val(); if(!v) return;
+      db.ref('radioCalls/' + v.from + '/accepted/' + v.callId).set({accepted:false, ts:Date.now()});
+      db.ref('radioCalls/' + me.id + '/incoming').remove();
+      hideIncomingBar();
+    });
+  }
+
+  function stopRadio(reason){
+    if(!radio.active) return;
+    try{
+      if(radio.pushRef) radio.pushRef.remove();
+      if(radio.callId && window.currentUser){
+        db.ref('radioCalls/' + window.currentUser.id + '/ended/' + radio.callId).set(true);
+        setTimeout(function(){ try{ db.ref('radioCalls/' + window.currentUser.id + '/ended/' + radio.callId).remove(); }catch(e){} }, 3000);
+      }
+    }catch(e){}
+    try{ if(radio.listenRef) radio.listenRef.off(); }catch(e){}
+    stopChunkLoop();
+    if(radio.stream){ try{ radio.stream.getTracks().forEach(function(t){t.stop();}); }catch(e){} }
+    stopTimer();
+    hideRadioUI();
+    hideIncomingBar();
+    var wasActive = radio.active;
+    radio.active = false; radio.callId = null; radio.pushRef = null; radio.listenRef = null;
+    radio.stream = null; radio.recorder = null; radio.chunks = []; radio.playingQueue = [];
+    radio.isPlaying = false; radio.myLastSeq = 0; radio.theirLastSeq = 0;
+    if(reason && wasActive) showRT(reason);
+  }
+
+  function showIncomingBar(fromName){
+    var el = document.getElementById('dgRadioIncomingBar');
+    if(el) el.remove();
+    var bar = document.createElement('div');
+    bar.id = 'dgRadioIncomingBar';
+    bar.style.cssText = 'position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:99998;background:linear-gradient(135deg,#00b4db,#0083b0);color:#fff;padding:14px 18px;border-radius:18px;display:flex;align-items:center;gap:14px;box-shadow:0 12px 40px rgba(0,0,0,.5);max-width:92%;animation:notifIn .3s';
+    bar.innerHTML = '<div style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:20px"><i class="fas fa-walkie-talkie"></i></div><div style="flex:1;min-width:0"><div style="font-weight:800;font-size:14px">📻 Рация</div><div style="font-size:12px;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (fromName||'Входящий вызов') + '</div></div><button id="dgRadioAcceptBtn" style="background:#34c759;color:#fff;border:none;border-radius:12px;padding:10px 16px;font-weight:800;font-size:13px;cursor:pointer">✅</button><button id="dgRadioDeclineBtn" style="background:#ff3b30;color:#fff;border:none;border-radius:12px;padding:10px 16px;font-weight:800;font-size:13px;cursor:pointer">✕</button>';
+    document.body.appendChild(bar);
+    document.getElementById('dgRadioAcceptBtn').onclick = acceptIncomingRadio;
+    document.getElementById('dgRadioDeclineBtn').onclick = declineIncomingRadio;
+  }
+  function hideIncomingBar(){
+    var el = document.getElementById('dgRadioIncomingBar');
+    if(el) el.remove();
+  }
+  function listenRadioIncoming(){
+    var me = window.currentUser; if(!me) return;
+    db.ref('radioCalls/' + me.id + '/incoming').on('value', function(snap){
+      var v = snap.val();
+      if(!v){ hideIncomingBar(); return; }
+      if(v.status !== 'ringing'){ hideIncomingBar(); return; }
+      if(Date.now() - (v.ts||0) > 60000){ hideIncomingBar(); return; }
+      if(radio.active) return;
+      showIncomingBar(v.fromName || v.from);
+    });
+  }
+
+  window.dgRadio = {
+    start: startRadio,
+    stop: function(){ stopRadio('📞 Завершено'); },
+    listenIncoming: listenRadioIncoming
+  };
+
+  function bindEndBtn(){
+    var btn = document.getElementById('dgRadioEndBtn');
+    if(btn && !btn._bound){
+      btn._bound = true;
+      btn.onclick = function(){ stopRadio('📞 Завершено'); };
+    }
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindEndBtn);
+  else bindEndBtn();
+  setInterval(bindEndBtn, 2000);
+
+  console.log('[Radio Call] ready');
 })();
 </script>
 </body>
