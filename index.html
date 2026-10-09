@@ -2322,11 +2322,11 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
 })();
 
 /* ═══════════════════════════════════════════════════════════════════
-   RADIO CALL v4 — ФИНАЛЬНАЯ РАБОЧАЯ ВЕРСИЯ
+   RADIO CALL v5 — ИСПРАВЛЕН СБРОС ЗВОНКА У ОБОИХ
    ═══════════════════════════════════════════════════════════════════ */
 (function(){
   'use strict';
-  console.log('[Radio Call v4] init');
+  console.log('[Radio Call v5] init');
 
   var radio = {
     active: false, callId: null, chatId: null, otherId: null, isCaller: false,
@@ -2335,7 +2335,8 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
     stream: null, recorder: null, chunks: [], chunkTimer: null,
     myLastSeq: 0, theirLastSeq: 0,
     startTime: null, timerInterval: null, incomingCheck: null,
-    endListenerRef: null, acceptedListenerRef: null, declinedListenerRef: null
+    endListenerRef: null, acceptedListenerRef: null, declinedListenerRef: null,
+    timeoutRef: null
   };
 
   var CHUNK_MS = 1500; 
@@ -2462,6 +2463,30 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
     audio.play().catch(function(e){ console.warn('play fail', e); URL.revokeObjectURL(url); playNextChunk(); });
   }
 
+  /* === СЛУШАТЕЛЬ ЗАВЕРШЕНИЯ — создаём СРАЗУ при старте звонка === */
+  function attachEndListener(myId, callId){
+    if(radio.endListenerRef){ try{ radio.endListenerRef.off(); }catch(e){} }
+    radio.endListenerRef = db.ref('radioCalls/' + myId + '/ended/' + callId);
+    radio.endListenerRef.on('value', function(snap){
+      if(snap.val() === true){ 
+        radio.endListenerRef.off(); 
+        stopRadio('📞 Собеседник завершил'); 
+      }
+    });
+  }
+
+  /* === СЛУШАТЕЛЬ ОТКЛОНЕНИЯ — создаём сразу === */
+  function attachDeclinedListener(myId, callId){
+    if(radio.declinedListenerRef){ try{ radio.declinedListenerRef.off(); }catch(e){} }
+    radio.declinedListenerRef = db.ref('radioCalls/' + myId + '/declined/' + callId);
+    radio.declinedListenerRef.on('value', function(snap){
+      if(snap.val() === true){
+        radio.declinedListenerRef.off();
+        stopRadio('❌ Собеседник отклонил');
+      }
+    });
+  }
+
   function startRadio(targetUid, targetName, targetAvatarUrl){
     var me = window.currentUser;
     if(!me){ showRT('❌ Не авторизован'); return; }
@@ -2478,6 +2503,10 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
     radio.theirLastSeq = 0;
 
     showRadioUI({ name: targetName || targetUid, avatarUrl: targetAvatarUrl, statusTop: '📞 Вызов...', hint: 'Ожидаем собеседника...' });
+
+    // ★★★ СРАЗУ создаём слушатели конца и отклонения — ДО принятия ★★★
+    attachEndListener(me.id, radio.callId);
+    attachDeclinedListener(me.id, radio.callId);
 
     navigator.mediaDevices.getUserMedia({ audio: {echoCancellation:true, noiseSuppression:true, autoGainControl:true, channelCount:1, sampleRate:16000} }).then(function(stream){
       radio.stream = stream;
@@ -2496,17 +2525,8 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
         }
       });
 
-      if(radio.declinedListenerRef){ try{ radio.declinedListenerRef.off(); }catch(e){} }
-      radio.declinedListenerRef = db.ref('radioCalls/' + me.id + '/declined/' + radio.callId);
-      radio.declinedListenerRef.on('value', function(snap){
-        if(!radio.active) return;
-        if(snap.val() === true){
-          radio.declinedListenerRef.off();
-          stopRadio('❌ Собеседник отклонил');
-        }
-      });
-
-      setTimeout(function(){
+      if(radio.timeoutRef){ clearTimeout(radio.timeoutRef); }
+      radio.timeoutRef = setTimeout(function(){
         if(radio.active && !radio.pushRef){
           signalRef.remove().catch(function(){});
           stopRadio('⏱ Никто не ответил');
@@ -2538,15 +2558,6 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
     startRecordingChunk();
     scheduleNextChunk();
     startTimer();
-    
-    if(radio.endListenerRef){ try{ radio.endListenerRef.off(); }catch(e){} }
-    radio.endListenerRef = db.ref('radioCalls/' + myId + '/ended/' + callId);
-    radio.endListenerRef.on('value', function(snap){
-      if(snap.val() === true){ 
-        radio.endListenerRef.off(); 
-        stopRadio('📞 Собеседник завершил'); 
-      }
-    });
   }
 
   function acceptIncomingRadio(){
@@ -2567,6 +2578,9 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
       
       showRadioUI({ name: v.fromName || v.from, avatarUrl: v.fromAvatarUrl || null, statusTop: '📡 Соединение...', hint: 'Принимаем канал...' });
       
+      // ★★★ СРАЗУ создаём слушатель конца — на случай если звонящий сбросит ★★★
+      attachEndListener(me.id, v.callId);
+      
       navigator.mediaDevices.getUserMedia({ audio: {echoCancellation:true, noiseSuppression:true, autoGainControl:true, channelCount:1, sampleRate:16000} }).then(function(stream){
         radio.stream = stream;
         
@@ -2586,30 +2600,41 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
     var me = window.currentUser; if(!me) return;
     db.ref('radioCalls/' + me.id + '/incoming').once('value').then(function(snap){
       var v = snap.val(); if(!v) return;
+      // Сообщаем звонящему что отклонили
       db.ref('radioCalls/' + v.from + '/declined/' + v.callId).set(true);
+      // СРАЗУ завершаем у себя
+      db.ref('radioCalls/' + me.id + '/ended/' + v.callId).set(true);
       db.ref('radioCalls/' + me.id + '/incoming').remove();
       hideIncomingBar();
       hideRadioUI();
-      setTimeout(function(){ try{ db.ref('radioCalls/' + v.from + '/declined/' + v.callId).remove(); }catch(e){} }, 3000);
+      // Очистка
+      setTimeout(function(){
+        try{ db.ref('radioCalls/' + v.from + '/declined/' + v.callId).remove(); }catch(e){}
+        try{ db.ref('radioCalls/' + me.id + '/ended/' + v.callId).remove(); }catch(e){}
+      }, 5000);
     });
   }
 
   function stopRadio(reason){
     if(!radio.active) return;
+    var myId = window.currentUser ? window.currentUser.id : null;
+    var cid = radio.callId;
+    var other = radio.otherId;
     try{
       if(radio.pushRef) radio.pushRef.remove();
-      if(radio.callId && window.currentUser){
-        db.ref('radioCalls/' + window.currentUser.id + '/ended/' + radio.callId).set(true);
-        setTimeout(function(){ try{ db.ref('radioCalls/' + window.currentUser.id + '/ended/' + radio.callId).remove(); }catch(e){} }, 3000);
+      // ★★★ ГЛАВНОЕ: пишем ended СРАЗУ, до очистки ★★★
+      if(myId && cid){
+        db.ref('radioCalls/' + myId + '/ended/' + cid).set(true);
       }
-      if(radio.otherId && radio.callId){
-        db.ref('radioCalls/' + radio.otherId + '/incoming').remove().catch(function(){});
+      if(other && cid){
+        db.ref('radioCalls/' + other + '/incoming').remove().catch(function(){});
       }
     }catch(e){}
     try{ if(radio.listenRef) radio.listenRef.off(); }catch(e){}
     try{ if(radio.endListenerRef) radio.endListenerRef.off(); }catch(e){}
     try{ if(radio.acceptedListenerRef) radio.acceptedListenerRef.off(); }catch(e){}
     try{ if(radio.declinedListenerRef) radio.declinedListenerRef.off(); }catch(e){}
+    if(radio.timeoutRef){ clearTimeout(radio.timeoutRef); radio.timeoutRef = null; }
     stopChunkLoop();
     if(radio.stream){ try{ radio.stream.getTracks().forEach(function(t){t.stop();}); }catch(e){} }
     stopTimer();
@@ -2620,6 +2645,13 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
     radio.stream = null; radio.recorder = null; radio.chunks = []; radio.playingQueue = [];
     radio.isPlaying = false; radio.myLastSeq = 0; radio.theirLastSeq = 0;
     radio.endListenerRef = null; radio.acceptedListenerRef = null; radio.declinedListenerRef = null;
+    radio.otherId = null; radio.chatId = null;
+    // Чистим свой ended через 5 сек, чтобы собеседник успел прочитать
+    if(myId && cid){
+      setTimeout(function(){
+        try{ db.ref('radioCalls/' + myId + '/ended/' + cid).remove(); }catch(e){}
+      }, 5000);
+    }
     if(reason && wasActive) showRT(reason);
   }
 
@@ -2701,7 +2733,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
   else bindEndBtn();
   setInterval(bindEndBtn, 2000);
 
-  console.log('[Radio Call v4] ready');
+  console.log('[Radio Call v5] ready');
 })();
 </script>
 </body>
