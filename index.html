@@ -340,7 +340,7 @@ input:checked+.slider:before{transform:translateX(26px)}
 /* ===== LAZY MEDIA ===== */
 .media-lazy{background:rgba(0,0,0,.08);border-radius:10px;margin-top:6px;display:flex;align-items:center;justify-content:center;color:#8e98a3;font-size:12px;cursor:pointer;min-width:200px;min-height:150px;flex-direction:column;gap:6px;font-weight:600}
 
-/* ===== DIAG & CALL OVERLAY ===== */
+/* ===== CALL DIAG & OVERLAY ===== */
 #dgCallDiag{position:fixed;top:12px;left:12px;background:rgba(0,0,0,.7);color:#0f0;font-family:'Courier New',monospace;font-size:11px;padding:8px 10px;border-radius:8px;z-index:99999;max-width:80%;line-height:1.5;white-space:pre-wrap;pointer-events:none;display:none}
 #dgCallOverlay{position:fixed;inset:0;z-index:99998;background:linear-gradient(180deg,#2c2c3e 0%,#1a1a2e 100%);display:none;flex-direction:column;align-items:center;justify-content:space-between;padding:60px 20px 40px;color:#fff}
 #dgCallTop{display:flex;flex-direction:column;align-items:center;gap:8px;width:100%}
@@ -672,7 +672,7 @@ input:checked+.slider:before{transform:translateX(26px)}
 <div class="image-viewer" id="imageViewer"><button class="close-btn" type="button" id="closeImgBtn">✕</button><img id="viewedImage"><div class="viewer-buttons"><button class="save-media-btn" type="button" id="saveImageViewerBtn" data-i18n="save">💾 СОХРАНИТЬ</button></div></div>
 <div class="video-viewer" id="videoViewer"><button class="close-btn" type="button" id="closeVidBtn">✕</button><video id="viewedVideo" controls></video><div class="viewer-buttons"><button class="save-media-btn" type="button" id="saveVideoViewerBtn" data-i18n="save">💾 СОХРАНИТЬ</button></div></div>
 
-<!-- ===== ЗВОНКИ WEBRTC (Metered TURN) ===== -->
+<!-- ===== ЗВОНКИ WebRTC (Metered TURN) ===== -->
 <div id="dgCallDiag"></div>
 <div id="dgCallOverlay">
     <div id="dgCallTop">
@@ -702,14 +702,18 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
 const CALC_URL='https://troll2281488.github.io/Cksksksje/';
 
-/* ===== TURN Metered ===== */
-var ICE_SERVERS={iceServers:[
-    {urls:'stun:stun.relay.metered.ca:80'},
-    {urls:'turn:global.relay.metered.ca:80',username:'ea04614136046595f92339d9',credential:'/f3WYIMo8m6vYy/B'},
-    {urls:'turn:global.relay.metered.ca:80?transport=tcp',username:'ea04614136046595f92339d9',credential:'/f3WYIMo8m6vYy/B'},
-    {urls:'turn:global.relay.metered.ca:443',username:'ea04614136046595f92339d9',credential:'/f3WYIMo8m6vYy/B'},
-    {urls:'turns:global.relay.metered.ca:443?transport=tcp',username:'ea04614136046595f92339d9',credential:'/f3WYIMo8m6vYy/B'}
-],iceCandidatePoolSize:2,bundlePolicy:'max-bundle',rtcpMuxPolicy:'require'};
+/* ===== TURN Metered — TURN FIRST, STUN LAST ===== */
+var ICE_SERVERS={
+    iceServers:[
+        {urls:'turns:global.relay.metered.ca:443?transport=tcp',username:'ea04614136046595f92339d9',credential:'/f3WYIMo8m6vYy/B'},
+        {urls:'turn:global.relay.metered.ca:443',username:'ea04614136046595f92339d9',credential:'/f3WYIMo8m6vYy/B'},
+        {urls:'turn:global.relay.metered.ca:80?transport=tcp',username:'ea04614136046595f92339d9',credential:'/f3WYIMo8m6vYy/B'},
+        {urls:'turn:global.relay.metered.ca:80',username:'ea04614136046595f92339d9',credential:'/f3WYIMo8m6vYy/B'},
+        {urls:'stun:stun.relay.metered.ca:80'}
+    ],
+    iceTransportPolicy:'all',
+    iceCandidatePoolSize:0
+};
 
 /* ===== IndexedDB медиа-кэш ===== */
 const MEDIA_DB='dg_media_cache',MEDIA_ST='media';let _mdb=null;
@@ -832,7 +836,7 @@ function showLoaded(wrap,url,m){
     else{wrap.innerHTML='<img src="'+url+'" loading="lazy" data-img="'+url+'" style="max-width:200px;max-height:300px;border-radius:10px;cursor:pointer">';}
 }
 
-/* ===== RENDER ===== */
+/* ===== SHOP ===== */
 function renderShopAvatars(){const g=$('shopAvatarsGrid');if(!g)return;g.innerHTML=SHOP_AVATARS.map(a=>{const o=userInventory.avatars.includes(a.id);const ac=userInventory.activeAvatar===a.id;let ps='background:'+a.style;let pc=a.emoji;if(a.type==='custom'&&currentUser&&currentUser.avatarUrl){ps='background-image:url('+currentUser.avatarUrl+');background-size:cover;background-position:center';pc='';}return '<div class="shop-item '+(o?'owned':'')+' '+(ac?'active-item':'')+'" data-avatar="'+a.id+'"><div class="shop-item-preview" style="'+ps+'">'+pc+'</div><div class="shop-item-name">'+a.name+'</div><div class="shop-item-price '+(o?'bought':'')+'">'+(o?(ac?'✅':'✔️'):'✨')+'</div></div>';}).join('');}
 function renderShopBubbles(){const g=$('shopBubblesGrid');if(!g)return;let html=SHOP_BUBBLES.map(b=>{const o=userInventory.bubbles.includes(b.id);const ac=userInventory.activeBubble===b.id;return '<div class="shop-item '+(o?'owned':'')+' '+(ac?'active-item':'')+'" data-bubble="'+b.id+'"><div class="shop-item-preview bubble-preview" style="background:'+b.style+';color:'+b.color+'">Привет!</div><div class="shop-item-name">'+b.name+'</div><div class="shop-item-price '+(o?'bought':'')+'">'+(o?(ac?'✅':'✔️'):'✨')+'</div></div>';}).join('');const owned=userInventory.ownedSpacegods||[];SG_BUBBLES.forEach(sb=>{if(owned.indexOf(sb.sgId)<0)return;const ac=userInventory.activeBubble===sb.id;const bg=sb.sgId==='spacegod'?'linear-gradient(90deg,#ff0000,#ffd700,#34c759,#00c8ff,#667eea,#ff0000)':sb.sgId==='spacecosmos'?'linear-gradient(90deg,#050014,#2a0055,#0a1a6a,#2a0055,#050014)':sb.sgId==='hacker'?'linear-gradient(90deg,#000,#001a05,#00ff41,#001a05,#000)':'linear-gradient(90deg,#003a20,#00cc80,#003a20)';const col=sb.sgId==='spacegod'?'#fff':sb.sgId==='spacecosmos'?'#c8a8ff':sb.sgId==='hacker'?'#00ff41':'#a0ffd0';html+='<div class="shop-item owned '+(ac?'active-item':'')+'" data-bubble="'+sb.id+'" style="grid-column:1/-1;border:2px solid '+col+'"><div class="shop-item-preview bubble-preview" style="background:'+bg+';background-size:300% 100%;color:'+col+';font-weight:700">Привет! ✨</div><div class="shop-item-name" style="color:'+col+'">'+sb.name+'</div><div class="shop-item-price bought">'+(ac?'✅':'✔️')+'</div></div>';});g.innerHTML=html;}
 function renderShopSpecial(){const g=$('shopSpecialGrid');if(!g)return;const owned=userInventory.ownedSpacegods||[];g.innerHTML=SHOP_SPECIAL.map(s=>{const isOwned=owned.indexOf(s.id)>=0;const isActive=userInventory.spacegodType===s.id&&!userInventory.spacegodDisabled;const previewBg=s.id==='spacegod'?'linear-gradient(90deg,#ff0000,#ffd700,#34c759,#00c8ff,#667eea,#ff0000)':s.id==='spacecosmos'?'linear-gradient(90deg,#a855f7,#6366f1,#3b82f6,#a855f7)':s.id==='hacker'?'linear-gradient(90deg,#000,#00ff41,#000,#00ff41,#000)':'linear-gradient(90deg,#00ff9d,#7dffb0,#00ffd5,#5effa8,#00ff9d)';let priceText=isOwned?(isActive?'✅':'✔️'):'✨';return '<div class="shop-item '+s.cls+'-item '+(isOwned?'owned':'')+' '+(isActive?'active-item':'')+'" data-special="'+s.id+'" style="grid-column:1/-1"><div class="shop-item-preview '+s.nameCls+'" style="background:'+previewBg+';background-size:200% auto;font-size:48px">'+s.emoji+'</div><div class="shop-item-name '+s.nameCls+'" style="font-size:16px">'+s.name+'</div><div style="font-size:11px;color:#00ffcc;margin-bottom:6px">'+s.desc+'</div><div class="shop-item-price '+(isOwned?'bought':'')+'" style="font-size:14px">'+priceText+'</div></div>';}).join('');}
@@ -1795,7 +1799,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
 })();
 
 /* ═══════════════════════════════════════════════════════════════════
-   WEBRTC CALLS v10 — TURN Metered
+   WEBRTC CALLS v11 — TURN FIRST + ICE RESTART
    ═══════════════════════════════════════════════════════════════════ */
 (function(){
     'use strict';
@@ -1833,7 +1837,50 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
     function toggleSpeaker(){speakerOn=!speakerOn;var a=getRemoteAudio();a.volume=speakerOn?1.0:0.7;var b=$c('dgCallSpeakerBtn');if(b){if(speakerOn)b.classList.add('active');else b.classList.remove('active');}}
     function getLocalAudio(){return new Promise(function(res,rej){if(!navigator.mediaDevices){safeToast('❌');rej(new Error('no'));return;}navigator.mediaDevices.getUserMedia({audio:{echoCancellation:{ideal:true},noiseSuppression:{ideal:true},autoGainControl:{ideal:true},channelCount:1,sampleRate:48000},video:false}).then(function(s){localStream=s;res(s);}).catch(function(e){navigator.mediaDevices.getUserMedia({audio:true,video:false}).then(function(s){localStream=s;res(s);}).catch(function(e2){safeToast('❌ Нет микрофона');rej(e2);});});});}
     function optimizeSDP(sdp){if(!sdp)return sdp;try{sdp=sdp.replace(/a=fmtp:111 ([^\r\n]+)/,'a=fmtp:111 minptime=10;useinbandfec=1;maxaveragebitrate=24000;stereo=0;sprop-stereo=0');if(sdp.indexOf('maxaveragebitrate')===-1){sdp=sdp.replace('a=rtpmap:111 opus/48000/2','a=rtpmap:111 opus/48000/2\r\na=fmtp:111 minptime=10;useinbandfec=1;maxaveragebitrate=24000;stereo=0');}return sdp;}catch(e){return sdp;}}
-    function createPeerConnection(){pc=new RTCPeerConnection(ICE_SERVERS);pc.onicecandidate=function(e){if(e.candidate&&currentCallRef){currentCallRef.child('callerCandidates').push(e.candidate.toJSON()).catch(function(){});}};pc.ontrack=function(e){var s=e.streams&&e.streams[0];if(!s)return;remoteStream=s;setTimeout(function(){attachRemoteStream(s);setStatusTop('🔊 Разговор');var sec=$c('dgCallSecure');if(sec)sec.style.display='block';if(!callTimerInterval)startTimer();var a=getRemoteAudio();a.volume=1.0;speakerOn=true;var sb=$c('dgCallSpeakerBtn');if(sb)sb.classList.add('active');},100);};pc.onconnectionstatechange=function(){if(!pc)return;if(pc.connectionState==='connected'){setStatusTop('🔊 Разговор');if(!callTimerInterval)startTimer();if(remoteStream)attachRemoteStream(remoteStream);}if(pc.connectionState==='failed'){setStatusTop('⚠️ Не удалось');}};return pc;}
+    function createPeerConnection(){
+        pc=new RTCPeerConnection(ICE_SERVERS);
+        pc.onicecandidate=function(e){if(e.candidate&&currentCallRef){currentCallRef.child('callerCandidates').push(e.candidate.toJSON()).catch(function(){});}};
+        pc.ontrack=function(e){
+            var s=e.streams&&e.streams[0];if(!s)return;
+            remoteStream=s;
+            setTimeout(function(){
+                attachRemoteStream(s);
+                setStatusTop('🔊 Разговор');
+                var sec=$c('dgCallSecure');if(sec)sec.style.display='block';
+                if(!callTimerInterval)startTimer();
+                var a=getRemoteAudio();a.volume=1.0;speakerOn=true;
+                var sb=$c('dgCallSpeakerBtn');if(sb)sb.classList.add('active');
+            },100);
+        };
+        pc.oniceconnectionstatechange=function(){
+            if(!pc)return;
+            var st=pc.iceConnectionState;
+            if(st==='failed'){
+                setStatusTop('⚠️ Переподключение...');
+                try{pc.restartIce();}catch(e){}
+            }
+        };
+        pc.onconnectionstatechange=function(){
+            if(!pc)return;
+            if(pc.connectionState==='connected'){
+                setStatusTop('🔊 Разговор');
+                if(!callTimerInterval)startTimer();
+                if(remoteStream)attachRemoteStream(remoteStream);
+            }
+            if(pc.connectionState==='failed'){
+                setStatusTop('⚠️ Переподключение...');
+                try{pc.restartIce();}catch(e){}
+            }
+        };
+        // ICE restart если через 8 сек ещё checking
+        setTimeout(function(){
+            if(pc && (pc.iceConnectionState==='checking' || pc.iceConnectionState==='new')){
+                setStatusTop('🔄 Пересоздаём ICE...');
+                try{pc.restartIce();}catch(e){}
+            }
+        }, 8000);
+        return pc;
+    }
     function cleanupCall(){stopRingtone();stopOutgoingTone();stopTitleBlink();stopIncomingVibrate();stopDiag();if(callTimeoutHandle){clearTimeout(callTimeoutHandle);callTimeoutHandle=null;}if(currentCallRef){try{currentCallRef.child('status').set('ended');}catch(e){}var r=currentCallRef;setTimeout(function(){try{r.remove();}catch(e){}},1500);}if(callStateListener&&currentCallRef){try{currentCallRef.off('value',callStateListener);}catch(e){}callStateListener=null;}if(pc){try{pc.close();}catch(e){}pc=null;}if(localStream){try{localStream.getTracks().forEach(function(t){t.stop();});}catch(e){}localStream=null;}remoteStream=null;var a=$c('dgRemoteAudio');if(a)a.srcObject=null;hideCallUI();currentCallId=null;currentCallRef=null;remoteUid=null;isCaller=false;incomingCallId=null;incomingCallRef=null;incomingCallData=null;speakerOn=true;}
     function endCall(r){cleanupCall();}
     function startCall(targetUid,targetName,targetAvatarUrl){
@@ -1882,7 +1929,7 @@ document.getElementById('welcomeDots').addEventListener('click',function(e){
         if(eb)eb.onclick=function(){if(incomingCallRef&&incomingCallData&&!isCaller){try{incomingCallRef.child('status').set('declined').catch(function(){});}catch(e){}stopRingtone();stopTitleBlink();stopIncomingVibrate();cleanupCall();return;}if(isCaller&&currentCallRef){try{currentCallRef.child('status').set('ended').catch(function(){});}catch(e){}}if(!isCaller&&currentCallRef){try{currentCallRef.child('status').set('ended').catch(function(){});}catch(e){}}endCall('ended');};
         if(mb)mb.onclick=toggleMute;if(ab)ab.onclick=acceptIncoming;if(sb)sb.onclick=toggleSpeaker;}
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindCallButtons);else bindCallButtons();
-    getRemoteAudio();console.log('[DonorGram Calls v10] ready');
+    getRemoteAudio();console.log('[DonorGram Calls v11] ready');
 })();
 </script>
 </body>
