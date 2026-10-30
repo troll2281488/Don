@@ -6,7 +6,7 @@ const { getDatabase } = require("firebase-admin/database");
 const { getAuth } = require("firebase-admin/auth");
 const crypto = require("crypto");
 
-initializeApp();
+initializeApp({ databaseURL: "https://donor-fd6ea-default-rtdb.firebaseio.com" });
 
 function normalizeUsername(value) {
   return String(value || "").trim();
