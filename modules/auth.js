@@ -1,7 +1,7 @@
 /* DonorGram authentication helpers.
  * Requires Firebase compat app/auth/functions SDKs for the legacy bridge,
  * and Firebase compat app/auth SDKs for the email-auth helpers.
- * The legacy bridge is prepared but is not yet wired into the old login UI.
+ * The legacy bridge is wired behind opt-in feature flags in the old login UI.
  * Keep this module separate so the existing interface and account data remain intact.
  */
 (function (global) {
