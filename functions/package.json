@@ -1,9 +1,9 @@
-{
+﻿{
   "name": "donorgram-legacy-auth",
   "private": true,
   "main": "index.js",
   "engines": {
-    "node": "20"
+    "node": "22"
   },
   "scripts": {
     "lint": "node --check index.js"
@@ -13,3 +13,4 @@
     "firebase-functions": "^6.3.0"
   }
 }
+
