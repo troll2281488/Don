@@ -1,6 +1,7 @@
-/* DonorGram service worker: project-path-safe cache and network-first updates. */
-const CACHE_NAME = "donorgram-v2";
+/* DonorGram service worker: GitHub Pages-safe offline shell and static asset cache. */
+const CACHE_NAME = "donorgram-v3";
 const APP_SHELL = ["./", "./index.html"];
+const STATIC_DESTINATIONS = new Set(["script", "style", "image", "font", "worker"]);
 
 self.addEventListener("install", event => {
   event.waitUntil(
@@ -22,17 +23,19 @@ self.addEventListener("activate", event => {
 
 self.addEventListener("fetch", event => {
   const request = event.request;
-  const url = new URL(request.url);
-  if (request.method !== "GET" || url.origin !== self.location.origin) return;
+  if (request.method !== "GET") return;
 
-  // Always prefer the current page from the network so deployments are not hidden
-  // behind an old cached index.html.
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+
+  // Navigation stays network-first so GitHub Pages deployments are not hidden
+  // behind a stale HTML document. The last successful shell remains offline-ready.
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request).then(response => {
         if (response && response.ok) {
           const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put("./index.html", copy));
+          event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.put("./index.html", copy)));
         }
         return response;
       }).catch(() => caches.match("./index.html"))
@@ -40,12 +43,15 @@ self.addEventListener("fetch", event => {
     return;
   }
 
-  // Cache only same-origin static files; leave Firebase and other APIs untouched.
+  // Cache only actual static assets. Do not persist arbitrary same-origin
+  // endpoints, user data, or responses explicitly marked no-store.
+  if (!STATIC_DESTINATIONS.has(request.destination)) return;
   event.respondWith(
     fetch(request).then(response => {
-      if (response && response.ok) {
+      const cacheControl = response.headers.get("Cache-Control") || "";
+      if (response && response.ok && !/no-store/i.test(cacheControl)) {
         const copy = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+        event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.put(request, copy)));
       }
       return response;
     }).catch(() => caches.match(request))
