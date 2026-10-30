@@ -85,7 +85,7 @@ exports.searchLegacyUsers = onCall(
     const query = String(request.data && request.data.query || "").trim().toLowerCase().slice(0, 64);
     if (!query) return { users: [] };
 
-    const snapshot = await getDatabase().ref("users").get();
+    const snapshot = await getDatabase().ref("publicUsers").get();
     const all = snapshot.val() || {};
     const users = [];
 
