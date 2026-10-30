@@ -61,6 +61,11 @@
       .then(function (result) { return result && result.data || { ok: false }; });
   }
 
+  function restoreLegacySession() {
+    try { return Promise.resolve(getAuth().currentUser || null); }
+    catch (error) { return Promise.reject(error); }
+  }
+
   function signIn(email, password) {
     return getAuth().signInWithEmailAndPassword(normalizeEmail(email), password);
   }
@@ -87,6 +92,7 @@
   global.DonorGramAuth = {
     signIn: signIn,
     signInLegacy: signInLegacy,
+    restoreLegacySession: restoreLegacySession,
     searchLegacyUsers: searchLegacyUsers,
     getLegacyPublicProfile: getLegacyPublicProfile,
     getLegacyPublicProfiles: getLegacyPublicProfiles,
