@@ -62,8 +62,18 @@
   }
 
   function restoreLegacySession() {
-    try { return Promise.resolve(getAuth().currentUser || null); }
-    catch (error) { return Promise.reject(error); }
+    try {
+      return new Promise(function (resolve, reject) {
+        var auth = getAuth();
+        var unsubscribe = auth.onAuthStateChanged(function (user) {
+          if (unsubscribe) unsubscribe();
+          resolve(user || null);
+        }, function (error) {
+          if (unsubscribe) unsubscribe();
+          reject(error);
+        });
+      });
+    } catch (error) { return Promise.reject(error); }
   }
 
   function signIn(email, password) {
