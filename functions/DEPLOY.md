@@ -52,3 +52,14 @@ The Firebase project may require the Blaze billing plan for Cloud Functions. Rev
 ## Opt-in Firebase Auth UI bridge
 
 The old login screen now has a guarded integration with `DonorGramAuth.signInLegacy`, and cached-session restoration waits for Firebase Auth's first `onAuthStateChanged` event before trusting the cached UID. Both are disabled by default. To test only after deploying the callable functions and confirming the required RTDB rules and public profile migration, set `window.DG_SECURE_AUTH_ENABLED = true` before the main application script runs. Keep it disabled during rollout: GitHub commits do not deploy Cloud Functions or change RTDB Rules. Existing account creation remains on the legacy path; the callable bridge currently authenticates existing legacy accounts only. Do not enable until the backend is deployed and tested against a non-production account.
+
+
+## Session revalidation
+
+`getLegacySessionProfile` is called after Firebase Auth restores a legacy custom-token session. It checks the private `users/{uid}` record with Admin SDK, rejects missing or blocked accounts, and returns only a sanitized profile. Add it to the callable deployment list:
+
+```sh
+firebase deploy --only functions:getLegacySessionProfile
+```
+
+The client-side restore flow remains opt-in and disabled by default. This endpoint is not deployed by a GitHub commit.
