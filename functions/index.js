@@ -68,3 +68,43 @@ exports.signInLegacyAccount = onCall(
     };
   }
 );
+
+
+/**
+ * Returns a sanitized directory for the legacy user-search UI.
+ * Requires a Firebase Auth session created by the legacy sign-in bridge.
+ * Never returns password or other private account fields.
+ */
+exports.searchLegacyUsers = onCall(
+  { region: "europe-west1", enforceAppCheck: false, maxInstances: 10 },
+  async (request) => {
+    if (!request.auth || request.auth.token.legacyAccount !== true) {
+      throw new HttpsError("unauthenticated", "Требуется вход в аккаунт.");
+    }
+
+    const query = String(request.data && request.data.query || "").trim().toLowerCase().slice(0, 64);
+    if (!query) return { users: [] };
+
+    const snapshot = await getDatabase().ref("users").get();
+    const all = snapshot.val() || {};
+    const users = [];
+
+    for (const [uid, value] of Object.entries(all)) {
+      if (uid === request.auth.uid || !value || value.blocked === true) continue;
+      const name = String(value.name || uid);
+      if (name.toLowerCase().includes(query) || uid.toLowerCase().includes(query)) {
+        users.push({
+          id: uid,
+          name,
+          avatar: String(value.avatar || name.substring(0, 1).toUpperCase()).slice(0, 8),
+          avatarUrl: typeof value.avatarUrl === "string" ? value.avatarUrl.slice(0, 2048) : null,
+          bio: typeof value.bio === "string" ? value.bio.slice(0, 160) : "",
+          status: value.status === "online" ? "online" : "offline"
+        });
+        if (users.length >= 30) break;
+      }
+    }
+
+    return { users };
+  }
+);
