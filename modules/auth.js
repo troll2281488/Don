@@ -87,7 +87,10 @@
   global.DonorGramAuth = {
     signIn: signIn,
     signInLegacy: signInLegacy,
-    searchLegacyUsers: searchLegacyUsers,\n    getLegacyPublicProfile: getLegacyPublicProfile,\n    getLegacyPublicProfiles: getLegacyPublicProfiles,\n    updateLegacyProfile: updateLegacyProfile,
+    searchLegacyUsers: searchLegacyUsers,
+    getLegacyPublicProfile: getLegacyPublicProfile,
+    getLegacyPublicProfiles: getLegacyPublicProfiles,
+    updateLegacyProfile: updateLegacyProfile,
     register: register,
     sendPasswordReset: sendPasswordReset,
     signOut: signOut,
