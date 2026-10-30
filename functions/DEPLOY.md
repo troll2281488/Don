@@ -5,7 +5,7 @@ This directory contains the server-side bridge for the original `users/{username
 ## Current status
 
 - `signInLegacyAccount` verifies the legacy password on the server and issues a Firebase custom token.
-- `searchLegacyUsers` returns a limited, sanitized user-search result and requires that legacy Firebase Auth session.
+- `searchLegacyUsers` returns a limited, sanitized user-search result and requires that legacy Firebase Auth session.\n- `getLegacyPublicProfile` returns one sanitized public profile to an authenticated legacy session.
 - The functions are **not deployed** by a GitHub commit. The public-profile migration has not been run.
 - The original browser login has **not** been switched to this function.
 - Existing Realtime Database rules do not authorize the legacy app's data paths.
@@ -41,7 +41,7 @@ node migrate-public-users.js   # dry-run; requires ADC
 node migrate-public-users.js --apply   # writes publicUsers only
 cd ..
 firebase use donor-fd6ea
-firebase deploy --only functions:signInLegacyAccount,functions:searchLegacyUsers
+firebase deploy --only functions:signInLegacyAccount,functions:searchLegacyUsers,functions:getLegacyPublicProfile
 ```
 
 The Firebase project may require the Blaze billing plan for Cloud Functions. Review the function's rate limiting and enable App Check before production use. The current callable has App Check enforcement disabled for initial integration; do not treat that as production hardening.
