@@ -39,6 +39,13 @@
       .then(function (result) { return result && result.data && Array.isArray(result.data.users) ? result.data.users : []; });
   }
 
+  function getLegacyPublicProfile(uid) {
+    var functions = global.firebase && global.firebase.functions;
+    if (!functions) return Promise.reject(new Error("Firebase Functions SDK не загружен."));
+    return functions("europe-west1").httpsCallable("getLegacyPublicProfile")({ uid: String(uid || "").trim() })
+      .then(function (result) { return result && result.data ? result.data.profile || null : null; });
+  }
+
   function signIn(email, password) {
     return getAuth().signInWithEmailAndPassword(normalizeEmail(email), password);
   }
@@ -65,7 +72,7 @@
   global.DonorGramAuth = {
     signIn: signIn,
     signInLegacy: signInLegacy,
-    searchLegacyUsers: searchLegacyUsers,
+    searchLegacyUsers: searchLegacyUsers,\n    getLegacyPublicProfile: getLegacyPublicProfile,
     register: register,
     sendPasswordReset: sendPasswordReset,
     signOut: signOut,
