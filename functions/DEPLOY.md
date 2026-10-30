@@ -4,7 +4,8 @@ This directory contains the server-side bridge for the original `users/{username
 
 ## Current status
 
-- `signInLegacyAccount` verifies the legacy password on the server and issues a Firebase custom token.\n- `searchLegacyUsers` returns a limited, sanitized user-search result and requires that legacy Firebase Auth session.
+- `signInLegacyAccount` verifies the legacy password on the server and issues a Firebase custom token.
+- `searchLegacyUsers` returns a limited, sanitized user-search result and requires that legacy Firebase Auth session.
 - The functions are **not deployed** by a GitHub commit. The public-profile migration has not been run.
 - The original browser login has **not** been switched to this function.
 - Existing Realtime Database rules do not authorize the legacy app's data paths.
