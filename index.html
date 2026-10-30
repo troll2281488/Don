@@ -519,6 +519,22 @@ html,body{min-height:100%;overscroll-behavior:none}
 @media (min-width:1400px){.sidebar{width:360px!important;flex-basis:360px!important;max-width:360px!important}}
 @media (max-width:767px){body{padding:0!important}.app,#mainApp{width:100vw!important;height:100dvh!important;max-width:none!important;border-radius:0!important}.main-area{height:100dvh!important}.donai-input-area{padding-bottom:calc(10px + env(safe-area-inset-bottom))!important}}
 button,input,textarea,select{touch-action:manipulation}
+
+/* DonorGram interactive friends map */
+.gps-leaflet-map{flex:1;width:100%;min-height:260px;background:#e9eef5;z-index:1}
+.gps-map-header{flex-wrap:wrap}
+.gps-map-tools{display:flex;gap:8px;margin-left:auto}
+.gps-map-tools button{border:0;border-radius:12px;padding:9px 11px;background:#eef2ff;color:#4658b8;font-weight:700;cursor:pointer}
+.gps-avatar{width:42px;height:42px;border:3px solid #fff;border-radius:50%;background:#667eea center/cover;box-shadow:0 2px 8px #0004;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800}
+.gps-avatar.online{outline:3px solid #34c759}.gps-avatar.offline{outline:3px solid #9aa3b2}
+.gps-avatar.me{outline:3px solid #ffbf36}
+.gps-friend-marker{background:transparent;border:0}
+.gps-friend-label{margin-top:4px;max-width:110px;padding:3px 7px;border-radius:10px;background:#fff;color:#202638;font-size:11px;font-weight:700;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 1px 5px #0003}
+.gps-popup-actions{display:flex;gap:6px;margin-top:9px}
+.gps-popup-actions button{border:0;border-radius:8px;padding:7px 9px;background:#667eea;color:#fff;font-weight:700;cursor:pointer}
+.gps-popup-actions button.secondary{background:#eef2ff;color:#4658b8}
+.gps-status-bar{min-height:42px;flex-wrap:wrap}
+
 </style>
 <meta name="theme-color" content="#527da3"><meta name="apple-mobile-web-app-capable" content="yes"></head>
 <body>
@@ -857,8 +873,8 @@ button,input,textarea,select{touch-action:manipulation}
 
 <!-- КАРТА ЧЕРЕЗ IFRAME (БЕЗ LEAFLET) -->
 <div class="modal" id="gpsMapModal"><div class="modal-content">
-<div class="gps-map-header"><button class="back-btn" id="gpsMapBack" type="button"><i class="fas fa-arrow-left"></i></button><h3 style="flex:1">📍 Карта друзей</h3></div>
-<iframe id="gpsMapIframe" class="gps-map-iframe" src="https://www.openstreetmap.org/export/embed.html?bbox=37.3%2C55.5%2C37.9%2C56.0&amp;layer=mapnik" allowfullscreen></iframe>
+<div class="gps-map-header"><button class="back-btn" id="gpsMapBack" type="button"><i class="fas fa-arrow-left"></i></button><h3 style="flex:1">📍 Карта друзей</h3><div class="gps-map-tools"><button type="button" id="gpsMapCenterMe" title="Моё местоположение">◎ Я</button><button type="button" id="gpsMapShareToggle" title="Включить или выключить показ геолокации">📍 Делюсь</button></div></div>
+<div id="gpsLeafletMap" class="gps-leaflet-map" role="application" aria-label="Интерактивная карта друзей"></div>
 <div class="gps-status-bar"><div class="gps-dot" id="gpsDot"></div><span id="gpsStatusText">Геолокация выключена</span></div>
 </div></div>
 
@@ -1919,5 +1935,169 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
   window.addEventListener('unhandledrejection', function(){ setTimeout(revealUsableScreen, 0); });
 })();
 </script>
+
+<script>
+/* DonorGram map v2: Leaflet + live Firebase locations */
+(function(){
+  var mapRefs = {};
+  var mapLocationCache = {};
+  var mapFriends = {};
+  var mapMarkers = {};
+  var mapRefreshTimer = null;
+
+  function friendIdsFromChats(){
+    var ids = {};
+    Object.keys((state && state.userChats) || {}).forEach(function(cid){
+      var chat = state.userChats[cid];
+      if(!chat || chat.type !== 'private' || !chat.participants) return;
+      Object.keys(chat.participants).forEach(function(uid){
+        if(uid !== currentUser.id) ids[uid] = true;
+      });
+    });
+    return ids;
+  }
+  function safeAvatarUrl(url){
+    return typeof url === 'string' && /^https?:\/\//i.test(url) ? url.replace(/["'<>\\]/g,'') : '';
+  }
+  function markerIcon(uid, user, isMe){
+    var online = user && user.status === 'online';
+    var initial = ((user && (user.avatar || user.name)) || uid || '?').toString().slice(0,1).toUpperCase();
+    var avatar = safeAvatarUrl(user && user.avatarUrl);
+    var html = '<div class="gps-avatar '+(isMe?'me':online?'online':'offline')+'"'+(avatar?' style="background-image:url(&quot;'+avatar+'&quot;)"':'')+'>'+(avatar?'':esc(initial))+'</div>'+
+      '<div class="gps-friend-label">'+esc(isMe?'Вы':(user && user.name) || uid)+'</div>';
+    return L.divIcon({className:'gps-friend-marker',html:html,iconSize:[112,64],iconAnchor:[56,24]});
+  }
+  function updateMarker(uid, loc){
+    if(!gpsMap || !mapFriends[uid]) return;
+    var isMe = uid === currentUser.id;
+    var user = isMe ? (state.users[uid] || currentUser) : (state.users[uid] || {name:uid});
+    var valid = loc && loc.sharing === true && Number.isFinite(Number(loc.lat)) && Number.isFinite(Number(loc.lng)) &&
+      (!loc.ts || Date.now() - Number(loc.ts) < 24*60*60*1000);
+    if(!valid){
+      if(mapMarkers[uid]){gpsMap.removeLayer(mapMarkers[uid]);delete mapMarkers[uid];}
+      return;
+    }
+    var lat = Number(loc.lat), lng = Number(loc.lng);
+    var popup = isMe ? '<b>📍 Ваше местоположение</b>' :
+      '<b>'+esc(user.name || uid)+'</b><div style="font-size:12px;color:#687080">'+esc(user.bio || (user.status === 'online' ? '🟢 В сети' : '⚫ Не в сети'))+'</div>'+
+      '<div class="gps-popup-actions"><button data-map-profile="'+encodeURIComponent(uid)+'">Профиль</button><button class="secondary" data-map-chat="'+encodeURIComponent(uid)+'">Написать</button></div>';
+    if(!mapMarkers[uid]){
+      mapMarkers[uid] = L.marker([lat,lng],{icon:markerIcon(uid,user,isMe)}).addTo(gpsMap);
+      mapMarkers[uid].bindPopup(popup);
+    }else{
+      mapMarkers[uid].setLatLng([lat,lng]);
+      mapMarkers[uid].setIcon(markerIcon(uid,user,isMe));
+      mapMarkers[uid].setPopupContent(popup);
+    }
+  }
+  function updateMapStatus(){
+    var dot = $('gpsDot'), txt = $('gpsStatusText');
+    var total = Object.keys(mapFriends).length;
+    var located = Object.keys(mapLocationCache).filter(function(uid){
+      var l=mapLocationCache[uid];return l && l.sharing===true && Number.isFinite(Number(l.lat)) && Number.isFinite(Number(l.lng)) && (!l.ts || Date.now()-Number(l.ts)<86400000);
+    }).length;
+    if(dot){dot.classList.toggle('on',!!gpsShareEnabled);}
+    if(txt){
+      var meTxt = gpsShareEnabled ? 'Вы делитесь геолокацией' : 'Ваша геолокация не публикуется';
+      txt.innerText = meTxt+' · '+located+' из '+total+' друзей на карте';
+    }
+  }
+  function stopFriendRefs(){
+    Object.keys(mapRefs).forEach(function(uid){try{mapRefs[uid].off('value');}catch(e){}});
+    mapRefs = {};
+  }
+  function subscribeFriendLocations(){
+    stopFriendRefs();
+    mapFriends = friendIdsFromChats();
+    mapFriends[currentUser.id] = true;
+    Object.keys(mapFriends).forEach(function(uid){
+      mapRefs[uid] = db.ref('locations/'+uid);
+      mapRefs[uid].on('value',function(snap){
+        mapLocationCache[uid] = snap.val() || null;
+        updateMarker(uid,mapLocationCache[uid]);
+        updateMapStatus();
+      });
+      if(uid !== currentUser.id && !state.users[uid]){
+        db.ref('users/'+uid).once('value').then(function(s){
+          if(s.exists()){state.users[uid]=s.val();if(mapLocationCache[uid])updateMarker(uid,mapLocationCache[uid]);}
+        });
+      }
+    });
+    updateMapStatus();
+  }
+  function ensureLeafletMap(){
+    var el = $('gpsLeafletMap');
+    if(!el || !window.L){showToast('❌ Не удалось загрузить карту');return false;}
+    if(!gpsMap){
+      gpsMap = L.map(el,{zoomControl:true,preferCanvas:true}).setView([52.37,4.90],5);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+        maxZoom:19,attribution:'&copy; OpenStreetMap'
+      }).addTo(gpsMap);
+    }
+    setTimeout(function(){if(gpsMap)gpsMap.invalidateSize(true);},180);
+    return true;
+  }
+  window.gpsLoadFriendsOnMap = function(){
+    if(!currentUser)return;
+    db.ref('userChats/'+currentUser.id).once('value').then(function(s){
+      state.userChats=s.val()||state.userChats||{};
+      return db.ref('users').once('value');
+    }).then(function(s){
+      var all=s.val()||{};
+      Object.keys(all).forEach(function(uid){state.users[uid]=all[uid];});
+      if(ensureLeafletMap())subscribeFriendLocations();
+    }).catch(function(){showToast('❌ Не удалось загрузить друзей');});
+  };
+  window.gpsOpenMap = function(){
+    if(!currentUser){showToast('Сначала войдите в аккаунт');return;}
+    openModal('gpsMapModal');
+    setTimeout(function(){
+      if(!ensureLeafletMap())return;
+      window.gpsLoadFriendsOnMap();
+      if(!gpsShareEnabled && userInventory && userInventory.gpsSharing && navigator.geolocation) gpsStartSharing();
+      updateGpsUI();
+    },120);
+  };
+  window.gpsCloseMap = function(){
+    stopFriendRefs();
+    if(mapRefreshTimer){clearInterval(mapRefreshTimer);mapRefreshTimer=null;}
+    closeModal('gpsMapModal');
+  };
+  window.gpsStopMapListeners = function(){stopFriendRefs();};
+  document.addEventListener('click',function(e){
+    var p=e.target.closest('[data-map-profile]');
+    var c=e.target.closest('[data-map-chat]');
+    if(p){
+      e.preventDefault();
+      var uid;try{uid=decodeURIComponent(p.getAttribute('data-map-profile'));}catch(_){return;}
+      closeModal('gpsMapModal');showProfile(uid);return;
+    }
+    if(c){
+      e.preventDefault();
+      var uid2;try{uid2=decodeURIComponent(c.getAttribute('data-map-chat'));}catch(_){return;}
+      closeModal('gpsMapModal');startChat(uid2);return;
+    }
+    if(e.target.closest('#gpsMapShareToggle')){
+      if(gpsShareEnabled){gpsStopSharing();userInventory.gpsSharing=false;saveInventory();}
+      else{
+        if(!navigator.geolocation){showToast('Геолокация не поддерживается');return;}
+        navigator.geolocation.getCurrentPosition(function(){
+          userInventory.gpsSharing=true;saveInventory();gpsStartSharing();showToast('📍 Геолокация включена');
+        },function(){showToast('Разреши доступ к геолокации в браузере');},{enableHighAccuracy:true,timeout:15000});
+      }
+      return;
+    }
+    if(e.target.closest('#gpsMapCenterMe')){
+      if(!navigator.geolocation){showToast('Геолокация недоступна');return;}
+      navigator.geolocation.getCurrentPosition(function(pos){
+        if(gpsMap)gpsMap.setView([pos.coords.latitude,pos.coords.longitude],15);
+      },function(){showToast('Не удалось определить местоположение');},{enableHighAccuracy:true,timeout:15000});
+    }
+  });
+  var oldGpsUi = window.updateGpsUI;
+  window.updateGpsUI = function(){if(typeof oldGpsUi==='function')oldGpsUi();updateMapStatus();};
+})();
+</script>
+
 </body>
 </html>
