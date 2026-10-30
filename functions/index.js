@@ -144,3 +144,98 @@ exports.getLegacyPublicProfile = onCall(
     };
   }
 );
+
+/**
+ * Fetch a bounded batch of sanitized public profiles for friend/map views.
+ * Only authenticated legacy accounts can call this endpoint.
+ */
+exports.getLegacyPublicProfiles = onCall(
+  { region: "europe-west1", enforceAppCheck: false, maxInstances: 10 },
+  async (request) => {
+    if (!request.auth || request.auth.token.legacyAccount !== true) {
+      throw new HttpsError("unauthenticated", "Требуется вход в аккаунт.");
+    }
+    const requested = request.data && request.data.uids;
+    if (!Array.isArray(requested)) {
+      throw new HttpsError("invalid-argument", "Ожидается список пользователей.");
+    }
+    const uids = [...new Set(requested.map((uid) => String(uid || "").trim()).filter(
+      (uid) => uid && uid.length <= 128 && ![".", "#", "$", "[", "]", "/"].some((ch) => uid.includes(ch))
+    ))].slice(0, 50);
+    const profiles = {};
+    await Promise.all(uids.map(async (uid) => {
+      const snap = await getDatabase().ref("publicUsers/" + uid).get();
+      if (!snap.exists()) return;
+      const value = snap.val() || {};
+      if (value.blocked === true) return;
+      const name = String(value.name || uid).slice(0, 128);
+      profiles[uid] = {
+        id: uid,
+        name,
+        avatar: String(value.avatar || name.substring(0, 1).toUpperCase()).slice(0, 8),
+        avatarUrl: typeof value.avatarUrl === "string" ? value.avatarUrl.slice(0, 2048) : null,
+        bio: typeof value.bio === "string" ? value.bio.slice(0, 160) : "",
+        status: value.status === "online" ? "online" : "offline"
+      };
+    }));
+    return { profiles };
+  }
+);
+
+
+/**
+ * Update only public profile fields for the currently authenticated legacy user.
+ * Password, block state, inventory, presence and private settings are not accepted.
+ */
+exports.updateLegacyProfile = onCall(
+  { region: "europe-west1", enforceAppCheck: false, maxInstances: 10 },
+  async (request) => {
+    if (!request.auth || request.auth.token.legacyAccount !== true) {
+      throw new HttpsError("unauthenticated", "Требуется вход в аккаунт.");
+    }
+    const uid = request.auth.uid;
+    const input = request.data && request.data.profile || {};
+    const allowed = {};
+    if (Object.prototype.hasOwnProperty.call(input, "name")) {
+      const name = String(input.name || "").trim().slice(0, 128);
+      if (!name) throw new HttpsError("invalid-argument", "Имя не может быть пустым.");
+      allowed.name = name;
+    }
+    if (Object.prototype.hasOwnProperty.call(input, "avatar")) {
+      allowed.avatar = String(input.avatar || "").trim().slice(0, 8);
+    }
+    if (Object.prototype.hasOwnProperty.call(input, "bio")) {
+      allowed.bio = String(input.bio || "").slice(0, 160);
+    }
+    if (Object.prototype.hasOwnProperty.call(input, "avatarUrl")) {
+      const avatarUrl = input.avatarUrl;
+      if (avatarUrl === null || avatarUrl === "") {
+        allowed.avatarUrl = null;
+      } else if (typeof avatarUrl === "string" && avatarUrl.length <= 2048 && /^https:\/\//i.test(avatarUrl)) {
+        allowed.avatarUrl = avatarUrl;
+      } else {
+        throw new HttpsError("invalid-argument", "Некорректная ссылка аватара.");
+      }
+    }
+    if (!Object.keys(allowed).length) return { ok: true };
+    const db = getDatabase();
+    const privateRef = db.ref("users/" + uid);
+    const privateSnap = await privateRef.get();
+    if (!privateSnap.exists()) throw new HttpsError("not-found", "Аккаунт не найден.");
+    const updates = {};
+    Object.keys(allowed).forEach((key) => {
+      updates["users/" + uid + "/" + key] = allowed[key];
+      updates["publicUsers/" + uid + "/" + key] = allowed[key];
+    });
+    updates["publicUsers/" + uid + "/id"] = uid;
+    await db.ref().update(updates);
+    const current = privateSnap.val() || {};
+    return { ok: true, profile: Object.assign({
+      id: uid,
+      name: current.name || uid,
+      avatar: current.avatar || "",
+      bio: current.bio || "",
+      avatarUrl: current.avatarUrl || null
+    }, allowed) };
+  }
+);
