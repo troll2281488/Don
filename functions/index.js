@@ -82,7 +82,7 @@ exports.getLegacySessionProfile = onCall(
       throw new HttpsError("unauthenticated", "Требуется вход в аккаунт.");
     }
     const uid = request.auth.uid;
-    if (!uid || uid.length > 128 || /[.#$\\[\\]/]/.test(uid)) {
+    if (!uid || uid.length > 128 || [".", "#", "$", "[", "]", "/"].some((ch) => uid.includes(ch))) {
       throw new HttpsError("unauthenticated", "Недействительная сессия.");
     }
     const snapshot = await getDatabase().ref("users/" + uid).get();
