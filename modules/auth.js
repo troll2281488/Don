@@ -54,6 +54,19 @@
       .then(function (result) { return result && result.data && result.data.profiles || {}; });
   }
 
+
+  function getLegacySessionProfile() {
+    var functions = global.firebase && global.firebase.functions;
+    if (!functions) return Promise.reject(new Error("Firebase Functions SDK не загружен."));
+    return functions("europe-west1").httpsCallable("getLegacySessionProfile")({})
+      .then(function (result) {
+        var data = result && result.data || {};
+        if (!data.profile || !data.uid) throw new Error("Сервер не подтвердил сессию.");
+        return data;
+      });
+  }
+
+
   function updateLegacyProfile(profile) {
     var functions = global.firebase && global.firebase.functions;
     if (!functions) return Promise.reject(new Error("Firebase Functions SDK не загружен."));
@@ -106,6 +119,7 @@
     searchLegacyUsers: searchLegacyUsers,
     getLegacyPublicProfile: getLegacyPublicProfile,
     getLegacyPublicProfiles: getLegacyPublicProfiles,
+    getLegacySessionProfile: getLegacySessionProfile,
     updateLegacyProfile: updateLegacyProfile,
     register: register,
     sendPasswordReset: sendPasswordReset,
