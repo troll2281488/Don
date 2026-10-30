@@ -1409,12 +1409,35 @@ document.addEventListener('click',function(e){
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.activeElement&&document.activeElement.id==='loginPassword'){window.doLogin();}if(e.key==='Enter'&&document.activeElement&&document.activeElement.id==='messageInput'){sendMessage();}if(e.key==='Enter'&&document.activeElement&&document.activeElement.id==='donAiInput'){processDonAiMessage();}});
 
 window.doLogin=function(){
-    var name=($('loginName')&&$('loginName').value||'').trim();var pass=$('loginPassword')&&$('loginPassword').value||'';var avatar=(($('loginAvatar')&&$('loginAvatar').value||'').trim()||name.substring(0,2)).toUpperCase().slice(0,2);
+    var name=($('loginName')&&$('loginName').value||'').trim();
+    var pass=$('loginPassword')&&$('loginPassword').value||'';
+    var avatar=(($('loginAvatar')&&$('loginAvatar').value||'').trim()||name.substring(0,2)).toUpperCase().slice(0,2);
     if(!name||!pass){showToast(t('err_fill'));return;}
+    if(!window.firebase||!firebase.database){showToast('❌ Firebase не загрузился. Обновите страницу.');return;}
     db.ref('users/'+name).once('value').then(function(snap){
-        if(snap.exists()){var u=snap.val();if(u.password!==pass){showToast(t('err_pass'));return;}if(u.blocked){showToast(t('err_blocked'));return;}currentUser={id:name,name:u.name||name,avatar:u.avatar||avatar,avatarUrl:u.avatarUrl||null,password:pass,bio:u.bio||''};window.currentUser=currentUser;db.ref('users/'+name).update({status:'online'});return loadInventoryAndStart();}
-        else{var nu={name:name,avatar:avatar,password:pass,createdAt:Date.now(),status:'online',blocked:false,bio:''};db.ref('users/'+name).set(nu).then(function(){currentUser={id:name,name:name,avatar:avatar,password:pass,avatarUrl:null,bio:''};window.currentUser=currentUser;return loadInventoryAndStart();});}
-    }).catch(function(err){showToast(t('toast_error'));});
+        if(snap.exists()){
+            var u=snap.val()||{};
+            if(u.password!==pass){showToast(t('err_pass'));return;}
+            if(u.blocked){showToast(t('err_blocked'));return;}
+            currentUser={id:name,name:u.name||name,avatar:u.avatar||avatar,avatarUrl:u.avatarUrl||null,password:pass,bio:u.bio||''};
+            window.currentUser=currentUser;
+            return db.ref('users/'+name).update({status:'online'}).then(loadInventoryAndStart);
+        }
+        var nu={name:name,avatar:avatar,password:pass,createdAt:Date.now(),status:'online',blocked:false,bio:''};
+        currentUser={id:name,name:name,avatar:avatar,avatarUrl:null,password:pass,bio:''};
+        window.currentUser=currentUser;
+        return db.ref('users/'+name).set(nu).then(loadInventoryAndStart);
+    }).catch(function(err){
+        var code=err&&err.code?String(err.code):'';
+        var msg=err&&err.message?String(err.message):'';
+        if(code.indexOf('PERMISSION_DENIED')>=0||msg.toLowerCase().indexOf('permission_denied')>=0){
+            showToast('❌ Firebase запретил доступ (PERMISSION_DENIED). Нужна проверка правил базы данных.');
+        }else if(code.indexOf('NETWORK')>=0||msg.toLowerCase().indexOf('network')>=0){
+            showToast('❌ Нет соединения с Firebase. Проверьте интернет и повторите.');
+        }else{
+            showToast('❌ Ошибка входа: '+(code||msg||'неизвестная ошибка').slice(0,110));
+        }
+    });
 };
 function loadInventoryAndStart(){var name=currentUser.id;return db.ref('inventory/'+name).once('value').then(function(s){if(s.exists()){userInventory=Object.assign({},userInventory,s.val());userInventory.balance=Number(userInventory.balance)||5000;if(!userInventory.ownedSpacegods)userInventory.ownedSpacegods=[];}else{userInventory.balance=5000;userInventory.ownedSpacegods=[];db.ref('inventory/'+name).set(userInventory);}return startApp();}).catch(function(){userInventory.balance=5000;userInventory.ownedSpacegods=[];return startApp();});}
 function startApp(){window.currentUser=currentUser;localStorage.setItem('dg_user',JSON.stringify(currentUser));hideSplash();$('loginScreen').style.display='none';$('mainApp').style.display='block';state.users[currentUser.id]=Object.assign(state.users[currentUser.id]||{},currentUser);var av=$('userAvatar');if(currentUser.avatarUrl){av.innerText='';av.parentElement.style.backgroundImage='url('+currentUser.avatarUrl+')';av.parentElement.style.backgroundSize='cover';}else av.innerText=currentUser.avatar||'U';updateSpaceGodUI();loadChatsCache();ensureNotesChat();setupPresence();loadData();applySidebarTheme();applyTranslations();gpsRestoreState();db.ref('users/'+currentUser.id).on('value',function(s){var v=s.val();if(v){state.users[currentUser.id]=v;currentUser.name=v.name||currentUser.name;currentUser.bio=v.bio||'';currentUser.avatar=v.avatar||currentUser.avatar;currentUser.avatarUrl=v.avatarUrl||null;window.currentUser=currentUser;var av2=$('userAvatar');if(currentUser.avatarUrl){av2.innerText='';av2.parentElement.style.backgroundImage='url('+currentUser.avatarUrl+')';av2.parentElement.style.backgroundSize='cover';}else{av2.innerText=currentUser.avatar||'U';av2.parentElement.style.backgroundImage='';}updateSpaceGodUI();debouncedRenderChats();}});setTimeout(function(){if(window.dgCalls)window.dgCalls.listenIncoming();},500);setTimeout(function(){if('Notification' in window&&Notification.permission==='default'){$('notifPermBar').classList.add('show');setTimeout(function(){$('notifPermBar').classList.remove('show');},8000);}},2000);showToast(t('toast_hello')+' '+currentUser.name+'!');setTimeout(startKeepAlive,500);}
