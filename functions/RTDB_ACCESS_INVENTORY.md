@@ -35,7 +35,7 @@ The current message sender performs a root-level multi-location update after wri
 
 ## Next implementation tasks
 
-- Add callable sanitized user-directory/search and single-profile endpoints.\n- After deploying those endpoints and migrating `publicUsers`, switch `loadAllUsersForSearch` and GPS friend lookup away from whole-collection reads.
+- Deploy the sanitized user-directory/search, single-profile and batch-profile endpoints; migrate `publicUsers`; then switch `loadAllUsersForSearch` and GPS friend lookup away from whole-collection reads.\n- Switch profile editing to `updateLegacyProfile` only after the callable is deployed and tested against a disposable account.
 - Design a safe profile read/update API for profile subscriptions and edits.
 - Move cross-user chat index fan-out to a trusted server trigger.
 - Add membership-aware rules for private/group messages and call signaling.
