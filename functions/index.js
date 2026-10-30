@@ -4,11 +4,46 @@ const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { initializeApp } = require("firebase-admin/app");
 const { getDatabase } = require("firebase-admin/database");
 const { getAuth } = require("firebase-admin/auth");
+const crypto = require("crypto");
 
 initializeApp();
 
 function normalizeUsername(value) {
   return String(value || "").trim();
+}
+
+function rateLimitKey(ip, username) {
+  return crypto.createHash("sha256")
+    .update(String(ip || "unknown") + "|" + String(username || "").toLowerCase())
+    .digest("hex");
+}
+
+async function checkLegacyLoginLimit(ip, username) {
+  const ref = getDatabase().ref("internalAuthRateLimits/" + rateLimitKey(ip, username));
+  const now = Date.now();
+  const result = await ref.transaction((current) => {
+    const state = current && typeof current === "object" ? current : {};
+    if (Number(state.resetAt || 0) <= now) {
+      return { count: 0, resetAt: now + 15 * 60 * 1000 };
+    }
+    return state;
+  });
+  const state = result.snapshot.val() || {};
+  if (Number(state.count || 0) >= 5) {
+    throw new HttpsError("resource-exhausted", "Слишком много попыток. Попробуйте позже.");
+  }
+  return ref;
+}
+
+async function recordLegacyLoginFailure(ref) {
+  const now = Date.now();
+  await ref.transaction((current) => {
+    const state = current && typeof current === "object" ? current : {};
+    if (Number(state.resetAt || 0) <= now) {
+      return { count: 1, resetAt: now + 15 * 60 * 1000 };
+    }
+    return { count: Number(state.count || 0) + 1, resetAt: Number(state.resetAt) };
+  });
 }
 
 /**
@@ -29,9 +64,11 @@ exports.signInLegacyAccount = onCall(
       throw new HttpsError("invalid-argument", "Проверьте имя пользователя и пароль.");
     }
 
+    const requestIp = request.rawRequest && request.rawRequest.ip || "unknown";
+    const rateLimitRef = await checkLegacyLoginLimit(requestIp, username);
     const snapshot = await getDatabase().ref("users/" + username).get();
     if (!snapshot.exists()) {
-      // Keep the same response for unknown users and wrong passwords.
+      await recordLegacyLoginFailure(rateLimitRef);
       throw new HttpsError("unauthenticated", "Неверный ник или пароль.");
     }
 
@@ -40,8 +77,10 @@ exports.signInLegacyAccount = onCall(
       throw new HttpsError("permission-denied", "Аккаунт заблокирован.");
     }
     if (typeof user.password !== "string" || user.password !== password) {
+      await recordLegacyLoginFailure(rateLimitRef);
       throw new HttpsError("unauthenticated", "Неверный ник или пароль.");
     }
+    await rateLimitRef.remove();
 
     // Existing Firebase UID is preserved if this account was migrated before.
     try {
