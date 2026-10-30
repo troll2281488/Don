@@ -71,6 +71,39 @@ exports.signInLegacyAccount = onCall(
 
 
 /**
+ * Revalidates the current legacy Firebase Auth session against the private
+ * account record. This prevents a cached browser profile from keeping a
+ * blocked/deleted account signed in after token restoration.
+ */
+exports.getLegacySessionProfile = onCall(
+  { region: "europe-west1", enforceAppCheck: false, maxInstances: 10 },
+  async (request) => {
+    if (!request.auth || request.auth.token.legacyAccount !== true) {
+      throw new HttpsError("unauthenticated", "Требуется вход в аккаунт.");
+    }
+    const uid = request.auth.uid;
+    if (!uid || uid.length > 128 || /[.#$\\[\\]/]/.test(uid)) {
+      throw new HttpsError("unauthenticated", "Недействительная сессия.");
+    }
+    const snapshot = await getDatabase().ref("users/" + uid).get();
+    if (!snapshot.exists()) throw new HttpsError("unauthenticated", "Аккаунт больше не существует.");
+    const user = snapshot.val() || {};
+    if (user.blocked === true) throw new HttpsError("permission-denied", "Аккаунт заблокирован.");
+    return {
+      uid,
+      profile: {
+        id: uid,
+        name: String(user.name || uid).slice(0, 128),
+        avatar: String(user.avatar || uid.substring(0, 1).toUpperCase()).slice(0, 8),
+        avatarUrl: typeof user.avatarUrl === "string" ? user.avatarUrl.slice(0, 2048) : null,
+        bio: typeof user.bio === "string" ? user.bio.slice(0, 160) : ""
+      }
+    };
+  }
+);
+
+
+/**
  * Returns a sanitized directory for the legacy user-search UI.
  * Requires a Firebase Auth session created by the legacy sign-in bridge.
  * Never returns password or other private account fields.
