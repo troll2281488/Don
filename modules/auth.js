@@ -1,7 +1,8 @@
-/* DonorGram email authentication module.
- * Requires Firebase compat SDK: firebase-app-compat.js and firebase-auth-compat.js.
- * This module is intentionally separate from the existing chat UI so the current
- * interface can be preserved while authentication is integrated and tested.
+/* DonorGram authentication helpers.
+ * Requires Firebase compat app/auth/functions SDKs for the legacy bridge,
+ * and Firebase compat app/auth SDKs for the email-auth helpers.
+ * The legacy bridge is prepared but is not yet wired into the old login UI.
+ * Keep this module separate so the existing interface and account data remain intact.
  */
 (function (global) {
   "use strict";
