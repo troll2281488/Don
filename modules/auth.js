@@ -17,7 +17,7 @@
     return String(email || "").trim().toLowerCase();
   }
 
-  function signIn(email, password) {
+  function signInLegacy(username, password) {\n    var functions = global.firebase && global.firebase.functions;\n    if (!functions) return Promise.reject(new Error("Firebase Functions SDK не загружен."));\n    var call = functions("europe-west1").httpsCallable("signInLegacyAccount");\n    return call({ username: String(username || "").trim(), password: String(password || "") })\n      .then(function (result) {\n        var data = result && result.data || {};\n        if (!data.token) throw new Error("Сервер не вернул токен входа.");\n        return getAuth().signInWithCustomToken(data.token).then(function (credential) {\n          return { user: credential.user, profile: data.profile || {}, username: data.username || username };\n        });\n      });\n  }\n\n  function searchLegacyUsers(query) {\n    var functions = global.firebase && global.firebase.functions;\n    if (!functions) return Promise.reject(new Error("Firebase Functions SDK не загружен."));\n    return functions("europe-west1").httpsCallable("searchLegacyUsers")({ query: String(query || "").trim() })\n      .then(function (result) { return result && result.data && Array.isArray(result.data.users) ? result.data.users : []; });\n  }\n\n  function signIn(email, password) {
     return getAuth().signInWithEmailAndPassword(normalizeEmail(email), password);
   }
 
@@ -41,7 +41,7 @@
   }
 
   global.DonorGramAuth = {
-    signIn: signIn,
+    signIn: signIn,\n    signInLegacy: signInLegacy,\n    searchLegacyUsers: searchLegacyUsers,
     register: register,
     sendPasswordReset: sendPasswordReset,
     signOut: signOut,
