@@ -526,7 +526,7 @@ button,input,textarea,select{touch-action:manipulation}
 .gps-map-tools{display:flex;gap:8px;margin-left:auto}
 .gps-map-tools button{border:0;border-radius:12px;padding:9px 11px;background:#eef2ff;color:#4658b8;font-weight:700;cursor:pointer}
 .gps-avatar{width:42px;height:42px;border:3px solid #fff;border-radius:50%;background:#667eea center/cover;box-shadow:0 2px 8px #0004;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800}
-.gps-avatar.online{outline:3px solid #34c759}.gps-avatar.offline{outline:3px solid #9aa3b2}
+.gps-avatar.friend{outline:3px solid #667eea}
 .gps-avatar.me{outline:3px solid #ffbf36}
 .gps-friend-marker{background:transparent;border:0}
 .gps-friend-label{margin-top:4px;max-width:110px;padding:3px 7px;border-radius:10px;background:#fff;color:#202638;font-size:11px;font-weight:700;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 1px 5px #0003}
@@ -1960,10 +1960,9 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
     return typeof url === 'string' && /^https?:\/\//i.test(url) ? url.replace(/["'<>\\]/g,'') : '';
   }
   function markerIcon(uid, user, isMe){
-    var online = user && user.status === 'online';
     var initial = ((user && (user.avatar || user.name)) || uid || '?').toString().slice(0,1).toUpperCase();
     var avatar = safeAvatarUrl(user && user.avatarUrl);
-    var html = '<div class="gps-avatar '+(isMe?'me':online?'online':'offline')+'"'+(avatar?' style="background-image:url(&quot;'+avatar+'&quot;)"':'')+'>'+(avatar?'':esc(initial))+'</div>'+
+    var html = '<div class="gps-avatar '+(isMe?'me':'friend')+'"'+(avatar?' style="background-image:url(&quot;'+avatar+'&quot;)"':'')+'>'+(avatar?'':esc(initial))+'</div>'+
       '<div class="gps-friend-label">'+esc(isMe?'Вы':(user && user.name) || uid)+'</div>';
     return L.divIcon({className:'gps-friend-marker',html:html,iconSize:[112,64],iconAnchor:[56,24]});
   }
@@ -1979,7 +1978,7 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
     }
     var lat = Number(loc.lat), lng = Number(loc.lng);
     var popup = isMe ? '<b>📍 Ваше местоположение</b>' :
-      '<b>'+esc(user.name || uid)+'</b><div style="font-size:12px;color:#687080">'+esc(user.bio || (user.status === 'online' ? '🟢 В сети' : '⚫ Не в сети'))+'</div>'+
+      '<b>'+esc(user.name || uid)+'</b><div style="font-size:12px;color:#687080">'+esc(user.bio || 'Друг DonorGram')+'</div>'+
       '<div class="gps-popup-actions"><button data-map-profile="'+encodeURIComponent(uid)+'">Профиль</button><button class="secondary" data-map-chat="'+encodeURIComponent(uid)+'">Написать</button></div>';
     if(!mapMarkers[uid]){
       mapMarkers[uid] = L.marker([lat,lng],{icon:markerIcon(uid,user,isMe)}).addTo(gpsMap);
@@ -2010,17 +2009,17 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
     stopFriendRefs();
     mapFriends = friendIdsFromChats();
     mapFriends[currentUser.id] = true;
+    // Одноразовое чтение координат: без постоянных Firebase-подписок и фонового трафика.
     Object.keys(mapFriends).forEach(function(uid){
-      mapRefs[uid] = db.ref('locations/'+uid);
-      mapRefs[uid].on('value',function(snap){
+      db.ref('locations/'+uid).once('value').then(function(snap){
         mapLocationCache[uid] = snap.val() || null;
         updateMarker(uid,mapLocationCache[uid]);
         updateMapStatus();
-      });
+      }).catch(function(){});
       if(uid !== currentUser.id && !state.users[uid]){
         db.ref('users/'+uid).once('value').then(function(s){
           if(s.exists()){state.users[uid]=s.val();if(mapLocationCache[uid])updateMarker(uid,mapLocationCache[uid]);}
-        });
+        }).catch(function(){});
       }
     });
     updateMapStatus();
@@ -2041,10 +2040,6 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
     if(!currentUser)return;
     db.ref('userChats/'+currentUser.id).once('value').then(function(s){
       state.userChats=s.val()||state.userChats||{};
-      return db.ref('users').once('value');
-    }).then(function(s){
-      var all=s.val()||{};
-      Object.keys(all).forEach(function(uid){state.users[uid]=all[uid];});
       if(ensureLeafletMap())subscribeFriendLocations();
     }).catch(function(){showToast('❌ Не удалось загрузить друзей');});
   };
@@ -2054,7 +2049,7 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
     setTimeout(function(){
       if(!ensureLeafletMap())return;
       window.gpsLoadFriendsOnMap();
-      if(!gpsShareEnabled && userInventory && userInventory.gpsSharing && navigator.geolocation) gpsStartSharing();
+      // Передача координат запускается только вручную кнопкой «Делюсь».
       updateGpsUI();
     },120);
   };
