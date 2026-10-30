@@ -4,7 +4,7 @@ This directory contains the server-side bridge for the original `users/{username
 
 ## Current status
 
-- `signInLegacyAccount` verifies the legacy password on the server and issues a Firebase custom token.
+- `signInLegacyAccount` verifies the legacy password on the server and issues a Firebase custom token.\n- `searchLegacyUsers` returns a limited, sanitized user-search result and requires that legacy Firebase Auth session.
 - The function is **not deployed** by a GitHub commit.
 - The original browser login has **not** been switched to this function.
 - Existing Realtime Database rules do not authorize the legacy app's data paths.
@@ -38,7 +38,7 @@ cd functions
 npm install
 cd ..
 firebase use donor-fd6ea
-firebase deploy --only functions:signInLegacyAccount
+firebase deploy --only functions:signInLegacyAccount,functions:searchLegacyUsers
 ```
 
 The Firebase project may require the Blaze billing plan for Cloud Functions. Review the function's rate limiting and enable App Check before production use. The current callable has App Check enforcement disabled for initial integration; do not treat that as production hardening.
