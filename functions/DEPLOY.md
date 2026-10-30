@@ -5,7 +5,11 @@ This directory contains the server-side bridge for the original `users/{username
 ## Current status
 
 - `signInLegacyAccount` verifies the legacy password on the server and issues a Firebase custom token.
-- `searchLegacyUsers` returns a limited, sanitized user-search result and requires that legacy Firebase Auth session.\n- `getLegacyPublicProfile` returns one sanitized public profile to an authenticated legacy session.\n- `getLegacyPublicProfiles` returns up to 50 sanitized profiles for friend/map views.\n- `updateLegacyProfile` allows an authenticated user to change only name, avatar, bio and an HTTPS avatar URL; it synchronizes `users/{uid}` and `publicUsers/{uid}` without accepting password or private fields.
+- `getLegacySessionProfile` revalidates a restored session against the private account record.
+- `searchLegacyUsers` returns a limited, sanitized user-search result and requires that legacy Firebase Auth session.
+- `getLegacyPublicProfile` returns one sanitized public profile to an authenticated legacy session.
+- `getLegacyPublicProfiles` returns up to 50 sanitized profiles for friend/map views.
+- `updateLegacyProfile` allows an authenticated user to change only name, avatar, bio and an HTTPS avatar URL; it synchronizes `users/{uid}` and `publicUsers/{uid}` without accepting password or private fields.
 - The functions are **not deployed** by a GitHub commit. The public-profile migration has not been run.
 - The original browser login has **not** been switched to this function.
 - Existing Realtime Database rules do not authorize the legacy app's data paths.
@@ -51,7 +55,7 @@ The Firebase project may require the Blaze billing plan for Cloud Functions. Rev
 
 ## Opt-in Firebase Auth UI bridge
 
-The old login screen now has a guarded integration with `DonorGramAuth.signInLegacy`, and cached-session restoration waits for Firebase Auth's first `onAuthStateChanged` event before trusting the cached UID. Both are disabled by default. To test only after deploying the callable functions and confirming the required RTDB rules and public profile migration, set `window.DG_SECURE_AUTH_ENABLED = true` before the main application script runs. Keep it disabled during rollout: GitHub commits do not deploy Cloud Functions or change RTDB Rules. Existing account creation remains on the legacy path; the callable bridge currently authenticates existing legacy accounts only. Do not enable until the backend is deployed and tested against a non-production account.
+The old login screen contains a guarded integration with `DonorGramAuth.signInLegacy`, and cached-session restoration waits for Firebase Auth's first `onAuthStateChanged` event before trusting the cached UID. The secure-auth flag is disabled by default. To test only after deploying the callable functions and confirming the required RTDB rules and public profile migration, set `window.DG_SECURE_AUTH_ENABLED = true` before the main application script runs. Keep it disabled during rollout: GitHub commits do not deploy Cloud Functions or change RTDB Rules. Existing account creation remains on the legacy path; the callable bridge currently authenticates existing legacy accounts only. Do not enable until the backend is deployed and tested against a non-production account.
 
 
 ## Session revalidation
