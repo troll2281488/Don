@@ -108,3 +108,39 @@ exports.searchLegacyUsers = onCall(
     return { users };
   }
 );
+
+
+/**
+ * Fetch one sanitized public profile for the legacy profile/chat UI.
+ * The caller must be signed in through the legacy custom-token bridge.
+ */
+exports.getLegacyPublicProfile = onCall(
+  { region: "europe-west1", enforceAppCheck: false, maxInstances: 10 },
+  async (request) => {
+    if (!request.auth || request.auth.token.legacyAccount !== true) {
+      throw new HttpsError("unauthenticated", "Требуется вход в аккаунт.");
+    }
+
+    const uid = String(request.data && request.data.uid || "").trim();
+    if (!uid || uid.length > 128 || /[.#$\[\]/]/.test(uid)) {
+      throw new HttpsError("invalid-argument", "Некорректный идентификатор пользователя.");
+    }
+
+    const snapshot = await getDatabase().ref("publicUsers/" + uid).get();
+    if (!snapshot.exists()) return { profile: null };
+
+    const value = snapshot.val() || {};
+    if (value.blocked === true) return { profile: null };
+    const name = String(value.name || uid).slice(0, 128);
+    return {
+      profile: {
+        id: uid,
+        name,
+        avatar: String(value.avatar || name.substring(0, 1).toUpperCase()).slice(0, 8),
+        avatarUrl: typeof value.avatarUrl === "string" ? value.avatarUrl.slice(0, 2048) : null,
+        bio: typeof value.bio === "string" ? value.bio.slice(0, 160) : "",
+        status: value.status === "online" ? "online" : "offline"
+      }
+    };
+  }
+);
