@@ -46,6 +46,21 @@
       .then(function (result) { return result && result.data ? result.data.profile || null : null; });
   }
 
+
+  function getLegacyPublicProfiles(uids) {
+    var functions = global.firebase && global.firebase.functions;
+    if (!functions) return Promise.reject(new Error("Firebase Functions SDK не загружен."));
+    return functions("europe-west1").httpsCallable("getLegacyPublicProfiles")({ uids: Array.isArray(uids) ? uids : [] })
+      .then(function (result) { return result && result.data && result.data.profiles || {}; });
+  }
+
+  function updateLegacyProfile(profile) {
+    var functions = global.firebase && global.firebase.functions;
+    if (!functions) return Promise.reject(new Error("Firebase Functions SDK не загружен."));
+    return functions("europe-west1").httpsCallable("updateLegacyProfile")({ profile: profile || {} })
+      .then(function (result) { return result && result.data || { ok: false }; });
+  }
+
   function signIn(email, password) {
     return getAuth().signInWithEmailAndPassword(normalizeEmail(email), password);
   }
@@ -72,7 +87,7 @@
   global.DonorGramAuth = {
     signIn: signIn,
     signInLegacy: signInLegacy,
-    searchLegacyUsers: searchLegacyUsers,\n    getLegacyPublicProfile: getLegacyPublicProfile,
+    searchLegacyUsers: searchLegacyUsers,\n    getLegacyPublicProfile: getLegacyPublicProfile,\n    getLegacyPublicProfiles: getLegacyPublicProfiles,\n    updateLegacyProfile: updateLegacyProfile,
     register: register,
     sendPasswordReset: sendPasswordReset,
     signOut: signOut,
