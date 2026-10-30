@@ -47,3 +47,8 @@ firebase deploy --only functions:signInLegacyAccount,functions:searchLegacyUsers
 The Firebase project may require the Blaze billing plan for Cloud Functions. Review the function's rate limiting and enable App Check before production use. The current callable has App Check enforcement disabled for initial integration; do not treat that as production hardening.
 
 **Do not deploy permissive Realtime Database rules as a workaround.**
+
+
+## Opt-in Firebase Auth UI bridge
+
+The old login screen now has a guarded integration with `DonorGramAuth.signInLegacy`, and cached-session restoration waits for Firebase Auth's first `onAuthStateChanged` event before trusting the cached UID. Both are disabled by default. To test only after deploying the callable functions and confirming the required RTDB rules and public profile migration, set `window.DG_SECURE_AUTH_ENABLED = true` before the main application script runs. Keep it disabled during rollout: GitHub commits do not deploy Cloud Functions or change RTDB Rules. Existing account creation remains on the legacy path; the callable bridge currently authenticates existing legacy accounts only. Do not enable until the backend is deployed and tested against a non-production account.
