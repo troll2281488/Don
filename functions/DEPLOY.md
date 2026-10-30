@@ -41,7 +41,7 @@ node migrate-public-users.js   # dry-run; requires ADC
 node migrate-public-users.js --apply   # writes publicUsers only
 cd ..
 firebase use donor-fd6ea
-firebase deploy --only functions:signInLegacyAccount,functions:searchLegacyUsers,functions:getLegacyPublicProfile,functions:getLegacyPublicProfiles,functions:updateLegacyProfile
+firebase deploy --only functions:signInLegacyAccount,functions:searchLegacyUsers,functions:getLegacyPublicProfile,functions:getLegacyPublicProfiles,functions:updateLegacyProfile,functions:getLegacySessionProfile
 ```
 
 The Firebase project may require the Blaze billing plan for Cloud Functions. Review the function's rate limiting and enable App Check before production use. The current callable has App Check enforcement disabled for initial integration; do not treat that as production hardening.
