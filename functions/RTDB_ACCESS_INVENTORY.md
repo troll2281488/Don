@@ -35,8 +35,28 @@ The current message sender performs a root-level multi-location update after wri
 
 ## Next implementation tasks
 
-- Deploy the sanitized user-directory/search, single-profile and batch-profile endpoints; migrate `publicUsers`; then switch `loadAllUsersForSearch` and GPS friend lookup away from whole-collection reads.\n- Switch profile editing to `updateLegacyProfile` only after the callable is deployed and tested against a disposable account.
+- Deploy the sanitized user-directory/search, single-profile and batch-profile endpoints; migrate `publicUsers`; then switch `loadAllUsersForSearch` and GPS friend lookup away from whole-collection reads.
+- Switch profile editing to `updateLegacyProfile` only after the callable is deployed and tested against a disposable account.
 - Design a safe profile read/update API for profile subscriptions and edits.
 - Move cross-user chat index fan-out to a trusted server trigger.
 - Add membership-aware rules for private/group messages and call signaling.
 - Only after those pieces are deployed, connect the login UI to `signInLegacyAccount` and restore sessions with Firebase Auth.
+
+
+## Current client integration status (2026-10-30)
+
+The source now includes callable helpers for legacy sign-in, session revalidation, public-profile search, single/batch profile reads, and constrained profile updates. The secure auth/profile flags in the page remain disabled by default. These callable endpoints are source code only until deployed.
+
+The old client still directly accesses the legacy paths listed above. In particular:
+- `loadData()` subscribes to `userChats/{uid}`, `inventory/{uid}`, `users/{uid}/blockedUsers`, and `users/{uid}/gpsSharing`.
+- `subscribeToUser()` still subscribes to `users/{otherUid}` unless the secure profile flag is enabled.
+- `sendMessage()` and group-management operations issue client-side writes to messages, chat metadata, and per-user chat indexes.
+- `setupPresence()` writes `users/{uid}/status` and configures on-disconnect behavior.
+- `gpsStartSharing()` writes `locations/{uid}` and `users/{uid}/gpsSharing`.
+- Call signaling uses the legacy `calls` branch.
+
+These are explicit blockers for a secure-auth-only rollout: authentication does not grant database access, and callable profile APIs do not replace the other realtime listeners/writes.
+
+## Safe next migration boundary
+
+Do not publish a replacement rules file until every multi-user write is either moved behind a trusted backend or constrained by a tested membership/participant rule. In particular, the current client-side unread-count/last-message fan-out prevents a blanket owner-only `userChats/{uid}` rule. Preserve existing `roomMembers` and `rtdb-media` behavior. The next safe implementation unit is server-side chat-index fan-out plus message membership validation, followed by emulator tests and a narrowly scoped ruleset.
