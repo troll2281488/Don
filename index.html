@@ -790,7 +790,7 @@ button,input,textarea,select{touch-action:manipulation}
             <button type="button" data-close="aiSettingsModal">&times;</button>
         </div>
 
-        <div id="dgProviderSettings" style="padding:12px;margin-bottom:16px;border:1px solid #e8edf2;border-radius:12px"><b>🤖 DonAI</b><small style="display:block;color:#687080">Бесплатный API без регистрации и ключа. Локальную модель скачивать не нужно.</small><select id="dgProvider" style="display:none"><option value="https://vireonix.ai/v1" selected>DonAI</option></select><select id="dgModel" style="display:none"><option value="openai/gpt-5.4-mini" selected>DonAI</option></select><input id="dgKey" type="password" style="display:none" value=""></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div id="dgProviderSettings" style="padding:12px;margin-bottom:16px;border:1px solid #e8edf2;border-radius:12px"><b>🤖 DonAI</b><small style="display:block;color:#687080">Бесплатный API без регистрации и ключа. Локальную модель скачивать не нужно.</small><select id="dgProvider" style="display:none"><option value="https://text.pollinations.ai/openai" selected>Pollinations</option></select><select id="dgModel" style="display:none"><option value="openai/gpt-5.4-mini" selected>DonAI</option></select><input id="dgKey" type="password" style="display:none" value=""></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
             <div>
                 <label style="font-size:12px;color:#555">Размер шрифта:</label>
                 <select id="aiFontSize" style="width:100%;padding:8px;border-radius:8px;border:1px solid #e8edf2;margin-top:4px">
@@ -2069,6 +2069,6 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
 })();
 </script>
 
-  <script src="./offline-ai.js?v=20261031-free-api-restore-v1"></script>
+  <script src="./offline-ai.js?v=20261031-pollinations-only-v1"></script>
 </body>
 </html>
