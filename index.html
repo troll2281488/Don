@@ -1898,7 +1898,7 @@ async function processDonAiUtilityCommand(raw){
  var cmd=m[1].toLowerCase(),arg=(m[2]||'').trim();
  var known=['help','time','date','calc','coin','dice','choose','password','uuid','color','timer','remind','focus','clear','export','stats','copy','reverse','upper','lower'];
  if(known.indexOf(cmd)<0)return false;
- if(donAiState.isBusy)return true;
+ if(donAiState.isBusy)return false;
  addDonAiMessage('user',input);
  var answer='';
  try{switch(cmd){
