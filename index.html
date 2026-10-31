@@ -6,6 +6,7 @@
 <title>✨ DonorGram Pro + DonAI</title>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <!-- Leaflet загружается только при первом открытии карты, чтобы не тратить трафик при обычном общении. -->
 <style>
@@ -619,8 +620,9 @@ button,input,textarea,select{touch-action:manipulation}
 <div id="loginScreen" class="login-screen" style="display:none">
 <div class="login-card">
 <h2>✨ DonorGram Pro</h2>
-<input type="text" id="loginName" data-i18n-ph="login_name" placeholder="Никнейм" autofocus>
-<input type="password" id="loginPassword" data-i18n-ph="login_pass" placeholder="Пароль">
+<input type="text" id="loginName" data-i18n-ph="login_name" placeholder="Никнейм" autofocus autocomplete="username">
+<input type="email" id="loginEmail" placeholder="Электронная почта" autocomplete="email">
+<input type="password" id="loginPassword" data-i18n-ph="login_pass" placeholder="Пароль" autocomplete="current-password">
 <input type="text" id="loginAvatar" data-i18n-ph="login_avatar" placeholder="Аватар (2 буквы)" maxlength="2" style="text-transform:uppercase">
 <button class="login-btn" id="loginBtn" type="button" data-i18n="login_btn">Войти / Регистрация</button>
 <p style="text-align:center;margin-top:12px;color:#8e98a3"><span id="userCount">0</span> <span data-i18n="login_users">пользователей</span></p>
@@ -1065,6 +1067,8 @@ button,input,textarea,select{touch-action:manipulation}
 const firebaseConfig={apiKey:"AIzaSyA2CuM61jyNiMcXstm_aUsIOwabfiTkKuo",authDomain:"donor-fd6ea.firebaseapp.com",databaseURL:"https://donor-fd6ea-default-rtdb.firebaseio.com",projectId:"donor-fd6ea",storageBucket:"donor-fd6ea.firebasestorage.app",messagingSenderId:"825423285184",appId:"1:825423285184:web:77f0160f05609e81381625"};
 firebase.initializeApp(firebaseConfig);
 const db=firebase.database();
+const auth=firebase.auth();
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function(err){console.warn("Auth persistence:",err&&err.code);});
 const CALC_URL='https://troll2281488.github.io/Cksksksje/';
 
 var ICE_SERVERS={iceServers:[
@@ -1442,7 +1446,7 @@ function showUserActionSheet(userId,fromMap){if(!userId||userId===currentUser.id
 function closeUserActionSheet(){const bd=$('userActionBackdrop');const sh=$('userActionSheet');if(bd){bd.style.opacity='0';bd.style.pointerEvents='none';}if(sh){sh.style.transform='translateY(100%)';}}
 function startChat(userId){if(!userId||userId===currentUser.id)return;if(isBlocked(userId))return;if(amIBlockedBy(userId))return;if(!state.users[userId])return;var chatId=[currentUser.id,userId].sort().join('_');var ou=state.users[userId];if(!state.userChats[chatId]){state.userChats[chatId]={id:chatId,type:'private',name:(ou&&ou.name)||userId,lastMessage:'',lastMessageTime:Date.now(),participants:{}};state.userChats[chatId].participants[currentUser.id]=true;state.userChats[chatId].participants[userId]=true;}closeModal('usersModal');closeUserActionSheet();closeModal('membersListModal');closeMemberActionSheet();openChat(chatId);db.ref('chats/'+chatId).once('value').then(function(snap){if(!snap.exists()){var up={};up['chats/'+chatId+'/type']='private';up['chats/'+chatId+'/participants/'+currentUser.id]=true;up['chats/'+chatId+'/participants/'+userId]=true;up['userChats/'+currentUser.id+'/'+chatId]={id:chatId,type:'private',name:(ou&&ou.name)||userId,lastMessage:'',lastMessageTime:Date.now(),participants:{}};up['userChats/'+currentUser.id+'/'+chatId+'/participants/'+currentUser.id]=true;up['userChats/'+currentUser.id+'/'+chatId+'/participants/'+userId]=true;up['userChats/'+userId+'/'+chatId]={id:chatId,type:'private',name:currentUser.name,lastMessage:'',lastMessageTime:Date.now(),participants:{}};up['userChats/'+userId+'/'+chatId+'/participants/'+currentUser.id]=true;up['userChats/'+userId+'/'+chatId+'/participants/'+userId]=true;db.ref().update(up).catch(function(){});}});}
 function goBack(){currentChat=null;$('mainArea').classList.remove('active');hidePinnedBar();}
-function logout(){if(confirm(t('logout_confirm'))){if(currentUser){db.ref('users/'+currentUser.id).update({status:'offline'});}localStorage.removeItem('dg_user');location.reload();}}
+function logout(){if(confirm(t('logout_confirm'))){localStorage.removeItem('dg_user');auth.signOut().finally(function(){location.reload();});}}
 
 function openCreateModal(){openModal('createModal');}
 function openMembersSelect(){$('membersSelectTitle').innerText='👥 Создать группу';$('groupNameInput').value='';tempGroupMembers=[];closeModal('createModal');const list=$('membersSelectList');const others=Object.keys(state.users).filter(function(id){return id!==currentUser.id&&!isBlocked(id);});if(others.length===0){list.innerHTML='<p style="text-align:center;color:#8e98a3;padding:20px">Нет других</p>';}else{list.innerHTML=others.map(function(id){const u=state.users[id];const av=u.avatar||(id[0]?id[0].toUpperCase():'?');return '<div class="user-card" style="display:flex;align-items:center;gap:12px;padding:10px;background:#f4f7fc;border-radius:12px;cursor:pointer" data-select-id="'+id+'"><div style="width:36px;height:36px;border-radius:50%;background:#667eea;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;'+(u.avatarUrl?'background-image:url('+u.avatarUrl+');background-size:cover':'')+'">'+(u.avatarUrl?'':esc(av))+'</div><div style="flex:1;font-weight:600;font-size:14px;color:#1a1a2e">'+esc(u.name||id)+'</div><div class="select-check" style="width:24px;height:24px;border-radius:50%;border:2px solid #ccc;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px">✓</div></div>';}).join('');list.querySelectorAll('[data-select-id]').forEach(function(el){el.addEventListener('click',function(){const id=this.dataset.selectId;const idx=tempGroupMembers.indexOf(id);if(idx>=0)tempGroupMembers.splice(idx,1);else tempGroupMembers.push(id);const check=this.querySelector('.select-check');if(tempGroupMembers.includes(id)){check.style.background='#34c759';check.style.borderColor='#34c759';}else{check.style.background='transparent';check.style.borderColor='#ccc';}});});}openModal('membersSelectModal');}
@@ -1597,21 +1601,49 @@ document.addEventListener('click',function(e){
     var memberRow=e.target.closest('.member-row');if(memberRow&&memberRow.dataset.memberUid){e.preventDefault();openMemberActionSheet(currentManageChatId,memberRow.dataset.memberUid);return;}
 });
 
-document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.activeElement&&document.activeElement.id==='loginPassword'){window.doLogin();}if(e.key==='Enter'&&document.activeElement&&document.activeElement.id==='messageInput'){sendMessage();}if(e.key==='Enter'&&document.activeElement&&document.activeElement.id==='donAiInput'){processDonAiMessage();}});
+document.addEventListener('keydown',function(e){if(e.key==='Enter'&&document.activeElement&&['loginPassword','loginEmail','loginName'].includes(document.activeElement.id)){window.doLogin();}if(e.key==='Enter'&&document.activeElement&&document.activeElement.id==='messageInput'){sendMessage();}if(e.key==='Enter'&&document.activeElement&&document.activeElement.id==='donAiInput'){processDonAiMessage();}});
 
 window.doLogin=function(){
-    var name=($('loginName')&&$('loginName').value||'').trim();var pass=$('loginPassword')&&$('loginPassword').value||'';var avatar=(($('loginAvatar')&&$('loginAvatar').value||'').trim()||name.substring(0,2)).toUpperCase().slice(0,2);
-    if(!name||!pass){showToast(t('err_fill'));return;}
-    db.ref('users/'+name).once('value').then(function(snap){
-        if(snap.exists()){var u=snap.val();if(u.password!==pass){showToast(t('err_pass'));return;}if(u.blocked){showToast(t('err_blocked'));return;}currentUser={id:name,name:u.name||name,avatar:u.avatar||avatar,avatarUrl:u.avatarUrl||null,password:pass,bio:u.bio||''};window.currentUser=currentUser;db.ref('users/'+name).update({status:'online'});return loadInventoryAndStart();}
-        else{var nu={name:name,avatar:avatar,password:pass,createdAt:Date.now(),status:'online',blocked:false,bio:''};db.ref('users/'+name).set(nu).then(function(){currentUser={id:name,name:name,avatar:avatar,password:pass,avatarUrl:null,bio:''};window.currentUser=currentUser;return loadInventoryAndStart();});}
-    }).catch(function(err){showToast(t('toast_error'));});
+    var name=($('loginName')&&$('loginName').value||'').trim();
+    var email=($('loginEmail')&&$('loginEmail').value||'').trim().toLowerCase();
+    var pass=$('loginPassword')&&$('loginPassword').value||'';
+    var avatar=(($('loginAvatar')&&$('loginAvatar').value||'').trim()||name.substring(0,2)).toUpperCase().slice(0,2);
+    if(!name||!email||!pass){showToast('Укажи никнейм, почту и пароль');return;}
+    if(!/^[a-zA-Z0-9_]{3,24}$/.test(name)){showToast('Никнейм: 3–24 символа, латиница, цифры и _');return;}
+    if(pass.length<6){showToast('Пароль должен содержать минимум 6 символов');return;}
+    var btn=$('loginBtn');if(btn){btn.disabled=true;btn.textContent='⏳ Подключение...';}
+    function finish(credential,isNew){
+        var fbUser=credential.user;
+        var update=isNew||!fbUser.displayName?fbUser.updateProfile({displayName:name}):Promise.resolve();
+        return update.then(function(){
+            currentUser={id:name,name:name,avatar:avatar,avatarUrl:null,bio:'',authUid:fbUser.uid,email:email};
+            window.currentUser=currentUser;localStorage.setItem('dg_user',JSON.stringify(currentUser));
+            if(isNew)showToast('Защищённый аккаунт создан. Старые данные автоматически не перенесены.');
+            return loadInventoryAndStart();
+        });
+    }
+    auth.signInWithEmailAndPassword(email,pass).then(function(c){
+        if(c.user.displayName&&c.user.displayName!==name){return auth.signOut().then(function(){throw new Error('DON_USERNAME_MISMATCH');});}
+        return finish(c,false);
+    }).catch(function(err){
+        if(err&&err.code==='auth/user-not-found'){return auth.createUserWithEmailAndPassword(email,pass).then(function(c){return finish(c,true);});}
+        throw err;
+    }).catch(function(err){
+        var msg='Не удалось войти: '+(err&&err.code||'ошибка');
+        if(err&&err.message==='DON_USERNAME_MISMATCH')msg='Этот email уже связан с другим никнеймом.';
+        else if(err&&err.code==='auth/wrong-password')msg='Неверный пароль.';
+        else if(err&&err.code==='auth/email-already-in-use')msg='Почта уже зарегистрирована. Проверь email и пароль.';
+        else if(err&&err.code==='auth/invalid-email')msg='Проверь адрес электронной почты.';
+        else if(err&&err.code==='auth/weak-password')msg='Пароль должен быть не короче 6 символов.';
+        else if(err&&err.code==='auth/operation-not-allowed')msg='Включи Email/Password в Firebase Authentication.';
+        showToast(msg);
+    }).finally(function(){if(btn){btn.disabled=false;btn.textContent='Войти / Регистрация';}});
 };
 function loadInventoryAndStart(){var name=currentUser.id;var read=db.ref('inventory/'+name).once('value');var timeout=new Promise(function(_,reject){setTimeout(function(){reject(new Error('inventory timeout'));},4500);});return Promise.race([read,timeout]).then(function(s){if(s.exists()){userInventory=Object.assign({},userInventory,s.val());userInventory.balance=Number(userInventory.balance)||5000;if(!userInventory.ownedSpacegods)userInventory.ownedSpacegods=[];}else{userInventory.balance=5000;userInventory.ownedSpacegods=[];db.ref('inventory/'+name).set(userInventory).catch(function(){});}return startApp();}).catch(function(){userInventory.balance=Number(userInventory.balance)||5000;userInventory.ownedSpacegods=userInventory.ownedSpacegods||[];return startApp();});}
 function startApp(){window.currentUser=currentUser;var savedSession=Object.assign({},currentUser);delete savedSession.password;localStorage.setItem('dg_user',JSON.stringify(savedSession));hideSplash();$('loginScreen').style.display='none';$('mainApp').style.display='block';state.users[currentUser.id]=Object.assign(state.users[currentUser.id]||{},currentUser);var av=$('userAvatar');if(currentUser.avatarUrl){av.innerText='';av.parentElement.style.backgroundImage='url('+currentUser.avatarUrl+')';av.parentElement.style.backgroundSize='cover';}else av.innerText=currentUser.avatar||'U';updateSpaceGodUI();loadChatsCache();ensureNotesChat();setupPresence();loadData();applySidebarTheme();applyTranslations();gpsRestoreState();db.ref('users/'+currentUser.id).on('value',function(s){var v=s.val();if(v){state.users[currentUser.id]=v;currentUser.name=v.name||currentUser.name;currentUser.bio=v.bio||'';currentUser.avatar=v.avatar||currentUser.avatar;currentUser.avatarUrl=v.avatarUrl||null;window.currentUser=currentUser;var av2=$('userAvatar');if(currentUser.avatarUrl){av2.innerText='';av2.parentElement.style.backgroundImage='url('+currentUser.avatarUrl+')';av2.parentElement.style.backgroundSize='cover';}else{av2.innerText=currentUser.avatar||'U';av2.parentElement.style.backgroundImage='';}updateSpaceGodUI();debouncedRenderChats();}});setTimeout(function(){if(window.dgCalls)window.dgCalls.listenIncoming();},500);setTimeout(function(){if('Notification' in window&&Notification.permission==='default'){$('notifPermBar').classList.add('show');setTimeout(function(){$('notifPermBar').classList.remove('show');},8000);}},2000);showToast(t('toast_hello')+' '+currentUser.name+'!');setTimeout(startKeepAlive,500);}
 function setupPresence(){if(!currentUser)return;var mr=db.ref('users/'+currentUser.id+'/status');db.ref('.info/connected').on('value',function(s){if(s.val()===true){mr.onDisconnect().set('offline');mr.set('online');}});window.addEventListener('beforeunload',function(){mr.set('offline');});}
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&currentUser){startKeepAlive();if(_keepAliveCtx&&_keepAliveCtx.state==='suspended'){try{_keepAliveCtx.resume();}catch(e){}}try{db.ref('userChats/'+currentUser.id).once('value').then(function(s){state.userChats=s.val()||{};_lastChatsHash='';debouncedRenderChats();saveChatsCache();syncUserSubscriptions();}).catch(function(){});if(!notifInitialized){startNotificationWatcher();}if(window.dgCalls)window.dgCalls.listenIncoming();}catch(e){}}});
-document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.modal,.image-viewer,.video-viewer').forEach(function(el){el.classList.remove('show');el.style.display='none';});var lb=$('loginBtn');if(lb)lb.addEventListener('click',function(e){e.preventDefault();window.doLogin();});bindNotifSettings();try{renderStickers();}catch(stickerInitError){console.warn('Stickers unavailable',stickerInitError);}applyTranslations();var saved=null;try{saved=localStorage.getItem('dg_user');}catch(storageErr){}if(saved){try{currentUser=JSON.parse(saved);if(currentUser&&Object.prototype.hasOwnProperty.call(currentUser,'password')){delete currentUser.password;localStorage.setItem('dg_user',JSON.stringify(currentUser));}window.currentUser=currentUser;if(!currentUser||!currentUser.id)throw new Error('bad');$('loginScreen').style.display='none';$('mainApp').style.display='block';var av=$('userAvatar');if(currentUser.avatarUrl){av.innerText='';av.parentElement.style.backgroundImage='url('+currentUser.avatarUrl+')';}else av.innerText=currentUser.avatar||'U';updateSpaceGodUI();var userRead=db.ref('users/'+currentUser.id).once('value');var userTimeout=new Promise(function(_,reject){setTimeout(function(){reject(new Error('user check timeout'));},4500);});Promise.race([userRead,userTimeout]).then(function(chk){if(chk.exists()&&chk.val().blocked){localStorage.removeItem('dg_user');currentUser=null;window.currentUser=null;showLoginScreen();return;}if(chk.exists()){var v=chk.val();currentUser.name=v.name||currentUser.name;currentUser.avatar=v.avatar||currentUser.avatar;currentUser.avatarUrl=v.avatarUrl||null;currentUser.bio=v.bio||'';window.currentUser=currentUser;}return loadInventoryAndStart();}).catch(function(){/* Сеть/Firebase недоступны: запускаем сохранённую сессию, синхронизация возобновится при подключении. */loadInventoryAndStart();});return;}catch(e){localStorage.removeItem('dg_user');}}var ws=localStorage.getItem('dg_welcome_seen');if(!ws){showWelcomeScreen();return;}showLoginScreen();});
+document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.modal,.image-viewer,.video-viewer').forEach(function(el){el.classList.remove('show');el.style.display='none';});var lb=$('loginBtn');if(lb)lb.addEventListener('click',function(e){e.preventDefault();window.doLogin();});bindNotifSettings();try{renderStickers();}catch(stickerInitError){console.warn('Stickers unavailable',stickerInitError);}applyTranslations();var ws=localStorage.getItem('dg_welcome_seen');auth.onAuthStateChanged(function(fbUser){if(!fbUser){currentUser=null;window.currentUser=null;localStorage.removeItem('dg_user');if(!ws){showWelcomeScreen();}else{showLoginScreen();}return;}var saved=null;try{saved=JSON.parse(localStorage.getItem('dg_user')||'null');}catch(storageErr){}if(!saved||!saved.id||saved.authUid!==fbUser.uid||(fbUser.displayName&&saved.name!==fbUser.displayName)){auth.signOut();localStorage.removeItem('dg_user');showLoginScreen();return;}currentUser=saved;window.currentUser=currentUser;$('loginScreen').style.display='none';$('mainApp').style.display='block';var av=$('userAvatar');if(currentUser.avatarUrl){av.innerText='';av.parentElement.style.backgroundImage='url('+currentUser.avatarUrl+')';}else av.innerText=currentUser.avatar||'U';updateSpaceGodUI();loadInventoryAndStart();});});
 document.getElementById('photoInput').addEventListener('change',function(e){if(e.target.files[0]){var f=e.target.files[0];showToast('⏳');compressImage(f,1280,0.7).then(function(b64){if(b64){pendingMedia={type:'photo',url:b64};sendMessage();}else{fileToBase64(f).then(function(b){pendingMedia={type:'photo',url:b};sendMessage();});}});}e.target.value='';});
 document.getElementById('videoInput').addEventListener('change',function(e){if(e.target.files[0]){var f=e.target.files[0];fileToBase64(f).then(function(b64){pendingMedia={type:'video',url:b64};sendMessage();});}e.target.value='';});
 document.getElementById('chatSearch').addEventListener('input',function(){debouncedRenderChats();handleUserSearch(this.value.trim());});
