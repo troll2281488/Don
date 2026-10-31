@@ -1573,7 +1573,27 @@ async function requestDonAi(messages, options) {
         }
         await new Promise(resolve => setTimeout(resolve, 100));
     }
-    throw new Error('Встроенный модуль DonAI не загрузился. Проверь подключение к интернету и открой обновлённую страницу ещё раз.');
+    // Emergency inline fallback: keep the original DonAI chat usable even if offline-ai.js fails to load.
+    const endpoint = 'https://api.ofox.ai/v1/chat/completions';
+    let response;
+    try {
+        response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model: 'openai/gpt-5.4-mini', messages: messages, temperature: 0.25, max_tokens: 900 }),
+            signal: AbortSignal.timeout(60000)
+        });
+    } catch (error) {
+        if (error && error.name === 'TimeoutError') throw new Error('DonAI API не ответил за 60 секунд.');
+        throw new Error('Не удалось подключиться к DonAI API: ' + (error && error.message ? error.message : 'ошибка сети'));
+    }
+    const raw = await response.text();
+    let data = {};
+    try { data = JSON.parse(raw); } catch (_) {}
+    if (!response.ok) throw new Error((data.error && data.error.message) || ('DonAI API HTTP ' + response.status));
+    const answer = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+    if (!answer) throw new Error('DonAI API вернул пустой ответ.');
+    return { text: answer, provider: 'DonAI' };
 }
 
 async function processDonAiMessage(isRetry = false) {
