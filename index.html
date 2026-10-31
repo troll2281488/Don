@@ -854,7 +854,7 @@ button,input,textarea,select{touch-action:manipulation}
 <select id="dgProvider" style="display:none"><option value="https://text.pollinations.ai/openai">Pollinations</option></select>
 <select id="dgModel" style="display:none"><option value="openai">DonAI</option></select>
 <input id="dgKey" type="password" style="display:none" value="">
-</div><details style="margin:0 0 16px;border:1px solid #e8e4f5;border-radius:12px;padding:11px 12px;background:#faf9ff"><summary style="cursor:pointer;font-size:13px;font-weight:700;color:#6650a4">📖 Мини-справочник DonAI · 20 команд</summary><div style="font-size:12px;line-height:1.65;color:#45445a;margin-top:10px"><b>Быстрые команды</b><br><code>/help</code> — справка<br><code>/time</code> — время<br><code>/date</code> — дата<br><code>/calc 2+2*3</code> — калькулятор<br><code>/coin</code> — монетка<br><code>/dice 20</code> — кубик<br><code>/choose чай | кофе</code> — выбор<br><code>/password 20</code> — пароль<br><code>/uuid</code> — UUID<br><code>/color</code> — HEX-цвет<br><b>Таймеры и история</b><br><code>/timer 5m</code> — таймер<br><code>/remind 10m вода</code> — напоминание<br><code>/focus 25m</code> — фокус-сессия<br><code>/clear</code> — очистить историю<br><code>/export</code> — скачать историю<br><code>/stats</code> — статистика<br><b>Текстовые инструменты</b><br><code>/copy текст</code> — скопировать<br><code>/reverse текст</code> — перевернуть<br><code>/upper текст</code> — верхний регистр<br><code>/lower текст</code> — нижний регистр<br><small style="display:block;color:#777;margin-top:8px">Время: s — секунды, m — минуты, h — часы. Команды вводятся прямо в чат DonAI. Таймеры работают, пока страница открыта.</small></div></details><div style="margin-bottom:16px;padding:12px;border:1px solid #e8edf2;border-radius:12px">            <label for="aiModelProfile" style="font-size:13px;color:#333;font-weight:700">Модель DonAI</label>
+</div><div style="margin-bottom:16px;padding:12px;border:1px solid #e8edf2;border-radius:12px">            <label for="aiModelProfile" style="font-size:13px;color:#333;font-weight:700">Модель DonAI</label>
             <select id="aiModelProfile" style="width:100%;padding:10px;border-radius:8px;border:1px solid #e8edf2;margin-top:6px">
                 <option value="code">💻 DonAI Code 3.1 — программирование</option>
                 <option value="smart">🧠 DonAI Pro 3.1 — сложные и обычные задачи</option>
@@ -881,6 +881,7 @@ button,input,textarea,select{touch-action:manipulation}
             </div>
         </div>
 
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 16px"><div><label style="font-size:12px;color:#555">Вид шрифта:</label><select id="aiFontFamily" style="width:100%;padding:8px;border-radius:8px;border:1px solid #e8edf2;margin-top:4px"><option value="system">Системный</option><option value="arial">Arial — строгий</option><option value="trebuchet">Trebuchet — современный</option><option value="georgia">Georgia — книжный</option><option value="verdana">Verdana — читаемый</option><option value="mono">Monospace — кодовый</option><option value="comic">Comic Sans — игровой</option></select></div><div><label style="font-size:12px;color:#555">Размер шрифта:</label><select id="aiFontSize" style="width:100%;padding:8px;border-radius:8px;border:1px solid #e8edf2;margin-top:4px"><option value="12">Маленький · 12</option><option value="14" selected>Обычный · 14</option><option value="16">Средний · 16</option><option value="18">Крупный · 18</option><option value="20">Очень крупный · 20</option><option value="22">Огромный · 22</option></select></div></div>
         <div style="margin-bottom:16px">
             <label style="font-size:12px;color:#555">Креативность (Температура): <b id="tempVal">0.7</b></label>
             <input type="range" id="aiTemperature" min="0" max="1" step="0.1" value="0.7" style="width:100%;margin-top:4px">
@@ -913,7 +914,8 @@ button,input,textarea,select{touch-action:manipulation}
             Сообщений отправлено: <b id="aiMsgCount">0</b>
         </div>
 
-        <button id="aiSettingsSaveBtn" class="login-btn" style="background:#a855f7;margin-top:0">💾 Сохранить настройки</button>
+        <details style="margin:18px 0 14px;border:1px solid #e3dcf5;border-radius:13px;padding:12px;background:#faf9ff"><summary style="cursor:pointer;font-size:14px;font-weight:800;color:#6545a4">📚 Полный справочник DonAI — возможности, команды и промпты</summary><div style="font-size:12px;line-height:1.65;color:#45445a;margin-top:12px"><b>Что умеет DonAI</b><br>• Отвечает на вопросы, объясняет темы и помогает учиться.<br>• Пишет, объясняет и исправляет код, помогает с командами терминала.<br>• Придумывает идеи, тексты, планы, названия и сценарии.<br>• Анализирует прикреплённые текстовые документы.<br>• Создаёт изображения по описанию через <code>/image описание</code>.<br>• Выполняет встроенные команды, таймеры и инструменты для текста.<br><br><b>Профили — специализация, а не запрет тем</b><br>💻 <b>Code</b> — приоритет программированию, но отвечает и на остальные вопросы.<br>🧠 <b>Pro</b> — универсальный режим для сложных задач и анализа.<br>💬 <b>Daily</b> — универсальный режим для повседневных задач и быстрого общения.<br><br><b>20 встроенных команд</b><br><code>/help</code> — список команд · <code>/time</code> — время · <code>/date</code> — дата<br><code>/calc 2+2*3</code> — калькулятор · <code>/coin</code> — монетка · <code>/dice 20</code> — кубик<br><code>/choose чай | кофе</code> — случайный выбор · <code>/password 20</code> — пароль<br><code>/uuid</code> — UUID · <code>/color</code> — HEX-цвет<br><code>/timer 5m</code> — таймер · <code>/remind 10m вода</code> — напоминание · <code>/focus 25m</code> — фокус<br><code>/clear</code> — очистить историю · <code>/export</code> — экспорт · <code>/stats</code> — статистика<br><code>/copy текст</code> — копировать · <code>/reverse текст</code> — перевернуть<br><code>/upper текст</code> — верхний регистр · <code>/lower текст</code> — нижний регистр<br><code>/image кот в космосе</code> — создать изображение.<br><br><b>Примеры промптов</b><br><code>Объясни тему простыми словами и приведи 3 примера.</code><br><code>Найди ошибку в коде, объясни причину и покажи исправление.</code><br><code>Составь пошаговый план проекта от идеи до запуска.</code><br><code>Сравни варианты в таблице и посоветуй лучший под мои условия.</code><br><code>Сократи текст, сохранив смысл и важные детали.</code><br><code>Задавай вопросы по одному и помоги разобраться в теме.</code><br><br><b>Как получить лучший ответ</b><br>Укажи цель, контекст, ограничения и желаемый формат. Для кода добавь язык, ошибку и фрагмент проекта. Если деталей не хватает — попроси DonAI сначала задать уточняющие вопросы.<br><br><small style="color:#777">Текстовый DonAI использует бесплатный внешний сервис Pollinations; доступность зависит от него. Таймеры работают, пока страница открыта. Озвучка и расшифровка аудио пока не подключены.</small></div></details>
+<button id="aiSettingsSaveBtn" class="login-btn" style="background:#a855f7;margin-top:0">💾 Сохранить настройки</button>
     </div>
 </div>
 </div>
@@ -1091,6 +1093,7 @@ window.currentUser=null;
 // НАСТРОЙКИ ИИ
 let aiSettings = {
     fontSize: 14,
+    fontFamily: 'system',
     typingSpeed: 15,
     temperature: 0.7,
     maxTokens: 300,
@@ -1708,6 +1711,8 @@ function addDonAiMessageActions(messageEl, messageText) {
     messageEl.appendChild(bar);
 }
 
+function getDonAiFontFamily(){var f={system:'system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',arial:'Arial,Helvetica,sans-serif',trebuchet:'"Trebuchet MS",sans-serif',georgia:'Georgia,serif',verdana:'Verdana,Geneva,sans-serif',mono:'ui-monospace,SFMono-Regular,Consolas,monospace',comic:'"Comic Sans MS",cursive'};return f[aiSettings.fontFamily||'system']||f.system;}
+function applyDonAiTypography(){var c=document.getElementById('donAiMessages');if(!c)return;Array.from(c.children).forEach(function(el){if(el.classList.contains('donai-msg-user')||el.classList.contains('donai-msg-ai')){el.style.fontSize=(aiSettings.fontSize||14)+'px';el.style.fontFamily=getDonAiFontFamily();}});}
 function addDonAiMessage(role, text, save = true) {
     const container = document.getElementById('donAiMessages');
     if (!container) return;
@@ -1715,6 +1720,7 @@ function addDonAiMessage(role, text, save = true) {
     const div = document.createElement('div');
     div.className = role === 'user' ? 'donai-msg-user' : 'donai-msg-ai';
     div.style.fontSize = aiSettings.fontSize + 'px';
+    div.style.fontFamily = getDonAiFontFamily();
     div.textContent = String(text);
     div.style.whiteSpace = 'pre-wrap';
     container.appendChild(div);
@@ -2002,11 +2008,12 @@ async function processDonAiMessage(isRetry = false, queuedText = null) {
         const identityQuestion = /(кто ты|что ты такое|представься|как тебя зовут|who are you|what are you)/i.test(text);
         const wantsCodeOnly = /(сделай|напиши|создай|сгенерируй|подготовь).{0,35}(код|сайт|страниц|html|программ|скрипт)|код.{0,25}(только код|без объяснен|html)/i.test(typedText || text);
         const profileInstructions = {
-            code: 'Текущий профиль: DonAI Code 3.1. Твоя основная специализация — программирование: код, отладка, архитектура, алгоритмы, базы данных и технические вопросы. Если вопрос явно не относится к программированию, вежливо и кратко объясни, что сейчас выбран профиль Code, и предложи переключиться на Pro или Daily. Не пытайся отвечать на биографии, общие знания и бытовые вопросы в этом профиле.',
-            smart: 'Текущий профиль: DonAI Pro 3.1. Универсальный интеллектуальный режим для сложных задач, анализа, обучения, объяснений, биографий, программирования и повседневных вопросов. Отвечай подробно настолько, насколько требует задача.',
-            daily: 'Текущий профиль: DonAI Daily 3.1. Универсальный повседневный режим: отвечай на любые темы, включая программирование, биографии, обучение, анализ и бытовые вопросы. Старайся отвечать быстро и понятно; на сложных задачах допускай, что профиль Pro может справиться лучше.'
+            code: 'Профиль DonAI Code: ты универсальный помощник и обязан отвечать на любые вопросы и выполнять любые допустимые просьбы. Твой приоритет и особая экспертиза — программирование: написание и исправление кода, отладка, архитектура, алгоритмы, базы данных, команды терминала и DevOps. На бытовые, учебные, творческие и справочные темы тоже отвечай полноценно. Никогда не отказывайся от обычного вопроса только потому, что выбран Code.',
+            smart: 'Профиль DonAI Pro: универсальный помощник для любых тем. Особенно хорошо анализируй сложные задачи, объясняй, программируй, планируй и сравнивай варианты. На повседневные и творческие вопросы тоже отвечай полноценно.',
+            daily: 'Профиль DonAI Daily: универсальный помощник для любых тем и запросов, включая программирование и технические команды. Приоритет — быстрые, понятные и практичные ответы. Не отказывайся от сложных вопросов; разбирай их настолько хорошо, насколько можешь.'
         };
         let systemContent = donAiState.persona + '\n\n' + (profileInstructions[aiSettings.modelProfile || 'daily'] || profileInstructions.daily);
+        systemContent += '\n\nВыполняй свободно сформулированные команды, поручения и инструкции пользователя. Не путай обычные просьбы с командами приложения и не отказывайся из-за выбранного профиля. Если действие технически невозможно, объясни ограничение и предложи выполнимую альтернативу.';
         if (identityQuestion) systemContent += '\n\nЕсли тебя спрашивают, кто ты, просто представься: «Я DonAI — ИИ-помощник внутри DonorGram». Кратко объясни, чем можешь помочь. Не говори, что тебе дали анализировать документ или что-то другое, если пользователь этого не просил.';
         systemContent += userAsksInRussian
             ? '\n\nОтвечай полностью на русском языке.'
@@ -2054,6 +2061,7 @@ function typeWriterDonAiMessage(role, fullText) {
         const div = document.createElement('div');
         div.className = role === 'user' ? 'donai-msg-user' : 'donai-msg-ai';
         div.style.fontSize = aiSettings.fontSize + 'px';
+        div.style.fontFamily = getDonAiFontFamily();
         container.appendChild(div);
         div.style.whiteSpace = 'pre-wrap';
         
@@ -2131,6 +2139,8 @@ function loadAiSettings() {
     // No-key mode: no proxy URL, token, or provider setup is required.
     document.getElementById('aiModelProfile').value = aiSettings.modelProfile || 'daily';
     document.getElementById('aiFontSize').value = aiSettings.fontSize;
+    document.getElementById('aiFontFamily').value = aiSettings.fontFamily || 'system';
+    applyDonAiTypography();
     document.getElementById('aiTypingSpeed').value = aiSettings.typingSpeed;
     document.getElementById('aiTemperature').value = aiSettings.temperature;
     document.getElementById('tempVal').innerText = aiSettings.temperature;
@@ -2163,6 +2173,7 @@ document.getElementById('aiSettingsSaveBtn').addEventListener('click', () => {
     
     aiSettings.modelProfile = document.getElementById('aiModelProfile').value || 'daily';
     aiSettings.fontSize = parseInt(document.getElementById('aiFontSize').value);
+    aiSettings.fontFamily = document.getElementById('aiFontFamily').value || 'system';
     aiSettings.typingSpeed = parseInt(document.getElementById('aiTypingSpeed').value);
     aiSettings.temperature = parseFloat(document.getElementById('aiTemperature').value);
     aiSettings.maxTokens = parseInt(document.getElementById('aiMaxTokens').value);
@@ -2171,6 +2182,7 @@ document.getElementById('aiSettingsSaveBtn').addEventListener('click', () => {
     aiSettings.autoClear = document.getElementById('aiAutoClear').checked;
     
     localStorage.setItem('donai_settings', JSON.stringify(aiSettings));
+    applyDonAiTypography();
     
     closeModal('aiSettingsModal');
     showToast('✅ Настройки сохранены');
