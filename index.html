@@ -954,7 +954,7 @@ button,input,textarea,select{touch-action:manipulation}
         <input type="text" id="donAiInput" placeholder="Спросите DonAI...">
         <button id="donAiSendBtn" class="donai-send-btn"><i class="fas fa-paper-plane"></i></button>
     </div>
-    <div style="font-size:10px;opacity:.68;padding:0 12px 8px;text-align:center">ИИ: Vireonix → резервный Pollinations. Бесплатные сервисы иногда бывают недоступны; не отправляй пароли и секретные данные.</div>
+    <div style="font-size:10px;opacity:.68;padding:0 12px 8px;text-align:center">ИИ: использует модель, выбранную в настройках DonAI.</div>
 </div>
 
 <script>
@@ -1565,45 +1565,11 @@ function hideDonAiTyping() {
 // DonAI: основной бесплатный API без ключа + резервный Pollinations.
 // Ни один публичный API не гарантирует 100% uptime; при ошибке первого пробуем второй.
 async function requestDonAi(messages, options) {
-    const payload = Object.assign({ messages: messages, temperature: 0.7, max_tokens: 500 }, options || {});
-    // Сначала используем прежний провайдер, который работал до изменений.
-    // Vireonix — резервный вариант, если Pollinations недоступен.
-    const providers = [
-        { name: 'Pollinations', url: 'https://text.pollinations.ai/openai', body: Object.assign({ model: 'openai' }, payload) },
-        { name: 'Vireonix', url: 'https://vireonix.ai/v1/chat/completions', body: Object.assign({ model: 'auto' }, payload) }
-    ];
-    const errors = [];
-    for (const provider of providers) {
-        let timer = null;
-        try {
-            const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-            if (controller) timer = setTimeout(() => controller.abort(), 30000);
-            const response = await fetch(provider.url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(provider.body),
-                signal: controller ? controller.signal : undefined
-            });
-            const raw = await response.text();
-            if (timer) { clearTimeout(timer); timer = null; }
-            let data; try { data = JSON.parse(raw); } catch (_) { data = raw; }
-            if (!response.ok) {
-                const detail = data && data.error && (data.error.message || data.error.code);
-                throw new Error(provider.name + ' HTTP ' + response.status + (detail ? ': ' + detail : ''));
-            }
-            let content = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
-            if ((!content || !String(content).trim()) && data && data.choices && data.choices[0]) {
-                content = data.choices[0].message && (data.choices[0].message.reasoning_content || data.choices[0].message.refusal) || data.choices[0].text;
-            }
-            if ((!content || !String(content).trim()) && typeof data === 'string' && data.trim()) content = data;
-            if (!content || !String(content).trim()) throw new Error(provider.name + ' returned an empty response');
-            return { text: String(content), provider: provider.name };
-        } catch (err) {
-            if (timer) clearTimeout(timer);
-            errors.push(provider.name + ': ' + (err && err.message ? err.message : String(err)));
-        }
+    // Use the provider selected in DonAI settings; never silently fall back to another model.
+    if (typeof window.dgAskConfiguredAI === 'function') {
+        return await window.dgAskConfiguredAI(messages, options || {});
     }
-    throw new Error(errors.join(' | ') || 'All AI providers failed');
+    throw new Error('Модуль выбранной нейросети ещё загружается. Обнови страницу и попробуй снова.');
 }
 
 async function processDonAiMessage(isRetry = false) {
@@ -1643,7 +1609,7 @@ async function processDonAiMessage(isRetry = false) {
             });
         } catch (providerError) {
             hideDonAiTyping();
-            addDonAiMessage('ai', 'Не удалось получить ответ от Pollinations или резервного Vireonix. Проверь интернет или попробуй позже.');
+            addDonAiMessage('ai', 'Ошибка DonAI: ' + (providerError && providerError.message ? providerError.message : 'неизвестная ошибка'));
             return;
         }
         hideDonAiTyping();
@@ -1664,7 +1630,7 @@ async function processDonAiMessage(isRetry = false) {
 
     } catch (error) {
         hideDonAiTyping();
-        addDonAiMessage('ai', "Не удалось связаться с ИИ. Проверь интернет и попробуй ещё раз — DonAI автоматически пробует Vireonix, затем Pollinations.");
+        addDonAiMessage('ai', 'Ошибка DonAI: ' + (error && error.message ? error.message : 'не удалось связаться с выбранной моделью'));
     }
 }
 
@@ -2094,6 +2060,6 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
 })();
 </script>
 
-  <script src="./offline-ai.js?v=20261031-local-ai-restore-v1"></script>
+  <script src="./offline-ai.js?v=20261031-provider-routing-v1"></script>
 </body>
 </html>
