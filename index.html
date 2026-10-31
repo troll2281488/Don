@@ -1565,11 +1565,15 @@ function hideDonAiTyping() {
 // DonAI: основной бесплатный API без ключа + резервный Pollinations.
 // Ни один публичный API не гарантирует 100% uptime; при ошибке первого пробуем второй.
 async function requestDonAi(messages, options) {
-    // Use the provider selected in DonAI settings; never silently fall back to another model.
-    if (typeof window.dgAskConfiguredAI === 'function') {
-        return await window.dgAskConfiguredAI(messages, options || {});
+    // The local AI bundle is loaded at the end of the page. Wait briefly for its bridge
+    // rather than failing immediately if the browser is still evaluating the bundle.
+    for (let i = 0; i < 120; i++) {
+        if (typeof window.dgAskConfiguredAI === 'function') {
+            return await window.dgAskConfiguredAI(messages, options || {});
+        }
+        await new Promise(resolve => setTimeout(resolve, 100));
     }
-    throw new Error('Модуль выбранной нейросети ещё загружается. Обнови страницу и попробуй снова.');
+    throw new Error('Встроенный модуль DonAI не загрузился. Проверь подключение к интернету и открой обновлённую страницу ещё раз.');
 }
 
 async function processDonAiMessage(isRetry = false) {
