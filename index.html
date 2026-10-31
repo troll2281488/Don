@@ -1569,15 +1569,28 @@ function addDonAiMessageActions(messageEl, messageText) {
             showToast('✅ Сообщение скопировано');
         } catch(e) { showToast('Не удалось скопировать сообщение'); }
     });
-    const download = document.createElement('button');
-    download.type = 'button'; download.textContent = '⬇ Скачать';
-    download.addEventListener('click', function() {
-        const blob = new Blob([messageText], {type:'text/plain;charset=utf-8'});
-        const url = URL.createObjectURL(blob), a = document.createElement('a');
-        a.href=url; a.download='donai-message-'+new Date().toISOString().slice(0,10)+'.txt';
-        document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000);
-    });
-    bar.append(copy, download); messageEl.appendChild(bar);
+    bar.appendChild(copy);
+
+    // Для HTML-ответов добавляем отдельное скачивание готовой страницы.
+    const htmlMatch = String(messageText).match(/```(?:html|htm)?\s*([\s\S]*?)```/i);
+    let htmlCode = htmlMatch ? htmlMatch[1].trim() : String(messageText).trim();
+    const looksLikeHtml = /<!doctype\s+html|<html[\s>]|<head[\s>]|<body[\s>]/i.test(htmlCode);
+    if (looksLikeHtml) {
+        const downloadHtml = document.createElement('button');
+        downloadHtml.type = 'button'; downloadHtml.textContent = '⬇ Скачать HTML';
+        downloadHtml.addEventListener('click', function() {
+            let documentHtml = htmlCode;
+            if (!/<!doctype\s+html|<html[\s>]/i.test(documentHtml)) {
+                documentHtml = '<!DOCTYPE html>\n<html lang="ru">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<title>Мой проект</title>\n</head>\n<body>\n' + documentHtml + '\n</body>\n</html>';
+            }
+            const blob = new Blob([documentHtml], {type:'text/html;charset=utf-8'});
+            const url = URL.createObjectURL(blob), a = document.createElement('a');
+            a.href=url; a.download='donai-project-'+new Date().toISOString().slice(0,10)+'.html';
+            document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+        });
+        bar.appendChild(downloadHtml);
+    }
+    messageEl.appendChild(bar);
 }
 
 function addDonAiMessage(role, text, save = true) {
@@ -1821,6 +1834,7 @@ async function processDonAiMessage(isRetry = false, queuedText = null) {
     try {
         const userAsksInRussian = /[\u0400-\u04FF]/.test(text);
         const identityQuestion = /(кто ты|что ты такое|представься|как тебя зовут|who are you|what are you)/i.test(text);
+        const wantsCodeOnly = /(сделай|напиши|создай|сгенерируй|подготовь).{0,35}(код|сайт|страниц|html|программ|скрипт)|код.{0,25}(только код|без объяснен|html)/i.test(typedText || text);
         const profileInstructions = {
             code: 'Текущий профиль: DonAI Code 3.1. Твоя основная специализация — программирование: код, отладка, архитектура, алгоритмы, базы данных и технические вопросы. Если вопрос явно не относится к программированию, вежливо и кратко объясни, что сейчас выбран профиль Code, и предложи переключиться на Pro или Daily. Не пытайся отвечать на биографии, общие знания и бытовые вопросы в этом профиле.',
             smart: 'Текущий профиль: DonAI Pro 3.1. Универсальный интеллектуальный режим для сложных задач, анализа, обучения, объяснений, биографий, программирования и повседневных вопросов. Отвечай подробно настолько, насколько требует задача.',
@@ -1832,6 +1846,7 @@ async function processDonAiMessage(isRetry = false, queuedText = null) {
             ? '\n\nОтвечай полностью на русском языке.'
             : '\n\nОтвечай на том же языке, что и пользователь.';
         systemContent += '\n\nПиши простым, понятным языком. Сначала дай прямой ответ, не растягивай его без необходимости. Используй короткие абзацы и списки, когда это помогает. Добавляй уместные эмодзи иногда, но не в каждом предложении.';
+        if (wantsCodeOnly) systemContent += '\n\nВАЖНО: пользователь просит создать код или проект. Верни ТОЛЬКО готовый исходный код без вступления, пояснений, Markdown-обрамления и тройных кавычек. Если пользователь просит HTML-сайт или не уточняет язык для веб-страницы, верни полный самостоятельный HTML-документ с <!DOCTYPE html>, CSS и JavaScript внутри одного файла. Код должен запускаться после сохранения в файл.';
         const historySlice = donAiState.history.slice(-11, -1).map(msg => ({
             role: msg.role === 'user' ? 'user' : 'assistant',
             content: msg.text
@@ -1851,7 +1866,9 @@ async function processDonAiMessage(isRetry = false, queuedText = null) {
                 osc.start(); osc.stop(ctx.currentTime + 0.1);
             } catch(e){}
         }
-        await typeWriterDonAiMessage('ai', aiResult.text);
+        let answerText = String(aiResult.text || '').trim();
+        if (wantsCodeOnly) answerText = answerText.replace(/^```(?:html|htm|javascript|js|css|python)?\s*/i, '').replace(/\s*```$/, '').trim();
+        await typeWriterDonAiMessage('ai', answerText);
     } catch (error) {
         hideDonAiTyping();
         addDonAiMessage('ai', 'DonAI: ' + (error && error.message ? error.message : 'не удалось связаться с моделью'));
