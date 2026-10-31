@@ -1808,7 +1808,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!file) return;
         status.style.display = 'block'; status.textContent = '📎 Читаю ' + file.name + '…';
         try {
-            if (file.type.startsWith('audio/') || /\\.(wav|mp3|m4a|ogg|webm)$/i.test(file.name)) {
+            if (file.type.startsWith('audio/') || /\.(wav|mp3|m4a|ogg|webm)$/i.test(file.name)) {
                 donAiAttachedAudioFile = file; donAiAttachedFileText = ''; donAiAttachedFileName = file.name;
                 status.textContent = '🎧 ' + file.name + ' · аудио прикреплено. Отправь команду /transcribe.';
             } else {
@@ -1817,7 +1817,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 status.textContent = '📎 ' + file.name + ' · ' + Math.max(1, Math.round(file.size / 1024)) + ' КБ · текст прочитан';
             }
         } catch (error) {
-            donAiAttachedFileText = ''; donAiAttachedFileName = ''; status.textContent = '⚠️ ' + error.message;
+            donAiAttachedFileText = ''; donAiAttachedFileName = ''; donAiAttachedAudioFile = null; status.textContent = '⚠️ ' + error.message;
         }
         fileInput.value = '';
     });
