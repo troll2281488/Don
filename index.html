@@ -1754,6 +1754,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (input) input.value = getDonAiProxyUrl();
     const test = document.getElementById('donAiPolliTestBtn');
     if (test) test.addEventListener('click', testDonAiPollinationsProxy);
+    localStorage.removeItem('donai_polli_app_key');
+    sessionStorage.removeItem('donai_polli_access_token');
+    sessionStorage.removeItem('donai_polli_expires_at');
     updateDonAiPolliStatus();
 });
 
