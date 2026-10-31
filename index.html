@@ -797,7 +797,20 @@ button,input,textarea,select{touch-action:manipulation}
             <button type="button" data-close="aiSettingsModal">&times;</button>
         </div>
 
-        <div id="dgProviderSettings" style="padding:12px;margin-bottom:16px;border:1px solid #e8edf2;border-radius:12px"><b>🤖 DonAI</b><small style="display:block;color:#687080">Подключение через Pollinations. Доступность моделей зависит от ограничений сервиса.</small><select id="dgProvider" style="display:none"><option value="https://text.pollinations.ai/openai" selected>Pollinations</option></select><select id="dgModel" style="display:none"><option value="openai/gpt-5.4-mini" selected>DonAI</option></select><input id="dgKey" type="password" style="display:none" value=""></div><div style="margin-bottom:16px;padding:12px;border:1px solid #e8edf2;border-radius:12px">
+        <div id="dgProviderSettings" style="padding:12px;margin-bottom:16px;border:1px solid #e8edf2;border-radius:12px">
+<b>🤖 DonAI · Pollinations</b>
+<small style="display:block;color:#687080;margin:6px 0 10px">Подключение через официальный Pollinations Connect. Запросы используют лимит Pollen, который ты сам подтверждаешь.</small>
+<label for="donAiPolliAppKey" style="font-size:12px;color:#555;font-weight:700">App Key (pk_...)</label>
+<input id="donAiPolliAppKey" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="pk_..." style="box-sizing:border-box;width:100%;padding:10px;border:1px solid #e8edf2;border-radius:9px;margin:6px 0 10px">
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<button type="button" id="donAiPolliConnectBtn" class="login-btn" style="flex:1;min-width:130px;margin:0;background:#635bdb">🔗 Подключить Pollinations</button>
+<button type="button" id="donAiPolliDisconnectBtn" class="login-btn" style="margin:0;background:#8e98a3">Отключить</button>
+</div>
+<small style="display:block;color:#687080;margin-top:8px">Создай App Key на <a href="https://enter.pollinations.ai/keys" target="_blank" rel="noopener">enter.pollinations.ai/keys</a>. В Redirect URI укажи точно: <code>https://troll2281488.github.io/Don/</code>.</small><small id="donAiPolliStatus" style="display:block;color:#687080;margin-top:9px">Сохрани App Key, затем нажми «Подключить Pollinations».</small>
+<select id="dgProvider" style="display:none"><option value="https://gen.pollinations.ai/v1/chat/completions">Pollinations</option></select>
+<select id="dgModel" style="display:none"><option value="openai/gpt-5.4-mini">DonAI</option></select>
+<input id="dgKey" type="password" style="display:none" value="">
+</div><div style="margin-bottom:16px;padding:12px;border:1px solid #e8edf2;border-radius:12px">
             <label for="aiModelProfile" style="font-size:13px;color:#333;font-weight:700">Модель DonAI</label>
             <select id="aiModelProfile" style="width:100%;padding:10px;border-radius:8px;border:1px solid #e8edf2;margin-top:6px">
                 <option value="code">💻 DonAI Code 3.1 — программирование</option>
@@ -1351,7 +1364,7 @@ function openWallChatPicker(type){_wallPickerType=type||'photo';document.querySe
 function openFriendsList(uid,mode){var list=$('friendsListContainer');if(!list)return;$('friendsListTitle').innerText=mode==='friends'?'👥 Друзья':'👤 Подписчики';list.innerHTML='<div class="wall-picker-empty">⏳</div>';openModal('friendsListModal');var ids=[];Object.keys(state.userChats).forEach(function(cid){var c=state.userChats[cid];if(c&&c.type==='private'&&c.participants&&c.participants[uid]){var other=Object.keys(c.participants).find(function(id){return id!==uid;});if(other&&ids.indexOf(other)<0)ids.push(other);}});if(ids.length===0){list.innerHTML='<div class="wall-picker-empty">😕 Пусто</div>';return;}list.innerHTML=ids.map(function(id){var u=state.users[id]||{name:id};var av=u.avatar||(u.name?u.name[0].toUpperCase():'?');var avS=u.avatarUrl?'background-image:url('+u.avatarUrl+');background-size:cover;background-position:center':'';var avT=u.avatarUrl?'':esc(av);var os=getOnlineStatus(id);return '<div class="friends-list-item" data-fl-uid="'+esc(id)+'"><div class="fl-av" style="'+avS+'">'+avT+'</div><div style="flex:1;min-width:0"><div class="fl-name">'+esc(u.name||id)+'</div><div class="fl-status">'+os.text+'</div></div><i class="fas fa-chevron-right" style="color:#c8c8c8"></i></div>';}).join('');}
 function showProfile(uid){var u=state.users[uid];if(!u){showToast('❌');return;}currentProfileUid=uid;currentWallUid=uid;var profAv=$('profileAvatar');if(u.avatarUrl){profAv.innerText='';profAv.style.backgroundImage='url('+u.avatarUrl+')';profAv.style.backgroundSize='cover';profAv.style.backgroundPosition='center';}else{profAv.style.backgroundImage='';profAv.innerText=u.avatar||(u.name&&u.name[0]?u.name[0].toUpperCase():'U');}var t2=getSpacegodType(uid);['spacegod','spacecosmos','spacemint','hacker'].forEach(function(c){profAv.classList.remove(c);});if(t2)profAv.classList.add(t2);var cls=t2==='spacecosmos'?'rainbow-cosmos':t2==='spacemint'?'rainbow-mint':t2==='hacker'?'rainbow-hacker':'rainbow-name';if(t2){$('profileName').innerHTML='<span class="crown-icon">👑</span><span class="'+cls+'">'+esc(u.name||uid)+'</span>';}else{$('profileName').innerText=u.name||uid;}var os=getOnlineStatus(uid);$('profileOnline').innerText=os.text;$('profileBio').innerText=u.bio||'Нет статуса';$('vkFriendsCount').innerText=countUserFriends(uid);$('vkSubsCount').innerText=Object.keys(state.userChats).filter(function(cid){var c=state.userChats[cid];return c&&c.type==='private'&&c.participants&&c.participants[uid];}).length;var isMe=uid===currentUser.id;$('vkMyActions').style.display=isMe?'flex':'none';$('vkOtherActions').style.display=isMe?'none':'flex';$('blockUserBtn').style.display=(!isMe&&!isBlocked(uid))?'inline-flex':'none';$('unblockUserBtn').style.display=(!isMe&&isBlocked(uid))?'inline-flex':'none';var sgToggleBtn=$('sgToggleBtn');if(sgToggleBtn){if(isMe&&userInventory.spacegodType){sgToggleBtn.style.display='block';if(userInventory.spacegodDisabled){sgToggleBtn.innerText='✅ Включить SpaceGod';sgToggleBtn.classList.add('off');}else{sgToggleBtn.innerText='🔄 Отключить SpaceGod';sgToggleBtn.classList.remove('off');}}else{sgToggleBtn.style.display='none';}}updateCalcLinkBadge();renderWallTab('wall');openModal('profileModal');}
 function openEditProfile(){closeModal('profileModal');closeModal('settingsModal');if(!currentUser)return;var me=state.users[currentUser.id]||currentUser;$('editName').value=me.name||currentUser.name||'';$('editBio').value=me.bio||'';$('editPassword').value='';var p=$('editAvatarPreview');if(me.avatarUrl){p.innerText='';p.style.backgroundImage='url('+me.avatarUrl+')';p.style.backgroundSize='cover';$('editAvatarText').value='';}else{p.style.backgroundImage='';p.innerText=me.avatar||'U';$('editAvatarText').value=me.avatar||'';}openModal('editProfileModal');}
-function saveProfileEdits(){if(!currentUser)return;var nn=($('editName').value||'').trim();var nb=($('editBio').value||'').trim().slice(0,120);var nat=($('editAvatarText').value||'').trim().toUpperCase().slice(0,2);var np=$('editPassword').value||'';var up={};if(nn)up.name=nn;up.bio=nb;if(nat)up.avatar=nat;if(np)up.password=np;db.ref('users/'+currentUser.id).update(up).then(function(){if(nn)currentUser.name=nn;currentUser.bio=nb;if(nat)currentUser.avatar=nat;if(np)currentUser.password=np;localStorage.setItem('dg_user',JSON.stringify(currentUser));window.currentUser=currentUser;state.users[currentUser.id]=Object.assign(state.users[currentUser.id]||{},currentUser);var av=$('userAvatar');if(currentUser.avatarUrl){av.innerText='';av.parentElement.style.backgroundImage='url('+currentUser.avatarUrl+')';}else{av.innerText=currentUser.avatar||'U';av.parentElement.style.backgroundImage='';}updateSpaceGodUI();renderChats();closeModal('editProfileModal');showToast('✅');}).catch(function(err){showToast('❌ '+err.message);});}
+function saveProfileEdits(){if(!currentUser)return;var nn=($('editName').value||'').trim();var nb=($('editBio').value||'').trim().slice(0,120);var nat=($('editAvatarText').value||'').trim().toUpperCase().slice(0,2);var np=$('editPassword').value||'';var up={};if(nn)up.name=nn;up.bio=nb;if(nat)up.avatar=nat;if(np)up.password=np;db.ref('users/'+currentUser.id).update(up).then(function(){if(nn)currentUser.name=nn;currentUser.bio=nb;if(nat)currentUser.avatar=nat;if(np)currentUser.password=np;var savedSession=Object.assign({},currentUser);delete savedSession.password;localStorage.setItem('dg_user',JSON.stringify(savedSession));window.currentUser=currentUser;state.users[currentUser.id]=Object.assign(state.users[currentUser.id]||{},currentUser);var av=$('userAvatar');if(currentUser.avatarUrl){av.innerText='';av.parentElement.style.backgroundImage='url('+currentUser.avatarUrl+')';}else{av.innerText=currentUser.avatar||'U';av.parentElement.style.backgroundImage='';}updateSpaceGodUI();renderChats();closeModal('editProfileModal');showToast('✅');}).catch(function(err){showToast('❌ '+err.message);});}
 function openWallComposer(){_wallPending={text:'',mediaType:null,mediaUrl:null};$('wallComposerText').value='';$('wallComposerPreview').innerHTML='';openModal('wallComposerModal');}
 function wallAttachPhoto(){$('wallPhotoInput').click();}
 function wallAttachVoice(){if(_wallRecorder){try{_wallRecorder.stop();}catch(e){}return;}if(!navigator.mediaDevices){showToast('❌');return;}navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){_wallRecStream=stream;_wallRecChunks=[];var opt={};if(MediaRecorder.isTypeSupported('audio/webm;codecs=opus'))opt={mimeType:'audio/webm;codecs=opus'};try{_wallRecorder=new MediaRecorder(stream,opt);}catch(e){showToast('❌');return;}_wallRecorder.ondataavailable=function(e){if(e.data&&e.data.size>0)_wallRecChunks.push(e.data);};_wallRecorder.onstop=function(){try{_wallRecStream.getTracks().forEach(function(t){t.stop();});}catch(e){}var blob=new Blob(_wallRecChunks,{type:'audio/webm'});_wallRecorder=null;_wallRecChunks=[];_wallRecStream=null;if(blob.size<500){showToast('❌');return;}blobToBase64(blob).then(function(b64){_wallPending.mediaType='audio';_wallPending.mediaUrl=b64;$('wallComposerPreview').innerHTML='<div class="audio-msg-wrapper" style="background:#f0f4ff;padding:8px;border-radius:12px"><button class="audio-play-btn" type="button" data-audio="'+esc(b64)+'"><i class="fas fa-play"></i></button><span class="audio-time">🎤</span></div>';showToast('✅');});};_wallRecorder.start();showToast('🎤 Говорите...');setTimeout(function(){if(_wallRecorder&&_wallRecorder.state==='recording')_wallRecorder.stop();},30000);}).catch(function(){showToast('❌');});}
@@ -1478,10 +1491,10 @@ window.doLogin=function(){
     }).catch(function(err){showToast(t('toast_error'));});
 };
 function loadInventoryAndStart(){var name=currentUser.id;var read=db.ref('inventory/'+name).once('value');var timeout=new Promise(function(_,reject){setTimeout(function(){reject(new Error('inventory timeout'));},4500);});return Promise.race([read,timeout]).then(function(s){if(s.exists()){userInventory=Object.assign({},userInventory,s.val());userInventory.balance=Number(userInventory.balance)||5000;if(!userInventory.ownedSpacegods)userInventory.ownedSpacegods=[];}else{userInventory.balance=5000;userInventory.ownedSpacegods=[];db.ref('inventory/'+name).set(userInventory).catch(function(){});}return startApp();}).catch(function(){userInventory.balance=Number(userInventory.balance)||5000;userInventory.ownedSpacegods=userInventory.ownedSpacegods||[];return startApp();});}
-function startApp(){window.currentUser=currentUser;localStorage.setItem('dg_user',JSON.stringify(currentUser));hideSplash();$('loginScreen').style.display='none';$('mainApp').style.display='block';state.users[currentUser.id]=Object.assign(state.users[currentUser.id]||{},currentUser);var av=$('userAvatar');if(currentUser.avatarUrl){av.innerText='';av.parentElement.style.backgroundImage='url('+currentUser.avatarUrl+')';av.parentElement.style.backgroundSize='cover';}else av.innerText=currentUser.avatar||'U';updateSpaceGodUI();loadChatsCache();ensureNotesChat();setupPresence();loadData();applySidebarTheme();applyTranslations();gpsRestoreState();db.ref('users/'+currentUser.id).on('value',function(s){var v=s.val();if(v){state.users[currentUser.id]=v;currentUser.name=v.name||currentUser.name;currentUser.bio=v.bio||'';currentUser.avatar=v.avatar||currentUser.avatar;currentUser.avatarUrl=v.avatarUrl||null;window.currentUser=currentUser;var av2=$('userAvatar');if(currentUser.avatarUrl){av2.innerText='';av2.parentElement.style.backgroundImage='url('+currentUser.avatarUrl+')';av2.parentElement.style.backgroundSize='cover';}else{av2.innerText=currentUser.avatar||'U';av2.parentElement.style.backgroundImage='';}updateSpaceGodUI();debouncedRenderChats();}});setTimeout(function(){if(window.dgCalls)window.dgCalls.listenIncoming();},500);setTimeout(function(){if('Notification' in window&&Notification.permission==='default'){$('notifPermBar').classList.add('show');setTimeout(function(){$('notifPermBar').classList.remove('show');},8000);}},2000);showToast(t('toast_hello')+' '+currentUser.name+'!');setTimeout(startKeepAlive,500);}
+function startApp(){window.currentUser=currentUser;var savedSession=Object.assign({},currentUser);delete savedSession.password;localStorage.setItem('dg_user',JSON.stringify(savedSession));hideSplash();$('loginScreen').style.display='none';$('mainApp').style.display='block';state.users[currentUser.id]=Object.assign(state.users[currentUser.id]||{},currentUser);var av=$('userAvatar');if(currentUser.avatarUrl){av.innerText='';av.parentElement.style.backgroundImage='url('+currentUser.avatarUrl+')';av.parentElement.style.backgroundSize='cover';}else av.innerText=currentUser.avatar||'U';updateSpaceGodUI();loadChatsCache();ensureNotesChat();setupPresence();loadData();applySidebarTheme();applyTranslations();gpsRestoreState();db.ref('users/'+currentUser.id).on('value',function(s){var v=s.val();if(v){state.users[currentUser.id]=v;currentUser.name=v.name||currentUser.name;currentUser.bio=v.bio||'';currentUser.avatar=v.avatar||currentUser.avatar;currentUser.avatarUrl=v.avatarUrl||null;window.currentUser=currentUser;var av2=$('userAvatar');if(currentUser.avatarUrl){av2.innerText='';av2.parentElement.style.backgroundImage='url('+currentUser.avatarUrl+')';av2.parentElement.style.backgroundSize='cover';}else{av2.innerText=currentUser.avatar||'U';av2.parentElement.style.backgroundImage='';}updateSpaceGodUI();debouncedRenderChats();}});setTimeout(function(){if(window.dgCalls)window.dgCalls.listenIncoming();},500);setTimeout(function(){if('Notification' in window&&Notification.permission==='default'){$('notifPermBar').classList.add('show');setTimeout(function(){$('notifPermBar').classList.remove('show');},8000);}},2000);showToast(t('toast_hello')+' '+currentUser.name+'!');setTimeout(startKeepAlive,500);}
 function setupPresence(){if(!currentUser)return;var mr=db.ref('users/'+currentUser.id+'/status');db.ref('.info/connected').on('value',function(s){if(s.val()===true){mr.onDisconnect().set('offline');mr.set('online');}});window.addEventListener('beforeunload',function(){mr.set('offline');});}
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&currentUser){startKeepAlive();if(_keepAliveCtx&&_keepAliveCtx.state==='suspended'){try{_keepAliveCtx.resume();}catch(e){}}try{db.ref('userChats/'+currentUser.id).once('value').then(function(s){state.userChats=s.val()||{};_lastChatsHash='';debouncedRenderChats();saveChatsCache();syncUserSubscriptions();}).catch(function(){});if(!notifInitialized){startNotificationWatcher();}if(window.dgCalls)window.dgCalls.listenIncoming();}catch(e){}}});
-document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.modal,.image-viewer,.video-viewer').forEach(function(el){el.classList.remove('show');el.style.display='none';});var lb=$('loginBtn');if(lb)lb.addEventListener('click',function(e){e.preventDefault();window.doLogin();});bindNotifSettings();renderStickers();applyTranslations();var saved=null;try{saved=localStorage.getItem('dg_user');}catch(storageErr){}if(saved){try{currentUser=JSON.parse(saved);window.currentUser=currentUser;if(!currentUser||!currentUser.id)throw new Error('bad');$('loginScreen').style.display='none';$('mainApp').style.display='block';var av=$('userAvatar');if(currentUser.avatarUrl){av.innerText='';av.parentElement.style.backgroundImage='url('+currentUser.avatarUrl+')';}else av.innerText=currentUser.avatar||'U';updateSpaceGodUI();var userRead=db.ref('users/'+currentUser.id).once('value');var userTimeout=new Promise(function(_,reject){setTimeout(function(){reject(new Error('user check timeout'));},4500);});Promise.race([userRead,userTimeout]).then(function(chk){if(chk.exists()&&chk.val().blocked){localStorage.removeItem('dg_user');currentUser=null;window.currentUser=null;showLoginScreen();return;}if(chk.exists()){var v=chk.val();currentUser.name=v.name||currentUser.name;currentUser.avatar=v.avatar||currentUser.avatar;currentUser.avatarUrl=v.avatarUrl||null;currentUser.bio=v.bio||'';window.currentUser=currentUser;}return loadInventoryAndStart();}).catch(function(){/* Сеть/Firebase недоступны: запускаем сохранённую сессию, синхронизация возобновится при подключении. */loadInventoryAndStart();});return;}catch(e){localStorage.removeItem('dg_user');}}var ws=localStorage.getItem('dg_welcome_seen');if(!ws){showWelcomeScreen();return;}showLoginScreen();});
+document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.modal,.image-viewer,.video-viewer').forEach(function(el){el.classList.remove('show');el.style.display='none';});var lb=$('loginBtn');if(lb)lb.addEventListener('click',function(e){e.preventDefault();window.doLogin();});bindNotifSettings();renderStickers();applyTranslations();var saved=null;try{saved=localStorage.getItem('dg_user');}catch(storageErr){}if(saved){try{currentUser=JSON.parse(saved);if(currentUser&&Object.prototype.hasOwnProperty.call(currentUser,'password')){delete currentUser.password;localStorage.setItem('dg_user',JSON.stringify(currentUser));}window.currentUser=currentUser;if(!currentUser||!currentUser.id)throw new Error('bad');$('loginScreen').style.display='none';$('mainApp').style.display='block';var av=$('userAvatar');if(currentUser.avatarUrl){av.innerText='';av.parentElement.style.backgroundImage='url('+currentUser.avatarUrl+')';}else av.innerText=currentUser.avatar||'U';updateSpaceGodUI();var userRead=db.ref('users/'+currentUser.id).once('value');var userTimeout=new Promise(function(_,reject){setTimeout(function(){reject(new Error('user check timeout'));},4500);});Promise.race([userRead,userTimeout]).then(function(chk){if(chk.exists()&&chk.val().blocked){localStorage.removeItem('dg_user');currentUser=null;window.currentUser=null;showLoginScreen();return;}if(chk.exists()){var v=chk.val();currentUser.name=v.name||currentUser.name;currentUser.avatar=v.avatar||currentUser.avatar;currentUser.avatarUrl=v.avatarUrl||null;currentUser.bio=v.bio||'';window.currentUser=currentUser;}return loadInventoryAndStart();}).catch(function(){/* Сеть/Firebase недоступны: запускаем сохранённую сессию, синхронизация возобновится при подключении. */loadInventoryAndStart();});return;}catch(e){localStorage.removeItem('dg_user');}}var ws=localStorage.getItem('dg_welcome_seen');if(!ws){showWelcomeScreen();return;}showLoginScreen();});
 document.getElementById('photoInput').addEventListener('change',function(e){if(e.target.files[0]){var f=e.target.files[0];showToast('⏳');compressImage(f,1280,0.7).then(function(b64){if(b64){pendingMedia={type:'photo',url:b64};sendMessage();}else{fileToBase64(f).then(function(b){pendingMedia={type:'photo',url:b};sendMessage();});}});}e.target.value='';});
 document.getElementById('videoInput').addEventListener('change',function(e){if(e.target.files[0]){var f=e.target.files[0];fileToBase64(f).then(function(b64){pendingMedia={type:'video',url:b64};sendMessage();});}e.target.value='';});
 document.getElementById('chatSearch').addEventListener('input',function(){debouncedRenderChats();handleUserSearch(this.value.trim());});
@@ -1609,7 +1622,130 @@ function hideDonAiTyping() {
 
 // DonAI: основной бесплатный API без ключа + резервный Pollinations.
 // Ни один публичный API не гарантирует 100% uptime; при ошибке первого пробуем второй.
+const DONAI_POLLI_REDIRECT_URI = 'https://troll2281488.github.io/Don/';
+
+function donAiBase64Url(bytes) {
+    let binary = '';
+    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+function donAiRandomToken(size) {
+    const bytes = new Uint8Array(size);
+    crypto.getRandomValues(bytes);
+    return donAiBase64Url(bytes);
+}
+function updateDonAiPolliStatus() {
+    const el = document.getElementById('donAiPolliStatus');
+    if (!el) return;
+    const token = sessionStorage.getItem('donai_polli_access_token');
+    const expiry = Number(sessionStorage.getItem('donai_polli_expires_at') || 0);
+    const appKey = localStorage.getItem('donai_polli_app_key') || '';
+    if (token && (!expiry || Date.now() < expiry)) {
+        el.textContent = '✅ Pollinations подключён в этой вкладке. Лимит и срок действия заданы при авторизации.';
+        el.style.color = '#16834a';
+    } else if (appKey) {
+        el.textContent = 'App Key сохранён. Нажми «Подключить Pollinations» для авторизации.';
+        el.style.color = '#687080';
+    } else {
+        el.textContent = 'Сначала создай App Key (pk_...) на enter.pollinations.ai и сохрани его здесь.';
+        el.style.color = '#687080';
+    }
+}
+async function beginDonAiPollinationsConnect() {
+    try {
+        const input = document.getElementById('donAiPolliAppKey');
+        const appKey = (input && input.value || localStorage.getItem('donai_polli_app_key') || '').trim();
+        if (!/^pk_[A-Za-z0-9_-]+$/.test(appKey)) {
+            throw new Error('Введи корректный App Key, который начинается с pk_.');
+        }
+        localStorage.setItem('donai_polli_app_key', appKey);
+        const verifier = donAiRandomToken(48);
+        const challengeBytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
+        const challenge = donAiBase64Url(new Uint8Array(challengeBytes));
+        const state = donAiRandomToken(24);
+        sessionStorage.setItem('donai_polli_pkce_verifier', verifier);
+        sessionStorage.setItem('donai_polli_oauth_state', state);
+        const params = new URLSearchParams({
+            response_type: 'code',
+            client_id: appKey,
+            redirect_uri: DONAI_POLLI_REDIRECT_URI,
+            scope: 'usage',
+            models: 'text',
+            budget: '5',
+            expiry: '7',
+            state: state,
+            code_challenge: challenge,
+            code_challenge_method: 'S256'
+        });
+        window.location.assign('https://enter.pollinations.ai/authorize?' + params.toString());
+    } catch (error) {
+        showToast('❌ ' + (error.message || 'Не удалось начать подключение'));
+    }
+}
+async function completeDonAiPollinationsConnect() {
+    const url = new URL(window.location.href);
+    const code = url.searchParams.get('code');
+    const oauthError = url.searchParams.get('error');
+    if (!code && !oauthError) return;
+    const cleanUrl = function() {
+        try { history.replaceState({}, document.title, DONAI_POLLI_REDIRECT_URI); } catch (_) {}
+    };
+    if (oauthError) {
+        cleanUrl();
+        sessionStorage.removeItem('donai_polli_pkce_verifier');
+        sessionStorage.removeItem('donai_polli_oauth_state');
+        showToast('Pollinations: авторизация отменена или отклонена.');
+        updateDonAiPolliStatus();
+        return;
+    }
+    const expectedState = sessionStorage.getItem('donai_polli_oauth_state');
+    const returnedState = url.searchParams.get('state');
+    const verifier = sessionStorage.getItem('donai_polli_pkce_verifier');
+    const appKey = localStorage.getItem('donai_polli_app_key') || '';
+    if (!expectedState || !returnedState || returnedState !== expectedState || !verifier || !appKey) {
+        cleanUrl();
+        showToast('❌ Не удалось проверить OAuth-сессию. Подключи Pollinations ещё раз.');
+        return;
+    }
+    cleanUrl();
+    try {
+        const response = await fetch('https://enter.pollinations.ai/api/oauth/token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                grant_type: 'authorization_code',
+                code: code,
+                client_id: appKey,
+                redirect_uri: DONAI_POLLI_REDIRECT_URI,
+                code_verifier: verifier
+            })
+        });
+        const raw = await response.text();
+        let data;
+        try { data = JSON.parse(raw); } catch (_) { data = {}; }
+        if (!response.ok || !data.access_token) {
+            throw new Error((data.error_description || data.error || 'HTTP ' + response.status).toString());
+        }
+        sessionStorage.setItem('donai_polli_access_token', data.access_token);
+        sessionStorage.setItem('donai_polli_expires_at', String(Date.now() + (Number(data.expires_in) || 604800) * 1000));
+        showToast('✅ Pollinations подключён. DonAI готов к работе.');
+    } catch (error) {
+        showToast('❌ Не удалось подключить Pollinations: ' + (error.message || 'ошибка OAuth'));
+    } finally {
+        sessionStorage.removeItem('donai_polli_pkce_verifier');
+        sessionStorage.removeItem('donai_polli_oauth_state');
+        updateDonAiPolliStatus();
+    }
+}
 async function requestDonAi(messages, options) {
+    const token = sessionStorage.getItem('donai_polli_access_token');
+    const expiry = Number(sessionStorage.getItem('donai_polli_expires_at') || 0);
+    if (!token || (expiry && Date.now() >= expiry)) {
+        sessionStorage.removeItem('donai_polli_access_token');
+        sessionStorage.removeItem('donai_polli_expires_at');
+        updateDonAiPolliStatus();
+        throw new Error('Сначала подключи Pollinations в Настройках DonAI. Для генерации нужен твой разрешённый API-доступ.');
+    }
     const payload = Object.assign({ messages: messages, temperature: 0.7, max_tokens: 900 }, options || {});
     const selectedProfile = aiSettings.modelProfile || 'daily';
     const models = {
@@ -1617,24 +1753,58 @@ async function requestDonAi(messages, options) {
         smart: 'openai/gpt-5.4-mini',
         daily: 'google/gemini-3.5-flash-lite'
     };
-    const response = await fetch('https://text.pollinations.ai/openai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(Object.assign({ model: models[selectedProfile] || models.daily }, payload)),
-        signal: AbortSignal.timeout(60000)
-    });
-    const raw = await response.text();
-    let data; try { data = JSON.parse(raw); } catch (_) { data = raw; }
-    if (!response.ok) {
-        if (response.status === 402) throw new Error('Pollinations отклонил запрос (402): сервис требует оплату/доступ для выбранной модели. Это не ограничение в 30 секунд и не ошибка твоего сообщения.');
-        if (response.status === 429) throw new Error('Слишком много запросов к Pollinations. Запрос поставлен на паузу; попробуй чуть позже.');
-        throw new Error('Pollinations HTTP ' + response.status);
+    const selectedModel = models[selectedProfile] || models.daily;
+    async function send(model) {
+        const response = await fetch('https://gen.pollinations.ai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify(Object.assign({ model: model }, payload)),
+            signal: AbortSignal.timeout(60000)
+        });
+        const raw = await response.text();
+        let data;
+        try { data = JSON.parse(raw); } catch (_) { data = { error: raw }; }
+        if (!response.ok) {
+            const detail = data && data.error
+                ? (typeof data.error === 'string' ? data.error : (data.error.message || JSON.stringify(data.error)))
+                : (data.message || raw || 'HTTP ' + response.status);
+            const error = new Error('Pollinations HTTP ' + response.status + ': ' + String(detail).slice(0, 300));
+            error.status = response.status;
+            throw error;
+        }
+        const answer = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+        if (!answer || !String(answer).trim()) throw new Error('Pollinations вернул пустой ответ');
+        return { text: String(answer), provider: 'Pollinations', model: model };
     }
-    let answer = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
-    if ((!answer || !String(answer).trim()) && typeof data === 'string') answer = data;
-    if (!answer || !String(answer).trim()) throw new Error('Pollinations вернул пустой ответ');
-    return { text: String(answer), provider: 'Pollinations', model: models[selectedProfile] || models.daily };
+    try {
+        return await send(selectedModel);
+    } catch (error) {
+        if (error.status === 401) {
+            sessionStorage.removeItem('donai_polli_access_token');
+            sessionStorage.removeItem('donai_polli_expires_at');
+            updateDonAiPolliStatus();
+            throw new Error('Сессия Pollinations истекла или отозвана. Подключи сервис заново в Настройках DonAI.');
+        }
+        if (error.status === 402) {
+            throw new Error('Pollinations 402: баланс Pollen или установленный лимит исчерпан, либо аккаунту недоступна выбранная модель. Проверь баланс и лимит в Pollinations Connect. ' + error.message);
+        }
+        if (error.status === 404 && selectedModel !== 'openai/gpt-5.4-nano') {
+            try { return await send('openai/gpt-5.4-nano'); }
+            catch (fallbackError) {
+                throw new Error('Основная и резервная модели не найдены. Проверь каталог моделей Pollinations. ' + fallbackError.message);
+            }
+        }
+        if (error.status === 429) throw new Error('Pollinations временно ограничил частоту запросов. Подожди немного и повтори.');
+        throw error;
+    }
 }
+document.addEventListener('DOMContentLoaded', function() {
+    completeDonAiPollinationsConnect();
+    updateDonAiPolliStatus();
+});
 
 let donAiAttachedFileText = '';
 let donAiAttachedFileName = '';
@@ -1701,15 +1871,7 @@ async function processDonAiMessage(isRetry = false, queuedText = null) {
         try { showToast('⌛ DonAI ещё отвечает. Дождись завершения ответа.'); } catch(e) {}
         return;
     }
-    const nextAllowedAt = Number(localStorage.getItem('donai_next_request_at') || 0);
-    if (!isRetry && Date.now() < nextAllowedAt) {
-        const seconds = Math.ceil((nextAllowedAt - Date.now()) / 1000);
-        try { showToast('⏳ Следующий запрос можно отправить через ' + seconds + ' сек.'); } catch(e) {}
-        return;
-    }
-
     donAiState.isBusy = true;
-    if (!isRetry) localStorage.setItem('donai_next_request_at', String(Date.now() + 30000));
     if (!isRetry) {
         if (donAiAttachedFileText) { donAiAttachedFileText = ''; donAiAttachedFileName = ''; const status = document.getElementById('donAiFileStatus'); if (status) { status.textContent = ''; status.style.display = 'none'; } }
         addDonAiMessage('user', text);
@@ -1843,6 +2005,9 @@ function loadAiSettings() {
     if (saved) {
         try { aiSettings = Object.assign(aiSettings, JSON.parse(saved)); } catch(e){}
     }
+    const polliKeyInput = document.getElementById('donAiPolliAppKey');
+    if (polliKeyInput) polliKeyInput.value = localStorage.getItem('donai_polli_app_key') || '';
+    updateDonAiPolliStatus();
     document.getElementById('aiModelProfile').value = aiSettings.modelProfile || 'daily';
     document.getElementById('aiFontSize').value = aiSettings.fontSize;
     document.getElementById('aiTypingSpeed').value = aiSettings.typingSpeed;
@@ -1871,6 +2036,11 @@ document.getElementById('aiModelProfile').addEventListener('change', function() 
 });
 
 document.getElementById('aiSettingsSaveBtn').addEventListener('click', () => {
+    const polliKeyInput = document.getElementById('donAiPolliAppKey');
+    const polliAppKey = (polliKeyInput && polliKeyInput.value || '').trim();
+    if (polliAppKey) localStorage.setItem('donai_polli_app_key', polliAppKey);
+    else localStorage.removeItem('donai_polli_app_key');
+    updateDonAiPolliStatus();
     donAiState.persona = defaultPersona;
     try { localStorage.removeItem('donai_persona'); } catch(e) {}
     
@@ -1887,6 +2057,14 @@ document.getElementById('aiSettingsSaveBtn').addEventListener('click', () => {
     
     closeModal('aiSettingsModal');
     showToast('✅ Настройки сохранены');
+});
+
+document.getElementById('donAiPolliConnectBtn').addEventListener('click', beginDonAiPollinationsConnect);
+document.getElementById('donAiPolliDisconnectBtn').addEventListener('click', function() {
+    sessionStorage.removeItem('donai_polli_access_token');
+    sessionStorage.removeItem('donai_polli_expires_at');
+    updateDonAiPolliStatus();
+    showToast('Pollinations отключён в этой вкладке.');
 });
 
 document.getElementById('aiTemperature').addEventListener('input', function() {
@@ -2201,6 +2379,6 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
 })();
 </script>
 
-  <script src="./offline-ai.js?v=20261031-donai-chat-ui-v11"></script>
+  <script src="./offline-ai.js?v=20261031-donai-oauth-v12"></script>
 </body>
 </html>
