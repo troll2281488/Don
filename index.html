@@ -1670,7 +1670,7 @@ async function beginDonAiPollinationsConnect() {
             client_id: appKey,
             redirect_uri: DONAI_POLLI_REDIRECT_URI,
             scope: 'usage',
-            models: 'text',
+            models: 'text,image,audio,embedding',
             budget: '5',
             expiry: '7',
             state: state,
