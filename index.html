@@ -1489,6 +1489,7 @@ const defaultPersona = "Ты — DonAI, умный и дружелюбный а�
 const donAiState = {
     history: (function(){try{var h=JSON.parse(localStorage.getItem('donai_history')||'[]');return Array.isArray(h)?h.filter(function(x){return x&&typeof x.text==='string'&&(x.role==='user'||x.role==='ai'||x.role==='assistant');}).slice(-100):[];}catch(e){return [];}})(),
     pending: [],
+    isBusy: false,
     isTyping: false,
     msgCount: Number(localStorage.getItem('donai_msg_count') || 0),
     persona: defaultPersona
@@ -1605,13 +1606,14 @@ async function processDonAiMessage(isRetry = false) {
     if (!input) return;
     const text = isRetry ? input.dataset.lastText : input.value.trim();
     if (!text) return;
-    if (donAiState.isTyping && !isRetry) {
+    if (donAiState.isBusy && !isRetry) {
         donAiState.pending.push(text);
         input.value = '';
         try { showToast('⌛ Сообщение добавлено в очередь'); } catch(e) {}
         return;
     }
 
+    donAiState.isBusy = true;
     if (!isRetry) {
         addDonAiMessage('user', text);
         input.dataset.lastText = text;
@@ -1658,6 +1660,7 @@ async function processDonAiMessage(isRetry = false) {
         hideDonAiTyping();
         addDonAiMessage('ai', 'DonAI: ' + (error && error.message ? error.message : 'не удалось связаться с моделью'));
     } finally {
+        donAiState.isBusy = false;
         if (donAiState.pending.length) {
             const nextMessage = donAiState.pending.shift();
             setTimeout(() => {
@@ -2093,6 +2096,6 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
 })();
 </script>
 
-  <script src="./offline-ai.js?v=20261031-donai-chat-profiles-v3"></script>
+  <script src="./offline-ai.js?v=20261031-donai-chat-profiles-v4"></script>
 </body>
 </html>
