@@ -1624,18 +1624,24 @@ async function processDonAiMessage(isRetry = false) {
     }
 
     try {
-        const userAsksInRussian = /[\\u0400-\\u04FF]/.test(text);
+        const userAsksInRussian = /[\u0400-\u04FF]/.test(text);
         const identityQuestion = /(кто ты|что ты такое|представься|как тебя зовут|who are you|what are you)/i.test(text);
         const profileInstructions = {
             code: 'Текущий профиль: DonAI Code 3.1. Ты специализированный помощник по программированию. Пиши рабочий код, объясняй ошибки и не выдумывай API.',
             smart: 'Текущий профиль: DonAI Pro 3.1. Решай сложные и обычные задачи тщательно, проверяй логику и структурируй ответ.',
             daily: 'Текущий профиль: DonAI Daily 3.1. Общайся естественно и дружелюбно, отвечай кратко на повседневные вопросы.'
         };
-        let systemContent = donAiState.persona + '\\n\\n' + (profileInstructions[aiSettings.modelProfile || 'daily'] || profileInstructions.daily);
-        if (identityQuestion) systemContent += '\\n\\nЕсли тебя спрашивают, кто ты, просто представься: «Я DonAI — ИИ-помощник внутри DonorGram». Кратко объясни, чем можешь помочь. Не говори, что тебе дали анализировать документ или что-то другое, если пользователь этого не просил.';
+        let systemContent = donAiState.persona + '\n\n' + (profileInstructions[aiSettings.modelProfile || 'daily'] || profileInstructions.daily);
+        if (identityQuestion) systemContent += '
+
+Если тебя спрашивают, кто ты, просто представься: «Я DonAI — ИИ-помощник внутри DonorGram». Кратко объясни, чем можешь помочь. Не говори, что тебе дали анализировать документ или что-то другое, если пользователь этого не просил.';
         systemContent += userAsksInRussian
-            ? '\\n\\nОтвечай полностью на русском языке.'
-            : '\\n\\nОтвечай на том же языке, что и пользователь.';
+            ? '
+
+Отвечай полностью на русском языке.'
+            : '
+
+Отвечай на том же языке, что и пользователь.';
         const historySlice = donAiState.history.slice(-11, -1).map(msg => ({
             role: msg.role === 'user' ? 'user' : 'assistant',
             content: msg.text
@@ -1746,7 +1752,8 @@ function loadAiSettings() {
     if (saved) {
         try { aiSettings = Object.assign(aiSettings, JSON.parse(saved)); } catch(e){}
     }
-    document.getElementById('aiModelProfile').value = aiSettings.modelProfile || 'daily';\n    document.getElementById('aiFontSize').value = aiSettings.fontSize;
+    document.getElementById('aiModelProfile').value = aiSettings.modelProfile || 'daily';
+    document.getElementById('aiFontSize').value = aiSettings.fontSize;
     document.getElementById('aiTypingSpeed').value = aiSettings.typingSpeed;
     document.getElementById('aiTemperature').value = aiSettings.temperature;
     document.getElementById('tempVal').innerText = aiSettings.temperature;
@@ -1770,7 +1777,8 @@ document.getElementById('aiSettingsSaveBtn').addEventListener('click', () => {
     donAiState.persona = defaultPersona;
     try { localStorage.removeItem('donai_persona'); } catch(e) {}
     
-    aiSettings.modelProfile = document.getElementById('aiModelProfile').value || 'daily';\n    aiSettings.fontSize = parseInt(document.getElementById('aiFontSize').value);
+    aiSettings.modelProfile = document.getElementById('aiModelProfile').value || 'daily';
+    aiSettings.fontSize = parseInt(document.getElementById('aiFontSize').value);
     aiSettings.typingSpeed = parseInt(document.getElementById('aiTypingSpeed').value);
     aiSettings.temperature = parseFloat(document.getElementById('aiTemperature').value);
     aiSettings.maxTokens = parseInt(document.getElementById('aiMaxTokens').value);
@@ -2096,6 +2104,6 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
 })();
 </script>
 
-  <script src="./offline-ai.js?v=20261031-donai-chat-profiles-v4"></script>
+  <script src="./offline-ai.js?v=20261031-donai-chat-profiles-v5"></script>
 </body>
 </html>
