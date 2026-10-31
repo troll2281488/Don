@@ -1724,7 +1724,7 @@ async function transcribeDonAiAudio(file) {
     form.append('file', file, file.name || 'recording.webm');
     form.append('model', 'openai/whisper-large-v3');
     const response = await fetch(base + '/v1/audio/transcriptions', {
-        method: 'POST', body: form, signal: AbortSignal.timeout(120000)
+        method: 'POST', headers: { 'X-DonorGram-Token': localStorage.getItem('donai_polli_proxy_token') || '' }, body: form, signal: AbortSignal.timeout(120000)
     });
     const data = await response.json();
     if (!response.ok) throw new Error('Ошибка распознавания: ' + (data.error?.message || data.error || response.status));
