@@ -2041,7 +2041,7 @@ document.getElementById('aiModelProfile').addEventListener('change', function() 
 
 document.getElementById('aiSettingsSaveBtn').addEventListener('click', () => {
     const polliProxyInput = document.getElementById('donAiPolliProxyUrl');
-    const polliProxyUrl = (polliProxyInput && polliProxyInput.value || '').trim().replace(/\\/+$/, '');
+    const polliProxyUrl = (polliProxyInput && polliProxyInput.value || '').trim().replace(/\/+$/, '');
     if (polliProxyUrl) localStorage.setItem('donai_polli_proxy_url', polliProxyUrl);
     else localStorage.removeItem('donai_polli_proxy_url');
     updateDonAiPolliStatus();
