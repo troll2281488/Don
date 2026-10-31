@@ -48,10 +48,10 @@ async function extract(file){let ext=file.name.split('.').pop().toLowerCase();if
 function script(src,name){return new Promise((ok,no)=>{if(window[name])return ok();let s=document.createElement('script');s.src=src;s.onload=()=>ok();s.onerror=()=>no(Error('Нужен интернет для загрузки парсера'));document.head.append(s);});}
 async function ensureLocalAI(out){if(localAIEngine)return localAIEngine;if(localAIReady)return localAIReady;if(!navigator.gpu)throw Error('Браузер не поддерживает WebGPU. Нужен современный Chrome/Edge на ПК или Safari 18+ на iPhone.');localAIReady=(async()=>{out.textContent='Загружаю движок DonAI…';let mod=await import('https://esm.run/@mlc-ai/web-llm');out.textContent='Загружаю локальную модель Qwen 2.5 (около 300 МБ). Не закрывай вкладку.';localAIEngine=await mod.CreateMLCEngine('Qwen2.5-0.5B-Instruct-q4f16_1-MLC',{initProgressCallback:p=>{if(p&&p.text)out.textContent='DonAI: '+p.text;}});return localAIEngine;})();try{return await localAIReady;}catch(e){localAIReady=null;localAIEngine=null;throw e;}}
 async function getWebContext(command,out){
- const urlMatch=command.match(/https?:\\/\\/[^\\s<>"']+/i);
+ const urlMatch=command.match(/https?:\/\/[^\s<>"']+/i);
  const wantsSearch=/(найди|поищи|поиск|что нового|последн(ие|яя|ий)|актуальн|свеж(ие|ая|ий)|в интернете|в сети|search|latest|current)/i.test(command);
  if(!urlMatch&&!wantsSearch)return '';
- const target=urlMatch?'https://r.jina.ai/'+urlMatch[0]:'https://r.jina.ai/http://html.duckduckgo.com/html/?q='+encodeURIComponent(command.replace(/^(найди|поищи|поиск)\\s*/i,''));
+ const target=urlMatch?'https://r.jina.ai/'+urlMatch[0]:'https://r.jina.ai/http://html.duckduckgo.com/html/?q='+encodeURIComponent(command.replace(/^(найди|поищи|поиск)\s*/i,''));
  out.textContent=urlMatch?'Читаю страницу по ссылке…':'Ищу в интернете через DuckDuckGo…';
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),30000);
  try{const res=await fetch(target,{headers:{Accept:'text/plain'},signal:controller.signal});if(!res.ok)throw Error('Веб-сервис ответил '+res.status);let text=await res.text();if(!text.trim())throw Error('Сервис не вернул содержимое');return '\\n\\nДАННЫЕ ИЗ ИНТЕРНЕТА (получены сейчас; используй как источники, не выдумывай):\\n'+text.slice(0,18000)+'\\n\\nУкажи в ответе ссылки на источники, если они присутствуют в полученном тексте.';
