@@ -132,6 +132,7 @@ async function ask(prompt){let p=document.getElementById('dgAIPanel'),out=p.quer
   if (!answer || !String(answer).trim()) throw new Error('Локальная модель не вернула ответ. Попробуй сократить запрос.');
   return { text: String(answer).trim(), provider: 'DonAI Local WebGPU', model: DONAI_LOCAL_MODEL };
  };
+ window.dgLocalRequestDonAi = window.requestDonAi;
  window.dgAskConfiguredAI=async function(messages,options){
   return window.requestDonAi(messages,options||{});
  };
