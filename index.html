@@ -475,6 +475,7 @@ input:checked+.slider:before{transform:translateX(26px)}
     word-break: break-word;
 }
 .donai-msg-ai a { color: #6366f1; text-decoration: underline; }
+.donai-command-guide{display:flex;flex-direction:column;gap:10px;margin:12px 0}.donai-command-group{padding:10px;border:1px solid #e9e4f4;border-radius:10px;background:#fff}.donai-command-group>b{display:block;margin-bottom:7px;color:#55428a}.donai-command-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid #f0edf6}.donai-command-row>div{flex:1;min-width:0}.donai-command-row code{font-size:12px;font-weight:700;color:#5b45a0;overflow-wrap:anywhere}.donai-command-row small{display:block;color:#666;font-size:11px;line-height:1.4;margin-top:2px}.donai-command-row button{width:28px;height:28px;flex:0 0 28px;border:0;border-radius:8px;background:#eee9ff;color:#5b45a0;font-size:17px;cursor:pointer}.donai-command-stage{position:absolute;z-index:20;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;background:rgba(248,247,255,.35);backdrop-filter:blur(2px);animation:donaiStageIn .2s ease-out}.donai-stage-card{min-width:190px;max-width:78%;padding:22px 26px;border:1px solid rgba(130,105,220,.2);border-radius:22px;background:rgba(255,255,255,.97);box-shadow:0 16px 55px rgba(50,30,100,.2);text-align:center;color:#30244f}.donai-stage-emoji{font-size:76px;line-height:1.2;display:block;margin-bottom:10px}.donai-stage-label{font-size:14px;font-weight:800}.donai-stage-result{font-size:18px;font-weight:900;color:#6b4bd1;margin-top:8px}.donai-stage-coin{animation:donaiCoinSpin 1.15s cubic-bezier(.2,.7,.2,1) both}.donai-stage-dice{animation:donaiDiceRoll 1.1s cubic-bezier(.2,.7,.2,1) both}.donai-stage-choose{animation:donaiChoosePop .9s ease-out both}.donai-stage-color{width:76px;height:76px;border-radius:20px;margin:0 auto 12px;border:4px solid white;box-shadow:0 4px 20px #0002;animation:donaiColorPulse 1.2s ease-in-out both}.donai-inapp-alert{position:fixed;z-index:100000;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(92vw,420px);padding:14px 16px;border-radius:16px;background:linear-gradient(135deg,#211044,#5433a3);color:#fff;box-shadow:0 12px 40px #16072c66;display:flex;gap:12px;align-items:center;animation:donaiAlertIn .3s ease-out}.donai-inapp-alert-icon{font-size:28px}.donai-inapp-alert-body{flex:1;min-width:0}.donai-inapp-alert-title{font-weight:800;font-size:14px}.donai-inapp-alert-text{font-size:13px;opacity:.9;margin-top:3px;overflow-wrap:anywhere}.donai-inapp-alert button{border:0;background:#ffffff22;color:white;border-radius:8px;width:28px;height:28px;font-size:18px}.donai-command-stage~.donai-command-stage{display:none}@keyframes donaiStageIn{from{opacity:0}to{opacity:1}}@keyframes donaiCoinSpin{0%{transform:rotateY(0) scale(.5)}35%{transform:rotateY(720deg) scale(1.2)}70%{transform:rotateY(1440deg) scale(.95)}100%{transform:rotateY(1800deg) scale(1)}}@keyframes donaiDiceRoll{0%{transform:translate(-70px,-50px) rotate(-300deg) scale(.5)}45%{transform:translate(20px,8px) rotate(400deg) scale(1.2)}75%{transform:translate(-5px,0) rotate(700deg) scale(.95)}100%{transform:translate(0,0) rotate(720deg) scale(1)}}@keyframes donaiChoosePop{0%{transform:scale(.3) rotate(-12deg);opacity:0}65%{transform:scale(1.15) rotate(4deg);opacity:1}100%{transform:scale(1) rotate(0)}}@keyframes donaiColorPulse{0%{transform:scale(.3) rotate(-90deg)}60%{transform:scale(1.2) rotate(12deg)}100%{transform:scale(1) rotate(0)}}@keyframes donaiAlertIn{from{opacity:0;transform:translate(-50%,24px)}to{opacity:1;transform:translate(-50%,0)}}
 .donai-message-actions{display:flex;gap:8px;margin-top:10px;padding-top:8px;border-top:1px solid rgba(120,100,180,.12)}
 .donai-message-actions button{border:0;background:#f0edff;color:#5b50a5;border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer}
 .donai-message-actions button:active{transform:scale(.97)}
@@ -914,7 +915,33 @@ button,input,textarea,select{touch-action:manipulation}
             Сообщений отправлено: <b id="aiMsgCount">0</b>
         </div>
 
-        <details style="margin:18px 0 14px;border:1px solid #e3dcf5;border-radius:13px;padding:12px;background:#faf9ff"><summary style="cursor:pointer;font-size:14px;font-weight:800;color:#6545a4">📚 Полный справочник DonAI — возможности, команды и промпты</summary><div style="font-size:12px;line-height:1.65;color:#45445a;margin-top:12px"><b>Что умеет DonAI</b><br>• Отвечает на вопросы, объясняет темы и помогает учиться.<br>• Пишет, объясняет и исправляет код, помогает с командами терминала.<br>• Придумывает идеи, тексты, планы, названия и сценарии.<br>• Анализирует прикреплённые текстовые документы.<br>• Создаёт изображения по описанию через <code>/image описание</code>.<br>• Выполняет встроенные команды, таймеры и инструменты для текста.<br><br><b>Профили — специализация, а не запрет тем</b><br>💻 <b>Code</b> — приоритет программированию, но отвечает и на остальные вопросы.<br>🧠 <b>Pro</b> — универсальный режим для сложных задач и анализа.<br>💬 <b>Daily</b> — универсальный режим для повседневных задач и быстрого общения.<br><br><b>20 встроенных команд</b><br><code>/help</code> — список команд · <code>/time</code> — время · <code>/date</code> — дата<br><code>/calc 2+2*3</code> — калькулятор · <code>/coin</code> — монетка · <code>/dice 20</code> — кубик<br><code>/choose чай | кофе</code> — случайный выбор · <code>/password 20</code> — пароль<br><code>/uuid</code> — UUID · <code>/color</code> — HEX-цвет<br><code>/timer 5m</code> — таймер · <code>/remind 10m вода</code> — напоминание · <code>/focus 25m</code> — фокус<br><code>/clear</code> — очистить историю · <code>/export</code> — экспорт · <code>/stats</code> — статистика<br><code>/copy текст</code> — копировать · <code>/reverse текст</code> — перевернуть<br><code>/upper текст</code> — верхний регистр · <code>/lower текст</code> — нижний регистр<br><code>/image кот в космосе</code> — создать изображение.<br><br><b>Примеры промптов</b><br><code>Объясни тему простыми словами и приведи 3 примера.</code><br><code>Найди ошибку в коде, объясни причину и покажи исправление.</code><br><code>Составь пошаговый план проекта от идеи до запуска.</code><br><code>Сравни варианты в таблице и посоветуй лучший под мои условия.</code><br><code>Сократи текст, сохранив смысл и важные детали.</code><br><code>Задавай вопросы по одному и помоги разобраться в теме.</code><br><br><b>Как получить лучший ответ</b><br>Укажи цель, контекст, ограничения и желаемый формат. Для кода добавь язык, ошибку и фрагмент проекта. Если деталей не хватает — попроси DonAI сначала задать уточняющие вопросы.<br><br><small style="color:#777">Текстовый DonAI использует бесплатный внешний сервис Pollinations; доступность зависит от него. Таймеры работают, пока страница открыта. Озвучка и расшифровка аудио пока не подключены.</small></div></details>
+        <details style="margin:18px 0 14px;border:1px solid #e3dcf5;border-radius:13px;padding:12px;background:#faf9ff"><summary style="cursor:pointer;font-size:14px;font-weight:800;color:#6545a4">📚 Полный справочник DonAI — возможности, команды и промпты</summary><div style="font-size:12px;line-height:1.65;color:#45445a;margin-top:12px"><b>Что умеет DonAI</b><br>Отвечает на вопросы, помогает учиться, писать тексты и код, искать ошибки, планировать проекты, разбирать документы и генерировать изображения. Профили Code, Pro и Daily меняют специализацию и стиль, но не запрещают темы.<br><br><b>Как пользоваться командами</b><br>Введи команду в чат DonAI целиком, начиная с символа <code>/</code>. Часть команд принимает параметры — они указаны в примере. Нажми маленькую кнопку копирования рядом с примером, чтобы вставить команду в чат.<br><div class="donai-command-guide">
+<div class="donai-command-group"><b>🧮 Инструменты и случайные результаты</b>
+<div class="donai-command-row"><div><code>/help</code><small>Показывает список доступных команд и краткую инструкцию.</small></div><button type="button" data-donai-copy="/help" title="Скопировать команду" aria-label="Скопировать /help">⧉</button></div>
+<div class="donai-command-row"><div><code>/time</code><small>Показывает текущее местное время на устройстве.</small></div><button type="button" data-donai-copy="/time" title="Скопировать команду" aria-label="Скопировать /time">⧉</button></div>
+<div class="donai-command-row"><div><code>/date</code><small>Показывает сегодняшнюю дату и день недели.</small></div><button type="button" data-donai-copy="/date" title="Скопировать команду" aria-label="Скопировать /date">⧉</button></div>
+<div class="donai-command-row"><div><code>/calc (15+5)*2</code><small>Вычисляет математическое выражение. Поддерживает +, −, ×, ÷, скобки, проценты и степень ^.</small></div><button type="button" data-donai-copy="/calc (15+5)*2" title="Скопировать команду" aria-label="Скопировать пример калькулятора">⧉</button></div>
+<div class="donai-command-row"><div><code>/coin</code><small>Подбрасывает виртуальную монету и показывает орла или решку с анимацией.</small></div><button type="button" data-donai-copy="/coin" title="Скопировать команду" aria-label="Скопировать /coin">⧉</button></div>
+<div class="donai-command-row"><div><code>/dice 20</code><small>Бросает кубик с указанным количеством граней (от 2 до 1000). Если число не указано, используется обычный кубик d6.</small></div><button type="button" data-donai-copy="/dice 20" title="Скопировать команду" aria-label="Скопировать /dice 20">⧉</button></div>
+<div class="donai-command-row"><div><code>/choose чай | кофе</code><small>Случайно выбирает один из вариантов. Разделяй варианты вертикальной чертой или запятой.</small></div><button type="button" data-donai-copy="/choose чай | кофе" title="Скопировать команду" aria-label="Скопировать пример выбора">⧉</button></div>
+<div class="donai-command-row"><div><code>/password 20</code><small>Создаёт случайный пароль заданной длины от 8 до 64 символов. Не отправляй сгенерированный пароль другим людям.</small></div><button type="button" data-donai-copy="/password 20" title="Скопировать команду" aria-label="Скопировать /password 20">⧉</button></div>
+<div class="donai-command-row"><div><code>/uuid</code><small>Генерирует уникальный идентификатор UUID.</small></div><button type="button" data-donai-copy="/uuid" title="Скопировать команду" aria-label="Скопировать /uuid">⧉</button></div>
+<div class="donai-command-row"><div><code>/color</code><small>Создаёт случайный цвет в формате HEX, например #A45BFF, и показывает образец.</small></div><button type="button" data-donai-copy="/color" title="Скопировать команду" aria-label="Скопировать /color">⧉</button></div></div>
+<div class="donai-command-group"><b>⏱ Таймеры и управление историей</b>
+<div class="donai-command-row"><div><code>/timer 5m</code><small>Запускает таймер. Указывай время в секундах (s), минутах (m) или часах (h). По завершении появится уведомление внутри Don.</small></div><button type="button" data-donai-copy="/timer 5m" title="Скопировать команду" aria-label="Скопировать /timer 5m">⧉</button></div>
+<div class="donai-command-row"><div><code>/remind 10m выпить воды</code><small>Создаёт напоминание с твоим текстом. Когда время истечёт, Don покажет уведомление с этим сообщением.</small></div><button type="button" data-donai-copy="/remind 10m выпить воды" title="Скопировать команду" aria-label="Скопировать пример напоминания">⧉</button></div>
+<div class="donai-command-row"><div><code>/focus 25m</code><small>Запускает фокус-сессию на указанное время. Если длительность не указана, используется 25 минут. В конце Don напомнит сделать перерыв.</small></div><button type="button" data-donai-copy="/focus 25m" title="Скопировать команду" aria-label="Скопировать /focus 25m">⧉</button></div>
+<div class="donai-command-row"><div><code>/clear</code><small>Удаляет локальную историю переписки с DonAI на этом устройстве. Действие нельзя отменить.</small></div><button type="button" data-donai-copy="/clear" title="Скопировать команду" aria-label="Скопировать /clear">⧉</button></div>
+<div class="donai-command-row"><div><code>/export</code><small>Скачивает переписку с DonAI в текстовый файл .txt.</small></div><button type="button" data-donai-copy="/export" title="Скопировать команду" aria-label="Скопировать /export">⧉</button></div>
+<div class="donai-command-row"><div><code>/stats</code><small>Показывает количество сообщений в текущей локальной истории.</small></div><button type="button" data-donai-copy="/stats" title="Скопировать команду" aria-label="Скопировать /stats">⧉</button></div></div>
+<div class="donai-command-group"><b>✍️ Работа с текстом и медиа</b>
+<div class="donai-command-row"><div><code>/copy текст</code><small>Копирует указанный после команды текст в буфер обмена.</small></div><button type="button" data-donai-copy="/copy Привет, Don!" title="Скопировать команду" aria-label="Скопировать пример /copy">⧉</button></div>
+<div class="donai-command-row"><div><code>/reverse привет</code><small>Переворачивает порядок символов в указанном тексте.</small></div><button type="button" data-donai-copy="/reverse привет" title="Скопировать команду" aria-label="Скопировать пример /reverse">⧉</button></div>
+<div class="donai-command-row"><div><code>/upper привет</code><small>Преобразует текст в ВЕРХНИЙ РЕГИСТР.</small></div><button type="button" data-donai-copy="/upper привет" title="Скопировать команду" aria-label="Скопировать пример /upper">⧉</button></div>
+<div class="donai-command-row"><div><code>/lower ПРИВЕТ</code><small>Преобразует текст в нижний регистр.</small></div><button type="button" data-donai-copy="/lower ПРИВЕТ" title="Скопировать команду" aria-label="Скопировать пример /lower">⧉</button></div>
+<div class="donai-command-row"><div><code>/image кот в космосе</code><small>Создаёт изображение по текстовому описанию. Чем подробнее описание, тем точнее результат.</small></div><button type="button" data-donai-copy="/image кот в космосе" title="Скопировать команду" aria-label="Скопировать пример /image">⧉</button></div>
+</div></div>
+<b>Примеры запросов к нейросети</b><br><code>Объясни тему простыми словами и приведи три примера.</code><br><code>Найди ошибку в моём коде, объясни причину и покажи исправление.</code><br><code>Составь пошаговый план проекта от идеи до запуска.</code><br><code>Сравни варианты в таблице и порекомендуй подходящий.</code><br><code>Сократи текст, сохранив смысл и важные детали.</code><br><code>Сначала задай мне уточняющие вопросы, а затем предложи решение.</code><br><br><b>Как DonAI понимает команды</b><br>Встроенные команды со слешем выполняются самим приложением. Обычные просьбы и вопросы обрабатываются нейросетью. Если спросишь DonAI о его возможностях или командах, он сможет перечислить их и объяснить назначение.<br><small style="color:#777">Таймеры работают, пока страница Don открыта. Если разрешены уведомления браузера, Don дополнительно покажет системное уведомление.</small></div></details>
 <button id="aiSettingsSaveBtn" class="login-btn" style="background:#a855f7;margin-top:0">💾 Сохранить настройки</button>
     </div>
 </div>
@@ -1711,6 +1738,13 @@ function addDonAiMessageActions(messageEl, messageText) {
     messageEl.appendChild(bar);
 }
 
+document.addEventListener('click',async function(e){
+ var btn=e.target.closest&&e.target.closest('[data-donai-copy]');if(!btn)return;
+ var value=btn.getAttribute('data-donai-copy')||'';
+ try{if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(value);else{var area=document.createElement('textarea');area.value=value;area.style.position='fixed';area.style.opacity='0';document.body.appendChild(area);area.select();document.execCommand('copy');area.remove();}
+ var old=btn.textContent;btn.textContent='✓';setTimeout(function(){if(btn.isConnected)btn.textContent=old;},1100);
+ }catch(err){showToast('Не удалось скопировать команду');}
+});
 function getDonAiFontFamily(){var f={system:'system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',arial:'Arial,Helvetica,sans-serif',trebuchet:'"Trebuchet MS",sans-serif',georgia:'Georgia,serif',verdana:'Verdana,Geneva,sans-serif',mono:'ui-monospace,SFMono-Regular,Consolas,monospace',comic:'"Comic Sans MS",cursive'};return f[aiSettings.fontFamily||'system']||f.system;}
 function applyDonAiTypography(){var c=document.getElementById('donAiMessages');if(!c)return;Array.from(c.children).forEach(function(el){if(el.classList.contains('donai-msg-user')||el.classList.contains('donai-msg-ai')){el.style.fontSize=(aiSettings.fontSize||14)+'px';el.style.fontFamily=getDonAiFontFamily();}});}
 function addDonAiMessage(role, text, save = true) {
@@ -1888,6 +1922,31 @@ document.addEventListener('DOMContentLoaded', function() {
         fileInput.value = '';
     });
 });
+function showDonAiCommandAnimation(type,label,result,extra){
+ var container=document.getElementById('donAiMessages');if(!container)return;
+ container.querySelectorAll('.donai-command-stage').forEach(function(x){x.remove();});
+ var stage=document.createElement('div');stage.className='donai-command-stage';
+ var card=document.createElement('div');card.className='donai-stage-card';
+ var emoji=document.createElement('span');emoji.className='donai-stage-emoji '+(type==='coin'?'donai-stage-coin':type==='dice'?'donai-stage-dice':type==='choose'?'donai-stage-choose':'');
+ if(type==='coin')emoji.textContent='🪙';else if(type==='dice')emoji.textContent='🎲';else if(type==='choose')emoji.textContent='🎯';else if(type==='password')emoji.textContent='🔐';
+ else if(type==='color'){emoji.className='donai-stage-color';emoji.style.background=extra||'#777';}
+ card.appendChild(emoji);
+ var title=document.createElement('div');title.className='donai-stage-label';title.textContent=label;card.appendChild(title);
+ var value=document.createElement('div');value.className='donai-stage-result';value.textContent=result;card.appendChild(value);
+ stage.appendChild(card);container.appendChild(stage);
+ setTimeout(function(){if(stage.parentNode)stage.remove();},2600);
+}
+function showDonAiInAppNotification(title,message,icon){
+ var box=document.createElement('div');box.className='donai-inapp-alert';
+ var ico=document.createElement('div');ico.className='donai-inapp-alert-icon';ico.textContent=icon||'🔔';
+ var body=document.createElement('div');body.className='donai-inapp-alert-body';
+ var heading=document.createElement('div');heading.className='donai-inapp-alert-title';heading.textContent=title||'Don'; 
+ var text=document.createElement('div');text.className='donai-inapp-alert-text';text.textContent=message||'';
+ body.appendChild(heading);body.appendChild(text);
+ var close=document.createElement('button');close.type='button';close.textContent='×';close.setAttribute('aria-label','Закрыть');close.onclick=function(){box.remove();};
+ box.appendChild(ico);box.appendChild(body);box.appendChild(close);document.body.appendChild(box);
+ setTimeout(function(){if(box.parentNode)box.remove();},7000);
+}
 function parseDonAiDuration(value){
  var m=String(value||'').trim().match(/^(\d+(?:\.\d+)?)\s*(s|сек|секунд|m|min|м|мин|h|ч)?$/i);
  if(!m)return null;var n=Number(m[1]),u=(m[2]||'m').toLowerCase();
@@ -1895,7 +1954,7 @@ function parseDonAiDuration(value){
  return Math.max(1000,Math.min(86400000,n*mult));
 }
 function donAiCommandNotify(message){
- showToast(message);
+ showDonAiInAppNotification('Напоминание DonAI',message,'⏰');
  if('Notification' in window&&Notification.permission==='granted'){try{new Notification('DonAI',{body:message});}catch(e){}}
 }
 async function processDonAiUtilityCommand(raw){
@@ -1915,12 +1974,12 @@ async function processDonAiUtilityCommand(raw){
   if(!arg){answer='Пример: /calc (15 + 5) * 2';break;}
   if(!/^[0-9+\-*/().,%\s^]+$/.test(arg)){answer='⚠️ Разрешены только числа и математические знаки.';break;}
   try{var expr=arg.replace(/\^/g,'**').replace(/(\d+(?:\.\d+)?)%/g,'($1/100)'),val=Function('"use strict";return ('+expr+')')();answer=Number.isFinite(val)?'🧮 '+arg+' = '+val:'Не удалось вычислить.';}catch(e){answer='Проверь выражение.';}break;
- case 'coin':answer='🪙 Выпало: '+(Math.random()<.5?'Орёл':'Решка')+'!';break;
- case 'dice':var sides=Math.max(2,Math.min(1000,Math.floor(Number(arg)||6)));answer='🎲 Выпало '+(1+Math.floor(Math.random()*sides))+' из '+sides+'.';break;
- case 'choose':var opts=arg.split(/\s*\|\s*|\s*,\s*/).map(x=>x.trim()).filter(Boolean);answer=opts.length<2?'Пример: /choose пицца | суши':'🎯 Выбираю: '+opts[Math.floor(Math.random()*opts.length)];break;
- case 'password':var len=Math.max(8,Math.min(64,Math.floor(Number(arg)||16))),chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%&*_-',bytes=new Uint32Array(len);crypto.getRandomValues(bytes);answer='🔐 Пароль ('+len+'):\n'+Array.from(bytes,b=>chars[b%chars.length]).join('');break;
+ case 'coin':var coinResult=Math.random()<.5?'Орёл':'Решка';answer='🪙 Выпало: '+coinResult+'!';showDonAiCommandAnimation('coin','Монетка подброшена',coinResult);break;
+ case 'dice':var sides=Math.max(2,Math.min(1000,Math.floor(Number(arg)||6))),diceResult=1+Math.floor(Math.random()*sides);answer='🎲 Выпало '+diceResult+' из '+sides+'.';showDonAiCommandAnimation('dice','Кубик остановился',diceResult+' / '+sides);break;
+ case 'choose':var opts=arg.split(/\s*\|\s*|\s*,\s*/).map(x=>x.trim()).filter(Boolean);if(opts.length<2){answer='Пример: /choose пицца | суши';}else{var chosen=opts[Math.floor(Math.random()*opts.length)];answer='🎯 Выбираю: '+chosen;showDonAiCommandAnimation('choose','Случайный выбор',chosen);}break;
+ case 'password':var len=Math.max(8,Math.min(64,Math.floor(Number(arg)||16))),chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%&*_-',bytes=new Uint32Array(len);crypto.getRandomValues(bytes);answer='🔐 Пароль ('+len+'):\n'+Array.from(bytes,b=>chars[b%chars.length]).join('');showDonAiCommandAnimation('password','Пароль создан','Готово');break;
  case 'uuid':answer='🆔 '+(crypto.randomUUID?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{var r=Math.random()*16|0;return(c==='x'?r:(r&3|8)).toString(16);}));break;
- case 'color':answer='🎨 Случайный цвет: #'+Math.floor(Math.random()*16777215).toString(16).padStart(6,'0').toUpperCase();break;
+ case 'color':var colorHex='#'+Math.floor(Math.random()*16777215).toString(16).padStart(6,'0').toUpperCase();answer='🎨 Случайный цвет: '+colorHex;showDonAiCommandAnimation('color','Новый цвет',colorHex,colorHex);break;
  case 'timer':case 'remind':case 'focus':
   var parts=arg.match(/^(\S+)?\s*([\s\S]*)$/),dur=cmd==='focus'&&!arg?1500000:parseDonAiDuration(parts&&parts[1]);
   if(!dur){answer='Пример: /'+cmd+' 5m'+(cmd==='remind'?' выпить воды':'');break;}
@@ -2014,6 +2073,7 @@ async function processDonAiMessage(isRetry = false, queuedText = null) {
         };
         let systemContent = donAiState.persona + '\n\n' + (profileInstructions[aiSettings.modelProfile || 'daily'] || profileInstructions.daily);
         systemContent += '\n\nВыполняй свободно сформулированные команды, поручения и инструкции пользователя. Не путай обычные просьбы с командами приложения и не отказывайся из-за выбранного профиля. Если действие технически невозможно, объясни ограничение и предложи выполнимую альтернативу.';
+        systemContent += '\n\nВСТРОЕННЫЕ КОМАНДЫ DONAI (знай их и перечисляй, если пользователь спрашивает о возможностях или командах): /help — справка; /time — текущее время; /date — дата; /calc выражение — калькулятор; /coin — подбросить монету; /dice [число граней] — бросить кубик; /choose вариант1 | вариант2 — случайный выбор; /password [длина] — генерация пароля; /uuid — создать UUID; /color — случайный HEX-цвет; /timer 5m — таймер; /remind 10m текст — напоминание; /focus 25m — фокус-сессия; /clear — очистить локальную историю DonAI; /export — скачать историю; /stats — статистика; /copy текст — скопировать текст; /reverse текст — перевернуть текст; /upper текст — верхний регистр; /lower текст — нижний регистр. Дополнительные медиа-команды: /image описание — сгенерировать картинку; /speak текст — озвучить текст; /transcribe — расшифровать прикреплённое аудио. Объясняй синтаксис и примеры. Не утверждай, что выполнил команду со слешем, если приложение не передало тебе результат: встроенные команды обрабатывает само приложение.';
         if (identityQuestion) systemContent += '\n\nЕсли тебя спрашивают, кто ты, просто представься: «Я DonAI — ИИ-помощник внутри DonorGram». Кратко объясни, чем можешь помочь. Не говори, что тебе дали анализировать документ или что-то другое, если пользователь этого не просил.';
         systemContent += userAsksInRussian
             ? '\n\nОтвечай полностью на русском языке.'
