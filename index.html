@@ -1617,7 +1617,7 @@ async function processDonAiMessage(isRetry = false, queuedText = null) {
     if (!isRetry) {
         addDonAiMessage('user', text);
         input.dataset.lastText = text;
-        input.value = '';
+        if (!queuedText) input.value = '';
         donAiState.msgCount++;
         localStorage.setItem('donai_msg_count', donAiState.msgCount);
         showDonAiTyping();
@@ -2095,6 +2095,6 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
 })();
 </script>
 
-  <script src="./offline-ai.js?v=20261031-donai-chat-profiles-v8"></script>
+  <script src="./offline-ai.js?v=20261031-donai-chat-profiles-v9"></script>
 </body>
 </html>
