@@ -119,7 +119,7 @@ async function ask(prompt){let p=document.getElementById('dgAIPanel'),out=p.quer
    if (message.content.length <= limit) return message;
    const first = Math.floor(limit * 0.78), last = limit - first;
    return Object.assign({}, message, {
-    content: message.content.slice(0, first) + '\\n\\n[Часть длинного сообщения пропущена для ограничения памяти локальной модели]\\n\\n' + message.content.slice(-last)
+    content: message.content.slice(0, first) + '\n\n[Часть длинного сообщения пропущена для ограничения памяти локальной модели]\n\n' + message.content.slice(-last)
    });
   });
   const result = await engine.chat.completions.create({
