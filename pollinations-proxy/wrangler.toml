@@ -1,0 +1,8 @@
+name = "donorgram-pollinations"
+main = "worker.js"
+compatibility_date = "2026-10-31"
+
+[[ratelimits]]
+name = "RATE_LIMITER"
+namespace_id = "1001"
+simple = { limit = 30, period = 60 }
