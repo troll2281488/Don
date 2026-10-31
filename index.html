@@ -802,6 +802,8 @@ button,input,textarea,select{touch-action:manipulation}
 <small style="display:block;color:#687080;margin:6px 0 10px">Подключение через защищённый серверный прокси. Секретный ключ sk_ хранится в Cloudflare Worker и не попадает в браузер или GitHub.</small>
 <label for="donAiPolliProxyUrl" style="font-size:12px;color:#555;font-weight:700">Адрес твоего Cloudflare Worker</label>
 <input id="donAiPolliProxyUrl" type="url" autocomplete="url" placeholder="https://donorgram-pollinations.ТВОЙ-АККАУНТ.workers.dev" style="box-sizing:border-box;width:100%;padding:10px;border:1px solid #e8edf2;border-radius:9px;margin:6px 0 10px">
+<label for="donAiPolliProxyToken" style="font-size:12px;color:#555;font-weight:700">Личный пароль доступа к Worker</label>
+<input id="donAiPolliProxyToken" type="password" autocomplete="off" placeholder="Секретный токен Worker" style="box-sizing:border-box;width:100%;padding:10px;border:1px solid #e8edf2;border-radius:9px;margin:6px 0 10px">
 <div style="display:flex;gap:8px;flex-wrap:wrap">
 <button type="button" id="donAiPolliTestBtn" class="login-btn" style="flex:1;min-width:130px;margin:0;background:#635bdb">Проверить подключение</button>
 <button type="button" id="donAiPolliDisconnectBtn" class="login-btn" style="margin:0;background:#8e98a3">Отключить</button>
@@ -1636,7 +1638,7 @@ async function pollinationsProxy(path, options = {}) {
     if (!base) throw new Error('Сначала укажи адрес Cloudflare Worker в Настройках DonAI.');
     const response = await fetch(base + path, Object.assign({
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-DonorGram-Token': localStorage.getItem('donai_polli_proxy_token') || '' },
         signal: AbortSignal.timeout(120000)
     }, options));
     if (!response.ok) {
@@ -1657,7 +1659,11 @@ async function testDonAiPollinationsProxy() {
     localStorage.setItem('donai_polli_proxy_url', value);
     updateDonAiPolliStatus();
     try {
-        const response = await fetch(value + '/health', { method: 'GET', signal: AbortSignal.timeout(15000) });
+        const proxyTokenInput = document.getElementById('donAiPolliProxyToken');
+    const proxyToken = (proxyTokenInput && proxyTokenInput.value || localStorage.getItem('donai_polli_proxy_token') || '').trim();
+    if (!proxyToken) { showToast('Введи личный пароль доступа к Worker.'); return; }
+    localStorage.setItem('donai_polli_proxy_token', proxyToken);
+    const response = await fetch(value + '/health', { method: 'GET', headers: { 'X-DonorGram-Token': proxyToken }, signal: AbortSignal.timeout(15000) });
         const data = await response.json();
         if (!response.ok || !data.ok) throw new Error(data.error || 'Проверка не пройдена');
         const status = document.getElementById('donAiPolliStatus');
@@ -1752,6 +1758,8 @@ function addDonAiMediaResult(kind, value, label) {
 document.addEventListener('DOMContentLoaded', function() {
     const input = document.getElementById('donAiPolliProxyUrl');
     if (input) input.value = getDonAiProxyUrl();
+    const tokenInput = document.getElementById('donAiPolliProxyToken');
+    if (tokenInput) tokenInput.value = localStorage.getItem('donai_polli_proxy_token') || '';
     const test = document.getElementById('donAiPolliTestBtn');
     if (test) test.addEventListener('click', testDonAiPollinationsProxy);
     localStorage.removeItem('donai_polli_app_key');
@@ -2011,6 +2019,8 @@ function loadAiSettings() {
     }
     const polliProxyInput = document.getElementById('donAiPolliProxyUrl');
     if (polliProxyInput) polliProxyInput.value = getDonAiProxyUrl();
+    const polliProxyTokenInput = document.getElementById('donAiPolliProxyToken');
+    if (polliProxyTokenInput) polliProxyTokenInput.value = localStorage.getItem('donai_polli_proxy_token') || '';
     updateDonAiPolliStatus();
     document.getElementById('aiModelProfile').value = aiSettings.modelProfile || 'daily';
     document.getElementById('aiFontSize').value = aiSettings.fontSize;
@@ -2042,8 +2052,12 @@ document.getElementById('aiModelProfile').addEventListener('change', function() 
 document.getElementById('aiSettingsSaveBtn').addEventListener('click', () => {
     const polliProxyInput = document.getElementById('donAiPolliProxyUrl');
     const polliProxyUrl = (polliProxyInput && polliProxyInput.value || '').trim().replace(/\/+$/, '');
+    const polliProxyTokenInput = document.getElementById('donAiPolliProxyToken');
+    const polliProxyToken = (polliProxyTokenInput && polliProxyTokenInput.value || '').trim();
     if (polliProxyUrl) localStorage.setItem('donai_polli_proxy_url', polliProxyUrl);
     else localStorage.removeItem('donai_polli_proxy_url');
+    if (polliProxyToken) localStorage.setItem('donai_polli_proxy_token', polliProxyToken);
+    else localStorage.removeItem('donai_polli_proxy_token');
     updateDonAiPolliStatus();
     donAiState.persona = defaultPersona;
     try { localStorage.removeItem('donai_persona'); } catch(e) {}
@@ -2067,8 +2081,11 @@ document.getElementById('donAiPolliDisconnectBtn').addEventListener('click', fun
     localStorage.removeItem('donai_polli_proxy_url');
     const input = document.getElementById('donAiPolliProxyUrl');
     if (input) input.value = '';
+    const tokenInput = document.getElementById('donAiPolliProxyToken');
+    if (tokenInput) tokenInput.value = '';
+    localStorage.removeItem('donai_polli_proxy_token');
     updateDonAiPolliStatus();
-    showToast('Адрес прокси удалён с этого устройства.');
+    showToast('Адрес прокси и личный токен удалены с этого устройства.');
 });
 
 document.getElementById('aiTemperature').addEventListener('input', function() {
