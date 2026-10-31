@@ -790,7 +790,15 @@ button,input,textarea,select{touch-action:manipulation}
             <button type="button" data-close="aiSettingsModal">&times;</button>
         </div>
 
-        <div id="dgProviderSettings" style="padding:12px;margin-bottom:16px;border:1px solid #e8edf2;border-radius:12px"><b>🤖 DonAI</b><small style="display:block;color:#687080">Бесплатный API без регистрации и ключа. Локальную модель скачивать не нужно.</small><select id="dgProvider" style="display:none"><option value="https://text.pollinations.ai/openai" selected>Pollinations</option></select><select id="dgModel" style="display:none"><option value="openai/gpt-5.4-mini" selected>DonAI</option></select><input id="dgKey" type="password" style="display:none" value=""></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div id="dgProviderSettings" style="padding:12px;margin-bottom:16px;border:1px solid #e8edf2;border-radius:12px"><b>🤖 DonAI</b><small style="display:block;color:#687080">Бесплатный API без регистрации и ключа. Локальную модель скачивать не нужно.</small><select id="dgProvider" style="display:none"><option value="https://text.pollinations.ai/openai" selected>Pollinations</option></select><select id="dgModel" style="display:none"><option value="openai/gpt-5.4-mini" selected>DonAI</option></select><input id="dgKey" type="password" style="display:none" value=""></div><div style="margin-bottom:16px;padding:12px;border:1px solid #e8edf2;border-radius:12px">
+            <label for="aiModelProfile" style="font-size:13px;color:#333;font-weight:700">Модель DonAI</label>
+            <select id="aiModelProfile" style="width:100%;padding:10px;border-radius:8px;border:1px solid #e8edf2;margin-top:6px">
+                <option value="code">💻 DonAI Code 3.1 — программирование</option>
+                <option value="smart">🧠 DonAI Pro 3.1 — сложные и обычные задачи</option>
+                <option value="daily">💬 DonAI Daily 3.1 — повседневное общение</option>
+            </select>
+            <small style="display:block;color:#687080;margin-top:6px">Выбранный профиль сохраняется на этом устройстве.</small>
+        </div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
             <div>
                 <label style="font-size:12px;color:#555">Размер шрифта:</label>
                 <select id="aiFontSize" style="width:100%;padding:8px;border-radius:8px;border:1px solid #e8edf2;margin-top:4px">
@@ -1479,7 +1487,8 @@ document.getElementById('welcomeDots') && document.getElementById('welcomeDots')
 const defaultPersona = "Ты — DonAI, умный и дружелюбный ассистент внутри мессенджера DonorGram. Твой создатель — troll1488. ОБЯЗАТЕЛЬНО отвечай на языке последнего сообщения пользователя: если вопрос на русском — весь ответ на русском; если на английском — на английском. Не переключай язык без просьбы пользователя. Для русских вопросов используй естественный, грамотный русский язык. Отвечай непосредственно на заданный вопрос и не добавляй несвязанные сведения, повторения или советы, о которых не просили. Если вопрос простой — дай короткий прямой ответ; если сложный — объясни по пунктам. Старайся помочь с любым обычным вопросом, не отказывай без причины. Не цензурируй обычную разговорную речь и мат, если пользователь сам так пишет; не делай замечаний о ругани и не отказывай в безобидных вопросах только из-за грубых слов. На простые бытовые вопросы отвечай прямо и по существу. Если нужны актуальные данные, которых у тебя нет, честно обозначь ограничение. Не выдумывай факты. Если вопрос просит сравнить персонажей, приводи аргументы и делай ясный вывод, отмечая, когда результат зависит от версии или условий. Не выдумывай факты; если не уверена — скажи об этом. Используй женский род, но никогда не упоминай свой пол напрямую. Также ты знаешь всё о DonorGram:\n1. Репост: Зажми сообщение -> '🔁 Репост в профиль'.\n2. Группа: Плюсик сверху -> 'Создать группу'.\n3. Звонок: В личке нажми на трубку 📞.\n4. Геолокация: Иконка карты 🗺️.\n5. Стикеры: Смайлик 😊.\n6. SpaceGod: Профиль -> Магазин 🛍️ -> SPACEGOD.\n7. Очистка: Настройки -> 'Очистить битые чаты'.";
 
 const donAiState = {
-    history: (function(){try{var h=JSON.parse(localStorage.getItem('donai_history')||'[]');return Array.isArray(h)?h.filter(function(x){return x&&typeof x.text==='string'&&(x.role==='user'||x.role==='ai'||x.role==='assistant');}).slice(-10):[];}catch(e){return [];}})(),
+    history: (function(){try{var h=JSON.parse(localStorage.getItem('donai_history')||'[]');return Array.isArray(h)?h.filter(function(x){return x&&typeof x.text==='string'&&(x.role==='user'||x.role==='ai'||x.role==='assistant');}).slice(-100):[];}catch(e){return [];}})(),
+    pending: [],
     isTyping: false,
     msgCount: Number(localStorage.getItem('donai_msg_count') || 0),
     persona: defaultPersona
@@ -1537,7 +1546,7 @@ function addDonAiMessage(role, text, save = true) {
 
     if (save) {
         donAiState.history.push({ role, text });
-        if (donAiState.history.length > 10) donAiState.history.shift(); 
+        if (donAiState.history.length > 100) donAiState.history.shift(); 
         try { localStorage.setItem('donai_history', JSON.stringify(donAiState.history)); } catch(e) {}
     }
     container.scrollTop = container.scrollHeight;
@@ -1566,27 +1575,42 @@ function hideDonAiTyping() {
 // Ни один публичный API не гарантирует 100% uptime; при ошибке первого пробуем второй.
 async function requestDonAi(messages, options) {
     const payload = Object.assign({ messages: messages, temperature: 0.7, max_tokens: 900 }, options || {});
+    const selectedProfile = aiSettings.modelProfile || 'daily';
+    const models = {
+        code: 'qwen/qwen3-coder-30b-a3b-instruct',
+        smart: 'openai/gpt-5.4-mini',
+        daily: 'google/gemini-3.5-flash-lite'
+    };
     const response = await fetch('https://text.pollinations.ai/openai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(Object.assign({ model: 'openai' }, payload)),
+        body: JSON.stringify(Object.assign({ model: models[selectedProfile] || models.daily }, payload)),
         signal: AbortSignal.timeout(60000)
     });
     const raw = await response.text();
     let data; try { data = JSON.parse(raw); } catch (_) { data = raw; }
-    if (!response.ok) throw new Error('Pollinations HTTP ' + response.status);
+    if (!response.ok) {
+        if (response.status === 402) throw new Error('Pollinations отклонил запрос (402): сервис требует оплату/доступ для выбранной модели. Это не ограничение в 30 секунд и не ошибка твоего сообщения.');
+        if (response.status === 429) throw new Error('Слишком много запросов к Pollinations. Запрос поставлен на паузу; попробуй чуть позже.');
+        throw new Error('Pollinations HTTP ' + response.status);
+    }
     let answer = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
     if ((!answer || !String(answer).trim()) && typeof data === 'string') answer = data;
     if (!answer || !String(answer).trim()) throw new Error('Pollinations вернул пустой ответ');
-    return { text: String(answer), provider: 'Pollinations' };
+    return { text: String(answer), provider: 'Pollinations', model: models[selectedProfile] || models.daily };
 }
 
 async function processDonAiMessage(isRetry = false) {
     const input = document.getElementById('donAiInput');
     if (!input) return;
     const text = isRetry ? input.dataset.lastText : input.value.trim();
-    
-    if (!text || (donAiState.isTyping && !isRetry)) return;
+    if (!text) return;
+    if (donAiState.isTyping && !isRetry) {
+        donAiState.pending.push(text);
+        input.value = '';
+        try { showToast('⌛ Сообщение добавлено в очередь'); } catch(e) {}
+        return;
+    }
 
     if (!isRetry) {
         addDonAiMessage('user', text);
@@ -1598,51 +1622,51 @@ async function processDonAiMessage(isRetry = false) {
     }
 
     try {
-        const userAsksInRussian = /[\u0400-\u04FF]/.test(text);
-        let systemContent = donAiState.persona + (userAsksInRussian
-            ? "\n\nСТРОГОЕ ПРАВИЛО ЯЗЫКА: последнее сообщение пользователя написано на русском. Отвечай полностью на русском языке, естественно и грамотно. Не отвечай на английском и не переключай язык без просьбы."
-            : "\n\nЯЗЫКОВОЕ ПРАВИЛО: отвечай на том же языке, что и последнее сообщение пользователя.");
-
-        let messages = [{ role: 'system', content: systemContent }];
-        let historySlice = donAiState.history.slice(-5, -1).map(msg => ({
+        const userAsksInRussian = /[\\u0400-\\u04FF]/.test(text);
+        const identityQuestion = /(кто ты|что ты такое|представься|как тебя зовут|who are you|what are you)/i.test(text);
+        const profileInstructions = {
+            code: 'Текущий профиль: DonAI Code 3.1. Ты специализированный помощник по программированию. Пиши рабочий код, объясняй ошибки и не выдумывай API.',
+            smart: 'Текущий профиль: DonAI Pro 3.1. Решай сложные и обычные задачи тщательно, проверяй логику и структурируй ответ.',
+            daily: 'Текущий профиль: DonAI Daily 3.1. Общайся естественно и дружелюбно, отвечай кратко на повседневные вопросы.'
+        };
+        let systemContent = donAiState.persona + '\\n\\n' + (profileInstructions[aiSettings.modelProfile || 'daily'] || profileInstructions.daily);
+        if (identityQuestion) systemContent += '\\n\\nЕсли тебя спрашивают, кто ты, просто представься: «Я DonAI — ИИ-помощник внутри DonorGram». Кратко объясни, чем можешь помочь. Не говори, что тебе дали анализировать документ или что-то другое, если пользователь этого не просил.';
+        systemContent += userAsksInRussian
+            ? '\\n\\nОтвечай полностью на русском языке.'
+            : '\\n\\nОтвечай на том же языке, что и пользователь.';
+        const historySlice = donAiState.history.slice(-11, -1).map(msg => ({
             role: msg.role === 'user' ? 'user' : 'assistant',
             content: msg.text
         }));
-        messages = messages.concat(historySlice, [{ role: 'user', content: text }]);
-
-        let aiResult;
-        try {
-            aiResult = await requestDonAi(messages, {
-                temperature: parseFloat(aiSettings.temperature),
-                max_tokens: parseInt(aiSettings.maxTokens, 10) || 500
-            });
-        } catch (providerError) {
-            hideDonAiTyping();
-            addDonAiMessage('ai', 'Ошибка DonAI: ' + (providerError && providerError.message ? providerError.message : 'неизвестная ошибка'));
-            return;
-        }
+        const messages = [{ role: 'system', content: systemContent }].concat(historySlice, [{ role: 'user', content: text }]);
+        const aiResult = await requestDonAi(messages, {
+            temperature: parseFloat(aiSettings.temperature),
+            max_tokens: parseInt(aiSettings.maxTokens, 10) || 500
+        });
         hideDonAiTyping();
-        let aiText = aiResult.text;
-
         if (aiSettings.soundEnabled) {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
+                const osc = ctx.createOscillator(), gain = ctx.createGain();
                 osc.connect(gain); gain.connect(ctx.destination);
                 osc.frequency.value = 800; gain.gain.value = 0.1;
                 osc.start(); osc.stop(ctx.currentTime + 0.1);
             } catch(e){}
         }
-
-        await typeWriterDonAiMessage('ai', aiText);
-
+        await typeWriterDonAiMessage('ai', aiResult.text);
     } catch (error) {
         hideDonAiTyping();
-        addDonAiMessage('ai', 'Ошибка DonAI: ' + (error && error.message ? error.message : 'не удалось связаться с выбранной моделью'));
+        addDonAiMessage('ai', 'DonAI: ' + (error && error.message ? error.message : 'не удалось связаться с моделью'));
+    } finally {
+        if (donAiState.pending.length) {
+            const nextMessage = donAiState.pending.shift();
+            setTimeout(() => {
+                const nextInput = document.getElementById('donAiInput');
+                if (nextInput) { nextInput.value = nextMessage; processDonAiMessage(false); }
+            }, 250);
+        }
     }
 }
-
 function typeWriterDonAiMessage(role, fullText) {
     return new Promise((resolve) => {
         const container = document.getElementById('donAiMessages');
@@ -1654,7 +1678,7 @@ function typeWriterDonAiMessage(role, fullText) {
         container.appendChild(div);
         
         let i = 0;
-        const speed = aiSettings.typingSpeed;
+        const speed = Math.max(3, Math.min(12, aiSettings.typingSpeed));
         
         function type() {
             if (i < fullText.length) {
@@ -1719,7 +1743,7 @@ function loadAiSettings() {
     if (saved) {
         try { aiSettings = Object.assign(aiSettings, JSON.parse(saved)); } catch(e){}
     }
-    document.getElementById('aiFontSize').value = aiSettings.fontSize;
+    document.getElementById('aiModelProfile').value = aiSettings.modelProfile || 'daily';\n    document.getElementById('aiFontSize').value = aiSettings.fontSize;
     document.getElementById('aiTypingSpeed').value = aiSettings.typingSpeed;
     document.getElementById('aiTemperature').value = aiSettings.temperature;
     document.getElementById('tempVal').innerText = aiSettings.temperature;
@@ -1743,7 +1767,7 @@ document.getElementById('aiSettingsSaveBtn').addEventListener('click', () => {
     donAiState.persona = defaultPersona;
     try { localStorage.removeItem('donai_persona'); } catch(e) {}
     
-    aiSettings.fontSize = parseInt(document.getElementById('aiFontSize').value);
+    aiSettings.modelProfile = document.getElementById('aiModelProfile').value || 'daily';\n    aiSettings.fontSize = parseInt(document.getElementById('aiFontSize').value);
     aiSettings.typingSpeed = parseInt(document.getElementById('aiTypingSpeed').value);
     aiSettings.temperature = parseFloat(document.getElementById('aiTemperature').value);
     aiSettings.maxTokens = parseInt(document.getElementById('aiMaxTokens').value);
@@ -2069,6 +2093,6 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
 })();
 </script>
 
-  <script src="./offline-ai.js?v=20261031-pollinations-keyfix-v2"></script>
+  <script src="./offline-ai.js?v=20261031-donai-chat-profiles-v3"></script>
 </body>
 </html>
