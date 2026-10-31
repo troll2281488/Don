@@ -790,7 +790,7 @@ button,input,textarea,select{touch-action:manipulation}
             <button type="button" data-close="aiSettingsModal">&times;</button>
         </div>
 
-        <div id="dgProviderSettings" style="padding:12px;margin-bottom:16px;border:1px solid #e8edf2;border-radius:12px"><b>🤖 DonAI</b><small style="display:block;color:#687080">Бесплатный API без регистрации и ключа. Локальную модель скачивать не нужно.</small><select id="dgProvider" style="display:none"><option value="https://text.pollinations.ai/openai" selected>Pollinations</option></select><select id="dgModel" style="display:none"><option value="openai/gpt-5.4-mini" selected>DonAI</option></select><input id="dgKey" type="password" style="display:none" value=""></div><div style="margin-bottom:16px;padding:12px;border:1px solid #e8edf2;border-radius:12px">
+        <div id="dgProviderSettings" style="padding:12px;margin-bottom:16px;border:1px solid #e8edf2;border-radius:12px"><b>🤖 DonAI</b><small style="display:block;color:#687080">Подключение через Pollinations. Доступность моделей зависит от ограничений сервиса.</small><select id="dgProvider" style="display:none"><option value="https://text.pollinations.ai/openai" selected>Pollinations</option></select><select id="dgModel" style="display:none"><option value="openai/gpt-5.4-mini" selected>DonAI</option></select><input id="dgKey" type="password" style="display:none" value=""></div><div style="margin-bottom:16px;padding:12px;border:1px solid #e8edf2;border-radius:12px">
             <label for="aiModelProfile" style="font-size:13px;color:#333;font-weight:700">Модель DonAI</label>
             <select id="aiModelProfile" style="width:100%;padding:10px;border-radius:8px;border:1px solid #e8edf2;margin-top:6px">
                 <option value="code">💻 DonAI Code 3.1 — программирование</option>
@@ -1692,7 +1692,7 @@ function typeWriterDonAiMessage(role, fullText) {
                 setTimeout(type, speed);
             } else {
                 donAiState.history.push({ role, text: fullText });
-                if (donAiState.history.length > 10) donAiState.history.shift(); 
+                if (donAiState.history.length > 100) donAiState.history.shift(); 
                 try { localStorage.setItem('donai_history', JSON.stringify(donAiState.history)); } catch(e) {}
                 resolve();
             }
@@ -2098,6 +2098,6 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
 })();
 </script>
 
-  <script src="./offline-ai.js?v=20261031-donai-chat-profiles-v6"></script>
+  <script src="./offline-ai.js?v=20261031-donai-chat-profiles-v7"></script>
 </body>
 </html>
