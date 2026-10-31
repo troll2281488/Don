@@ -1068,13 +1068,10 @@ const db=firebase.database();
 const CALC_URL='https://troll2281488.github.io/Cksksksje/';
 
 var ICE_SERVERS={iceServers:[
+    // Временный безопасный режим: публичные TURN-учётные данные удалены.
+    // После выпуска новых временных credentials подключить TURN через защищённый endpoint.
     {urls:'stun:stun.l.google.com:19302'},
-    {urls:'stun:stun1.l.google.com:19302'},
-    {urls:'turns:global.relay.metered.ca:443?transport=tcp',username:'ea04614136046595f92339d9',credential:'/f3WYIMo8m6vYy/B'},
-    {urls:'turn:global.relay.metered.ca:443',username:'ea04614136046595f92339d9',credential:'/f3WYIMo8m6vYy/B'},
-    {urls:'turn:global.relay.metered.ca:80?transport=tcp',username:'ea04614136046595f92339d9',credential:'/f3WYIMo8m6vYy/B'},
-    {urls:'turn:global.relay.metered.ca:80',username:'ea04614136046595f92339d9',credential:'/f3WYIMo8m6vYy/B'},
-    {urls:'stun:stun.relay.metered.ca:80'}
+    {urls:'stun:stun1.l.google.com:19302'}
 ],iceTransportPolicy:'all',iceCandidatePoolSize:0};
 
 const MEDIA_DB='dg_media_cache',MEDIA_ST='media';let _mdb=null;
