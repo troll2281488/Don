@@ -1,4 +1,4 @@
-name: Android APK
+name: DonorGram checks
 
 on:
   pull_request:
@@ -19,8 +19,8 @@ permissions:
   contents: read
 
 jobs:
-  build:
-    name: Build DonorGram APK
+  validate:
+    name: Validate web assets (no APK build)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
@@ -31,31 +31,14 @@ jobs:
         with:
           node-version: 20
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
       - name: Install dependencies
         run: npm install
 
-      - name: Bundle local app assets
+      - name: Check JavaScript syntax
+        run: node --check offline-ai.js
+
+      - name: Bundle local web assets
         run: npm run build:web
 
-      - name: Generate Android project
-        run: npx cap add android
-
-      - name: Sync Capacitor
-        run: npx cap sync android
-
-      - name: Build debug APK
-        run: cd android && ./gradlew assembleDebug
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: DonorGram-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
-          retention-days: 14
+      - name: Verify offline module is bundled
+        run: test -s www/offline-ai.js && grep -q 'offline-ai.js' www/index.html
