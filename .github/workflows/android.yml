@@ -6,6 +6,8 @@ on:
     branches: [main]
     paths:
       - 'index.html'
+      - 'offline-ai.js'
+      - 'OFFLINE_AI.md'
       - 'package.json'
       - 'capacitor.config.json'
       - 'scripts/**'
