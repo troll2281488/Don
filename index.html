@@ -790,7 +790,7 @@ button,input,textarea,select{touch-action:manipulation}
             <button type="button" data-close="aiSettingsModal">&times;</button>
         </div>
 
-        <div id="dgProviderSettings" style="padding:12px;margin-bottom:16px;border:1px solid #e8edf2;border-radius:12px"><b style="display:block;margin-bottom:6px">🤖 Встроенная DonAI</b><small style="color:#687080">Работает на этом устройстве без API-ключа. Для первого запуска нужны WebGPU и загрузка модели (~300 МБ).</small><select id="dgProvider" style="display:none"><option value="local-webgpu" selected>Встроенная DonAI</option></select><select id="dgModel" style="display:none"><option value="Qwen2.5-0.5B-Instruct-q4f16_1-MLC" selected>Qwen 2.5</option></select><input id="dgKey" type="password" style="display:none" value=""></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div id="dgProviderSettings" style="padding:12px;margin-bottom:16px;border:1px solid #e8edf2;border-radius:12px"><b>🤖 DonAI</b><small style="display:block;color:#687080">Быстрый запуск через прежний API. Локальную модель скачивать не нужно.</small><select id="dgProvider" style="display:none"><option value="https://api.ofox.ai/v1" selected>DonAI</option></select><select id="dgModel" style="display:none"><option value="openai/gpt-5.4-mini" selected>DonAI</option></select><input id="dgKey" type="password" style="display:none" value=""></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
             <div>
                 <label style="font-size:12px;color:#555">Размер шрифта:</label>
                 <select id="aiFontSize" style="width:100%;padding:8px;border-radius:8px;border:1px solid #e8edf2;margin-top:4px">
@@ -2064,6 +2064,6 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
 })();
 </script>
 
-  <script src="./offline-ai.js?v=20261031-local-only-websearch-v3"></script>
+  <script src="./offline-ai.js?v=20261031-instant-api-v1"></script>
 </body>
 </html>
