@@ -801,9 +801,6 @@ button,input,textarea,select{touch-action:manipulation}
 <b>🤖 DonAI · Бесплатный режим</b>
 <small style="display:block;color:#687080;margin-top:8px">Работает через публичный Pollinations endpoint без регистрации, API-ключа и настройки сервера. Сервис может ограничивать частоту запросов и менять доступность бесплатного режима.</small>
 <div id="donAiPolliStatus" style="display:block;color:#16834a;margin-top:9px">✓ Ключи и Worker не требуются для текстового чата.</div>
-<select id="dgProvider" style="display:none"><option value="https://text.pollinations.ai/openai">Pollinations</option></select>
-<select id="dgModel" style="display:none"><option value="openai">DonAI</option></select>
-<input id="dgKey" type="password" style="display:none" value="">
 </div><div style="margin-bottom:16px;padding:12px;border:1px solid #e8edf2;border-radius:12px">            <label for="aiModelProfile" style="font-size:13px;color:#333;font-weight:700">Модель DonAI</label>
             <select id="aiModelProfile" style="width:100%;padding:10px;border-radius:8px;border:1px solid #e8edf2;margin-top:6px">
                 <option value="code">💻 DonAI Code 3.1 — программирование</option>
@@ -1677,17 +1674,15 @@ function addDonAiMediaResult(kind, value, label) {
     container.scrollTop = container.scrollHeight;
 }
 document.addEventListener('DOMContentLoaded', function() {
-    const input = document.getElementById('donAiPolliProxyUrl');
-    if (input) input.value = getDonAiProxyUrl();
-    const tokenInput = document.getElementById('donAiPolliProxyToken');
-    if (tokenInput) tokenInput.value = localStorage.getItem('donai_polli_proxy_token') || '';
-    const test = document.getElementById('donAiPolliTestBtn');
-    if (test) test.addEventListener('click', testDonAiPollinationsProxy);
-    localStorage.removeItem('donai_polli_app_key');
-    sessionStorage.removeItem('donai_polli_access_token');
-    sessionStorage.removeItem('donai_polli_expires_at');
-    updateDonAiPolliStatus();
-});
+    // Legacy Worker/OAuth settings are intentionally disabled in no-key mode.
+    try {
+        localStorage.removeItem('donai_polli_proxy_url');
+        localStorage.removeItem('donai_polli_proxy_token');
+        localStorage.removeItem('donai_polli_app_key');
+        sessionStorage.removeItem('donai_polli_access_token');
+        sessionStorage.removeItem('donai_polli_expires_at');
+    } catch (_) {}
+});;
 
 let donAiAttachedFileText = '';
 let donAiAttachedFileName = '';
