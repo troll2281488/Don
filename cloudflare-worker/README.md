@@ -7,14 +7,14 @@ Webhook-based Telegram bot. No long-running process is needed.
 Create a Worker from this directory and configure these variables/secrets:
 
 - Secret `TELEGRAM_BOT_TOKEN`: token from @BotFather
-- Secret `GROQ_API_KEY`: API key from Groq Console
+- Secret `OFOX_API_KEY`: API key from Ofox (create a new key if an old one was exposed)
 - Secret `WEBHOOK_SECRET`: random 32+ character string using only A-Z, a-z, 0-9, underscore or hyphen
 - Secret `SETUP_SECRET`: another random one-time setup password
-- Variable `GROQ_BASE_URL`: `https://api.groq.com/openai/v1`
-- Variable `GROQ_MODEL`: exact model ID available to your Groq account (for example, `openai/gpt-oss-20b`, if shown as available)
+- Variable `OFOX_BASE_URL`: `https://api.ofox.ai/v1`
+- Variable `OFOX_MODEL`: `openai/gpt-5.4-mini`
 - Optional variable `SYSTEM_PROMPT`: assistant instructions
 
-Use Groq's Free plan only. Do not add a payment method or upgrade to a paid plan. Free-plan model availability and rate limits can vary; requests may be rejected when limits are reached.
+Check Ofox account pricing and limits before sending requests; do not assume API usage is free.
 
 ## Register Telegram webhook
 
