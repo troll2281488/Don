@@ -5,7 +5,7 @@ export default {
     const cors = {
       "Access-Control-Allow-Origin": allowedOrigin,
       "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Allow-Headers": "Content-Type, X-DonorGram-Token",
       "Access-Control-Max-Age": "86400",
       "Vary": "Origin"
     };
@@ -15,6 +15,10 @@ export default {
     if (origin && origin !== allowedOrigin) return json({ error: "Origin not allowed" }, 403);
     const url = new URL(request.url);
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
+    if (!env.DONORGRAM_PROXY_TOKEN) return json({ error: "Worker secret DONORGRAM_PROXY_TOKEN is missing" }, 503);
+    if (request.headers.get("X-DonorGram-Token") !== env.DONORGRAM_PROXY_TOKEN) {
+      return json({ error: "Invalid Worker access token" }, 401);
+    }
     if (url.pathname === "/health" && request.method === "GET") {
       return json({ ok: Boolean(env.POLLINATIONS_API_KEY), provider: "Pollinations" });
     }
