@@ -427,9 +427,11 @@ input:checked+.slider:before{transform:translateX(26px)}
     word-break: break-word;
 }
 .donai-msg-ai a { color: #6366f1; text-decoration: underline; }
-.donai-message-actions{display:flex;gap:8px;margin-top:10px;padding-top:8px;border-top:1px solid rgba(120,100,180,.12)}
-.donai-message-actions button{border:0;background:#f0edff;color:#5b50a5;border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer}
-.donai-message-actions button:active{transform:scale(.97)}
+.donai-message-actions{display:flex;gap:6px;margin-top:8px;padding-top:6px;border-top:1px solid rgba(120,100,180,.10);opacity:.78}
+.donai-message-actions button{width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;border:0;background:transparent;color:#687080;border-radius:9px;padding:0;font-size:14px;cursor:pointer;transition:background .15s,color .15s}
+.donai-message-actions button:hover{background:#f0edff;color:#5b50a5}
+.donai-message-actions button:active{transform:scale(.94)}
+.donai-message-actions button:focus-visible{outline:2px solid #8b7cf6;outline-offset:2px}
 #donAiMessages{scrollbar-width:thin}
 #donAiMessages::-webkit-scrollbar{width:6px}
 #donAiMessages::-webkit-scrollbar-thumb{background:#c9c2e8;border-radius:8px}
@@ -1561,24 +1563,26 @@ function renderDonAiHistory() {
 }
 
 function addDonAiMessageActions(messageEl, messageText) {
-    if (!messageEl || messageEl.querySelector('.donai-message-actions')) return;
+    if (!messageEl || messageEl.classList.contains('donai-msg-user') || messageEl.querySelector('.donai-message-actions')) return;
     const bar = document.createElement('div');
     bar.className = 'donai-message-actions';
     const copy = document.createElement('button');
-    copy.type = 'button'; copy.textContent = '📋 Копировать';
+    copy.type = 'button'; copy.title = 'Копировать ответ'; copy.setAttribute('aria-label', 'Копировать ответ');
+    copy.innerHTML = '<i class="fas fa-copy" aria-hidden="true"></i>';
     copy.addEventListener('click', async function() {
         try {
             if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(messageText);
             else { const area=document.createElement('textarea'); area.value=messageText; area.style.position='fixed'; area.style.opacity='0'; document.body.appendChild(area); area.select(); document.execCommand('copy'); area.remove(); }
-            showToast('✅ Сообщение скопировано');
-        } catch(e) { showToast('Не удалось скопировать сообщение'); }
+            showToast('✅ Ответ скопирован');
+        } catch(e) { showToast('Не удалось скопировать ответ'); }
     });
     const download = document.createElement('button');
-    download.type = 'button'; download.textContent = '⬇ Скачать';
+    download.type = 'button'; download.title = 'Скачать ответ'; download.setAttribute('aria-label', 'Скачать ответ');
+    download.innerHTML = '<i class="fas fa-download" aria-hidden="true"></i>';
     download.addEventListener('click', function() {
         const blob = new Blob([messageText], {type:'text/plain;charset=utf-8'});
         const url = URL.createObjectURL(blob), a = document.createElement('a');
-        a.href=url; a.download='donai-message-'+new Date().toISOString().slice(0,10)+'.txt';
+        a.href=url; a.download='donai-answer-'+new Date().toISOString().slice(0,10)+'.txt';
         document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000);
     });
     bar.append(copy, download); messageEl.appendChild(bar);
