@@ -15,10 +15,64 @@ const dgDotsStyle=document.createElement('style');dgDotsStyle.textContent=".dg-a
 function say(s){try{showToast(s);}catch(e){}}
 function cache(chatId,messages){if(!chatId||!messages)return;Object.keys(messages).forEach(id=>put('messages',{id:user()+':'+chatId+':'+id,user:user(),chat:chatId,messageId:id,message:messages[id]}).catch(()=>{}));}
 function badge(){const el=document.getElementById('dgOfflineBadge');if(el)el.remove();}
-async function flush(){if(!navigator.onLine||!firebaseConnected||typeof db==='undefined'||user()==='guest')return;let q=(await all('queue')).filter(x=>x.user===user()).sort((a,b)=>a.time-b.time);for(let x of q){try{if(!x.firebaseKey){x.firebaseKey=db.ref('messages/'+x.chat).push().key;await put('queue',x);}const messageRef=db.ref('messages/'+x.chat+'/'+x.firebaseKey);await messageRef.set(x.msg);let c=(state.userChats||{})[x.chat],parts=(c&&c.participants)||{},label=x.msg.text||(x.msg.mediaType==='audio'?'🎤 Голосовое':'📎 Файл'),u={};Object.keys(parts).forEach(id=>{u['userChats/'+id+'/'+x.chat+'/lastMessage']=label;u['userChats/'+id+'/'+x.chat+'/lastMessageTime']=x.msg.timestamp;if(id!==user())u['userChats/'+id+'/'+x.chat+'/unreadCount']=firebase.database.ServerValue.increment(1);});u['userChats/'+user()+'/'+x.chat+'/lastMessage']=label;u['userChats/'+user()+'/'+x.chat+'/lastMessageTime']=x.msg.timestamp;await db.ref().update(u);await del('queue',x.id);try{if(messageCache[x.chat]){delete messageCache[x.chat][x.id];messageCache[x.chat][x.firebaseKey]=x.msg;if(typeof renderMessages==='function'&&currentChat===x.chat)renderMessages(messageCache[x.chat],x.chat);}}catch(e){}}catch(e){break;}}badge();}
+let flushPromise=null;
+async function flush(){
+ if(flushPromise)return flushPromise;
+ if(!navigator.onLine||!firebaseConnected||typeof db==='undefined'||user()==='guest')return;
+ flushPromise=(async()=>{
+  let q=(await all('queue')).filter(x=>x.user===user()).sort((a,b)=>a.time-b.time);
+  for(let x of q){
+   try{
+    if(!x.firebaseKey){x.firebaseKey=db.ref('messages/'+x.chat).push().key;await put('queue',x);}
+    await db.ref('messages/'+x.chat+'/'+x.firebaseKey).set(x.msg);
+    let c=(state.userChats||{})[x.chat],parts=(c&&c.participants)||{};
+    let label=x.msg.text||(x.msg.stickerId?'✨ Стикер':x.msg.mediaType==='audio'?'🎤 Голосовое':x.msg.mediaType==='photo'?'📷 Фото':x.msg.mediaType==='video'?'🎥 Видео':'📎 Файл'),u={};
+    Object.keys(parts).forEach(id=>{
+     u['userChats/'+id+'/'+x.chat+'/lastMessage']=label;
+     u['userChats/'+id+'/'+x.chat+'/lastMessageTime']=x.msg.timestamp;
+     if(id!==user())u['userChats/'+id+'/'+x.chat+'/unreadCount']=firebase.database.ServerValue.increment(1);
+    });
+    u['userChats/'+user()+'/'+x.chat+'/lastMessage']=label;
+    u['userChats/'+user()+'/'+x.chat+'/lastMessageTime']=x.msg.timestamp;
+    await db.ref().update(u);
+    await del('queue',x.id);
+    try{if(messageCache[x.chat]){delete messageCache[x.chat][x.id];messageCache[x.chat][x.firebaseKey]=x.msg;if(typeof renderMessages==='function'&&currentChat===x.chat)renderMessages(messageCache[x.chat],x.chat);}}catch(e){}
+   }catch(e){break;}
+  }
+  badge();
+ })();
+ try{await flushPromise;}finally{flushPromise=null;}
+}
 function hook(){
  if(typeof window.renderMessages==='function'&&!window.renderMessages.dgHook){let f=window.renderMessages;window.renderMessages=function(m,c){cache(c,m);return f.apply(this,arguments);};window.renderMessages.dgHook=true;}
- if(typeof window.sendMessage==='function'&&!window.sendMessage.dgHook){let f=window.sendMessage;window.sendMessage=function(){if(navigator.onLine&&firebaseConnected)return f.apply(this,arguments);try{if(!currentChat||!currentUser)return say('Войди в аккаунт для отправки');let i=document.getElementById('messageInput'),text=i?i.value.trim():'';if(typeof selectedSticker!=='undefined'&&selectedSticker){text=selectedSticker;selectedSticker=null;}if(!text&&!pendingMedia)return;let msg={senderId:currentUser.id,senderName:currentUser.name,timestamp:Date.now()};if(text)msg.text=text;if(pendingMedia){msg.mediaType=pendingMedia.type;msg.mediaUrl=pendingMedia.url;pendingMedia=null;}if(typeof replyToMessage!=='undefined'&&replyToMessage){msg.replyTo={msgId:replyToMessage.id,senderName:replyToMessage.senderName||replyToMessage.senderId,text:(replyToMessage.text||'📎').slice(0,100)};try{cancelReply();}catch(e){}}let chat=currentChat,id='pending_'+Date.now()+'_'+Math.random().toString(36).slice(2),firebaseKey=db.ref('messages/'+chat).push().key;put('queue',{id,user:user(),chat,msg,firebaseKey,time:Date.now()}).then(()=>{if(i)i.value='';messageCache[chat]=messageCache[chat]||{};messageCache[chat][id]=Object.assign({_pending:true},msg);try{renderMessages(messageCache[chat],chat);}catch(e){}badge();say('Сохранено на устройстве. Отправим при подключении.');}).catch(()=>say('Не удалось сохранить сообщение'));}catch(e){say('Не удалось поставить сообщение в очередь');}};window.sendMessage.dgHook=true;}
+ if(typeof window.sendMessage==='function'&&!window.sendMessage.dgHook){let f=window.sendMessage;window.sendMessage=function(){
+  if(navigator.onLine&&firebaseConnected)return f.apply(this,arguments);
+  try{
+   if(!currentChat||!currentUser)return say('Войди в аккаунт для отправки');
+   let i=document.getElementById('messageInput'),text=i?i.value.trim():'';
+   let stickerId=typeof selectedSticker!=='undefined'?selectedSticker:null;
+   let media=pendingMedia?{type:pendingMedia.type,url:pendingMedia.url}:null;
+   if(!text&&!stickerId&&!media)return;
+   let chat=currentChat,msg={senderId:currentUser.id,senderName:currentUser.name,timestamp:Date.now()};
+   if(text)msg.text=text;
+   if(stickerId)msg.stickerId=stickerId;
+   if(media){msg.mediaType=media.type;msg.mediaUrl=media.url;}
+   if(typeof replyToMessage!=='undefined'&&replyToMessage){msg.replyTo={msgId:replyToMessage.id,senderName:replyToMessage.senderName||replyToMessage.senderId,text:(replyToMessage.text||'📎').slice(0,100)};}
+   let id='pending_'+Date.now()+'_'+Math.random().toString(36).slice(2),firebaseKey=null;
+   try{if(typeof db!=='undefined'&&db&&db.ref)firebaseKey=db.ref('messages/'+chat).push().key;}catch(e){}
+   put('queue',{id,user:user(),chat,msg,firebaseKey,time:Date.now()}).then(()=>{
+    if(i)i.value='';
+    if(stickerId&&typeof selectedSticker!=='undefined')selectedSticker=null;
+    if(media&&pendingMedia&&pendingMedia.url===media.url)pendingMedia=null;
+    if(typeof replyToMessage!=='undefined'&&replyToMessage&&replyToMessage.id===msg.replyTo?.msgId){try{cancelReply();}catch(e){}}
+    messageCache[chat]=messageCache[chat]||{};
+    messageCache[chat][id]=Object.assign({_pending:true},msg);
+    try{if(currentChat===chat)renderMessages(messageCache[chat],chat);}catch(e){}
+    badge();say('Сохранено на устройстве. Отправим при подключении.');
+    if(navigator.onLine&&firebaseConnected)flush().catch(()=>{});
+   }).catch(()=>say('Не удалось сохранить сообщение'));
+  }catch(e){say('Не удалось поставить сообщение в очередь');}
+ };window.sendMessage.dgHook=true;}
  if(typeof window.openChat==='function'&&!window.openChat.dgHook){let f=window.openChat;window.openChat=function(id){let r=f.apply(this,arguments);if(!navigator.onLine)setTimeout(async()=>{try{let rows=(await all('messages')).filter(x=>x.user===user()&&x.chat===id),m={};rows.forEach(x=>m[x.messageId]=x.message);if(Object.keys(m).length){messageCache[id]=Object.assign(m,messageCache[id]||{});renderMessages(messageCache[id],id);}}catch(e){}},500);return r;};window.openChat.dgHook=true;}
 }
 function ui(){
