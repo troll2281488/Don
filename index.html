@@ -7,8 +7,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Leaflet загружается только при первом открытии карты, чтобы не тратить трафик при обычном общении. -->
 <style>
 /* ================= СТИЛИ ================= */
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
@@ -2390,6 +2389,23 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
     });
     updateMapStatus();
   }
+  var leafletLoadPromise = null;
+  function loadLeafletOnDemand(){
+    if(window.L)return Promise.resolve();
+    if(leafletLoadPromise)return leafletLoadPromise;
+    leafletLoadPromise = new Promise(function(resolve,reject){
+      var css=document.createElement('link');
+      css.rel='stylesheet';
+      css.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(css);
+      var script=document.createElement('script');
+      script.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.onload=function(){if(window.L)resolve();else reject(new Error('Leaflet не инициализирован'));};
+      script.onerror=function(){leafletLoadPromise=null;reject(new Error('Не удалось загрузить Leaflet'));};
+      document.head.appendChild(script);
+    });
+    return leafletLoadPromise;
+  }
   function ensureLeafletMap(){
     var el = $('gpsLeafletMap');
     if(!el || !window.L){showToast('❌ Не удалось загрузить карту');return false;}
@@ -2413,10 +2429,14 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
     if(!currentUser){showToast('Сначала войдите в аккаунт');return;}
     openModal('gpsMapModal');
     setTimeout(function(){
-      if(!ensureLeafletMap())return;
-      window.gpsLoadFriendsOnMap();
-      // Передача координат запускается только вручную кнопкой «Делюсь».
-      updateGpsUI();
+      loadLeafletOnDemand().then(function(){
+        if(!ensureLeafletMap())return;
+        window.gpsLoadFriendsOnMap();
+        // Передача координат запускается только вручную кнопкой «Делюсь».
+        updateGpsUI();
+      }).catch(function(){
+        showToast('❌ Не удалось загрузить карту. Проверьте подключение к интернету.');
+      });
     },120);
   };
   window.gpsCloseMap = function(){
