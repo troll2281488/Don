@@ -22,6 +22,8 @@ function hook(){
  if(typeof window.openChat==='function'&&!window.openChat.dgHook){let f=window.openChat;window.openChat=function(id){let r=f.apply(this,arguments);if(!navigator.onLine)setTimeout(async()=>{try{let rows=(await all('messages')).filter(x=>x.user===user()&&x.chat===id),m={};rows.forEach(x=>m[x.messageId]=x.message);if(Object.keys(m).length){messageCache[id]=Object.assign(m,messageCache[id]||{});renderMessages(messageCache[id],id);}}catch(e){}},500);return r;};window.openChat.dgHook=true;}
 }
 function ui(){
+ // Keep the native DonAI chat UI; the injected panel hid its history and controls.
+ return;
  if(document.getElementById('dgAIPanel'))return;
  const overlay=document.getElementById('donAiOverlay');if(!overlay)return;
  const style=document.createElement('style');
