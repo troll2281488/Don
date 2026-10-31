@@ -22,18 +22,18 @@ async function sendText(env, chatId, text) {
   }
 }
 
-async function askOfox(env, prompt) {
-  if (!env.OFOX_API_KEY) throw new Error("OFOX_API_KEY is not configured");
-  if (!env.OFOX_MODEL) throw new Error("OFOX_MODEL is not configured");
-  const base = (env.OFOX_BASE_URL || "https://api.ofox.ai/v1").replace(/\/$/, "");
+async function askGroq(env, prompt) {
+  if (!env.GROQ_API_KEY) throw new Error("GROQ_API_KEY is not configured");
+  if (!env.GROQ_MODEL) throw new Error("GROQ_MODEL is not configured");
+  const base = (env.GROQ_BASE_URL || "https://api.groq.com/openai/v1").replace(/\/$/, "");
   const response = await fetch(`${base}/chat/completions`, {
     method: "POST",
     headers: {
-      "authorization": `Bearer ${env.OFOX_API_KEY}`,
+      "authorization": `Bearer ${env.GROQ_API_KEY}`,
       "content-type": "application/json",
     },
     body: JSON.stringify({
-      model: env.OFOX_MODEL,
+      model: env.GROQ_MODEL,
       messages: [
         {
           role: "system",
@@ -46,10 +46,10 @@ async function askOfox(env, prompt) {
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    console.error("Ofox API error", response.status, JSON.stringify(data).slice(0, 1000));
-    if (response.status === 401) throw new Error("Ofox rejected API key (401)");
-    if (response.status === 429) throw new Error("Ofox rate limit/quota (429)");
-    throw new Error(`Ofox API error ${response.status}`);
+    console.error("Groq API error", response.status, JSON.stringify(data).slice(0, 1000));
+    if (response.status === 401) throw new Error("Groq rejected API key (401)");
+    if (response.status === 429) throw new Error("Groq free-tier rate limit reached (429)");
+    throw new Error(`Groq API error ${response.status}`);
   }
   const answer = data?.choices?.[0]?.message?.content;
   if (typeof answer !== "string" || !answer.trim()) throw new Error("Ofox returned an empty response");
@@ -114,20 +114,20 @@ export default {
         return json({ ok: true });
       }
       if (text === "/help" || text.startsWith("/help@")) {
-        await sendText(env, chatId, "Просто отправь текстовое сообщение, и я отвечу через Ofox.\n/help — помощь");
+        await sendText(env, chatId, "Просто отправь текстовое сообщение, и я отвечу через ИИ Groq.\n/help — помощь");
         return json({ ok: true });
       }
 
       await telegram(env, "sendChatAction", { chat_id: chatId, action: "typing" });
-      const answer = await askOfox(env, text);
+      const answer = await askGroq(env, text);
       await sendText(env, chatId, answer);
     } catch (error) {
       console.error("DonAI update failed:", error?.message || error);
       const messageText = String(error?.message || "");
       let userMessage = "Не удалось получить ответ от ИИ. Попробуй позже.";
-      if (messageText.includes("401")) userMessage = "Ofox не принял API-ключ. Проверь OFOX_API_KEY.";
-      else if (messageText.includes("429")) userMessage = "Ofox ограничил запросы или закончился лимит. Попробуй позже.";
-      else if (messageText.includes("OFOX_MODEL")) userMessage = "Не задана модель Ofox. Добавь OFOX_MODEL в настройках Worker.";
+      if (messageText.includes("401")) userMessage = "Groq не принял API-ключ. Проверь GROQ_API_KEY.";
+      else if (messageText.includes("429")) userMessage = "Достигнут бесплатный лимит Groq. Попробуй позже.";
+      else if (messageText.includes("GROQ_MODEL")) userMessage = "Не задана модель Groq. Добавь GROQ_MODEL в настройках Worker.";
       await sendText(env, chatId, userMessage).catch((sendError) => console.error("Telegram send failed:", sendError));
     }
     return json({ ok: true });
