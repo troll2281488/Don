@@ -65,16 +65,23 @@ async function getWebContext(command,out){
   const query=command.replace(/https?:\/\/[^\s<>"']+/ig,' ').replace(/^(найди|поищи|поиск|ищи|найти|узнай)\s*/i,'').trim();
   if(!query)throw Error('Не понял, что искать. Напиши запрос после слова «найди».');
   out.textContent='Ищу сайты по запросу: '+query;
-  const searchPage=await jina('https://s.jina.ai/'+encodeURIComponent(query),30000);
-  const links=[];
-  const md=/\[([^\]]{3,180})\]\((https?:\/\/[^)\s]+)\)/g;let m;
-  while((m=md.exec(searchPage))!==null){
-   let u=cleanUrl(m[2]);if(/(?:^|\.)jina\.ai\//i.test(u)||links.some(x=>x.url===u))continue;
-   links.push({title:m[1].replace(/\s+/g,' ').trim(),url:u});if(links.length>=5)break;
+  let searchPage='';
+  // s.jina.ai may require an API key on some plans/regions; use the public DDG HTML
+  // through Reader as a no-key fallback instead of silently returning an empty search.
+  try {
+   searchPage=await jina('https://s.jina.ai/'+encodeURIComponent(query),30000);
+  } catch (_) {}
+  let links=[];
+  const md=/\[([^\]]{3,180})\]\((https?:\/\/[^)\s]+)\)/g;
+  const collect=(source)=>{let m;while((m=md.exec(source))!==null){let u=cleanUrl(m[2]);if(/(?:^|\.)jina\.ai\//i.test(u)||/duckduckgo\.com/i.test(u)||links.some(x=>x.url===u))continue;links.push({title:m[1].replace(/\s+/g,' ').trim(),url:u});if(links.length>=5)break;}};
+  collect(searchPage);
+  if(!links.length){
+   searchPage=await jina('https://html.duckduckgo.com/html/?q='+encodeURIComponent(query),30000);
+   collect(searchPage);
   }
   if(!links.length){
    const raw=/https?:\/\/[^\s<>"')]+/g;let u;
-   while((u=raw.exec(searchPage))!==null){let v=cleanUrl(u[0]);if(/(?:^|\.)jina\.ai\//i.test(v)||links.some(x=>x.url===v))continue;links.push({title:v,url:v});if(links.length>=3)break;}
+   while((u=raw.exec(searchPage))!==null){let v=cleanUrl(u[0]);if(/(?:^|\.)jina\.ai\//i.test(v)||/duckduckgo\.com/i.test(v)||links.some(x=>x.url===v))continue;links.push({title:v,url:v});if(links.length>=3)break;}
   }
   if(!links.length)return '\n\nПОИСК НЕ ВЕРНУЛ ССЫЛОК. Не говори, что нашёл информацию. Сообщи, что бесплатный поисковый сервис не вернул результаты, и попроси уточнить запрос или прислать ссылку.';
   out.textContent='Нашёл '+links.length+' сайтов. Читаю страницы…';
