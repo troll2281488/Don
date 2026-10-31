@@ -93,23 +93,13 @@ async function ask(prompt){let p=document.getElementById('dgAIPanel'),out=p.quer
  // Shared no-key API route used by both DonAI interfaces.
  window.dgAskConfiguredAI=async function(messages,options){
   const payload=Object.assign({messages:messages,temperature:.25,max_tokens:900},options||{});
-  const providers=[
-   {name:'Vireonix',url:'https://vireonix.ai/v1/chat/completions',body:Object.assign({model:'auto'},payload)},
-   {name:'Pollinations',url:'https://text.pollinations.ai/openai',body:Object.assign({model:'openai'},payload)}
-  ];
-  const errors=[];
-  for(const provider of providers){
-   try{
-    const response=await fetch(provider.url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(provider.body),signal:AbortSignal.timeout(60000)});
-    const raw=await response.text();let data;try{data=JSON.parse(raw);}catch(_){data=raw;}
-    if(!response.ok)throw Error(provider.name+' HTTP '+response.status);
-    let content=data&&data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content;
-    if((!content||!String(content).trim())&&typeof data==='string')content=data;
-    if(!content||!String(content).trim())throw Error(provider.name+' вернул пустой ответ');
-    return {text:String(content),provider:provider.name};
-   }catch(e){errors.push(provider.name+': '+(e&&e.message||String(e)));}
-  }
-  throw Error('Не удалось подключиться к бесплатным API без ключа. '+errors.join(' | '));
+  const response=await fetch('https://text.pollinations.ai/openai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({model:'openai'},payload)),signal:AbortSignal.timeout(60000)});
+  const raw=await response.text();let data;try{data=JSON.parse(raw);}catch(_){data=raw;}
+  if(!response.ok)throw Error('Pollinations HTTP '+response.status);
+  let content=data&&data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content;
+  if((!content||!String(content).trim())&&typeof data==='string')content=data;
+  if(!content||!String(content).trim())throw Error('Pollinations вернул пустой ответ');
+  return {text:String(content),provider:'Pollinations'};
  };
  window.addEventListener('online',()=>{badge();if(firebaseConnected)flush();say('Сеть восстановлена, проверяю соединение с сервером…');});window.addEventListener('offline',badge);try{if(typeof db!=='undefined'&&db&&db.ref){db.ref('.info/connected').on('value',snap=>{firebaseConnected=snap.val()===true;if(firebaseConnected)flush().catch(()=>{});badge();});}}catch(e){}
  window.addEventListener('load',()=>{ui();hook();cacheProfile();badge();setInterval(()=>{hook();cacheProfile();if(navigator.onLine)flush();},3000);});
