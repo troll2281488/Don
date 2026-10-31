@@ -1092,7 +1092,7 @@ let _wallRecorder=null,_wallRecChunks=[],_wallRecStream=null;
 let _wallPending={text:'',mediaType:null,mediaUrl:null};
 let myCalcLink=null;
 var _gpsAutoPrompted=false;
-let pinnedMessage=null;
+let pinnedMessage=null,pinnedListenerRef=null,pinnedListenerCb=null;
 window.currentUser=null;
 
 // НАСТРОЙКИ ИИ
@@ -1182,7 +1182,7 @@ function showLoaded(wrap,url,m){wrap.onclick=null;wrap.classList.remove('media-l
 
 function appendNewMessage(m,chatId){if(chatId!==currentChat||!m)return;var container=$('messagesContainer');if(!container||document.getElementById('msg_'+m.id))return;if((hiddenMessages[chatId]||{})[m.id])return;var nearBottom=container.scrollHeight-container.scrollTop-container.clientHeight<120;var empty=container.querySelector('.empty-state');if(empty)empty.remove();container.appendChild(buildMessageEl(Object.assign({id:m.id},m)));if(nearBottom)container.scrollTop=container.scrollHeight;}
 function renderMessages(msgs,chatId){if(chatId!==currentChat)return;var container=$('messagesContainer');var hidden=hiddenMessages[chatId]||{};var arr=Object.keys(msgs).map(function(id){return Object.assign({id:id},msgs[id]);}).filter(function(m){return !hidden[m.id];}).sort(function(a,b){return (a.timestamp||0)-(b.timestamp||0);});var oldH=container.scrollHeight,oldT=container.scrollTop;var frag=document.createDocumentFragment();arr.forEach(function(m){frag.appendChild(buildMessageEl(m));});container.innerHTML='';if(arr.length===0){container.innerHTML='<div class="empty-state"><i class="fas fa-comments"></i><p>Нет сообщений</p></div>';}else{if(hasMoreMessages){var lm=document.createElement('div');lm.className='load-more';lm.innerHTML='⬆️ Загрузить';lm.onclick=loadOlderMessages;container.appendChild(lm);}container.appendChild(frag);}requestAnimationFrame(function(){container.scrollTop=container.scrollHeight-oldH+oldT;});}
-function loadOlderMessages(){if(isLoadingMore||!hasMoreMessages||!currentChat)return;isLoadingMore=true;var msgs=messageCache[currentChat]||{};var arr=Object.values(msgs).sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));if(!arr.length){hasMoreMessages=false;isLoadingMore=false;return;}var ots=arr[0].timestamp||0;db.ref('messages/'+currentChat).orderByChild('timestamp').endAt(ots-1).limitToLast(getDonPageSize()).once('value').then(function(s){var o=s.val()||{};if(Object.keys(o).length===0)hasMoreMessages=false;else{Object.assign(messageCache[currentChat],o);renderMessages(messageCache[currentChat],currentChat);}isLoadingMore=false;}).catch(function(){isLoadingMore=false;});}
+function loadOlderMessages(){if(isLoadingMore||!hasMoreMessages||!currentChat)return;var chatId=currentChat;isLoadingMore=true;var msgs=messageCache[chatId]||{};var arr=Object.values(msgs).sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));if(!arr.length){if(currentChat===chatId){hasMoreMessages=false;isLoadingMore=false;}return;}var ots=arr[0].timestamp||0;db.ref('messages/'+chatId).orderByChild('timestamp').endAt(ots-1).limitToLast(getDonPageSize()).once('value').then(function(s){var o=s.val()||{};if(Object.keys(o).length===0){if(currentChat===chatId)hasMoreMessages=false;}else{messageCache[chatId]=messageCache[chatId]||{};Object.assign(messageCache[chatId],o);if(currentChat===chatId)renderMessages(messageCache[chatId],chatId);}if(currentChat===chatId)isLoadingMore=false;}).catch(function(){if(currentChat===chatId)isLoadingMore=false;});}
 
 function buildMessageEl(m){
     var media='';
@@ -1326,12 +1326,16 @@ function hidePinnedBar(){
     if(bar)bar.classList.remove('show');
 }
 function listenPinned(chatId){
-    db.ref('pinned/'+chatId).off('value');
-    db.ref('pinned/'+chatId).on('value',function(snap){
+    if(pinnedListenerRef&&pinnedListenerCb){pinnedListenerRef.off('value',pinnedListenerCb);}
+    pinnedMessage=null;hidePinnedBar();
+    pinnedListenerRef=db.ref('pinned/'+chatId);
+    pinnedListenerCb=function(snap){
+        if(chatId!==currentChat)return;
         var v=snap.val();
         if(v&&v.msgId){pinnedMessage=v;showPinnedBar();}
         else{pinnedMessage=null;hidePinnedBar();}
-    });
+    };
+    pinnedListenerRef.on('value',pinnedListenerCb);
 }
 
 (function attachMsgGestures(){
@@ -1385,11 +1389,25 @@ function openChat(chatId){
     var vb=$('videoCallBtn');if(vb)vb.style.display=(chat.type==='private')?'flex':'none';
     typingListenerRef=db.ref('typing/'+chatId);
     typingListenerCb=typingListenerRef.on('value',function(s){var v=s.val()||{};var ind=$('typingIndicator');if(!ind)return;if(otherId&&v[otherId]&&(Date.now()-v[otherId]<5000)){ind.style.display='block';ind.innerText='✍️ печатает...';}else{ind.style.display='none';}});
-    db.ref('wallpapers/'+currentUser.id+'/'+chatId).once('value').then(function(snap){var bg=snap.val();var el=$('messagesContainer');el.style.backgroundImage='';el.style.background='#f8fafd';if(bg){if(bg.indexOf('linear-gradient')===0||bg.indexOf('#')===0)el.style.background=bg;}}).catch(function(){});
+    db.ref('wallpapers/'+currentUser.id+'/'+chatId).once('value').then(function(snap){if(chatId!==currentChat)return;var bg=snap.val();var el=$('messagesContainer');el.style.backgroundImage='';el.style.background='#f8fafd';if(bg){if(bg.indexOf('linear-gradient')===0||bg.indexOf('#')===0)el.style.background=bg;}}).catch(function(){});
     listenPinned(chatId);
-    db.ref('messages/'+chatId).orderByChild('timestamp').limitToLast(getDonPageSize()).once('value').then(function(snap){var init=snap.val()||{};messageCache[chatId]=Object.assign({},messageCache[chatId],init);hasMoreMessages=Object.keys(init).length>=getDonPageSize();renderMessages(messageCache[chatId],chatId);}).catch(function(){messageCache[chatId]=messageCache[chatId]||{};renderMessages(messageCache[chatId],chatId);});
-    messagesListener=db.ref('messages/'+chatId).orderByChild('timestamp').limitToLast(1).on('child_added',function(snap){if(chatId!==currentChat)return;var id=snap.key;var m=snap.val();if(!m)return;messageCache[chatId]=messageCache[chatId]||{};if(messageCache[chatId][id])return;messageCache[chatId][id]=m;appendNewMessage(m,chatId);});
-    db.ref('hidden/'+currentUser.id+'/'+chatId).once('value').then(function(s){hiddenMessages[chatId]=s.val()||{};}).catch(function(){hiddenMessages[chatId]={};});
+    db.ref('hidden/'+currentUser.id+'/'+chatId).once('value').catch(function(){return null;}).then(function(hiddenSnap){
+        if(chatId!==currentChat)return;
+        hiddenMessages[chatId]=hiddenSnap&&hiddenSnap.val()||{};
+        messagesListener=db.ref('messages/'+chatId).orderByChild('timestamp').limitToLast(1).on('child_added',function(snap){if(chatId!==currentChat)return;var id=snap.key;var m=snap.val();if(!m)return;messageCache[chatId]=messageCache[chatId]||{};if(messageCache[chatId][id])return;messageCache[chatId][id]=m;appendNewMessage(m,chatId);});
+        return db.ref('messages/'+chatId).orderByChild('timestamp').limitToLast(getDonPageSize()).once('value').then(function(snap){
+            if(chatId!==currentChat)return;
+            var init=snap.val()||{};
+            messageCache[chatId]=Object.assign({},messageCache[chatId],init);
+            hasMoreMessages=Object.keys(init).length>=getDonPageSize();
+            renderMessages(messageCache[chatId],chatId);
+        });
+    }).catch(function(){
+        if(chatId!==currentChat)return;
+        hiddenMessages[chatId]=hiddenMessages[chatId]||{};
+        messageCache[chatId]=messageCache[chatId]||{};
+        renderMessages(messageCache[chatId],chatId);
+    });
     if(chat.unreadCount){db.ref('userChats/'+currentUser.id+'/'+chatId+'/unreadCount').set(0);}
     setTimeout(saveChatsCache,500);
 }
