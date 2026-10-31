@@ -52,7 +52,7 @@ async function askGroq(env, prompt) {
     throw new Error(`Groq API error ${response.status}`);
   }
   const answer = data?.choices?.[0]?.message?.content;
-  if (typeof answer !== "string" || !answer.trim()) throw new Error("Ofox returned an empty response");
+  if (typeof answer !== "string" || !answer.trim()) throw new Error("Groq returned an empty response");
   return answer.trim();
 }
 
