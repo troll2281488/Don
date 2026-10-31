@@ -1933,11 +1933,7 @@ function loadAiSettings() {
     if (saved) {
         try { aiSettings = Object.assign(aiSettings, JSON.parse(saved)); } catch(e){}
     }
-    const polliProxyInput = document.getElementById('donAiPolliProxyUrl');
-    if (polliProxyInput) polliProxyInput.value = getDonAiProxyUrl();
-    const polliProxyTokenInput = document.getElementById('donAiPolliProxyToken');
-    if (polliProxyTokenInput) polliProxyTokenInput.value = localStorage.getItem('donai_polli_proxy_token') || '';
-    updateDonAiPolliStatus();
+    // No-key mode: no proxy URL, token, or provider setup is required.
     document.getElementById('aiModelProfile').value = aiSettings.modelProfile || 'daily';
     document.getElementById('aiFontSize').value = aiSettings.fontSize;
     document.getElementById('aiTypingSpeed').value = aiSettings.typingSpeed;
@@ -1966,15 +1962,7 @@ document.getElementById('aiModelProfile').addEventListener('change', function() 
 });
 
 document.getElementById('aiSettingsSaveBtn').addEventListener('click', () => {
-    const polliProxyInput = document.getElementById('donAiPolliProxyUrl');
-    const polliProxyUrl = (polliProxyInput && polliProxyInput.value || '').trim().replace(/\/+$/, '');
-    const polliProxyTokenInput = document.getElementById('donAiPolliProxyToken');
-    const polliProxyToken = (polliProxyTokenInput && polliProxyTokenInput.value || '').trim();
-    if (polliProxyUrl) localStorage.setItem('donai_polli_proxy_url', polliProxyUrl);
-    else localStorage.removeItem('donai_polli_proxy_url');
-    if (polliProxyToken) localStorage.setItem('donai_polli_proxy_token', polliProxyToken);
-    else localStorage.removeItem('donai_polli_proxy_token');
-    updateDonAiPolliStatus();
+    // Free Pollinations mode needs no proxy settings or API key.
     donAiState.persona = defaultPersona;
     try { localStorage.removeItem('donai_persona'); } catch(e) {}
     
@@ -1993,16 +1981,7 @@ document.getElementById('aiSettingsSaveBtn').addEventListener('click', () => {
     showToast('✅ Настройки сохранены');
 });
 
-document.getElementById('donAiPolliDisconnectBtn').addEventListener('click', function() {
-    localStorage.removeItem('donai_polli_proxy_url');
-    const input = document.getElementById('donAiPolliProxyUrl');
-    if (input) input.value = '';
-    const tokenInput = document.getElementById('donAiPolliProxyToken');
-    if (tokenInput) tokenInput.value = '';
-    localStorage.removeItem('donai_polli_proxy_token');
-    updateDonAiPolliStatus();
-    showToast('Адрес прокси и личный токен удалены с этого устройства.');
-});
+// Legacy proxy disconnect control removed: free mode has no proxy or token.
 
 document.getElementById('aiTemperature').addEventListener('input', function() {
     document.getElementById('tempVal').innerText = this.value;
