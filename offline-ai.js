@@ -95,14 +95,8 @@ async function ensureLocalAI(out){if(localAIEngine)return localAIEngine;if(local
 async function ask(prompt){let p=document.getElementById('dgAIPanel'),out=p.querySelector('#dgAIResult');out.innerHTML='<span class="dg-ai-dots" aria-label="DonAI печатает"><i></i><i></i><i></i></span>';try{let webContext=await getWebContext(prompt,out);let messages=[{role:'system',content:'Ты DonAI — встроенный помощник DonorGram. Анализируй документы, переписки и код. Отвечай по-русски, структурированно и не выдумывай факты. Если дан контекст из интернета, отделяй подтверждённое от предположений и указывай ссылки.'},{role:'user',content:(docText?'Документ:\n'+docText+'\n\n':'')+prompt+webContext}];out.innerHTML='<span class="dg-ai-dots" aria-label="DonAI печатает"><i></i><i></i><i></i></span>';const result=await window.dgAskConfiguredAI(messages,{temperature:.25,max_tokens:900});out.textContent=result.text||'Модель не вернула ответ.';}catch(e){out.textContent='DonAI: '+e.message;}}
  // Shared no-key API route used by both DonAI interfaces.
  window.dgAskConfiguredAI=async function(messages,options){
-  const payload=Object.assign({messages:messages,temperature:.25,max_tokens:900},options||{});
-  const response=await fetch('https://text.pollinations.ai/openai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({model:'openai'},payload)),signal:AbortSignal.timeout(60000)});
-  const raw=await response.text();let data;try{data=JSON.parse(raw);}catch(_){data=raw;}
-  if(!response.ok)throw Error('Pollinations HTTP '+response.status);
-  let content=data&&data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content;
-  if((!content||!String(content).trim())&&typeof data==='string')content=data;
-  if(!content||!String(content).trim())throw Error('Pollinations вернул пустой ответ');
-  return {text:String(content),provider:'Pollinations'};
+  if(typeof window.requestDonAi==='function')return window.requestDonAi(messages,options||{});
+  throw new Error('Основной модуль DonAI ещё не готов. Перезагрузи приложение.');
  };
  window.addEventListener('online',()=>{badge();if(firebaseConnected)flush();say('Сеть восстановлена, проверяю соединение с сервером…');});window.addEventListener('offline',badge);try{if(typeof db!=='undefined'&&db&&db.ref){db.ref('.info/connected').on('value',snap=>{firebaseConnected=snap.val()===true;if(firebaseConnected)flush().catch(()=>{});badge();});}}catch(e){}
  window.addEventListener('load',()=>{ui();hook();cacheProfile();badge();setInterval(()=>{hook();cacheProfile();if(navigator.onLine)flush();},3000);});
