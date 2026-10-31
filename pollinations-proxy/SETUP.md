@@ -10,6 +10,7 @@
 4. В настройках Worker → Variables and Secrets добавь Secret:
    - Name: `POLLINATIONS_API_KEY`
    - Value: твой новый ключ `sk_...`
+   - При создании ключа разреши категории `text`, `image` и `audio` (или нужные модели).
 5. Добавь второй Secret:
    - Name: `DONORGRAM_PROXY_TOKEN`
    - Value: длинный случайный пароль (не используй пароль от других сервисов; можно сгенерировать командой `openssl rand -hex 32`).
