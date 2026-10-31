@@ -585,7 +585,7 @@ button,input,textarea,select{touch-action:manipulation}
   <div class="user-info"><h3 id="userName">User</h3><p><i class="fas fa-circle" style="font-size:6px;color:#34c759"></i> <span id="userOnline" data-i18n="chat_online">🟢 в сети</span></p></div>
 </div>
 <div class="actions">
-<button class="icon-btn" id="donAiBtn" type="button" title="DonAI" style="background:linear-gradient(135deg,#a855f7,#6366f1);color:#fff;box-shadow:0 0 10px rgba(168,85,247,0.5);animation:auraGlow 3s infinite"><i class="fas fa-robot"></i></button>
+<button class="icon-btn" id="donAiBtn" type="button" title="DonAI" aria-label="Открыть DonAI" onclick="if(window.openDonAi){window.openDonAi();}else{alert('DonAI ещё загружается. Обнови страницу и попробуй снова.');}" style="position:relative;z-index:20;pointer-events:auto;background:linear-gradient(135deg,#a855f7,#6366f1);color:#fff;box-shadow:0 0 10px rgba(168,85,247,0.5);animation:auraGlow 3s infinite"><i class="fas fa-robot"></i></button>
 <button class="icon-btn" id="gpsBtn" type="button" title="Карта друзей"><i class="fas fa-map-marked-alt"></i></button>
 <button class="icon-btn" id="createBtn" type="button" title="Создать группу"><i class="fas fa-plus-circle"></i></button>
 <button class="icon-btn" id="settingsBtn" type="button"><i class="fas fa-cog"></i></button>
@@ -1515,16 +1515,24 @@ if (!donAiState.persona.includes('DonorGram') || donAiState.persona.includes('Т
 
 function openDonAi() {
     const ov = document.getElementById('donAiOverlay');
-    if (ov) {
+    if (!ov) {
+        alert('Окно DonAI не найдено на странице. Обнови сайт.');
+        return;
+    }
+    try {
         ov.style.display = 'flex';
-        setTimeout(() => ov.classList.add('show'), 10);
+        ov.classList.add('show');
         renderDonAiHistory();
-        setTimeout(() => {
+        requestAnimationFrame(() => {
             const msgs = document.getElementById('donAiMessages');
             if (msgs) msgs.scrollTop = msgs.scrollHeight;
-        }, 50);
+        });
+    } catch (error) {
+        console.error('DonAI open error:', error);
+        alert('Не удалось открыть DonAI: ' + (error.message || error));
     }
 }
+window.openDonAi = openDonAi;
 
 function closeDonAi() {
     const ov = document.getElementById('donAiOverlay');
@@ -1894,8 +1902,11 @@ function askAiAboutMessage(messageText) {
     
     const sheet = document.getElementById('aiAnswerSheet');
     const content = document.getElementById('aiAnswerContent');
-    
-    content.innerHTML = '';
+    if (!sheet || !content) {
+        console.error('DonAI answer sheet is missing');
+        return;
+    }
+    content.textContent = 'DonAI подключается…';
     sheet.classList.add('show');
     
     // Язык ответа выбираем по языку исходного сообщения, а не по языку модели.
@@ -1920,8 +1931,9 @@ function askAiAboutMessage(messageText) {
         }
         type();
     })
-    .catch(() => { content.textContent = '❌ Оба сервиса ИИ временно недоступны. Попробуй ещё раз позже.'; });
+    .catch((error) => { content.textContent = '❌ DonAI не получил ответ от API: ' + (error && error.message ? error.message : 'неизвестная ошибка'); });
 }
+window.askAiAboutMessage = askAiAboutMessage;
 
 function closeAiAnswerSheet() {
     document.getElementById('aiAnswerSheet').classList.remove('show');
