@@ -89,26 +89,27 @@ async function getWebContext(command,out){
  }
 }
 async function ensureLocalAI(out){if(localAIEngine)return localAIEngine;if(localAIReady)return localAIReady;if(!navigator.gpu)throw Error('На этом устройстве/в этом браузере нет WebGPU. Встроенная модель работает без ключа, но требует WebGPU и свободную память. Попробуй Chrome/Edge или Safari с поддержкой WebGPU.');localAIReady=(async()=>{out.textContent='Загружаю движок DonAI…';const mod=await import('https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm/+esm');out.textContent='Загружаю локальную модель Qwen 2.5 (около 300 МБ при первом запуске)…';localAIEngine=await mod.CreateMLCEngine('Qwen2.5-0.5B-Instruct-q4f16_1-MLC',{initProgressCallback:p=>{if(p&&p.text)out.textContent='DonAI: '+p.text;}});return localAIEngine;})();try{return await localAIReady;}catch(e){localAIReady=null;localAIEngine=null;throw e;}}
-async function ask(prompt){let p=document.getElementById('dgAIPanel'),out=p.querySelector('#dgAIResult'),endpoint='https://api.ofox.ai/v1',model='openai/gpt-5.4-mini',key='';out.textContent='AI анализирует…';try{let webContext=await getWebContext(prompt,out);let messages=[{role:'system',content:'Ты DonAI — встроенный помощник DonorGram. Анализируй документы, переписки и код. Отвечай по-русски, структурированно и не выдумывай факты. Если дан контекст из интернета, отделяй подтверждённое от предположений и указывай ссылки.'},{role:'user',content:(docText?'Документ:\n'+docText+'\n\n':'')+prompt+webContext}];if(!key)out.textContent='DonAI подключается…';const base=endpoint.replace(/\\/+$/,'');let response;try{const headers={'Content-Type':'application/json'};if(key)headers.Authorization='Bearer '+key;response=await fetch(base+'/chat/completions',{method:'POST',headers,body:JSON.stringify({model,messages,temperature:.25}),signal:AbortSignal.timeout(60000)});}catch(e){if(e.name==='TimeoutError')throw Error('Сервер API не ответил за 60 секунд.');if(e instanceof TypeError)throw Error('Failed to fetch: браузер не смог соединиться с API. Частые причины — CORS на стороне провайдера, неверный адрес API, блокировка сети/VPN или недоступный сервер. Это не ошибка самого ключа; нужен endpoint с разрешённым браузерным CORS либо серверный прокси.');throw e;}const raw=await response.text();let data;try{data=JSON.parse(raw);}catch(_){data={};}if(!response.ok)throw Error(data.error?.message||('API вернул HTTP '+response.status+(raw?': '+raw.slice(0,300):'')));out.textContent=data.choices?.[0]?.message?.content||'API вернул пустой ответ.';}catch(e){out.textContent='DonAI: '+e.message;}}
- // Shared entry point used by the original DonAI chat and the single-composer workspace.
+async function ask(prompt){let p=document.getElementById('dgAIPanel'),out=p.querySelector('#dgAIResult');out.textContent='AI анализирует…';try{let webContext=await getWebContext(prompt,out);let messages=[{role:'system',content:'Ты DonAI — встроенный помощник DonorGram. Анализируй документы, переписки и код. Отвечай по-русски, структурированно и не выдумывай факты. Если дан контекст из интернета, отделяй подтверждённое от предположений и указывай ссылки.'},{role:'user',content:(docText?'Документ:\n'+docText+'\n\n':'')+prompt+webContext}];if(!key)out.textContent='DonAI подключается…';const result=await window.dgAskConfiguredAI(messages,{temperature:.25,max_tokens:900});out.textContent=result.text||'Модель не вернула ответ.';}catch(e){out.textContent='DonAI: '+e.message;}}
+ // Shared no-key API route used by both DonAI interfaces.
  window.dgAskConfiguredAI=async function(messages,options){
-  const provider=document.getElementById('dgProvider'),modelEl=document.getElementById('dgModel'),keyEl=document.getElementById('dgKey');
-  if(!provider||!modelEl)throw Error('Не найдены настройки провайдера DonAI. Перезагрузи страницу.');
-  const endpoint='https://api.ofox.ai/v1',model='openai/gpt-5.4-mini',key='';
-  const lastUser=[...messages].reverse().find(m=>m.role==='user');
-  const promptText=lastUser&&typeof lastUser.content==='string'?lastUser.content:'';
-  const webContext=await getWebContext(promptText,{set textContent(v){const o=document.querySelector('#dgAIResult');if(o)o.textContent=v;}});
-  const enriched=messages.map((m,i)=>i===messages.length-1&&m.role==='user'&&typeof m.content==='string'?{...m,content:m.content+webContext}:m);
-  
-  const base=endpoint.replace(/\\/+$/,'');
-  let response;
-  try{const headers={'Content-Type':'application/json'};if(key)headers.Authorization='Bearer '+key;response=await fetch(base+'/chat/completions',{method:'POST',headers,body:JSON.stringify({model,messages:enriched,temperature:options&&options.temperature||.25,max_tokens:options&&options.max_tokens||900}),signal:AbortSignal.timeout(60000)});}
-  catch(e){if(e.name==='TimeoutError')throw Error('API не ответил за 60 секунд.');if(e instanceof TypeError)throw Error('Failed to fetch: браузер не смог подключиться к '+base+'. Возможны CORS, блокировка сети или неверный endpoint.');throw e;}
-  const raw=await response.text();let data;try{data=JSON.parse(raw);}catch(_){data={};}
-  if(!response.ok)throw Error((data.error&&data.error.message)||('API HTTP '+response.status+': '+raw.slice(0,240)));
-  const content=data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content;
-  if(!content)throw Error('API вернул пустой ответ.');
-  return {text:content,provider:model};
+  const payload=Object.assign({messages:messages,temperature:.25,max_tokens:900},options||{});
+  const providers=[
+   {name:'Vireonix',url:'https://vireonix.ai/v1/chat/completions',body:Object.assign({model:'auto'},payload)},
+   {name:'Pollinations',url:'https://text.pollinations.ai/openai',body:Object.assign({model:'openai'},payload)}
+  ];
+  const errors=[];
+  for(const provider of providers){
+   try{
+    const response=await fetch(provider.url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(provider.body),signal:AbortSignal.timeout(60000)});
+    const raw=await response.text();let data;try{data=JSON.parse(raw);}catch(_){data=raw;}
+    if(!response.ok)throw Error(provider.name+' HTTP '+response.status);
+    let content=data&&data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content;
+    if((!content||!String(content).trim())&&typeof data==='string')content=data;
+    if(!content||!String(content).trim())throw Error(provider.name+' вернул пустой ответ');
+    return {text:String(content),provider:provider.name};
+   }catch(e){errors.push(provider.name+': '+(e&&e.message||String(e)));}
+  }
+  throw Error('Не удалось подключиться к бесплатным API без ключа. '+errors.join(' | '));
  };
  window.addEventListener('online',()=>{badge();if(firebaseConnected)flush();say('Сеть восстановлена, проверяю соединение с сервером…');});window.addEventListener('offline',badge);try{if(typeof db!=='undefined'&&db&&db.ref){db.ref('.info/connected').on('value',snap=>{firebaseConnected=snap.val()===true;if(firebaseConnected)flush().catch(()=>{});badge();});}}catch(e){}
  window.addEventListener('load',()=>{ui();hook();cacheProfile();badge();setInterval(()=>{hook();cacheProfile();if(navigator.onLine)flush();},3000);});
