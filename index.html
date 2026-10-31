@@ -123,6 +123,10 @@ body{background:#1a1a2e;height:100vh;height:100dvh;display:flex;align-items:cent
 .reply-quote .rq-name{font-weight:700;margin-bottom:2px;font-size:11px;opacity:.9}
 .reply-quote .rq-text{opacity:.85;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .message-time{font-size:10px;opacity:.8;margin-top:4px}
+.message-reactions{display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin:3px 4px 0;max-width:80%;}
+.message-sent .message-reactions{justify-content:flex-end;margin-left:auto}
+.reaction-chip{border:1px solid rgba(102,126,234,.16);background:#fff;border-radius:14px;padding:3px 7px;font-size:12px;line-height:1.2;min-height:25px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);transition:transform .12s,background .12s,border-color .12s}
+.reaction-chip:active{transform:scale(.9)}.reaction-chip.active{background:#e9edff;border-color:#667eea}.reaction-chip span{font-size:10px;color:#667eea;font-weight:800;margin-left:2px}
 .edited-mark{font-size:10px;opacity:.75;font-style:italic}
 .reply-bar{display:none;align-items:center;gap:10px;padding:10px 16px;background:#f0f4ff;border-top:1px solid #d0e0ff;font-size:13px}
 .reply-bar.show{display:flex}
@@ -331,6 +335,14 @@ input:checked+.slider:before{transform:translateX(26px)}
 .dg-sticker-coffee .dg-sticker-art{background:linear-gradient(145deg,#eac6a0,#a87554)}
 .dg-sticker-ghost .dg-sticker-art{background:linear-gradient(145deg,#d6d9ff,#8b92e8);animation:dgStickerPop 2.3s ease-in-out infinite}
 .dg-sticker-hello .dg-sticker-art{background:linear-gradient(145deg,#9de9ff,#6e9cff);animation:dgStickerWiggle 2s ease-in-out infinite}
+.dg-sticker-dance .dg-sticker-art{background:linear-gradient(145deg,#ff9ed8,#8b5cf6);animation:dgStickerDance 1.35s ease-in-out infinite}
+.dg-sticker-clap .dg-sticker-art{background:linear-gradient(145deg,#ffe08a,#ff914d);animation:dgStickerClap .8s ease-in-out infinite}
+.dg-sticker-sleep .dg-sticker-art{background:linear-gradient(145deg,#b9c7ff,#7788dc);animation:dgStickerSleep 3s ease-in-out infinite}
+.dg-sticker-angry .dg-sticker-art{background:linear-gradient(145deg,#ff9a8b,#ff3d55);animation:dgStickerAngry .55s linear infinite}
+.dg-sticker-magic .dg-sticker-art{background:linear-gradient(145deg,#e2b5ff,#8d6bff);animation:dgStickerMagic 2.2s ease-in-out infinite}
+.dg-sticker-rainbow .dg-sticker-art{background:linear-gradient(145deg,#ff9bce,#8edbff,#a9f2bc);animation:dgStickerRainbow 3s linear infinite}
+.dg-sticker-muscle .dg-sticker-art{background:linear-gradient(145deg,#a5f3c5,#32b887);animation:dgStickerMuscle 1.4s ease-in-out infinite}
+.dg-sticker-mind .dg-sticker-art{background:linear-gradient(145deg,#a8e8ff,#9b87ff);animation:dgStickerMind 1.8s ease-in-out infinite}
 .dg-sticker-label{position:absolute;bottom:0;left:0;right:0;text-align:center;font-size:10px;font-weight:800;color:#69738e;letter-spacing:.2px}
 .message-bubble .dg-sticker{width:112px;height:112px;margin:0 auto}
 .message-bubble .dg-sticker-art{width:88px;height:88px;font-size:54px;border-radius:30px}
@@ -342,6 +354,14 @@ input:checked+.slider:before{transform:translateX(26px)}
 @keyframes dgStickerPop{0%,100%{transform:scale(1)}45%{transform:scale(1.1) rotate(5deg)}}
 @keyframes dgStickerSpin{0%,85%,100%{transform:rotate(0)}92%{transform:rotate(18deg)}}
 @keyframes dgStickerRocket{0%,100%{transform:translateY(3px) rotate(-8deg)}50%{transform:translateY(-9px) rotate(8deg)}}
+@keyframes dgStickerDance{0%,100%{transform:translateY(3px) rotate(-14deg) scale(.96)}25%{transform:translateY(-5px) rotate(12deg) scale(1.04)}50%{transform:translateY(2px) rotate(-10deg) scale(1.08)}75%{transform:translateY(-4px) rotate(15deg)}}
+@keyframes dgStickerClap{0%,100%{transform:scale(1) rotate(0)}35%{transform:scale(.88) rotate(-8deg)}70%{transform:scale(1.12) rotate(8deg)}}
+@keyframes dgStickerSleep{0%,100%{transform:translateY(2px) rotate(-2deg);filter:brightness(.95)}50%{transform:translateY(8px) rotate(3deg);filter:brightness(1.08)}}
+@keyframes dgStickerAngry{0%,100%{transform:translateX(-3px) rotate(-3deg)}25%{transform:translateX(3px) rotate(3deg)}50%{transform:translateX(-2px) rotate(-2deg)}75%{transform:translateX(2px) rotate(2deg)}}
+@keyframes dgStickerMagic{0%,100%{transform:rotate(-12deg) scale(.96)}50%{transform:rotate(18deg) scale(1.1)}}
+@keyframes dgStickerRainbow{0%,100%{transform:translateY(0) scale(1);filter:hue-rotate(0)}50%{transform:translateY(-8px) scale(1.08);filter:hue-rotate(120deg)}}
+@keyframes dgStickerMuscle{0%,100%{transform:scaleX(1) scaleY(1)}35%{transform:scaleX(1.12) scaleY(.9)}65%{transform:scaleX(.94) scaleY(1.12)}}
+@keyframes dgStickerMind{0%,100%{transform:scale(1) rotate(0)}20%{transform:scale(.9) rotate(-8deg)}55%{transform:scale(1.16) rotate(8deg)}80%{transform:scale(1.04) rotate(-3deg)}}
 @media(prefers-reduced-motion:reduce){.dg-sticker-art,.dg-sticker-art:after{animation:none!important}}
 .wall-attach-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
 .wall-attach-btns button{padding:12px 8px;border-radius:12px;border:none;cursor:pointer;font-size:12px;font-weight:700;color:#fff;display:flex;flex-direction:column;align-items:center;gap:4px}
@@ -1133,7 +1153,10 @@ const DG_STICKERS=[
 {id:'love',emoji:'🥰',label:'Обнимаю'},{id:'wow',emoji:'😲',label:'Вау'},{id:'cat',emoji:'😻',label:'Мяу'},
 {id:'cry',emoji:'🥹',label:'Умиление'},{id:'star',emoji:'🌟',label:'Сияй'},{id:'rocket',emoji:'🚀',label:'Вперёд'},
 {id:'party',emoji:'🥳',label:'Праздник'},{id:'cool',emoji:'😎',label:'Круто'},{id:'crown',emoji:'👑',label:'Король'},
-{id:'coffee',emoji:'☕',label:'Кофе'},{id:'ghost',emoji:'👻',label:'Привет, призрак'},{id:'hello',emoji:'👋',label:'Привет'}
+{id:'coffee',emoji:'☕',label:'Кофе'},{id:'ghost',emoji:'👻',label:'Привет, призрак'},{id:'hello',emoji:'👋',label:'Привет'},
+{id:'dance',emoji:'💃',label:'Танцуй'},{id:'clap',emoji:'👏',label:'Браво'},{id:'sleep',emoji:'😴',label:'Сплю'},
+{id:'angry',emoji:'😡',label:'Злюсь'},{id:'magic',emoji:'🪄',label:'Магия'},{id:'rainbow',emoji:'🌈',label:'Радуга'},
+{id:'muscle',emoji:'💪',label:'Сила'},{id:'mind',emoji:'🤯',label:'Взрыв мозга'}
 ];
 window.DG_STICKERS={};DG_STICKERS.forEach(function(x){window.DG_STICKERS[x.id]=x;});
 function renderStickers(){
@@ -1165,7 +1188,9 @@ function buildMessageEl(m){
     var sH=t2?'<span class="crown-icon">👑</span><b class="'+cls+'">'+esc(senderName)+'</b>':'<b>'+esc(senderName)+'</b>';
     var rq='';if(m.replyTo){rq='<div class="reply-quote"><div class="rq-name">'+esc(m.replyTo.senderName||'?')+'</div><div class="rq-text">'+esc(m.replyTo.text||'')+'</div></div>';}
     var sticker=m.stickerId&&window.DG_STICKERS&&window.DG_STICKERS[m.stickerId]?window.DG_STICKERS[m.stickerId]:null;var stickerHtml=sticker?'<div class="dg-sticker dg-sticker-'+sticker.id+'" aria-label="'+sticker.label+'"><div class="dg-sticker-art">'+sticker.emoji+'</div></div>':'';
-    div.innerHTML='<div class="swipe-reply-icon"><i class="fas fa-reply"></i></div><div class="message-bubble '+bc+'">'+rq+(!isSent?sH+' ':'')+(stickerHtml|| (m.text?esc(m.text):''))+media+'<div class="message-time">'+formatTime(m.timestamp)+em+'</div></div>';
+    var reactionCounts={};Object.keys(m.reactions||{}).forEach(function(uid){var emoji=m.reactions[uid];if(emoji)reactionCounts[emoji]=(reactionCounts[emoji]||0)+1;});
+    var reactionHtml='<div class="message-reactions">'+['👍','❤️','😂','😮','🔥'].map(function(emoji){var count=reactionCounts[emoji]||0;var active=(m.reactions||{})[currentUser.id]===emoji;return '<button type="button" class="reaction-chip'+(active?' active':'')+'" data-reaction="'+emoji+'" aria-label="Реакция '+emoji+'">'+emoji+(count?' <span>'+count+'</span>':'')+'</button>';}).join('')+'</div>';
+    div.innerHTML='<div class="swipe-reply-icon"><i class="fas fa-reply"></i></div><div class="message-bubble '+bc+'">'+rq+(!isSent?sH+' ':'')+(stickerHtml|| (m.text?esc(m.text):''))+media+'<div class="message-time">'+formatTime(m.timestamp)+em+'</div></div>'+reactionHtml;
     if((m.mediaType==='photo'||m.mediaType==='video')&&m.mediaUrl){var b=div.querySelector('.message-bubble');var te=b.querySelector('.message-time');b.insertBefore(createLazyMediaEl(m),te);}
     return div;
 }
@@ -1174,6 +1199,16 @@ document.addEventListener('click',function(e){
     var pb=e.target.closest('.audio-play-btn');
     if(pb){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();var wrapper=pb.closest('.audio-msg-wrapper');if(!wrapper)return;var audio=wrapper.querySelector('audio');if(!audio){var src=pb.dataset.audio;if(!src)return;audio=document.createElement('audio');audio.src=src;audio.preload='metadata';audio.style.display='none';wrapper.appendChild(audio);}if(audio.paused){document.querySelectorAll('audio').forEach(function(a){if(a!==audio){try{a.pause();}catch(_e){}}});document.querySelectorAll('.audio-play-btn').forEach(function(b){if(b!==pb)b.innerHTML='<i class="fas fa-play"></i>';});var p=audio.play();if(p&&p.then){p.then(function(){pb.innerHTML='<i class="fas fa-pause"></i>';}).catch(function(){showToast('❌');});}else{pb.innerHTML='<i class="fas fa-pause"></i>';}audio.onended=function(){pb.innerHTML='<i class="fas fa-play"></i>';};}else{audio.pause();pb.innerHTML='<i class="fas fa-play"></i>';}return;}
     var img=e.target.closest('img[data-img]');if(img){e.preventDefault();viewImage(img.dataset.img||img.src);return;}
+},true);
+
+document.addEventListener('click',function(e){
+ var chip=e.target.closest('.reaction-chip');if(!chip)return;e.preventDefault();e.stopPropagation();
+ if(!currentUser||!currentChat)return;var row=chip.closest('.message');var mid=row&&row.dataset.msgid;if(!mid)return;
+ var emoji=chip.dataset.reaction;var ref=db.ref('messages/'+currentChat+'/'+mid+'/reactions/'+currentUser.id);
+ var msg=(messageCache[currentChat]||{})[mid];if(!msg)return;var old=(msg.reactions||{})[currentUser.id];
+ var next=old===emoji?null:emoji;
+ var write=next?ref.set(next):ref.remove();
+ write.then(function(){if(!msg.reactions)msg.reactions={};if(next)msg.reactions[currentUser.id]=next;else delete msg.reactions[currentUser.id];var fresh=buildMessageEl(Object.assign({id:mid},msg));row.replaceWith(fresh);}).catch(function(){showToast('Не удалось поставить реакцию');});
 },true);
 
 function openMsgActionSheet(msgId){
