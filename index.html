@@ -124,7 +124,6 @@ body{background:#1a1a2e;height:100vh;height:100dvh;display:flex;align-items:cent
 .reply-quote .rq-text{opacity:.85;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .message-time{font-size:10px;opacity:.8;margin-top:4px}
 .message{position:relative}
-.message-meta{display:flex;align-items:center;justify-content:flex-end;gap:7px;margin-top:4px}.message-meta .message-time{margin-top:0}.message-speak-btn{border:0;border-radius:50%;width:27px;height:27px;background:rgba(102,126,234,.14);color:#667eea;font-size:15px;cursor:pointer}.message-speak-btn:active{transform:scale(.9)}
 .message-reaction-summary{display:flex;align-items:center;justify-content:center;gap:4px;margin:6px 8px 0;padding:4px 9px;min-height:25px;width:max-content;border-radius:14px;background:rgba(255,255,255,.97);border:1px solid rgba(102,126,234,.24);box-shadow:0 2px 6px rgba(0,0,0,.12);font-size:14px;line-height:1;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
 .message-reaction-summary:active{transform:scale(.92)}
 .message-reaction-count{font-size:11px;font-weight:700;color:#667eea}
@@ -684,6 +683,7 @@ button,input,textarea,select{touch-action:manipulation}
 <button class="msg-act-btn" data-act="reply" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer;background:none;border:none;width:100%;text-align:left"><i class="fas fa-reply" style="width:22px;color:#667eea"></i><span>↩️ Ответить</span></button>
 <button class="msg-act-btn" data-act="copy" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer;background:none;border:none;width:100%;text-align:left"><i class="fas fa-copy" style="width:22px;color:#667eea"></i><span>📋 Копировать</span></button>
 <button class="msg-act-btn" data-act="repost" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer;background:none;border:none;width:100%;text-align:left"><i class="fas fa-retweet" style="width:22px;color:#667eea"></i><span>🔁 Репост в профиль</span></button>
+<button class="msg-act-btn" data-act="speak" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer;background:none;border:none;width:100%;text-align:left"><i class="fas fa-volume-up" style="width:22px;color:#667eea"></i><span>🔊 Озвучить сообщение</span></button>
 <button class="msg-act-btn" data-act="ai" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer;background:none;border:none;width:100%;text-align:left;border-bottom:1px solid #e8edf2"><i class="fas fa-robot" style="width:22px;color:#a855f7"></i><span>🤖 Спросить у ИИ</span></button>
 <button class="msg-act-btn" data-act="edit" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer;background:none;border:none;width:100%;text-align:left"><i class="fas fa-pen" style="width:22px;color:#667eea"></i><span>✏️ Редактировать</span></button>
 <button class="msg-act-btn" data-act="pin" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer;background:none;border:none;width:100%;text-align:left"><i class="fas fa-thumbtack" style="width:22px;color:#667eea"></i><span>📌 Закрепить</span></button>
@@ -694,7 +694,7 @@ button,input,textarea,select{touch-action:manipulation}
 <div id="aiAnswerSheet">
     <div class="ai-answer-header">
         <div class="donai-avatar" style="width:32px;height:32px;font-size:16px">✨</div>
-        <h3>Ответ от DonAI</h3>
+        <h3>Ответ от DonAI</h3><button type="button" id="donAiSpeakAnswer" title="Озвучить ответ" style="margin-left:auto;margin-right:8px;border:0;border-radius:50%;width:34px;height:34px;background:#f0edff;color:#8b5cf6;font-size:17px">🔊</button>
         <button type="button" onclick="closeAiAnswerSheet()" style="background:none;border:none;font-size:24px;color:#8e98a3;cursor:pointer;padding:0 8px;">&times;</button>
     </div>
     <div id="aiAnswerContent" class="ai-answer-content"></div>
@@ -1196,27 +1196,24 @@ function buildMessageEl(m){
     var heartCount=Object.keys(m.reactions||{}).filter(function(uid){return m.reactions[uid]==='❤️';}).length;
     var ownHeart=!!(m.reactions&&m.reactions[currentUser.id]==='❤️');
     var reactionHtml=heartCount?'<button type="button" class="message-reaction-summary'+(ownHeart?' own-reaction':'')+'" data-remove-heart="1" aria-label="Убрать сердечко"><span>❤️</span>'+(heartCount>1?'<span class="message-reaction-count">'+heartCount+'</span>':'')+'</button>':'';
-    var speakBtn=m.text&&!sticker&&!m.mediaType?'<button type="button" class="message-speak-btn" data-speak="'+encodeURIComponent(String(m.text))+'" title="Озвучить">🔊</button>':'';
-    div.innerHTML='<div class="swipe-reply-icon"><i class="fas fa-reply"></i></div><div class="message-bubble '+bc+'">'+rq+(!isSent?sH+' ':'')+(stickerHtml|| (m.text?esc(m.text):''))+media+'<div class="message-meta">'+speakBtn+'<span class="message-time">'+formatTime(m.timestamp)+em+'</span></div></div>'+reactionHtml;
+    div.innerHTML='<div class="swipe-reply-icon"><i class="fas fa-reply"></i></div><div class="message-bubble '+bc+'">'+rq+(!isSent?sH+' ':'')+(stickerHtml|| (m.text?esc(m.text):''))+media+'<div class="message-time">'+formatTime(m.timestamp)+em+'</div></div>'+reactionHtml;
     if((m.mediaType==='photo'||m.mediaType==='video')&&m.mediaUrl){var b=div.querySelector('.message-bubble');var te=b.querySelector('.message-time');b.insertBefore(createLazyMediaEl(m),te);}
     return div;
 }
 
-var dgSpeakingButton=null;
-document.addEventListener('click',function(e){
- var btn=e.target.closest&&e.target.closest('.message-speak-btn');if(!btn)return;
- e.preventDefault();e.stopPropagation();
- if(!window.speechSynthesis||!window.SpeechSynthesisUtterance){showToast('Озвучка не поддерживается браузером');return;}
- if(window.speechSynthesis.speaking&&dgSpeakingButton===btn){window.speechSynthesis.cancel();btn.textContent='🔊';dgSpeakingButton=null;return;}
- window.speechSynthesis.cancel();document.querySelectorAll('.message-speak-btn').forEach(function(x){x.textContent='🔊';});
- var value='';try{value=decodeURIComponent(btn.getAttribute('data-speak')||'');}catch(_){value=btn.getAttribute('data-speak')||'';}
- if(!value.trim())return;
- var utter=new SpeechSynthesisUtterance(value);utter.lang=/[А-Яа-яЁё]/.test(value)?'ru-RU':'en-US';utter.rate=1;
+var dgSpeechActive=false;
+function speakDonorText(value){
+ if(!('speechSynthesis' in window)||!window.SpeechSynthesisUtterance){showToast('Озвучка не поддерживается браузером');return;}
+ var textValue=String(value||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();if(!textValue){showToast('Нет текста для озвучки');return;}
+ window.speechSynthesis.cancel();var utter=new SpeechSynthesisUtterance(textValue);utter.lang=/[А-Яа-яЁё]/.test(textValue)?'ru-RU':'en-US';utter.rate=1;
  var voices=window.speechSynthesis.getVoices();var voice=voices.find(function(v){return /^ru/i.test(v.lang);});if(voice)utter.voice=voice;
- utter.onstart=function(){btn.textContent='⏹';dgSpeakingButton=btn;};
- utter.onend=utter.onerror=function(){btn.textContent='🔊';if(dgSpeakingButton===btn)dgSpeakingButton=null;};
- window.speechSynthesis.speak(utter);
+ utter.onerror=function(){dgSpeechActive=false;};utter.onend=function(){dgSpeechActive=false;};dgSpeechActive=true;window.speechSynthesis.speak(utter);
+}
+document.addEventListener('click',function(e){
+ var aiBtn=e.target.closest&&e.target.closest('#donAiSpeakAnswer');if(!aiBtn)return;
+ e.preventDefault();e.stopPropagation();var content=document.getElementById('aiAnswerContent');if(content)speakDonorText(content.innerText||content.textContent||'');
 },true);
+window.addEventListener('pagehide',function(){try{window.speechSynthesis.cancel();}catch(_){}});
 document.addEventListener('click',function(e){
     var pb=e.target.closest('.audio-play-btn');
     if(pb){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();var wrapper=pb.closest('.audio-msg-wrapper');if(!wrapper)return;var audio=wrapper.querySelector('audio');if(!audio){var src=pb.dataset.audio;if(!src)return;audio=document.createElement('audio');audio.src=src;audio.preload='metadata';audio.style.display='none';wrapper.appendChild(audio);}if(audio.paused){document.querySelectorAll('audio').forEach(function(a){if(a!==audio){try{a.pause();}catch(_e){}}});document.querySelectorAll('.audio-play-btn').forEach(function(b){if(b!==pb)b.innerHTML='<i class="fas fa-play"></i>';});var p=audio.play();if(p&&p.then){p.then(function(){pb.innerHTML='<i class="fas fa-pause"></i>';}).catch(function(){showToast('❌');});}else{pb.innerHTML='<i class="fas fa-pause"></i>';}audio.onended=function(){pb.innerHTML='<i class="fas fa-play"></i>';};}else{audio.pause();pb.innerHTML='<i class="fas fa-play"></i>';}return;}
@@ -1291,6 +1288,7 @@ document.querySelectorAll('#msgActionSheet .msg-act-btn').forEach(function(btn){
         if(!m){closeMsgActionSheet();return;}
         if(act==='reply'){closeMsgActionSheet();setTimeout(function(){startReply(mid);},80);}
         else if(act==='copy'){try{navigator.clipboard.writeText(m.text||'');showToast('📋');}catch(e){}closeMsgActionSheet();}
+        else if(act==='speak'){closeMsgActionSheet();speakDonorText(m.text||'');}
         else if(act==='ai'){closeMsgActionSheet();setTimeout(function(){askAiAboutMessage(m.text);},150);}
         else if(act==='repost'){var rp={authorId:currentUser.id,authorName:currentUser.name,timestamp:Date.now(),text:''};if(m.text)rp.text='🔁 '+m.text.slice(0,400);rp.repostFrom={authorId:m.senderId,authorName:m.senderName||m.senderId,chatId:currentChat,text:m.text||'',mediaType:m.mediaType||null,mediaUrl:m.mediaUrl||null};if(m.mediaType){rp.mediaType=m.mediaType;rp.mediaUrl=m.mediaUrl;}db.ref('wall/'+currentUser.id).push(rp).then(function(){showToast('🔁 Репост');}).catch(function(err){showToast('❌ '+err.message);});closeMsgActionSheet();}
         else if(act==='edit'){editingMessageId=mid;var b=$('editBar');if(b)b.classList.add('show');var i=$('messageInput');if(i){i.value=m.text||'';i.focus();}closeMsgActionSheet();}
