@@ -790,7 +790,7 @@ button,input,textarea,select{touch-action:manipulation}
             <button type="button" data-close="aiSettingsModal">&times;</button>
         </div>
 
-        <div id="dgProviderSettings" style="padding:12px;margin-bottom:16px;border:1px solid #e8edf2;border-radius:12px"><b>🤖 DonAI</b><small style="display:block;color:#687080">Быстрый запуск через прежний API. Локальную модель скачивать не нужно.</small><select id="dgProvider" style="display:none"><option value="https://api.ofox.ai/v1" selected>DonAI</option></select><select id="dgModel" style="display:none"><option value="openai/gpt-5.4-mini" selected>DonAI</option></select><input id="dgKey" type="password" style="display:none" value=""></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div id="dgProviderSettings" style="padding:12px;margin-bottom:16px;border:1px solid #e8edf2;border-radius:12px"><b>🤖 DonAI</b><small style="display:block;color:#687080">Бесплатный API без регистрации и ключа. Локальную модель скачивать не нужно.</small><select id="dgProvider" style="display:none"><option value="https://vireonix.ai/v1" selected>DonAI</option></select><select id="dgModel" style="display:none"><option value="openai/gpt-5.4-mini" selected>DonAI</option></select><input id="dgKey" type="password" style="display:none" value=""></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
             <div>
                 <label style="font-size:12px;color:#555">Размер шрифта:</label>
                 <select id="aiFontSize" style="width:100%;padding:8px;border-radius:8px;border:1px solid #e8edf2;margin-top:4px">
@@ -1565,35 +1565,33 @@ function hideDonAiTyping() {
 // DonAI: основной бесплатный API без ключа + резервный Pollinations.
 // Ни один публичный API не гарантирует 100% uptime; при ошибке первого пробуем второй.
 async function requestDonAi(messages, options) {
-    // The local AI bundle is loaded at the end of the page. Wait briefly for its bridge
-    // rather than failing immediately if the browser is still evaluating the bundle.
-    for (let i = 0; i < 120; i++) {
-        if (typeof window.dgAskConfiguredAI === 'function') {
-            return await window.dgAskConfiguredAI(messages, options || {});
+    // Restore the original no-key API route: Vireonix first, legacy Pollinations as fallback.
+    const payload = Object.assign({ messages: messages, temperature: 0.7, max_tokens: 900 }, options || {});
+    const providers = [
+        { name: 'Vireonix', url: 'https://vireonix.ai/v1/chat/completions', body: Object.assign({ model: 'auto' }, payload) },
+        { name: 'Pollinations', url: 'https://text.pollinations.ai/openai', body: Object.assign({ model: 'openai' }, payload) }
+    ];
+    const errors = [];
+    for (const provider of providers) {
+        try {
+            const response = await fetch(provider.url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(provider.body),
+                signal: AbortSignal.timeout(60000)
+            });
+            const raw = await response.text();
+            let data; try { data = JSON.parse(raw); } catch (_) { data = raw; }
+            if (!response.ok) throw new Error(provider.name + ' HTTP ' + response.status);
+            let answer = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+            if ((!answer || !String(answer).trim()) && typeof data === 'string') answer = data;
+            if (!answer || !String(answer).trim()) throw new Error(provider.name + ' вернул пустой ответ');
+            return { text: String(answer), provider: provider.name };
+        } catch (error) {
+            errors.push(provider.name + ': ' + (error && error.message ? error.message : String(error)));
         }
-        await new Promise(resolve => setTimeout(resolve, 100));
     }
-    // Emergency inline fallback: keep the original DonAI chat usable even if offline-ai.js fails to load.
-    const endpoint = 'https://api.ofox.ai/v1/chat/completions';
-    let response;
-    try {
-        response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ model: 'openai/gpt-5.4-mini', messages: messages, temperature: 0.25, max_tokens: 900 }),
-            signal: AbortSignal.timeout(60000)
-        });
-    } catch (error) {
-        if (error && error.name === 'TimeoutError') throw new Error('DonAI API не ответил за 60 секунд.');
-        throw new Error('Не удалось подключиться к DonAI API: ' + (error && error.message ? error.message : 'ошибка сети'));
-    }
-    const raw = await response.text();
-    let data = {};
-    try { data = JSON.parse(raw); } catch (_) {}
-    if (!response.ok) throw new Error((data.error && data.error.message) || ('DonAI API HTTP ' + response.status));
-    const answer = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
-    if (!answer) throw new Error('DonAI API вернул пустой ответ.');
-    return { text: answer, provider: 'DonAI' };
+    throw new Error('Не удалось получить ответ от бесплатных API без ключа. ' + errors.join(' | '));
 }
 
 async function processDonAiMessage(isRetry = false) {
