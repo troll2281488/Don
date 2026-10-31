@@ -1632,16 +1632,10 @@ async function processDonAiMessage(isRetry = false) {
             daily: 'Текущий профиль: DonAI Daily 3.1. Общайся естественно и дружелюбно, отвечай кратко на повседневные вопросы.'
         };
         let systemContent = donAiState.persona + '\n\n' + (profileInstructions[aiSettings.modelProfile || 'daily'] || profileInstructions.daily);
-        if (identityQuestion) systemContent += '
-
-Если тебя спрашивают, кто ты, просто представься: «Я DonAI — ИИ-помощник внутри DonorGram». Кратко объясни, чем можешь помочь. Не говори, что тебе дали анализировать документ или что-то другое, если пользователь этого не просил.';
+        if (identityQuestion) systemContent += '\n\nЕсли тебя спрашивают, кто ты, просто представься: «Я DonAI — ИИ-помощник внутри DonorGram». Кратко объясни, чем можешь помочь. Не говори, что тебе дали анализировать документ или что-то другое, если пользователь этого не просил.';
         systemContent += userAsksInRussian
-            ? '
-
-Отвечай полностью на русском языке.'
-            : '
-
-Отвечай на том же языке, что и пользователь.';
+            ? '\n\nОтвечай полностью на русском языке.'
+            : '\n\nОтвечай на том же языке, что и пользователь.';
         const historySlice = donAiState.history.slice(-11, -1).map(msg => ({
             role: msg.role === 'user' ? 'user' : 'assistant',
             content: msg.text
@@ -2104,6 +2098,6 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
 })();
 </script>
 
-  <script src="./offline-ai.js?v=20261031-donai-chat-profiles-v5"></script>
+  <script src="./offline-ai.js?v=20261031-donai-chat-profiles-v6"></script>
 </body>
 </html>
