@@ -7,14 +7,14 @@ Webhook-based Telegram bot. No long-running process is needed.
 Create a Worker from this directory and configure these variables/secrets:
 
 - Secret `TELEGRAM_BOT_TOKEN`: token from @BotFather
-- Secret `OFOX_API_KEY`: Ofox API key
+- Secret `GROQ_API_KEY`: API key from Groq Console
 - Secret `WEBHOOK_SECRET`: random 32+ character string using only A-Z, a-z, 0-9, underscore or hyphen
 - Secret `SETUP_SECRET`: another random one-time setup password
-- Variable `OFOX_BASE_URL`: `https://api.ofox.ai/v1`
-- Variable `OFOX_MODEL`: exact model identifier enabled for your Ofox account
+- Variable `GROQ_BASE_URL`: `https://api.groq.com/openai/v1`
+- Variable `GROQ_MODEL`: exact model ID available to your Groq account (for example, `openai/gpt-oss-20b`, if shown as available)
 - Optional variable `SYSTEM_PROMPT`: assistant instructions
 
-Do not guess the model identifier: use the exact model ID shown in your Ofox dashboard/API docs.
+Use Groq's Free plan only. Do not add a payment method or upgrade to a paid plan. Free-plan model availability and rate limits can vary; requests may be rejected when limits are reached.
 
 ## Register Telegram webhook
 
@@ -22,7 +22,7 @@ After deploying, open this URL once in a browser, replacing the placeholders:
 
 `https://YOUR-WORKER.YOUR-SUBDOMAIN.workers.dev/setup?key=YOUR_SETUP_SECRET`
 
-A successful response contains `"ok":true`. Then delete the `SETUP_SECRET` variable from Worker settings and redeploy.
+A successful response contains `"ok":true`. Then delete the `SETUP_SECRET` secret from Worker settings and redeploy.
 
 ## Test
 
