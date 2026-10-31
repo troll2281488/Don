@@ -66,7 +66,9 @@ export default {
 
     // One-time webhook setup. Remove SETUP_SECRET after successful setup.
     if (request.method === "GET" && url.pathname === "/setup") {
-      if (!env.SETUP_SECRET || url.searchParams.get("key") !== env.SETUP_SECRET) {
+      const setupKey = url.searchParams.get("key") || "";
+      const expectedSetupSecret = String(env.SETUP_SECRET || "").trim();
+      if (!expectedSetupSecret || setupKey.trim() !== expectedSetupSecret) {
         return new Response("Forbidden", { status: 403 });
       }
       if (!env.TELEGRAM_BOT_TOKEN || !env.WEBHOOK_SECRET) {
