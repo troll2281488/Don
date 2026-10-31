@@ -91,50 +91,12 @@ async function getWebContext(command,out){
   return '\n\nВЕБ-ПОИСК НЕ СРАБОТАЛ: '+e.message+'. Не утверждай, что проверил интернет; честно сообщи об ошибке и ответь только на основе доступных данных.';
  }
 }
-async function ensureLocalAI(out){if(localAIEngine)return localAIEngine;if(localAIReady)return localAIReady;if(!navigator.gpu)throw Error('На этом устройстве/в этом браузере нет WebGPU. Встроенная модель работает без ключа, но требует WebGPU и свободную память. Попробуй Chrome/Edge или Safari с поддержкой WebGPU.');localAIReady=(async()=>{out.textContent='Загружаю движок DonAI…';const mod=await import('https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm/+esm');out.textContent='Загружаю локальную модель Qwen 2.5 (первичная загрузка может быть около 1 ГБ)…';localAIEngine=await mod.CreateMLCEngine('Qwen2.5-0.5B-Instruct-q4f16_1-MLC',{initProgressCallback:p=>{if(p&&p.text)out.textContent='DonAI: '+p.text;}});return localAIEngine;})();try{return await localAIReady;}catch(e){localAIReady=null;localAIEngine=null;throw e;}}
+async function ensureLocalAI(out){if(localAIEngine)return localAIEngine;if(localAIReady)return localAIReady;if(!navigator.gpu)throw Error('На этом устройстве/в этом браузере нет WebGPU. Встроенная модель работает без ключа, но требует WebGPU и свободную память. Попробуй Chrome/Edge или Safari с поддержкой WebGPU.');localAIReady=(async()=>{out.textContent='Загружаю движок DonAI…';const mod=await import('https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm/+esm');out.textContent='Загружаю локальную модель Qwen 2.5 (около 300 МБ при первом запуске)…';localAIEngine=await mod.CreateMLCEngine('Qwen2.5-0.5B-Instruct-q4f16_1-MLC',{initProgressCallback:p=>{if(p&&p.text)out.textContent='DonAI: '+p.text;}});return localAIEngine;})();try{return await localAIReady;}catch(e){localAIReady=null;localAIEngine=null;throw e;}}
 async function ask(prompt){let p=document.getElementById('dgAIPanel'),out=p.querySelector('#dgAIResult');out.innerHTML='<span class="dg-ai-dots" aria-label="DonAI печатает"><i></i><i></i><i></i></span>';try{let webContext=await getWebContext(prompt,out);let messages=[{role:'system',content:'Ты DonAI — встроенный помощник DonorGram. Анализируй документы, переписки и код. Отвечай по-русски, структурированно и не выдумывай факты. Если дан контекст из интернета, отделяй подтверждённое от предположений и указывай ссылки.'},{role:'user',content:(docText?'Документ:\n'+docText+'\n\n':'')+prompt+webContext}];out.innerHTML='<span class="dg-ai-dots" aria-label="DonAI печатает"><i></i><i></i><i></i></span>';const result=await window.dgAskConfiguredAI(messages,{temperature:.25,max_tokens:900});out.textContent=result.text||'Модель не вернула ответ.';}catch(e){out.textContent='DonAI: '+e.message;}}
  // Shared no-key API route used by both DonAI interfaces.
- // DonAI работает локально на устройстве посетителя: никаких API-ключей,
- // аккаунтов, Worker или отправки текста документов стороннему AI-провайдеру.
- const DONAI_LOCAL_MODEL = 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC';
- function setDonAiLocalProgress(message) {
-  const typing = document.getElementById('donaiTypingIndicator');
-  if (typing) typing.textContent = message;
-  const sheet = document.getElementById('aiAnswerContent');
-  const answerSheet = document.getElementById('aiAnswerSheet');
-  if (sheet && answerSheet && answerSheet.classList.contains('show')) sheet.textContent = message;
- }
- window.requestDonAi = async function(messages, options) {
-  const progress = { set textContent(value) { setDonAiLocalProgress(String(value || '')); } };
-  const engine = await ensureLocalAI(progress);
-  const source = Array.isArray(messages) ? messages : [{ role: 'user', content: String(messages || '') }];
-  const normalized = source.map((message, index) => ({
-   role: ['system','user','assistant'].includes(message.role) ? message.role : 'user',
-   content: String(message.content == null ? '' : message.content)
-  }));
-  const systemMessages = normalized.filter(message => message.role === 'system').slice(0, 2);
-  const conversation = normalized.filter(message => message.role !== 'system').slice(-6);
-  const prepared = conversation.map((message, index) => {
-   const limit = index === conversation.length - 1 ? 12000 : 1800;
-   if (message.content.length <= limit) return message;
-   const first = Math.floor(limit * 0.78), last = limit - first;
-   return Object.assign({}, message, {
-    content: message.content.slice(0, first) + '\n\n[Часть длинного сообщения пропущена для ограничения памяти локальной модели]\n\n' + message.content.slice(-last)
-   });
-  });
-  const result = await engine.chat.completions.create({
-   messages: systemMessages.concat(prepared),
-   temperature: Number.isFinite(Number(options && options.temperature)) ? Number(options.temperature) : 0.4,
-   max_tokens: Math.min(1200, Math.max(128, Number(options && options.max_tokens) || 900)),
-   stream: false
-  });
-  const answer = result && result.choices && result.choices[0] && result.choices[0].message && result.choices[0].message.content;
-  if (!answer || !String(answer).trim()) throw new Error('Локальная модель не вернула ответ. Попробуй сократить запрос.');
-  return { text: String(answer).trim(), provider: 'DonAI Local WebGPU', model: DONAI_LOCAL_MODEL };
- };
- window.dgLocalRequestDonAi = window.requestDonAi;
  window.dgAskConfiguredAI=async function(messages,options){
-  return window.requestDonAi(messages,options||{});
+  if(typeof window.requestDonAi==='function')return window.requestDonAi(messages,options||{});
+  throw new Error('Основной модуль DonAI ещё не готов. Перезагрузи приложение.');
  };
  window.addEventListener('online',()=>{badge();if(firebaseConnected)flush();say('Сеть восстановлена, проверяю соединение с сервером…');});window.addEventListener('offline',badge);try{if(typeof db!=='undefined'&&db&&db.ref){db.ref('.info/connected').on('value',snap=>{firebaseConnected=snap.val()===true;if(firebaseConnected)flush().catch(()=>{});badge();});}}catch(e){}
  window.addEventListener('load',()=>{ui();hook();cacheProfile();badge();setInterval(()=>{hook();cacheProfile();if(navigator.onLine)flush();},3000);});
