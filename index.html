@@ -124,6 +124,7 @@ body{background:#1a1a2e;height:100vh;height:100dvh;display:flex;align-items:cent
 .reply-quote .rq-text{opacity:.85;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .message-time{font-size:10px;opacity:.8;margin-top:4px}
 .message{position:relative}
+.message-meta{display:flex;align-items:center;justify-content:flex-end;gap:7px;margin-top:4px}.message-meta .message-time{margin-top:0}.message-speak-btn{border:0;border-radius:50%;width:27px;height:27px;background:rgba(102,126,234,.14);color:#667eea;font-size:15px;cursor:pointer}.message-speak-btn:active{transform:scale(.9)}
 .message-reaction-summary{display:flex;align-items:center;justify-content:center;gap:4px;margin:6px 8px 0;padding:4px 9px;min-height:25px;width:max-content;border-radius:14px;background:rgba(255,255,255,.97);border:1px solid rgba(102,126,234,.24);box-shadow:0 2px 6px rgba(0,0,0,.12);font-size:14px;line-height:1;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
 .message-reaction-summary:active{transform:scale(.92)}
 .message-reaction-count{font-size:11px;font-weight:700;color:#667eea}
@@ -1195,7 +1196,8 @@ function buildMessageEl(m){
     var heartCount=Object.keys(m.reactions||{}).filter(function(uid){return m.reactions[uid]==='❤️';}).length;
     var ownHeart=!!(m.reactions&&m.reactions[currentUser.id]==='❤️');
     var reactionHtml=heartCount?'<button type="button" class="message-reaction-summary'+(ownHeart?' own-reaction':'')+'" data-remove-heart="1" aria-label="Убрать сердечко"><span>❤️</span>'+(heartCount>1?'<span class="message-reaction-count">'+heartCount+'</span>':'')+'</button>':'';
-    div.innerHTML='<div class="swipe-reply-icon"><i class="fas fa-reply"></i></div><div class="message-bubble '+bc+'">'+rq+(!isSent?sH+' ':'')+(stickerHtml|| (m.text?esc(m.text):''))+media+'<div class="message-time">'+formatTime(m.timestamp)+em+'</div></div>'+reactionHtml;
+    var speakBtn=m.text&&!sticker&&!m.mediaType?'<button type="button" class="message-speak-btn" data-speak="'+encodeURIComponent(String(m.text))+'" title="Озвучить">🔊</button>':'';
+    div.innerHTML='<div class="swipe-reply-icon"><i class="fas fa-reply"></i></div><div class="message-bubble '+bc+'">'+rq+(!isSent?sH+' ':'')+(stickerHtml|| (m.text?esc(m.text):''))+media+'<div class="message-meta">'+speakBtn+'<span class="message-time">'+formatTime(m.timestamp)+em+'</span></div></div>'+reactionHtml;
     if((m.mediaType==='photo'||m.mediaType==='video')&&m.mediaUrl){var b=div.querySelector('.message-bubble');var te=b.querySelector('.message-time');b.insertBefore(createLazyMediaEl(m),te);}
     return div;
 }
