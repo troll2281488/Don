@@ -1601,12 +1601,12 @@ async function requestDonAi(messages, options) {
     return { text: String(answer), provider: 'Pollinations', model: models[selectedProfile] || models.daily };
 }
 
-async function processDonAiMessage(isRetry = false) {
+async function processDonAiMessage(isRetry = false, queuedText = null) {
     const input = document.getElementById('donAiInput');
     if (!input) return;
-    const text = isRetry ? input.dataset.lastText : input.value.trim();
+    const text = queuedText || (isRetry ? input.dataset.lastText : input.value.trim());
     if (!text) return;
-    if (donAiState.isBusy && !isRetry) {
+    if (donAiState.isBusy && !isRetry && !queuedText) {
         donAiState.pending.push(text);
         input.value = '';
         try { showToast('⌛ Сообщение добавлено в очередь'); } catch(e) {}
@@ -1663,10 +1663,7 @@ async function processDonAiMessage(isRetry = false) {
         donAiState.isBusy = false;
         if (donAiState.pending.length) {
             const nextMessage = donAiState.pending.shift();
-            setTimeout(() => {
-                const nextInput = document.getElementById('donAiInput');
-                if (nextInput) { nextInput.value = nextMessage; processDonAiMessage(false); }
-            }, 250);
+            processDonAiMessage(false, nextMessage);
         }
     }
 }
@@ -2098,6 +2095,6 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
 })();
 </script>
 
-  <script src="./offline-ai.js?v=20261031-donai-chat-profiles-v7"></script>
+  <script src="./offline-ai.js?v=20261031-donai-chat-profiles-v8"></script>
 </body>
 </html>
