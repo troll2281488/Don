@@ -854,7 +854,7 @@ button,input,textarea,select{touch-action:manipulation}
 <select id="dgProvider" style="display:none"><option value="https://text.pollinations.ai/openai">Pollinations</option></select>
 <select id="dgModel" style="display:none"><option value="openai">DonAI</option></select>
 <input id="dgKey" type="password" style="display:none" value="">
-</div><div style="margin-bottom:16px;padding:12px;border:1px solid #e8edf2;border-radius:12px">            <label for="aiModelProfile" style="font-size:13px;color:#333;font-weight:700">Модель DonAI</label>
+</div><details style="margin:0 0 16px;border:1px solid #e8e4f5;border-radius:12px;padding:11px 12px;background:#faf9ff"><summary style="cursor:pointer;font-size:13px;font-weight:700;color:#6650a4">📖 Мини-справочник DonAI · 20 команд</summary><div style="font-size:12px;line-height:1.65;color:#45445a;margin-top:10px"><b>Быстрые команды</b><br><code>/help</code> — справка<br><code>/time</code> — время<br><code>/date</code> — дата<br><code>/calc 2+2*3</code> — калькулятор<br><code>/coin</code> — монетка<br><code>/dice 20</code> — кубик<br><code>/choose чай | кофе</code> — выбор<br><code>/password 20</code> — пароль<br><code>/uuid</code> — UUID<br><code>/color</code> — HEX-цвет<br><b>Таймеры и история</b><br><code>/timer 5m</code> — таймер<br><code>/remind 10m вода</code> — напоминание<br><code>/focus 25m</code> — фокус-сессия<br><code>/clear</code> — очистить историю<br><code>/export</code> — скачать историю<br><code>/stats</code> — статистика<br><b>Текстовые инструменты</b><br><code>/copy текст</code> — скопировать<br><code>/reverse текст</code> — перевернуть<br><code>/upper текст</code> — верхний регистр<br><code>/lower текст</code> — нижний регистр<br><small style="display:block;color:#777;margin-top:8px">Время: s — секунды, m — минуты, h — часы. Команды вводятся прямо в чат DonAI. Таймеры работают, пока страница открыта.</small></div></details><div style="margin-bottom:16px;padding:12px;border:1px solid #e8edf2;border-radius:12px">            <label for="aiModelProfile" style="font-size:13px;color:#333;font-weight:700">Модель DonAI</label>
             <select id="aiModelProfile" style="width:100%;padding:10px;border-radius:8px;border:1px solid #e8edf2;margin-top:6px">
                 <option value="code">💻 DonAI Code 3.1 — программирование</option>
                 <option value="smart">🧠 DonAI Pro 3.1 — сложные и обычные задачи</option>
@@ -1882,6 +1882,56 @@ document.addEventListener('DOMContentLoaded', function() {
         fileInput.value = '';
     });
 });
+function parseDonAiDuration(value){
+ var m=String(value||'').trim().match(/^(\d+(?:\.\d+)?)\s*(s|сек|секунд|m|min|м|мин|h|ч)?$/i);
+ if(!m)return null;var n=Number(m[1]),u=(m[2]||'m').toLowerCase();
+ var mult=/^(s|сек|секунд)$/.test(u)?1000:/^(h|ч)$/.test(u)?3600000:60000;
+ return Math.max(1000,Math.min(86400000,n*mult));
+}
+function donAiCommandNotify(message){
+ showToast(message);
+ if('Notification' in window&&Notification.permission==='granted'){try{new Notification('DonAI',{body:message});}catch(e){}}
+}
+async function processDonAiUtilityCommand(raw){
+ var input=String(raw||'').trim(),m=input.match(/^\/([a-z]+)(?:\s+([\s\S]*))?$/i);
+ if(!m)return false;
+ var cmd=m[1].toLowerCase(),arg=(m[2]||'').trim();
+ var known=['help','time','date','calc','coin','dice','choose','password','uuid','color','timer','remind','focus','clear','export','stats','copy','reverse','upper','lower'];
+ if(known.indexOf(cmd)<0)return false;
+ if(donAiState.isBusy)return true;
+ addDonAiMessage('user',input);
+ var answer='';
+ try{switch(cmd){
+ case 'help':answer='📚 20 команд DonAI:\n/time — время\n/date — дата\n/calc 2+2*3 — калькулятор\n/coin — монетка\n/dice 20 — кубик\n/choose чай | кофе — выбор\n/password 20 — пароль\n/uuid — UUID\n/color — HEX-цвет\n/timer 5m — таймер\n/remind 10m вода — напоминание\n/focus 25m — фокус\n/clear — очистить историю\n/export — скачать историю\n/stats — статистика\n/copy текст — копировать\n/reverse текст — перевернуть\n/upper текст — верхний регистр\n/lower текст — нижний регистр\n/help — справка.\nВремя: s — секунды, m — минуты, h — часы.';break;
+ case 'time':answer='🕒 Сейчас '+new Date().toLocaleTimeString();break;
+ case 'date':answer='📅 '+new Date().toLocaleDateString(undefined,{weekday:'long',year:'numeric',month:'long',day:'numeric'});break;
+ case 'calc':
+  if(!arg){answer='Пример: /calc (15 + 5) * 2';break;}
+  if(!/^[0-9+\-*/().,%\s^]+$/.test(arg)){answer='⚠️ Разрешены только числа и математические знаки.';break;}
+  try{var expr=arg.replace(/\^/g,'**').replace(/(\d+(?:\.\d+)?)%/g,'($1/100)'),val=Function('"use strict";return ('+expr+')')();answer=Number.isFinite(val)?'🧮 '+arg+' = '+val:'Не удалось вычислить.';}catch(e){answer='Проверь выражение.';}break;
+ case 'coin':answer='🪙 Выпало: '+(Math.random()<.5?'Орёл':'Решка')+'!';break;
+ case 'dice':var sides=Math.max(2,Math.min(1000,Math.floor(Number(arg)||6)));answer='🎲 Выпало '+(1+Math.floor(Math.random()*sides))+' из '+sides+'.';break;
+ case 'choose':var opts=arg.split(/\s*\|\s*|\s*,\s*/).map(x=>x.trim()).filter(Boolean);answer=opts.length<2?'Пример: /choose пицца | суши':'🎯 Выбираю: '+opts[Math.floor(Math.random()*opts.length)];break;
+ case 'password':var len=Math.max(8,Math.min(64,Math.floor(Number(arg)||16))),chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%&*_-',bytes=new Uint32Array(len);crypto.getRandomValues(bytes);answer='🔐 Пароль ('+len+'):\n'+Array.from(bytes,b=>chars[b%chars.length]).join('');break;
+ case 'uuid':answer='🆔 '+(crypto.randomUUID?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{var r=Math.random()*16|0;return(c==='x'?r:(r&3|8)).toString(16);}));break;
+ case 'color':answer='🎨 Случайный цвет: #'+Math.floor(Math.random()*16777215).toString(16).padStart(6,'0').toUpperCase();break;
+ case 'timer':case 'remind':case 'focus':
+  var parts=arg.match(/^(\S+)?\s*([\s\S]*)$/),dur=cmd==='focus'&&!arg?1500000:parseDonAiDuration(parts&&parts[1]);
+  if(!dur){answer='Пример: /'+cmd+' 5m'+(cmd==='remind'?' выпить воды':'');break;}
+  var note=cmd==='remind'?(parts[2]||'Пора!'):cmd==='focus'?'🧠 Фокус-сессия завершена. Сделай перерыв!':'⏰ Время вышло!';
+  setTimeout(function(){donAiCommandNotify(note);},dur);
+  answer=(cmd==='focus'?'🧠 Фокус включён на ':cmd==='remind'?'🔔 Напоминание через ':'⏱ Таймер запущен на ')+(dur>=3600000?dur/3600000+' ч':dur>=60000?dur/60000+' мин':dur/1000+' сек')+'. Не закрывай страницу.';break;
+ case 'clear':donAiState.history=[];localStorage.removeItem('donai_history');renderDonAiHistory();answer='🧹 История очищена.';break;
+ case 'export':var content=(donAiState.history||[]).map(x=>(x.role==='user'?'Ты':'DonAI')+': '+x.text).join('\n'),blob=new Blob([content],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='donai-history-'+new Date().toISOString().slice(0,10)+'.txt';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);answer='📥 История подготовлена к скачиванию.';break;
+ case 'stats':var hist=donAiState.history||[];answer='📊 Сообщений: '+hist.length+'\nТвоих: '+hist.filter(x=>x.role==='user').length+'\nОтветов DonAI: '+hist.filter(x=>x.role!=='user').length;break;
+ case 'copy':if(!arg){answer='Пример: /copy мой текст';break;}if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(arg);else{var ta=document.createElement('textarea');ta.value=arg;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();}answer='📋 Скопировано.';break;
+ case 'reverse':answer=arg?Array.from(arg).reverse().join(''):'Пример: /reverse привет';break;
+ case 'upper':answer=arg?arg.toLocaleUpperCase():'Пример: /upper привет';break;
+ case 'lower':answer=arg?arg.toLocaleLowerCase():'Пример: /lower ПРИВЕТ';break;
+ }}catch(error){answer='⚠️ '+(error.message||'Команда не выполнена.');}
+ addDonAiMessage('ai',answer);return true;
+}
+
 async function processDonAiMediaCommand(command) {
     const input = document.getElementById('donAiInput');
     const raw = (command || '').trim();
@@ -1931,6 +1981,7 @@ async function processDonAiMessage(isRetry = false, queuedText = null) {
     const typedText = queuedText || (isRetry ? input.dataset.lastText : input.value.trim());
     const text = [typedText, (!queuedText && donAiAttachedFileText ? 'Содержимое файла "' + donAiAttachedFileName + '":\n' + donAiAttachedFileText : '')].filter(Boolean).join('\n\n');
     if (!text) return;
+    if (!isRetry && !queuedText && await processDonAiUtilityCommand(typedText)) { input.value=''; return; }
     if (donAiState.isBusy && !isRetry && !queuedText) {
         try { showToast('⌛ DonAI ещё отвечает. Дождись завершения ответа.'); } catch(e) {}
         return;
