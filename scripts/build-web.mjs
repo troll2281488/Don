@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 
 const root = process.cwd();
 const out = path.join(root, 'www');
@@ -28,8 +29,8 @@ html = html.replace(
 
 fs.writeFileSync(path.join(out, 'index.html'), html);
 const copy = (from, to) => fs.copyFileSync(path.join(root, from), path.join(out, to));
-copy('node_modules/firebase/compat/firebase-app.js', 'vendor/firebase/firebase-app-compat.js');
-copy('node_modules/firebase/compat/firebase-database.js', 'vendor/firebase/firebase-database-compat.js');
+execFileSync('curl', ['-fsSL', 'https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js', '-o', path.join(out, 'vendor/firebase/firebase-app-compat.js')]);
+execFileSync('curl', ['-fsSL', 'https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js', '-o', path.join(out, 'vendor/firebase/firebase-database-compat.js')]);
 copy('node_modules/leaflet/dist/leaflet.js', 'vendor/leaflet/leaflet.js');
 copy('node_modules/leaflet/dist/leaflet.css', 'vendor/leaflet/leaflet.css');
 fs.cpSync(path.join(root, 'node_modules/leaflet/dist/images'), path.join(out, 'vendor/leaflet/images'), { recursive: true });
