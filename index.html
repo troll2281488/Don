@@ -2066,7 +2066,7 @@ function typeWriterDonAiMessage(role, fullText) {
         div.style.whiteSpace = 'pre-wrap';
         
         let i = 0;
-        const speed = 0;
+        const speed = Math.max(0, Number(aiSettings.typingSpeed) || 15);
         
         function type() {
             if (i < fullText.length) {
