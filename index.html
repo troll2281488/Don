@@ -123,10 +123,10 @@ body{background:#1a1a2e;height:100vh;height:100dvh;display:flex;align-items:cent
 .reply-quote .rq-name{font-weight:700;margin-bottom:2px;font-size:11px;opacity:.9}
 .reply-quote .rq-text{opacity:.85;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .message-time{font-size:10px;opacity:.8;margin-top:4px}
-.message-reactions{display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin:3px 4px 0;max-width:80%;}
-.message-sent .message-reactions{justify-content:flex-end;margin-left:auto}
-.reaction-chip{border:1px solid rgba(102,126,234,.16);background:#fff;border-radius:14px;padding:3px 7px;font-size:12px;line-height:1.2;min-height:25px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.06);transition:transform .12s,background .12s,border-color .12s}
-.reaction-chip:active{transform:scale(.9)}.reaction-chip.active{background:#e9edff;border-color:#667eea}.reaction-chip span{font-size:10px;color:#667eea;font-weight:800;margin-left:2px}
+.message{position:relative}
+.message-heart-pop{position:absolute;z-index:30;left:50%;top:38%;font-size:76px;line-height:1;pointer-events:none;filter:drop-shadow(0 5px 10px rgba(0,0,0,.25));transform:translate(-50%,-50%) scale(.25);animation:messageHeartBurst .78s cubic-bezier(.18,.8,.25,1) forwards}
+@keyframes messageHeartBurst{0%{opacity:0;transform:translate(-50%,-35%) scale(.2) rotate(-18deg)}28%{opacity:1;transform:translate(-50%,-55%) scale(1.22) rotate(8deg)}55%{opacity:1;transform:translate(-50%,-50%) scale(.96) rotate(-4deg)}100%{opacity:0;transform:translate(-50%,-95%) scale(1.12) rotate(5deg)}}
+@media(prefers-reduced-motion:reduce){.message-heart-pop{animation:none;opacity:1;transform:translate(-50%,-50%)}}
 .edited-mark{font-size:10px;opacity:.75;font-style:italic}
 .reply-bar{display:none;align-items:center;gap:10px;padding:10px 16px;background:#f0f4ff;border-top:1px solid #d0e0ff;font-size:13px}
 .reply-bar.show{display:flex}
@@ -1188,9 +1188,7 @@ function buildMessageEl(m){
     var sH=t2?'<span class="crown-icon">👑</span><b class="'+cls+'">'+esc(senderName)+'</b>':'<b>'+esc(senderName)+'</b>';
     var rq='';if(m.replyTo){rq='<div class="reply-quote"><div class="rq-name">'+esc(m.replyTo.senderName||'?')+'</div><div class="rq-text">'+esc(m.replyTo.text||'')+'</div></div>';}
     var sticker=m.stickerId&&window.DG_STICKERS&&window.DG_STICKERS[m.stickerId]?window.DG_STICKERS[m.stickerId]:null;var stickerHtml=sticker?'<div class="dg-sticker dg-sticker-'+sticker.id+'" aria-label="'+sticker.label+'"><div class="dg-sticker-art">'+sticker.emoji+'</div></div>':'';
-    var reactionCounts={};Object.keys(m.reactions||{}).forEach(function(uid){var emoji=m.reactions[uid];if(emoji)reactionCounts[emoji]=(reactionCounts[emoji]||0)+1;});
-    var reactionHtml='<div class="message-reactions">'+['👍','❤️','😂','😮','🔥'].map(function(emoji){var count=reactionCounts[emoji]||0;var active=(m.reactions||{})[currentUser.id]===emoji;return '<button type="button" class="reaction-chip'+(active?' active':'')+'" data-reaction="'+emoji+'" aria-label="Реакция '+emoji+'">'+emoji+(count?' <span>'+count+'</span>':'')+'</button>';}).join('')+'</div>';
-    div.innerHTML='<div class="swipe-reply-icon"><i class="fas fa-reply"></i></div><div class="message-bubble '+bc+'">'+rq+(!isSent?sH+' ':'')+(stickerHtml|| (m.text?esc(m.text):''))+media+'<div class="message-time">'+formatTime(m.timestamp)+em+'</div></div>'+reactionHtml;
+    div.innerHTML='<div class="swipe-reply-icon"><i class="fas fa-reply"></i></div><div class="message-bubble '+bc+'">'+rq+(!isSent?sH+' ':'')+(stickerHtml|| (m.text?esc(m.text):''))+media+'<div class="message-time">'+formatTime(m.timestamp)+em+'</div></div>';
     if((m.mediaType==='photo'||m.mediaType==='video')&&m.mediaUrl){var b=div.querySelector('.message-bubble');var te=b.querySelector('.message-time');b.insertBefore(createLazyMediaEl(m),te);}
     return div;
 }
@@ -1201,14 +1199,26 @@ document.addEventListener('click',function(e){
     var img=e.target.closest('img[data-img]');if(img){e.preventDefault();viewImage(img.dataset.img||img.src);return;}
 },true);
 
-document.addEventListener('click',function(e){
- var chip=e.target.closest('.reaction-chip');if(!chip)return;e.preventDefault();e.stopPropagation();
- if(!currentUser||!currentChat)return;var row=chip.closest('.message');var mid=row&&row.dataset.msgid;if(!mid)return;
- var emoji=chip.dataset.reaction;var ref=db.ref('messages/'+currentChat+'/'+mid+'/reactions/'+currentUser.id);
- var msg=(messageCache[currentChat]||{})[mid];if(!msg)return;var old=(msg.reactions||{})[currentUser.id];
- var next=old===emoji?null:emoji;
- var write=next?ref.set(next):ref.remove();
- write.then(function(){if(!msg.reactions)msg.reactions={};if(next)msg.reactions[currentUser.id]=next;else delete msg.reactions[currentUser.id];var fresh=buildMessageEl(Object.assign({id:mid},msg));row.replaceWith(fresh);}).catch(function(){showToast('Не удалось поставить реакцию');});
+function addHeartReaction(row){
+ if(!row||!currentUser||!currentChat)return;var mid=row.dataset.msgid;if(!mid)return;
+ var msg=(messageCache[currentChat]||{})[mid];if(!msg)return;
+ db.ref('messages/'+currentChat+'/'+mid+'/reactions/'+currentUser.id).set('❤️').then(function(){
+  if(!msg.reactions)msg.reactions={};msg.reactions[currentUser.id]='❤️';
+  var old=row.querySelector('.message-heart-pop');if(old)old.remove();
+  var heart=document.createElement('span');heart.className='message-heart-pop';heart.textContent='❤️';row.appendChild(heart);
+  setTimeout(function(){if(heart.parentNode)heart.remove();},850);
+ }).catch(function(){showToast('Не удалось поставить реакцию');});
+}
+var lastMessageTap={id:null,time:0};
+document.addEventListener('touchend',function(e){
+ var row=e.target.closest&&e.target.closest('.message');if(!row||e.target.closest('button,a,input,video,audio')){lastMessageTap={id:null,time:0};return;}
+ var now=Date.now(),id=row.dataset.msgid;
+ if(lastMessageTap.id===id&&now-lastMessageTap.time<380){e.preventDefault();lastMessageTap={id:null,time:0};addHeartReaction(row);}
+ else{lastMessageTap={id:id,time:now};}
+},{capture:true,passive:false});
+document.addEventListener('dblclick',function(e){
+ var row=e.target.closest&&e.target.closest('.message');if(!row||e.target.closest('button,a,input,video,audio'))return;
+ e.preventDefault();addHeartReaction(row);
 },true);
 
 function openMsgActionSheet(msgId){
