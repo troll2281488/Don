@@ -486,6 +486,7 @@ input:checked+.slider:before{transform:translateX(26px)}
 .donai-message-actions{display:flex;gap:8px;margin-top:10px;padding-top:8px;border-top:1px solid rgba(120,100,180,.12)}
 .donai-message-actions button{border:0;background:#f0edff;color:#5b50a5;border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer}
 .donai-message-actions button:active{transform:scale(.97)}
+.donai-message-actions .donai-speak-btn{width:30px;height:28px;padding:0;font-size:15px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center}
 #donAiMessages{scrollbar-width:thin}
 #donAiMessages::-webkit-scrollbar{width:6px}
 #donAiMessages::-webkit-scrollbar-thumb{background:#c9c2e8;border-radius:8px}
@@ -694,7 +695,7 @@ button,input,textarea,select{touch-action:manipulation}
 <div id="aiAnswerSheet">
     <div class="ai-answer-header">
         <div class="donai-avatar" style="width:32px;height:32px;font-size:16px">✨</div>
-        <h3>Ответ от DonAI</h3><button type="button" id="donAiSpeakAnswer" title="Озвучить ответ" style="margin-left:auto;margin-right:8px;border:0;border-radius:50%;width:34px;height:34px;background:#f0edff;color:#8b5cf6;font-size:17px">🔊</button>
+        <h3>Ответ от DonAI</h3>
         <button type="button" onclick="closeAiAnswerSheet()" style="background:none;border:none;font-size:24px;color:#8e98a3;cursor:pointer;padding:0 8px;">&times;</button>
     </div>
     <div id="aiAnswerContent" class="ai-answer-content"></div>
@@ -1209,10 +1210,6 @@ function speakDonorText(value){
  var voices=window.speechSynthesis.getVoices();var voice=voices.find(function(v){return /^ru/i.test(v.lang);});if(voice)utter.voice=voice;
  utter.onerror=function(){dgSpeechActive=false;};utter.onend=function(){dgSpeechActive=false;};dgSpeechActive=true;window.speechSynthesis.speak(utter);
 }
-document.addEventListener('click',function(e){
- var aiBtn=e.target.closest&&e.target.closest('#donAiSpeakAnswer');if(!aiBtn)return;
- e.preventDefault();e.stopPropagation();var content=document.getElementById('aiAnswerContent');if(content)speakDonorText(content.innerText||content.textContent||'');
-},true);
 window.addEventListener('pagehide',function(){try{window.speechSynthesis.cancel();}catch(_){}});
 document.addEventListener('click',function(e){
     var pb=e.target.closest('.audio-play-btn');
@@ -1693,6 +1690,22 @@ function addDonAiMessageActions(messageEl, messageText) {
         } catch(e) { showToast('Не удалось скопировать сообщение'); }
     });
     bar.appendChild(copy);
+
+    // Маленькая кнопка озвучки только у ответов DonAI.
+    if (messageEl.classList.contains('donai-msg-ai')) {
+        const speak = document.createElement('button');
+        speak.type = 'button';
+        speak.className = 'donai-speak-btn';
+        speak.title = 'Озвучить ответ';
+        speak.setAttribute('aria-label', 'Озвучить ответ');
+        speak.textContent = '🔊';
+        speak.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            speakDonorText(messageText);
+        });
+        bar.appendChild(speak);
+    }
 
     // Для HTML-ответов добавляем отдельное скачивание готовой страницы.
     const htmlMatch = String(messageText).match(/```(?:html|htm)?\s*([\s\S]*?)```/i);
