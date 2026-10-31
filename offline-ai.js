@@ -99,5 +99,5 @@ async function ask(prompt){let p=document.getElementById('dgAIPanel'),out=p.quer
   throw new Error('Основной модуль DonAI ещё не готов. Перезагрузи приложение.');
  };
  window.addEventListener('online',()=>{badge();if(firebaseConnected)flush();say('Сеть восстановлена, проверяю соединение с сервером…');});window.addEventListener('offline',badge);try{if(typeof db!=='undefined'&&db&&db.ref){db.ref('.info/connected').on('value',snap=>{firebaseConnected=snap.val()===true;if(firebaseConnected)flush().catch(()=>{});badge();});}}catch(e){}
- window.addEventListener('load',()=>{ui();hook();cacheProfile();badge();setInterval(()=>{hook();cacheProfile();if(navigator.onLine)flush();},3000);});
+ window.addEventListener('load',()=>{ui();hook();cacheProfile();badge();});
 })();
