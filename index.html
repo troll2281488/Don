@@ -124,6 +124,9 @@ body{background:#1a1a2e;height:100vh;height:100dvh;display:flex;align-items:cent
 .reply-quote .rq-text{opacity:.85;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .message-time{font-size:10px;opacity:.8;margin-top:4px}
 .message{position:relative}
+.message-reaction-summary{display:inline-flex;align-items:center;gap:3px;margin:3px 8px 0;padding:3px 8px;min-height:23px;border-radius:13px;background:rgba(255,255,255,.96);border:1px solid rgba(102,126,234,.2);box-shadow:0 2px 6px rgba(0,0,0,.1);font-size:13px;line-height:1}
+.message-reaction-count{font-size:11px;font-weight:700;color:#667eea}
+.message-sent .message-reaction-summary{margin-left:auto;margin-right:8px}
 .message-heart-pop{position:absolute;z-index:30;left:50%;top:38%;font-size:76px;line-height:1;pointer-events:none;filter:drop-shadow(0 5px 10px rgba(0,0,0,.25));transform:translate(-50%,-50%) scale(.25);animation:messageHeartBurst .78s cubic-bezier(.18,.8,.25,1) forwards}
 @keyframes messageHeartBurst{0%{opacity:0;transform:translate(-50%,-35%) scale(.2) rotate(-18deg)}28%{opacity:1;transform:translate(-50%,-55%) scale(1.22) rotate(8deg)}55%{opacity:1;transform:translate(-50%,-50%) scale(.96) rotate(-4deg)}100%{opacity:0;transform:translate(-50%,-95%) scale(1.12) rotate(5deg)}}
 @media(prefers-reduced-motion:reduce){.message-heart-pop{animation:none;opacity:1;transform:translate(-50%,-50%)}}
@@ -1188,7 +1191,9 @@ function buildMessageEl(m){
     var sH=t2?'<span class="crown-icon">👑</span><b class="'+cls+'">'+esc(senderName)+'</b>':'<b>'+esc(senderName)+'</b>';
     var rq='';if(m.replyTo){rq='<div class="reply-quote"><div class="rq-name">'+esc(m.replyTo.senderName||'?')+'</div><div class="rq-text">'+esc(m.replyTo.text||'')+'</div></div>';}
     var sticker=m.stickerId&&window.DG_STICKERS&&window.DG_STICKERS[m.stickerId]?window.DG_STICKERS[m.stickerId]:null;var stickerHtml=sticker?'<div class="dg-sticker dg-sticker-'+sticker.id+'" aria-label="'+sticker.label+'"><div class="dg-sticker-art">'+sticker.emoji+'</div></div>':'';
-    div.innerHTML='<div class="swipe-reply-icon"><i class="fas fa-reply"></i></div><div class="message-bubble '+bc+'">'+rq+(!isSent?sH+' ':'')+(stickerHtml|| (m.text?esc(m.text):''))+media+'<div class="message-time">'+formatTime(m.timestamp)+em+'</div></div>';
+    var heartCount=Object.keys(m.reactions||{}).filter(function(uid){return m.reactions[uid]==='❤️';}).length;
+    var reactionHtml=heartCount?'<div class="message-reaction-summary"><span>❤️</span>'+(heartCount>1?'<span class="message-reaction-count">'+heartCount+'</span>':'')+'</div>':'';
+    div.innerHTML='<div class="swipe-reply-icon"><i class="fas fa-reply"></i></div><div class="message-bubble '+bc+'">'+rq+(!isSent?sH+' ':'')+(stickerHtml|| (m.text?esc(m.text):''))+media+'<div class="message-time">'+formatTime(m.timestamp)+em+'</div></div>'+reactionHtml;
     if((m.mediaType==='photo'||m.mediaType==='video')&&m.mediaUrl){var b=div.querySelector('.message-bubble');var te=b.querySelector('.message-time');b.insertBefore(createLazyMediaEl(m),te);}
     return div;
 }
