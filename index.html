@@ -965,9 +965,12 @@ button,input,textarea,select{touch-action:manipulation}
     </div>
 
     <div class="donai-input-area">
+        <button type="button" id="donAiAttachBtn" class="donai-send-btn" title="Прикрепить файл" aria-label="Прикрепить файл"><i class="fas fa-paperclip"></i></button>
+        <input type="file" id="donAiFileInput" accept=".txt,.md,.js,.ts,.jsx,.tsx,.py,.html,.css,.json,.csv,.xml,.yml,.yaml,.log,.pdf,.docx" style="display:none">
         <input type="text" id="donAiInput" placeholder="Спросите DonAI...">
         <button id="donAiSendBtn" class="donai-send-btn"><i class="fas fa-paper-plane"></i></button>
     </div>
+    <div id="donAiFileStatus" style="display:none;padding:0 16px 8px;font-size:12px;color:#6366f1"></div>
     <div style="font-size:10px;opacity:.68;padding:0 12px 8px;text-align:center">ИИ: использует модель, выбранную в настройках DonAI.</div>
 </div>
 
@@ -1632,20 +1635,82 @@ async function requestDonAi(messages, options) {
     return { text: String(answer), provider: 'Pollinations', model: models[selectedProfile] || models.daily };
 }
 
+let donAiAttachedFileText = '';
+let donAiAttachedFileName = '';
+const DONAI_FILE_LIMIT = 300 * 1024;
+async function donAiLoadScript(src, globalName) {
+    if (window[globalName]) return;
+    await new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src; script.onload = resolve; script.onerror = () => reject(new Error('Не удалось загрузить обработчик файла'));
+        document.head.appendChild(script);
+    });
+}
+async function extractDonAiFile(file) {
+    if (file.size > DONAI_FILE_LIMIT) throw new Error('Файл больше 300 КБ. Выбери файл поменьше.');
+    const ext = (file.name.split('.').pop() || '').toLowerCase();
+    if (['txt','md','js','ts','jsx','tsx','py','html','css','json','csv','xml','yml','yaml','log'].includes(ext)) return await file.text();
+    if (ext === 'docx') {
+        await donAiLoadScript('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js', 'JSZip');
+        const zip = await JSZip.loadAsync(file), entry = zip.file('word/document.xml');
+        if (!entry) throw new Error('В DOCX не найден текст документа');
+        const xml = await entry.async('string'), doc = new DOMParser().parseFromString(xml, 'text/xml');
+        return Array.from(doc.getElementsByTagName('w:t')).map(n => n.textContent).join(' ');
+    }
+    if (ext === 'pdf') {
+        await donAiLoadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js', 'pdfjsLib');
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        const pdf = await pdfjsLib.getDocument({data: await file.arrayBuffer()}).promise;
+        let result = '';
+        for (let pageNo = 1; pageNo <= pdf.numPages; pageNo++) {
+            const page = await pdf.getPage(pageNo), content = await page.getTextContent();
+            result += '\n[Страница ' + pageNo + ']\n' + content.items.map(x => x.str).join(' ');
+            if (result.length > 100000) break;
+        }
+        if (!result.trim()) throw new Error('В PDF не найден текст (возможно, это скан)');
+        return result;
+    }
+    throw new Error('Формат не поддерживается. Используй TXT, PDF, DOCX или файл с кодом.');
+}
+document.addEventListener('DOMContentLoaded', function() {
+    const attach = document.getElementById('donAiAttachBtn'), fileInput = document.getElementById('donAiFileInput');
+    const status = document.getElementById('donAiFileStatus');
+    if (!attach || !fileInput || !status) return;
+    attach.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', async () => {
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) return;
+        status.style.display = 'block'; status.textContent = '📎 Читаю ' + file.name + '…';
+        try {
+            donAiAttachedFileText = await extractDonAiFile(file); donAiAttachedFileName = file.name;
+            status.textContent = '📎 ' + file.name + ' · ' + Math.max(1, Math.round(file.size / 1024)) + ' КБ · текст прочитан';
+        } catch (error) {
+            donAiAttachedFileText = ''; donAiAttachedFileName = ''; status.textContent = '⚠️ ' + error.message;
+        }
+        fileInput.value = '';
+    });
+});
 async function processDonAiMessage(isRetry = false, queuedText = null) {
     const input = document.getElementById('donAiInput');
     if (!input) return;
-    const text = queuedText || (isRetry ? input.dataset.lastText : input.value.trim());
+    const typedText = queuedText || (isRetry ? input.dataset.lastText : input.value.trim());
+    const text = [typedText, (!queuedText && donAiAttachedFileText ? 'Содержимое файла "' + donAiAttachedFileName + '":\n' + donAiAttachedFileText : '')].filter(Boolean).join('\n\n');
     if (!text) return;
     if (donAiState.isBusy && !isRetry && !queuedText) {
-        donAiState.pending.push(text);
-        input.value = '';
-        try { showToast('⌛ Сообщение добавлено в очередь'); } catch(e) {}
+        try { showToast('⌛ DonAI ещё отвечает. Дождись завершения ответа.'); } catch(e) {}
+        return;
+    }
+    const nextAllowedAt = Number(localStorage.getItem('donai_next_request_at') || 0);
+    if (!isRetry && Date.now() < nextAllowedAt) {
+        const seconds = Math.ceil((nextAllowedAt - Date.now()) / 1000);
+        try { showToast('⏳ Следующий запрос можно отправить через ' + seconds + ' сек.'); } catch(e) {}
         return;
     }
 
     donAiState.isBusy = true;
+    if (!isRetry) localStorage.setItem('donai_next_request_at', String(Date.now() + 30000));
     if (!isRetry) {
+        if (donAiAttachedFileText) { donAiAttachedFileText = ''; donAiAttachedFileName = ''; const status = document.getElementById('donAiFileStatus'); if (status) { status.textContent = ''; status.style.display = 'none'; } }
         addDonAiMessage('user', text);
         input.dataset.lastText = text;
         if (!queuedText) input.value = '';
@@ -1667,6 +1732,7 @@ async function processDonAiMessage(isRetry = false, queuedText = null) {
         systemContent += userAsksInRussian
             ? '\n\nОтвечай полностью на русском языке.'
             : '\n\nОтвечай на том же языке, что и пользователь.';
+        systemContent += '\n\nПиши простым, понятным языком. Сначала дай прямой ответ, не растягивай его без необходимости. Используй короткие абзацы и списки, когда это помогает. Добавляй уместные эмодзи иногда, но не в каждом предложении.';
         const historySlice = donAiState.history.slice(-11, -1).map(msg => ({
             role: msg.role === 'user' ? 'user' : 'assistant',
             content: msg.text
@@ -1710,13 +1776,13 @@ function typeWriterDonAiMessage(role, fullText) {
         div.style.whiteSpace = 'pre-wrap';
         
         let i = 0;
-        const speed = 2;
+        const speed = 0;
         
         function type() {
             if (i < fullText.length) {
-                let chunk = fullText.substring(i, i + 24);
+                let chunk = fullText.substring(i, i + 120);
                 div.textContent += chunk;
-                i += 24;
+                i += 120;
                 if (container.scrollHeight - container.scrollTop - container.clientHeight < 120) container.scrollTop = container.scrollHeight;
                 setTimeout(type, speed);
             } else {
