@@ -1825,8 +1825,8 @@ document.addEventListener('DOMContentLoaded', function() {
 async function processDonAiMediaCommand(command) {
     const input = document.getElementById('donAiInput');
     const raw = (command || '').trim();
-    if (!/^\\/(image|speak|transcribe)\\b/i.test(raw)) return false;
-    const match = raw.match(/^\\/(image|speak|transcribe)\\s*([\\s\\S]*)$/i);
+    if (!/^\/(image|speak|transcribe)\b/i.test(raw)) return false;
+    const match = raw.match(/^\/(image|speak|transcribe)\s*([\s\S]*)$/i);
     const action = match[1].toLowerCase(), argument = (match[2] || '').trim();
     if (action === 'transcribe' && !donAiAttachedAudioFile) {
         addDonAiMessage('ai', 'Прикрепи аудиофайл кнопкой скрепки, затем отправь /transcribe.');
