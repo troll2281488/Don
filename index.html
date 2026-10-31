@@ -1202,6 +1202,21 @@ function buildMessageEl(m){
     return div;
 }
 
+var dgSpeakingButton=null;
+document.addEventListener('click',function(e){
+ var btn=e.target.closest&&e.target.closest('.message-speak-btn');if(!btn)return;
+ e.preventDefault();e.stopPropagation();
+ if(!window.speechSynthesis||!window.SpeechSynthesisUtterance){showToast('Озвучка не поддерживается браузером');return;}
+ if(window.speechSynthesis.speaking&&dgSpeakingButton===btn){window.speechSynthesis.cancel();btn.textContent='🔊';dgSpeakingButton=null;return;}
+ window.speechSynthesis.cancel();document.querySelectorAll('.message-speak-btn').forEach(function(x){x.textContent='🔊';});
+ var value='';try{value=decodeURIComponent(btn.getAttribute('data-speak')||'');}catch(_){value=btn.getAttribute('data-speak')||'';}
+ if(!value.trim())return;
+ var utter=new SpeechSynthesisUtterance(value);utter.lang=/[А-Яа-яЁё]/.test(value)?'ru-RU':'en-US';utter.rate=1;
+ var voices=window.speechSynthesis.getVoices();var voice=voices.find(function(v){return /^ru/i.test(v.lang);});if(voice)utter.voice=voice;
+ utter.onstart=function(){btn.textContent='⏹';dgSpeakingButton=btn;};
+ utter.onend=utter.onerror=function(){btn.textContent='🔊';if(dgSpeakingButton===btn)dgSpeakingButton=null;};
+ window.speechSynthesis.speak(utter);
+},true);
 document.addEventListener('click',function(e){
     var pb=e.target.closest('.audio-play-btn');
     if(pb){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();var wrapper=pb.closest('.audio-msg-wrapper');if(!wrapper)return;var audio=wrapper.querySelector('audio');if(!audio){var src=pb.dataset.audio;if(!src)return;audio=document.createElement('audio');audio.src=src;audio.preload='metadata';audio.style.display='none';wrapper.appendChild(audio);}if(audio.paused){document.querySelectorAll('audio').forEach(function(a){if(a!==audio){try{a.pause();}catch(_e){}}});document.querySelectorAll('.audio-play-btn').forEach(function(b){if(b!==pb)b.innerHTML='<i class="fas fa-play"></i>';});var p=audio.play();if(p&&p.then){p.then(function(){pb.innerHTML='<i class="fas fa-pause"></i>';}).catch(function(){showToast('❌');});}else{pb.innerHTML='<i class="fas fa-pause"></i>';}audio.onended=function(){pb.innerHTML='<i class="fas fa-play"></i>';};}else{audio.pause();pb.innerHTML='<i class="fas fa-play"></i>';}return;}
