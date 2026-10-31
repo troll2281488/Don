@@ -395,7 +395,7 @@ input:checked+.slider:before{transform:translateX(26px)}
     box-shadow: 0 0 10px rgba(255,255,255,0.5);
 }
 #donAiMessages {
-    flex: 1; overflow-y: auto; padding: 20px;
+    flex: 1 1 auto; min-height: 0; min-width: 0; overflow-y: auto; overflow-x: hidden; padding: 20px; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; touch-action: pan-y;
     display: flex; flex-direction: column; gap: 12px;
     background-image: radial-gradient(circle at 10% 20%, rgba(168, 85, 247, 0.05) 0%, transparent 20%), radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.05) 0%, transparent 20%);
 }
@@ -427,6 +427,12 @@ input:checked+.slider:before{transform:translateX(26px)}
     word-break: break-word;
 }
 .donai-msg-ai a { color: #6366f1; text-decoration: underline; }
+.donai-message-actions{display:flex;gap:8px;margin-top:10px;padding-top:8px;border-top:1px solid rgba(120,100,180,.12)}
+.donai-message-actions button{border:0;background:#f0edff;color:#5b50a5;border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer}
+.donai-message-actions button:active{transform:scale(.97)}
+#donAiMessages{scrollbar-width:thin}
+#donAiMessages::-webkit-scrollbar{width:6px}
+#donAiMessages::-webkit-scrollbar-thumb{background:#c9c2e8;border-radius:8px}
 .donai-msg-ai img {
     max-width: 100%; border-radius: 12px; margin-top: 8px; display: block;
 }
@@ -1535,6 +1541,30 @@ function renderDonAiHistory() {
     container.scrollTop = container.scrollHeight;
 }
 
+function addDonAiMessageActions(messageEl, messageText) {
+    if (!messageEl || messageEl.querySelector('.donai-message-actions')) return;
+    const bar = document.createElement('div');
+    bar.className = 'donai-message-actions';
+    const copy = document.createElement('button');
+    copy.type = 'button'; copy.textContent = '📋 Копировать';
+    copy.addEventListener('click', async function() {
+        try {
+            if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(messageText);
+            else { const area=document.createElement('textarea'); area.value=messageText; area.style.position='fixed'; area.style.opacity='0'; document.body.appendChild(area); area.select(); document.execCommand('copy'); area.remove(); }
+            showToast('✅ Сообщение скопировано');
+        } catch(e) { showToast('Не удалось скопировать сообщение'); }
+    });
+    const download = document.createElement('button');
+    download.type = 'button'; download.textContent = '⬇ Скачать';
+    download.addEventListener('click', function() {
+        const blob = new Blob([messageText], {type:'text/plain;charset=utf-8'});
+        const url = URL.createObjectURL(blob), a = document.createElement('a');
+        a.href=url; a.download='donai-message-'+new Date().toISOString().slice(0,10)+'.txt';
+        document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+    });
+    bar.append(copy, download); messageEl.appendChild(bar);
+}
+
 function addDonAiMessage(role, text, save = true) {
     const container = document.getElementById('donAiMessages');
     if (!container) return;
@@ -1542,8 +1572,10 @@ function addDonAiMessage(role, text, save = true) {
     const div = document.createElement('div');
     div.className = role === 'user' ? 'donai-msg-user' : 'donai-msg-ai';
     div.style.fontSize = aiSettings.fontSize + 'px';
-    div.innerHTML = String(text).replace(/\n/g, '<br>'); 
+    div.textContent = String(text);
+    div.style.whiteSpace = 'pre-wrap';
     container.appendChild(div);
+    addDonAiMessageActions(div, String(text));
 
     if (save) {
         donAiState.history.push({ role, text });
@@ -1554,7 +1586,6 @@ function addDonAiMessage(role, text, save = true) {
 }
 
 function showDonAiTyping() {
-    if (!aiSettings.showTyping) return;
     const container = document.getElementById('donAiMessages');
     if (!container) return;
     const div = document.createElement('div');
@@ -1627,9 +1658,9 @@ async function processDonAiMessage(isRetry = false, queuedText = null) {
         const userAsksInRussian = /[\u0400-\u04FF]/.test(text);
         const identityQuestion = /(кто ты|что ты такое|представься|как тебя зовут|who are you|what are you)/i.test(text);
         const profileInstructions = {
-            code: 'Текущий профиль: DonAI Code 3.1. Ты специализированный помощник по программированию. Пиши рабочий код, объясняй ошибки и не выдумывай API.',
-            smart: 'Текущий профиль: DonAI Pro 3.1. Решай сложные и обычные задачи тщательно, проверяй логику и структурируй ответ.',
-            daily: 'Текущий профиль: DonAI Daily 3.1. Общайся естественно и дружелюбно, отвечай кратко на повседневные вопросы.'
+            code: 'Текущий профиль: DonAI Code 3.1. Твоя основная специализация — программирование: код, отладка, архитектура, алгоритмы, базы данных и технические вопросы. Если вопрос явно не относится к программированию, вежливо и кратко объясни, что сейчас выбран профиль Code, и предложи переключиться на Pro или Daily. Не пытайся отвечать на биографии, общие знания и бытовые вопросы в этом профиле.',
+            smart: 'Текущий профиль: DonAI Pro 3.1. Универсальный интеллектуальный режим для сложных задач, анализа, обучения, объяснений, биографий, программирования и повседневных вопросов. Отвечай подробно настолько, насколько требует задача.',
+            daily: 'Текущий профиль: DonAI Daily 3.1. Универсальный повседневный режим: отвечай на любые темы, включая программирование, биографии, обучение, анализ и бытовые вопросы. Старайся отвечать быстро и понятно; на сложных задачах допускай, что профиль Pro может справиться лучше.'
         };
         let systemContent = donAiState.persona + '\n\n' + (profileInstructions[aiSettings.modelProfile || 'daily'] || profileInstructions.daily);
         if (identityQuestion) systemContent += '\n\nЕсли тебя спрашивают, кто ты, просто представься: «Я DonAI — ИИ-помощник внутри DonorGram». Кратко объясни, чем можешь помочь. Не говори, что тебе дали анализировать документ или что-то другое, если пользователь этого не просил.';
@@ -1676,21 +1707,23 @@ function typeWriterDonAiMessage(role, fullText) {
         div.className = role === 'user' ? 'donai-msg-user' : 'donai-msg-ai';
         div.style.fontSize = aiSettings.fontSize + 'px';
         container.appendChild(div);
+        div.style.whiteSpace = 'pre-wrap';
         
         let i = 0;
-        const speed = Math.max(3, Math.min(12, aiSettings.typingSpeed));
+        const speed = 2;
         
         function type() {
             if (i < fullText.length) {
-                let chunk = fullText.substring(i, i + 2); 
-                div.innerHTML += chunk.replace(/\n/g, '<br>');
-                i += 2;
-                container.scrollTop = container.scrollHeight;
+                let chunk = fullText.substring(i, i + 24);
+                div.textContent += chunk;
+                i += 24;
+                if (container.scrollHeight - container.scrollTop - container.clientHeight < 120) container.scrollTop = container.scrollHeight;
                 setTimeout(type, speed);
             } else {
                 donAiState.history.push({ role, text: fullText });
                 if (donAiState.history.length > 100) donAiState.history.shift(); 
                 try { localStorage.setItem('donai_history', JSON.stringify(donAiState.history)); } catch(e) {}
+                addDonAiMessageActions(div, fullText);
                 resolve();
             }
         }
@@ -1763,6 +1796,12 @@ function openAiSettings() {
 
 document.getElementById('aiSettingsBtn').addEventListener('click', openAiSettings);
 document.getElementById('settingsAiBtn').addEventListener('click', () => { closeModal('settingsModal'); openAiSettings(); });
+
+document.getElementById('aiModelProfile').addEventListener('change', function() {
+    aiSettings.modelProfile = this.value || 'daily';
+    try { localStorage.setItem('donai_settings', JSON.stringify(aiSettings)); } catch(e) {}
+    showToast('✅ Профиль DonAI переключён мгновенно');
+});
 
 document.getElementById('aiSettingsSaveBtn').addEventListener('click', () => {
     donAiState.persona = defaultPersona;
