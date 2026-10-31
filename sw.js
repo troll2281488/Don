@@ -1,5 +1,5 @@
 /* DonorGram service worker: GitHub Pages-safe offline shell and static asset cache. */
-const CACHE_NAME = "donorgram-v13";
+const CACHE_NAME = "donorgram-v14";
 const APP_SHELL = ["./", "./index.html"];
 const STATIC_DESTINATIONS = new Set(["script", "style", "image", "font", "worker"]);
 
