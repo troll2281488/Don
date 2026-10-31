@@ -447,6 +447,7 @@ input:checked+.slider:before{transform:translateX(26px)}
     width: 6px; height: 6px; background: #a855f7; border-radius: 50%;
     animation: donaiBounce 1.4s infinite ease-in-out both;
 }
+.donai-typing small{font-size:12px;color:#6b5bb5;margin-left:6px;align-self:center}
 .donai-typing span:nth-child(1) { animation-delay: -0.32s; }
 .donai-typing span:nth-child(2) { animation-delay: -0.16s; }
 .donai-input-area {
@@ -1594,7 +1595,7 @@ function showDonAiTyping() {
     const div = document.createElement('div');
     div.id = 'donaiTypingIndicator';
     div.className = 'donai-typing';
-    div.innerHTML = '<span></span><span></span><span></span>';
+    div.innerHTML = '<span></span><span></span><span></span><small>DonAI подключается…</small>';
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;
     donAiState.isTyping = true;
