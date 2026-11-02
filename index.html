@@ -2081,7 +2081,6 @@ async function processDonAiMessage(isRetry = false, queuedText = null) {
     donAiState.isBusy = true;
     if (!isRetry) {
         if (donAiAttachedFileText) { donAiAttachedFileText = ''; donAiAttachedFileName = ''; }
-        if (attachedImage) { donAiAttachedImageData = ''; donAiAttachedImageName = ''; }
         const status = document.getElementById('donAiFileStatus'); if (status && !donAiAttachedAudioFile) { status.textContent = ''; status.style.display = 'none'; }
         addDonAiMessage('user', text + (attachedImage ? '\n\n📷 Фото: ' + attachedImageName : ''));
         input.dataset.lastText = text;
@@ -2122,6 +2121,7 @@ async function processDonAiMessage(isRetry = false, queuedText = null) {
             temperature: parseFloat(aiSettings.temperature),
             max_tokens: parseInt(aiSettings.maxTokens, 10) || 500
         });
+        if (attachedImage) { donAiAttachedImageData = ''; donAiAttachedImageName = ''; }
         hideDonAiTyping();
         if (aiSettings.soundEnabled) {
             try {
@@ -2137,6 +2137,7 @@ async function processDonAiMessage(isRetry = false, queuedText = null) {
         await typeWriterDonAiMessage('ai', answerText);
     } catch (error) {
         hideDonAiTyping();
+        if (attachedImage && donAiAttachedImageData) { const status = document.getElementById('donAiFileStatus'); if (status) { status.style.display = 'block'; status.textContent = '🖼️ Фото сохранено — исправь настройки или попробуй отправить ещё раз.'; } }
         addDonAiMessage('ai', 'DonAI: ' + (error && error.message ? error.message : 'не удалось связаться с моделью'));
     } finally {
         donAiState.isBusy = false;
