@@ -852,7 +852,14 @@ button,input,textarea,select{touch-action:manipulation}
         <div id="dgProviderSettings" style="padding:12px;margin-bottom:16px;border:1px solid #e8edf2;border-radius:12px">
 <b>🤖 DonAI · Бесплатный режим</b>
 <small style="display:block;color:#687080;margin-top:8px">Работает через публичный Pollinations endpoint без регистрации, API-ключа и настройки сервера. Сервис может ограничивать частоту запросов и менять доступность бесплатного режима.</small>
-<div id="donAiPolliStatus" style="display:block;color:#16834a;margin-top:9px">✓ Ключи и Worker не требуются для текстового чата.</div>
+<div id="donAiPolliStatus" style="display:block;color:#16834a;margin-top:9px">✓ Текстовый чат работает без ключа. Для анализа фото нужен Cloudflare Worker и ключ Pollinations.</div>
+<div style="margin-top:12px;padding-top:12px;border-top:1px solid #e8edf2">
+<label for="donAiVisionWorkerUrl" style="font-size:12px;font-weight:700">Адрес Cloudflare Worker для анализа фото</label>
+<input id="donAiVisionWorkerUrl" type="url" placeholder="https://donorgram-pollinations.твой-аккаунт.workers.dev" style="width:100%;box-sizing:border-box;padding:10px;margin-top:5px;border:1px solid #e8edf2;border-radius:8px">
+<label for="donAiVisionWorkerToken" style="display:block;font-size:12px;font-weight:700;margin-top:9px">Личный пароль Worker</label>
+<input id="donAiVisionWorkerToken" type="password" autocomplete="off" placeholder="DONORGRAM_PROXY_TOKEN" style="width:100%;box-sizing:border-box;padding:10px;margin-top:5px;border:1px solid #e8edf2;border-radius:8px">
+<small style="display:block;color:#687080;margin-top:7px">Ключ Pollinations хранится только в Cloudflare Worker. Инструкция есть в pollinations-proxy/SETUP.md.</small>
+</div>
 <select id="dgProvider" style="display:none"><option value="https://text.pollinations.ai/openai">Pollinations</option></select>
 <select id="dgModel" style="display:none"><option value="openai">DonAI</option></select>
 <input id="dgKey" type="password" style="display:none" value="">
@@ -1053,7 +1060,7 @@ button,input,textarea,select{touch-action:manipulation}
 
     <div class="donai-input-area">
         <button type="button" id="donAiAttachBtn" class="donai-send-btn" title="Прикрепить файл" aria-label="Прикрепить файл"><i class="fas fa-paperclip"></i></button>
-        <input type="file" id="donAiFileInput" accept=".txt,.md,.js,.ts,.jsx,.tsx,.py,.html,.css,.json,.csv,.xml,.yml,.yaml,.log,.pdf,.docx,audio/*,.wav,.mp3,.m4a,.ogg,.webm" style="display:none">
+        <input type="file" id="donAiFileInput" accept="image/*,.txt,.md,.js,.ts,.jsx,.tsx,.py,.html,.css,.json,.csv,.xml,.yml,.yaml,.log,.pdf,.docx,audio/*,.wav,.mp3,.m4a,.ogg,.webm" style="display:none">
         <input type="text" id="donAiInput" placeholder="Спросите DonAI...">
         <button id="donAiSendBtn" class="donai-send-btn"><i class="fas fa-paper-plane"></i></button>
     </div>
@@ -1787,10 +1794,21 @@ function hideDonAiTyping() {
 // DonAI: бесплатный публичный текстовый endpoint без регистрации и ключей.
 // Это legacy-совместимый endpoint Pollinations; провайдер может ограничивать или отключить его.
 async function requestDonAi(messages, options) {
-    const payload = Object.assign({ messages: messages, temperature: 0.7, max_tokens: 900, model: 'openai' }, options || {});
-    const response = await fetch('https://text.pollinations.ai/openai', {
+    const hasImage = messages.some(message => Array.isArray(message.content) && message.content.some(part => part && part.type === 'image_url'));
+    const payload = Object.assign({ messages: messages, temperature: 0.7, max_tokens: 900, model: hasImage ? 'google/gemini-3.7-flash' : 'openai' }, options || {});
+    let endpoint = 'https://text.pollinations.ai/openai';
+    const headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
+    if (hasImage) {
+        const workerUrl = String(aiSettings.visionWorkerUrl || '').trim().replace(/\/+$/, '');
+        const workerToken = String(aiSettings.visionWorkerToken || '').trim();
+        if (!workerUrl || !workerToken) throw new Error('Для распознавания фото укажи адрес и личный пароль Cloudflare Worker в Настройки DonAI. Инструкция: pollinations-proxy/SETUP.md в GitHub.');
+        if (!/^https:\/\//i.test(workerUrl)) throw new Error('Адрес Worker должен начинаться с https://');
+        endpoint = workerUrl + '/v1/chat/completions';
+        headers['X-DonorGram-Token'] = workerToken;
+    }
+    const response = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        headers: headers,
         body: JSON.stringify(payload),
         signal: AbortSignal.timeout(120000)
     });
@@ -1861,6 +1879,8 @@ document.addEventListener('DOMContentLoaded', function() {
 let donAiAttachedFileText = '';
 let donAiAttachedFileName = '';
 let donAiAttachedAudioFile = null;
+let donAiAttachedImageData = '';
+let donAiAttachedImageName = '';
 const DONAI_FILE_LIMIT = 300 * 1024;
 async function donAiLoadScript(src, globalName) {
     if (window[globalName]) return;
@@ -1906,7 +1926,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!file) return;
         status.style.display = 'block'; status.textContent = '📎 Читаю ' + file.name + '…';
         try {
-            if (file.type.startsWith('audio/') || /\.(wav|mp3|m4a|ogg|webm)$/i.test(file.name)) {
+            if (file.type.startsWith('image/')) {
+                if (file.size > 12 * 1024 * 1024) throw new Error('Изображение больше 12 МБ. Выбери фото поменьше.');
+                const imageData = await compressImage(file, 1600, 0.84);
+                if (!imageData) throw new Error('Не удалось прочитать изображение.');
+                donAiAttachedImageData = imageData; donAiAttachedImageName = file.name;
+                donAiAttachedFileText = ''; donAiAttachedFileName = ''; donAiAttachedAudioFile = null;
+                status.textContent = '🖼️ ' + file.name + ' · фото готово к анализу. Напиши вопрос или просто отправь.';
+            } else if (file.type.startsWith('audio/') || /\.(wav|mp3|m4a|ogg|webm)$/i.test(file.name)) {
                 donAiAttachedAudioFile = file; donAiAttachedFileText = ''; donAiAttachedFileName = file.name;
                 status.textContent = '🎧 ' + file.name + ' · аудио прикреплено. Отправь команду /transcribe.';
             } else {
@@ -1915,7 +1942,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 status.textContent = '📎 ' + file.name + ' · ' + Math.max(1, Math.round(file.size / 1024)) + ' КБ · текст прочитан';
             }
         } catch (error) {
-            donAiAttachedFileText = ''; donAiAttachedFileName = ''; donAiAttachedAudioFile = null; status.textContent = '⚠️ ' + error.message;
+            donAiAttachedFileText = ''; donAiAttachedFileName = ''; donAiAttachedAudioFile = null; donAiAttachedImageData = ''; donAiAttachedImageName = ''; status.textContent = '⚠️ ' + error.message;
         }
         fileInput.value = '';
     });
@@ -2042,7 +2069,9 @@ async function processDonAiMessage(isRetry = false, queuedText = null) {
     if (!isRetry && !queuedText && await processDonAiMediaCommand(input.value)) return;
 
     const typedText = queuedText || (isRetry ? input.dataset.lastText : input.value.trim());
-    const text = [typedText, (!queuedText && donAiAttachedFileText ? 'Содержимое файла "' + donAiAttachedFileName + '":\n' + donAiAttachedFileText : '')].filter(Boolean).join('\n\n');
+    const attachedImage = (!isRetry && !queuedText) ? donAiAttachedImageData : '';
+    const attachedImageName = donAiAttachedImageName;
+    const text = [typedText, (!queuedText && donAiAttachedFileText ? 'Содержимое файла "' + donAiAttachedFileName + '":\n' + donAiAttachedFileText : '')].filter(Boolean).join('\n\n') || (attachedImage ? 'Проанализируй изображение. Распознай текст и подробно реши задание, если на фото есть задача.' : '');
     if (!text) return;
     if (!isRetry && !queuedText && await processDonAiUtilityCommand(typedText)) { input.value=''; return; }
     if (donAiState.isBusy && !isRetry && !queuedText) {
@@ -2051,8 +2080,10 @@ async function processDonAiMessage(isRetry = false, queuedText = null) {
     }
     donAiState.isBusy = true;
     if (!isRetry) {
-        if (donAiAttachedFileText) { donAiAttachedFileText = ''; donAiAttachedFileName = ''; const status = document.getElementById('donAiFileStatus'); if (status) { status.textContent = ''; status.style.display = 'none'; } }
-        addDonAiMessage('user', text);
+        if (donAiAttachedFileText) { donAiAttachedFileText = ''; donAiAttachedFileName = ''; }
+        if (attachedImage) { donAiAttachedImageData = ''; donAiAttachedImageName = ''; }
+        const status = document.getElementById('donAiFileStatus'); if (status && !donAiAttachedAudioFile) { status.textContent = ''; status.style.display = 'none'; }
+        addDonAiMessage('user', text + (attachedImage ? '\n\n📷 Фото: ' + attachedImageName : ''));
         input.dataset.lastText = text;
         if (!queuedText) input.value = '';
         donAiState.msgCount++;
@@ -2082,7 +2113,11 @@ async function processDonAiMessage(isRetry = false, queuedText = null) {
             role: msg.role === 'user' ? 'user' : 'assistant',
             content: msg.text
         }));
-        const messages = [{ role: 'system', content: systemContent }].concat(historySlice, [{ role: 'user', content: text }]);
+        const userContent = attachedImage ? [
+            { type: 'text', text: text },
+            { type: 'image_url', image_url: { url: attachedImage, detail: 'high' } }
+        ] : text;
+        const messages = [{ role: 'system', content: systemContent }].concat(historySlice, [{ role: 'user', content: userContent }]);
         const aiResult = await requestDonAi(messages, {
             temperature: parseFloat(aiSettings.temperature),
             max_tokens: parseInt(aiSettings.maxTokens, 10) || 500
@@ -2194,7 +2229,8 @@ function loadAiSettings() {
     if (saved) {
         try { aiSettings = Object.assign(aiSettings, JSON.parse(saved)); } catch(e){}
     }
-    // No-key mode: no proxy URL, token, or provider setup is required.
+    document.getElementById('donAiVisionWorkerUrl').value = aiSettings.visionWorkerUrl || '';
+    document.getElementById('donAiVisionWorkerToken').value = aiSettings.visionWorkerToken || '';
     document.getElementById('aiModelProfile').value = aiSettings.modelProfile || 'daily';
     document.getElementById('aiFontSize').value = aiSettings.fontSize;
     document.getElementById('aiFontFamily').value = aiSettings.fontFamily || 'system';
@@ -2225,7 +2261,9 @@ document.getElementById('aiModelProfile').addEventListener('change', function() 
 });
 
 document.getElementById('aiSettingsSaveBtn').addEventListener('click', () => {
-    // Free Pollinations mode needs no proxy settings or API key.
+    aiSettings.visionWorkerUrl = document.getElementById('donAiVisionWorkerUrl').value.trim().replace(/\/+$/, '');
+    aiSettings.visionWorkerToken = document.getElementById('donAiVisionWorkerToken').value.trim();
+    // The Pollinations API key remains only in Cloudflare Worker secrets.
     donAiState.persona = defaultPersona;
     try { localStorage.removeItem('donai_persona'); } catch(e) {}
     
