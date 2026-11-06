@@ -1247,8 +1247,8 @@ document.addEventListener('click',function(e){
 function getStandaloneMessageUrl(message){
     if(!message||message.mediaType||message.stickerId||typeof message.text!=='string')return null;
     var value=message.text.trim();
-    if(!value||/\\s/.test(value))return null;
-    if(!/^https?:\\/\\//i.test(value))return null;
+    if(!value||/\s/.test(value))return null;
+    if(!/^https?:\/\//i.test(value))return null;
     try{var parsed=new URL(value);if(parsed.protocol!=='http:'&&parsed.protocol!=='https:')return null;return parsed.href;}catch(e){return null;}
 }
 
