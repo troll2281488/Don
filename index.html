@@ -676,6 +676,7 @@ button,input,textarea,select{touch-action:manipulation}
 <div id="msgActionSheet" style="position:fixed;bottom:0;left:0;width:100%;background:#fff;border-radius:24px 24px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.25);z-index:860;transform:translateY(100%);transition:transform .2s;padding:10px 0 20px">
 <div style="padding:14px 24px 8px;font-size:13px;color:#8e98a3;font-weight:600;border-bottom:1px solid #e8edf2;margin-bottom:6px">Сообщение</div>
 <button class="msg-act-btn" data-act="reply" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer;background:none;border:none;width:100%;text-align:left"><i class="fas fa-reply" style="width:22px;color:#667eea"></i><span>↩️ Ответить</span></button>
+<button class="msg-act-btn" data-act="openLink" style="display:none;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer;background:none;border:none;width:100%;text-align:left"><i class="fas fa-external-link-alt" style="width:22px;color:#16a085"></i><span>🔗 Перейти по ссылке</span></button>
 <button class="msg-act-btn" data-act="copy" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer;background:none;border:none;width:100%;text-align:left"><i class="fas fa-copy" style="width:22px;color:#667eea"></i><span>📋 Копировать</span></button>
 <button class="msg-act-btn" data-act="repost" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer;background:none;border:none;width:100%;text-align:left"><i class="fas fa-retweet" style="width:22px;color:#667eea"></i><span>🔁 Репост в профиль</span></button>
 <button class="msg-act-btn" data-act="speak" style="display:flex;align-items:center;gap:14px;padding:14px 24px;font-size:15px;color:#1a1a2e;cursor:pointer;background:none;border:none;width:100%;text-align:left"><i class="fas fa-volume-up" style="width:22px;color:#667eea"></i><span>🔊 Озвучить сообщение</span></button>
@@ -1243,11 +1244,21 @@ document.addEventListener('click',function(e){
 },true);
 
 
+function getStandaloneMessageUrl(message){
+    if(!message||message.mediaType||message.stickerId||typeof message.text!=='string')return null;
+    var value=message.text.trim();
+    if(!value||/\s/.test(value))return null;
+    if(!/^https?:\/\//i.test(value))return null;
+    try{var parsed=new URL(value);if(parsed.protocol!=='http:'&&parsed.protocol!=='https:')return null;return parsed.href;}catch(e){return null;}
+}
+
 function openMsgActionSheet(msgId){
     var msgs=messageCache[currentChat]||{};
     var m=msgs[msgId];
     if(!m){showToast('❌');return;}
     currentActionMessage=msgId;
+    var linkBtn=document.querySelector('#msgActionSheet [data-act="openLink"]');
+    if(linkBtn)linkBtn.style.display=getStandaloneMessageUrl(m)?'flex':'none';
     var isMine=m.senderId===currentUser.id;
     var isPinned=pinnedMessage&&pinnedMessage.msgId===msgId;
     document.querySelectorAll('#msgActionSheet .msg-act-btn').forEach(function(btn){
@@ -1279,7 +1290,8 @@ document.querySelectorAll('#msgActionSheet .msg-act-btn').forEach(function(btn){
         var act=this.dataset.act;var mid=currentActionMessage;
         var msgs=messageCache[currentChat]||{};var m=msgs[mid];
         if(!m){closeMsgActionSheet();return;}
-        if(act==='reply'){closeMsgActionSheet();setTimeout(function(){startReply(mid);},80);}
+        if(act==='openLink'){var targetUrl=getStandaloneMessageUrl(m);closeMsgActionSheet();if(targetUrl){window.open(targetUrl,'_blank','noopener,noreferrer');}}
+        else if(act==='reply'){closeMsgActionSheet();setTimeout(function(){startReply(mid);},80);}
         else if(act==='copy'){try{navigator.clipboard.writeText(m.text||'');showToast('📋');}catch(e){}closeMsgActionSheet();}
         else if(act==='speak'){closeMsgActionSheet();speakDonorText(m.text||'');}
         else if(act==='ai'){closeMsgActionSheet();setTimeout(function(){askAiAboutMessage(m.text);},150);}
