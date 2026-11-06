@@ -1447,7 +1447,86 @@ function loadData(){
 }
 function showUserActionSheet(userId,fromMap){if(!userId||userId===currentUser.id)return;const u=state.users[userId];if(!u)return;selectedUserForAction=userId;$('userActionHeader').innerText=u.name||userId;const bd=$('userActionBackdrop');const sh=$('userActionSheet');if(bd){bd.style.opacity='1';bd.style.pointerEvents='auto';}if(sh){sh.style.transform='translateY(0)';}}
 function closeUserActionSheet(){const bd=$('userActionBackdrop');const sh=$('userActionSheet');if(bd){bd.style.opacity='0';bd.style.pointerEvents='none';}if(sh){sh.style.transform='translateY(100%)';}}
-function startChat(userId){if(!userId||userId===currentUser.id)return;if(isBlocked(userId))return;if(amIBlockedBy(userId))return;if(!state.users[userId])return;var chatId=[currentUser.id,userId].sort().join('_');var ou=state.users[userId];if(!state.userChats[chatId]){state.userChats[chatId]={id:chatId,type:'private',name:(ou&&ou.name)||userId,lastMessage:'',lastMessageTime:Date.now(),participants:{}};state.userChats[chatId].participants[currentUser.id]=true;state.userChats[chatId].participants[userId]=true;}closeModal('usersModal');closeUserActionSheet();closeModal('membersListModal');closeMemberActionSheet();openChat(chatId);db.ref('chats/'+chatId).once('value').then(function(snap){if(!snap.exists()){var up={};up['chats/'+chatId+'/type']='private';up['chats/'+chatId+'/participants/'+currentUser.id]=true;up['chats/'+chatId+'/participants/'+userId]=true;up['userChats/'+currentUser.id+'/'+chatId]={id:chatId,type:'private',name:(ou&&ou.name)||userId,lastMessage:'',lastMessageTime:Date.now(),participants:{}};up['userChats/'+currentUser.id+'/'+chatId+'/participants/'+currentUser.id]=true;up['userChats/'+currentUser.id+'/'+chatId+'/participants/'+userId]=true;up['userChats/'+userId+'/'+chatId]={id:chatId,type:'private',name:currentUser.name,lastMessage:'',lastMessageTime:Date.now(),participants:{}};up['userChats/'+userId+'/'+chatId+'/participants/'+currentUser.id]=true;up['userChats/'+userId+'/'+chatId+'/participants/'+userId]=true;db.ref().update(up).catch(function(){});}});}
+function startChat(userId){
+    if(!userId||userId===currentUser.id)return;
+    if(isBlocked(userId)||amIBlockedBy(userId))return;
+    if(!state.users[userId])return;
+    var chatId=[currentUser.id,userId].sort().join('_');
+    var ou=state.users[userId]||{};
+    var now=Date.now();
+    var cached=state.userChats[chatId]||{};
+    state.userChats[chatId]=Object.assign({},cached,{
+        id:chatId,
+        type:'private',
+        name:ou.name||userId,
+        lastMessage:cached.lastMessage||'',
+        lastMessageTime:cached.lastMessageTime||now,
+        participants:Object.assign({},cached.participants||{},{
+            [currentUser.id]:true,
+            [userId]:true
+        })
+    });
+    closeModal('usersModal');
+    closeUserActionSheet();
+    closeModal('membersListModal');
+    closeMemberActionSheet();
+    openChat(chatId);
+
+    // Always repair both per-user chat indexes, even when the shared chat
+    // document already exists. Older code only wrote these indexes on creation.
+    Promise.all([
+        db.ref('chats/'+chatId).once('value'),
+        db.ref('userChats/'+currentUser.id+'/'+chatId).once('value'),
+        db.ref('userChats/'+userId+'/'+chatId).once('value')
+    ]).then(function(snaps){
+        var root=snaps[0].val()||{};
+        var mine=snaps[1].val()||{};
+        var theirs=snaps[2].val()||{};
+        var participants=Object.assign({},root.participants||{},mine.participants||{},theirs.participants||{});
+        participants[currentUser.id]=true;
+        participants[userId]=true;
+        var lastMessage=root.lastMessage||mine.lastMessage||theirs.lastMessage||'';
+        var lastMessageTime=root.lastMessageTime||mine.lastMessageTime||theirs.lastMessageTime||now;
+        var rootData=Object.assign({},root,{
+            id:chatId,
+            type:'private',
+            participants:participants,
+            lastMessage:lastMessage,
+            lastMessageTime:lastMessageTime
+        });
+        var myEntry=Object.assign({},mine,state.userChats[chatId],{
+            id:chatId,
+            type:'private',
+            name:ou.name||userId,
+            lastMessage:lastMessage,
+            lastMessageTime:lastMessageTime,
+            participants:participants
+        });
+        var theirEntry=Object.assign({},theirs,{
+            id:chatId,
+            type:'private',
+            name:currentUser.name||currentUser.id,
+            lastMessage:lastMessage,
+            lastMessageTime:lastMessageTime,
+            participants:participants
+        });
+        var updates={};
+        updates['chats/'+chatId]=rootData;
+        updates['userChats/'+currentUser.id+'/'+chatId]=myEntry;
+        updates['userChats/'+userId+'/'+chatId]=theirEntry;
+        return db.ref().update(updates);
+    }).then(function(){
+        db.ref('userChats/'+currentUser.id+'/'+chatId).once('value').then(function(s){
+            if(s.exists())state.userChats[chatId]=s.val();
+            saveChatsCache();
+            _lastChatsHash='';
+            renderChats();
+        });
+    }).catch(function(err){
+        console.error('[DonorGram] Не удалось сохранить личный чат:',err);
+        showToast('❌ Не удалось сохранить чат. Проверьте подключение и права Firebase.');
+    });
+}
 function goBack(){currentChat=null;$('mainArea').classList.remove('active');hidePinnedBar();}
 function logout(){if(confirm(t('logout_confirm'))){if(currentUser){db.ref('users/'+currentUser.id).update({status:'offline'});}localStorage.removeItem('dg_user');location.reload();}}
 
