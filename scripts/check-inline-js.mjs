@@ -1,18 +1,24 @@
 import fs from 'node:fs';
+import vm from 'node:vm';
 
 const html = fs.readFileSync('index.html', 'utf8');
-const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
+const scripts = [...html.matchAll(/<script\\b([^>]*)>([\\s\\S]*?)<\\/script>/gi)];
 let checked = 0;
+let failed = false;
+
 for (let i = 0; i < scripts.length; i++) {
   const attrs = scripts[i][1] || '';
   const source = scripts[i][2] || '';
-  if (/\bsrc\s*=/.test(attrs) || !source.trim()) continue;
+  if (/\\bsrc\\s*=/.test(attrs) || !source.trim()) continue;
   try {
-    new Function(source);
+    new vm.Script(source, { filename: 'inline-script-' + (i + 1) + '.js' });
     checked++;
   } catch (error) {
-    console.error('Inline script #' + (i + 1) + ' syntax error: ' + error.message);
-    process.exitCode = 1;
+    failed = true;
+    console.error('Inline script #' + (i + 1) + ' syntax error:');
+    console.error(error.stack || error.message);
   }
 }
-if (!process.exitCode) console.log('Validated ' + checked + ' inline JavaScript blocks.');
+
+if (failed) process.exitCode = 1;
+else console.log('Validated ' + checked + ' inline JavaScript blocks.');
