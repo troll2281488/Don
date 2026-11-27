@@ -3,34 +3,40 @@
 ## Integration constraints
 
 - DonorGram remains the identity provider and source of the signed-in user: `window.currentUser`.
-- Calls must use DonorGram's existing Firebase Realtime Database instance (`db`) and its `calls/{callId}` records.
-- Do not copy Zvonki's Firebase project configuration or ask DonorGram users to register again.
-- The existing audio/video call buttons in the private-chat header remain the primary entry point.
+- Calls use DonorGram's existing Firebase Realtime Database instance (`db`) and `calls/{callId}` records.
+- Zvonki's Firebase project and separate account system are not copied.
+- Existing audio/video call buttons in the private-chat header remain the primary entry point.
+- The same web call module is used by the web app and Capacitor webview; native background-call behavior needs a separate Android implementation.
 
-## Source review
+## Ported in this migration branch
 
-The Zvonki repository contains a standalone call console with WebRTC audio/video, group-call signaling, camera controls, screen sharing, ICE restart, call diagnostics, traffic presets, call history, reactions, and optional local recording. Its UI and data model are coupled to Zvonki's own user model, Firebase project, and DOM IDs, so copying its page wholesale would break DonorGram's existing chat and authentication.
+- ICE candidate buffering until remote SDP is installed.
+- Incoming-call listener cleanup to avoid duplicate listeners after app re-entry.
+- Screen sharing in an active video call, using `getDisplayMedia` and `RTCRtpSender.replaceTrack`, with restoration to the camera when sharing ends.
+- In-call quick reactions (thumbs-up, heart, laugh, applause) over the existing call record.
+- Lightweight connection-quality display based on WebRTC stats (round-trip time and audio packet loss).
+- Service-worker receiver for trusted `incoming_call` push payloads and notification click-to-open behavior.
+- CI syntax validation for inline JavaScript in `index.html`.
 
-DonorGram already has a separate one-to-one WebRTC implementation and call UI. The migration therefore needs to port compatible call-engine behaviors into that implementation rather than replace the messenger shell.
+## Still not ported / not production-ready
 
-## Included in this branch
+- Multi-participant group calling. Zvonki uses a peer-per-participant mesh and a separate `groupCalls` schema; Don's current engine is one-to-one. This needs a deliberate multi-peer refactor and UI, not a blind copy.
+- Call history UI and Zvonki's profile/favorites/settings experience.
+- Optional call recording. It must be explicit, visible to all participants, and consent-based; no background or hidden recording is added.
+- All Zvonki traffic presets and detailed diagnostics beyond the basic WebRTC quality indicator.
+- Camera switching/renegotiation parity across every browser/device.
+- Reliable background incoming calls on Android: requires FCM setup, a trusted push sender/backend, native Android call UI/foreground service, and permissions.
+- Web Push subscription registration and a trusted sender. A service worker cannot send its own push notifications.
+- Real-world two-device audio/video, screen-share, and Android testing.
 
-- Buffer incoming ICE candidates until the remote SDP description is installed, then flush the queue. This avoids losing candidates that arrive before the offer/answer.
-- Reuse one Firebase incoming-call listener and detach the previous callback before registering a new one, avoiding duplicate listeners after repeated app starts.
-- Add a service-worker push display handler for trusted `incoming_call` push payloads and focus/open DonorGram when the notification is tapped.
+## Platform limitations
 
-## Important background-call limitation
+- `getDisplayMedia` availability depends on the browser and operating system; some mobile browsers and webviews do not support it.
+- A closed browser cannot keep a live WebRTC microphone session alive. Push can notify and reopen the app, but it does not itself restore a live call.
+- A powered-off phone cannot receive a live call.
+- Do not add a separate Zvonki login or replace DonorGram's existing identity.
 
-A web page cannot guarantee that an active WebRTC call survives the browser being closed, the operating system suspending the browser, or the phone being powered off. A service worker can display a push notification, but it cannot keep a microphone stream or peer connection alive.
+## Validation
 
-Reliable incoming-call wake-up requires a real push sender and subscription lifecycle (VAPID/Web Push for supported browsers, or FCM for Android), plus native Android call/foreground-service integration for dependable background operation. The repository currently has no push subscription registration, VAPID public key, trusted push-sending backend, or tracked native Android project. The service-worker handler in this branch is only the receiving/display side; it does not by itself make calls ring while the site is closed.
-
-## Remaining Zvonki features to port and verify
-
-- Group calls and multi-peer signaling.
-- Screen sharing and camera switching/renegotiation.
-- Network diagnostics, traffic presets, and robust ICE restart.
-- Call history, reactions, and optional local recording.
-- Native incoming-call experience and background audio for the Android package.
-
-These features must be adapted to DonorGram's existing user/chat model and tested with two real devices before being described as complete.
+- The branch includes an automated check for inline JavaScript syntax and the existing web asset build.
+- CI and real two-device tests must pass before treating this migration as stable.
