@@ -593,6 +593,70 @@ button,input,textarea,select{touch-action:manipulation}
 .gps-popup-actions button.secondary{background:#eef2ff;color:#4658b8}
 .gps-status-bar{min-height:42px;flex-wrap:wrap}
 
+
+/* Zvonki call controls */
+#dgCallReactions{display:flex;gap:8px;justify-content:center;align-items:center;margin:10px auto 4px;flex-wrap:wrap}
+#dgCallReactions button{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.10);color:#fff;border-radius:20px;padding:7px 10px;font-size:18px}
+#dgCallReactionToast{position:absolute;left:50%;top:24%;transform:translate(-50%,-50%);font-size:clamp(38px,10vw,64px);pointer-events:none;opacity:0;transition:opacity .15s}
+#dgCallReactionToast.show{opacity:1}
+#dgVidShareBtn.active{background:#0b8f71}
+#dgCallQuality{font-size:11px;color:#aab4c3;text-align:center;margin-top:6px;min-height:14px}
+
+
+/* Zvonki-inspired call interface, adapted to DonorGram */
+#dgCallOverlay,#dgVideoOverlay{position:fixed;inset:0;z-index:99998;color:#fff;background:radial-gradient(ellipse at 50% 25%,#303b62 0%,#171c32 48%,#090c17 100%);display:none;flex-direction:column;justify-content:space-between;align-items:stretch;padding:calc(env(safe-area-inset-top) + 14px) 18px calc(env(safe-area-inset-bottom) + 20px);overflow:hidden}
+#dgCallOverlay{display:none}#dgVideoOverlay.show{display:flex}
+#dgCallTop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;flex:1;min-height:0}
+.dg-call-topbar,.dg-video-topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;position:relative;z-index:6}
+.dg-call-glass{width:42px;height:42px;border:1px solid rgba(255,255,255,.14);border-radius:14px;background:rgba(255,255,255,.1);color:white;font-size:16px;display:grid;place-items:center}
+.dg-call-status-pill{display:flex;align-items:center;gap:9px;padding:10px 14px;border:1px solid rgba(255,255,255,.1);border-radius:15px;background:rgba(0,0,0,.28);font-size:12px}
+#dgCallSignalDot{width:9px;height:9px;border-radius:50%;background:#ffb020;box-shadow:0 0 12px currentColor}
+#dgCallTimerBig{font:700 12px ui-monospace,monospace;color:#55e6bd}
+#dgCallAvatar{width:clamp(112px,28vw,152px);height:clamp(112px,28vw,152px);border-radius:50%;background:linear-gradient(135deg,#667eea,#00cba9);display:flex;align-items:center;justify-content:center;font-size:52px;font-weight:800;color:#fff;background-size:cover;background-position:center;box-shadow:0 0 0 10px rgba(255,255,255,.055),0 0 65px rgba(80,140,255,.32);animation:callPulse 2.4s infinite}
+#dgCallOverlay.incoming #dgCallAvatar{animation:incomingPulse 1.4s infinite}
+#dgCallName{font-size:clamp(23px,6vw,32px);font-weight:850;text-align:center;max-width:90%;overflow-wrap:anywhere}
+#dgCallSecure,.dg-call-subtitle{font-size:11px;color:#aab5d0;text-align:center}
+#dgCallSecure{color:#61e5b7}
+.dg-call-volume{width:min(280px,80vw);margin-top:16px;color:#c6cce0;font-size:11px}.dg-call-volume label{display:flex;justify-content:space-between;margin-bottom:8px}.dg-call-volume input{width:100%;accent-color:#00d9a6}
+.dg-call-bottom{width:100%;padding-bottom:8px;position:relative;z-index:5}
+#dgCallActions{display:flex;justify-content:center;gap:clamp(12px,5vw,28px);flex-wrap:wrap;margin-bottom:24px}
+.dgCallActBtn{display:flex;flex-direction:column;align-items:center;gap:7px;background:none;border:0;color:#dfe5f5;font-size:11px;min-width:66px}
+.dgCallActBtn .dgIconCircle{width:58px;height:58px;border-radius:20px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.08);display:grid;place-items:center;font-size:21px}
+.dgCallActBtn.active .dgIconCircle{background:#e8fff8;color:#102b2a}.dgCallActBtn.muted .dgIconCircle{background:#ffb020;color:#172033}
+#dgCallEndRow{display:flex;gap:30px;justify-content:center;align-items:center}
+#dgCallEndBtn,#dgCallAcceptBtn{width:70px;height:70px;border-radius:50%;border:0;color:white;font-size:25px;display:grid;place-items:center}
+#dgCallEndBtn{background:#f0445e}#dgCallAcceptBtn{background:#16c784;animation:incomingPulse 1.4s infinite}
+#dgRemoteAudio{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+#dgVideoOverlay{background:#05070d;padding:calc(env(safe-area-inset-top) + 12px) 14px calc(env(safe-area-inset-bottom) + 16px)}
+#dgRemoteVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#090b12}
+.dg-video-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent 30%,transparent 58%,rgba(0,0,0,.75));pointer-events:none}
+.dg-video-topbar{z-index:4}#dgVideoTop{position:static;background:rgba(0,0,0,.42);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:10px 13px;font-size:12px;backdrop-filter:blur(12px)}
+#dgVideoInfo{position:relative;z-index:2;align-self:center;text-align:center;margin:auto auto 0;padding:12px 20px 20px;background:none;transform:none;top:auto;left:auto;color:white}
+#dgVideoPartnerName{font-size:23px;font-weight:800;text-shadow:0 2px 12px #000}#dgVideoTimer{font-size:12px;color:#d4d9e8;margin-top:5px}
+#dgLocalPip{position:absolute;right:16px;top:78px;width:clamp(92px,27vw,140px);height:clamp(132px,38vw,190px);z-index:5;border-radius:18px;overflow:hidden;border:2px solid rgba(255,255,255,.65);background:#151923;box-shadow:0 8px 30px rgba(0,0,0,.4);touch-action:none}
+#dgLocalVideo{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.dg-pip-tools{position:absolute;bottom:0;left:0;right:0;display:flex;align-items:center;justify-content:space-around;background:rgba(0,0,0,.55);padding:5px;color:white;font-size:10px}.dg-pip-tools button{border:0;background:transparent;color:white;padding:5px}
+#dgCallReactions{position:relative;z-index:4;align-self:center;display:flex;gap:8px;padding:7px 12px;border-radius:30px;background:rgba(0,0,0,.35);backdrop-filter:blur(12px)}
+#dgCallReactions button{border:0;background:transparent;font-size:21px;padding:3px;transition:transform .15s}#dgCallReactions button:active{transform:scale(1.3)}
+#dgCallReactionToast{position:absolute;z-index:6;left:50%;top:43%;transform:translate(-50%,-50%) scale(.6);opacity:0;font-size:58px;pointer-events:none;transition:all .2s}
+#dgCallReactionToast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+#dgCallQuality{position:relative;z-index:4;align-self:center;color:#e3e8f4;font-size:10px;padding:5px 10px;border-radius:12px;background:rgba(0,0,0,.3);margin-top:6px}
+#dgVideoControls{position:relative;z-index:5;display:flex;justify-content:center;align-items:center;gap:clamp(8px,3vw,18px);flex-wrap:wrap;padding:14px 5px 4px}
+#dgVideoControls .dgVidBtn{width:52px;height:52px;border-radius:18px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.16);color:white;font-size:19px;display:grid;place-items:center;backdrop-filter:blur(10px)}
+#dgVideoControls .dgVidBtn.muted{background:#ffb020;color:#1b2030}#dgVideoControls .dgVidBtn.active{background:#e8fff8;color:#102b2a}
+#dgVideoControls .dgVidBtn.end{background:#ef405b;width:64px;height:64px;border-radius:50%;font-size:23px}
+#dgVideoControls .dgVidBtn.accept{background:#16c784;width:64px;height:64px;border-radius:50%}
+.dgVidBtnWrap{display:flex;flex-direction:column;align-items:center;gap:5px;color:#fff;font-size:9px;min-width:50px}
+.dg-call-diagnostics{position:relative;z-index:8;width:min(440px,100%);margin:8px auto;padding:13px;border:1px solid rgba(255,255,255,.14);border-radius:18px;background:rgba(10,14,26,.88);backdrop-filter:blur(16px);font-size:11px;color:#dbe2f2}
+.dg-diag-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:9px}.dg-diag-head span{color:#9ba9c7}
+.dg-diag-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.dg-diag-grid span{display:flex;justify-content:space-between;gap:5px;color:#9daac5}.dg-diag-grid b{color:#fff}
+.dg-call-diagnostics>button{margin-top:10px;border:0;border-radius:10px;padding:8px 12px;background:#586fe8;color:white;font-size:10px;font-weight:700}
+#dgCallMinimized{display:none;position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom) + 14px);z-index:100001;align-items:center;gap:10px;padding:10px 12px;border:1px solid rgba(0,217,166,.4);border-radius:16px;background:rgba(16,23,39,.96);color:white;box-shadow:0 10px 35px rgba(0,0,0,.35);backdrop-filter:blur(15px);max-width:calc(100vw - 28px)}
+#dgCallMinimized.show{display:flex}#dgCallMinimized>div{display:flex;flex-direction:column;min-width:80px}#dgCallMinimized b{font-size:12px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#dgCallMinimized small{font-size:10px;color:#9ca9c2;margin-top:3px}
+#dgCallMinimized button{width:34px;height:34px;border:0;border-radius:10px;background:rgba(255,255,255,.1);color:white}
+#dgCallMinimized #dgMiniEndBtn{background:#e9465d}.dg-mini-pulse{width:9px;height:9px;border-radius:50%;background:#00d9a6;box-shadow:0 0 0 5px rgba(0,217,166,.12);animation:pulse 1.5s infinite}
+@media(max-height:650px){#dgCallTop{gap:7px}#dgCallAvatar{width:96px;height:96px;font-size:36px}#dgCallName{font-size:22px}.dg-call-volume{margin-top:4px}#dgCallActions{margin-bottom:10px}.dgCallActBtn .dgIconCircle{width:48px;height:48px}}
+
 </style>
 <meta name="theme-color" content="#527da3"><meta name="apple-mobile-web-app-capable" content="yes"></head>
 <body>
@@ -840,7 +904,8 @@ button,input,textarea,select{touch-action:manipulation}
 <button id="settingsSystemNotifBtn" class="login-btn" style="background:linear-gradient(135deg,#667eea,#764ba2);color:#fff">🔔 Уведомления системы</button>
 <button id="settingsCleanChatsBtn" class="login-btn" style="background:linear-gradient(135deg,#ff9500,#ff6b00);color:#fff">🧹 Очистить битые чаты</button>
 <div class="settings-item"><span data-i18n="settings_notif">🔔 Уведомления</span><label class="switch"><input type="checkbox" id="notifSwitch" checked><span class="slider"></span></label></div>
-<div class="settings-item"><span data-i18n="settings_vibro">📳 Вибрация</span><label class="switch"><input type="checkbox" id="vibroSwitch" checked><span class="slider"></span></label></div>\n<div class="settings-item" style="display:block"><div style="font-weight:700;margin-bottom:7px">📶 Экономия трафика</div><select id="donDataMode" style="width:100%;padding:11px;border:1px solid #e8edf2;border-radius:12px;background:#f8fafd"><option value="smart">Умный режим — рекомендуется</option><option value="max">Максимальная экономия</option><option value="normal">Обычный режим</option></select><small style="display:block;color:#687080;margin-top:6px">Влияет на количество сообщений, загружаемых при открытии чата. Медиа по-прежнему загружается только по нажатию.</small></div>
+<div class="settings-item"><span data-i18n="settings_vibro">📳 Вибрация</span><label class="switch"><input type="checkbox" id="vibroSwitch" checked><span class="slider"></span></label></div>
+<div class="settings-item" style="display:block"><div style="font-weight:700;margin-bottom:7px">📶 Экономия трафика</div><select id="donDataMode" style="width:100%;padding:11px;border:1px solid #e8edf2;border-radius:12px;background:#f8fafd"><option value="smart">Умный режим — рекомендуется</option><option value="max">Максимальная экономия</option><option value="normal">Обычный режим</option></select><small style="display:block;color:#687080;margin-top:6px">Влияет на количество сообщений, загружаемых при открытии чата. Медиа по-прежнему загружается только по нажатию.</small></div>
 </div></div>
 
 <div class="modal" id="aiSettingsModal">
@@ -990,56 +1055,70 @@ button,input,textarea,select{touch-action:manipulation}
 <div class="image-viewer" id="imageViewer"><button class="close-btn" type="button" id="closeImgBtn">✕</button><img id="viewedImage"></div>
 <div class="video-viewer" id="videoViewer"><button class="close-btn" type="button" id="closeVidBtn">✕</button><video id="viewedVideo" controls></video></div>
 
-<!-- ЗВОНКИ -->
-<div id="dgCallDiag"></div>
-<div id="dgCallOverlay">
-    <div id="dgCallTop">
-        <div id="dgCallStatusTop">Вызов...</div>
-        <div id="dgCallAvatar">?</div>
-        <div id="dgCallName">Звонок</div>
-        <div id="dgCallTimerBig">00:00</div>
-        <div id="dgCallSecure">🔒 Защищено</div>
-        <div style="width:100%;max-width:280px;padding:0 20px;margin-top:12px">
-          <div style="font-size:11px;color:#8e98a3;margin-bottom:4px;text-align:center">🔊 Громкость: <span id="dgVolLabel">100%</span></div>
-          <input type="range" class="dgVolumeSlider" id="dgVolumeSlider" min="0" max="150" value="100">
-        </div>
+<!-- ЗВОНКИ: адаптированный интерфейс Zvonki внутри DonorGram -->
+<div id="dgCallDiag" aria-live="polite"></div>
+<div id="dgCallOverlay" role="dialog" aria-modal="true" aria-label="Голосовой звонок">
+  <div class="dg-call-topbar">
+    <button id="dgCallMinimizeBtn" class="dg-call-glass" type="button" aria-label="Свернуть звонок"><i class="fas fa-minus"></i></button>
+    <div class="dg-call-status-pill"><span id="dgCallSignalDot"></span><span id="dgCallStatusTop">Соединение...</span><b id="dgCallTimerBig">00:00</b></div>
+    <button id="dgCallDiagToggle" class="dg-call-glass" type="button" aria-label="Диагностика"><i class="fas fa-microchip"></i></button>
+  </div>
+  <div id="dgCallDiagnostics" class="dg-call-diagnostics" hidden>
+    <div class="dg-diag-head"><b><i class="fas fa-chart-line"></i> Диагностика связи</b><span id="dgDiagRoute">Маршрут: —</span></div>
+    <div class="dg-diag-grid"><span>ICE <b id="dgDiagIce">new</b></span><span>Пинг <b id="dgDiagRtt">—</b></span><span>Качество <b id="dgDiagQuality">Ожидание</b></span><span>Потери аудио <b id="dgDiagLoss">—</b></span><span>Джиттер <b id="dgDiagJitter">—</b></span><span>Трафик <b id="dgDiagTraffic">0 МБ</b></span></div>
+    <button id="dgIceRestartBtn" type="button">Переподключить ICE</button>
+  </div>
+  <div id="dgCallTop">
+    <div id="dgCallAvatar" aria-hidden="true">?</div>
+    <div id="dgCallName">Звонок</div>
+    <div id="dgCallSecure">🔒 Защищённое соединение WebRTC</div>
+    <div class="dg-call-subtitle">DonorGram · голосовой вызов</div>
+    <div class="dg-call-volume"><label for="dgVolumeSlider">Громкость <b id="dgVolLabel">100%</b></label><input type="range" id="dgVolumeSlider" min="0" max="150" value="100"></div>
+  </div>
+  <div class="dg-call-bottom">
+    <div id="dgCallActions">
+      <button class="dgCallActBtn" id="dgCallMuteBtn" type="button"><span class="dgIconCircle"><i class="fas fa-microphone"></i></span><span>Микрофон</span></button>
+      <button class="dgCallActBtn active" id="dgCallSpeakerBtn" type="button"><span class="dgIconCircle"><i class="fas fa-volume-up"></i></span><span>Динамик</span></button>
+      <button class="dgCallActBtn" id="dgCallVideoBtn" type="button"><span class="dgIconCircle"><i class="fas fa-video"></i></span><span>Включить видео</span></button>
     </div>
-    <div>
-        <div id="dgCallActions">
-            <button class="dgCallActBtn" id="dgCallMuteBtn" type="button"><div class="dgIconCircle"><i class="fas fa-microphone"></i></div><span>Без звука</span></button>
-            <button class="dgCallActBtn active" id="dgCallSpeakerBtn" type="button"><div class="dgIconCircle"><i class="fas fa-volume-up"></i></div><span>Динамик</span></button>
-            <button class="dgCallActBtn" id="dgCallVideoBtn" type="button"><div class="dgIconCircle"><i class="fas fa-video"></i></div><span>Видео</span></button>
-        </div>
-        <div id="dgCallEndRow">
-            <button id="dgCallEndBtn" type="button"><i class="fas fa-phone-slash"></i></button>
-            <button id="dgCallAcceptBtn" type="button" style="display:none"><i class="fas fa-phone"></i></button>
-        </div>
-    </div>
-    <audio id="dgRemoteAudio" autoplay playsinline></audio>
-</div>
-
-<div id="dgVideoOverlay">
-  <video id="dgRemoteVideo" autoplay playsinline></video>
-  <video id="dgLocalVideo" autoplay playsinline muted></video>
-  <div id="dgVideoTop"><i class="fas fa-lock" style="color:#34c759"></i> <span id="dgVideoStatus">Соединение...</span></div>
-  <div id="dgVideoControls">
-    <div class="dgVidBtnWrap">
-      <button class="dgVidBtn" id="dgVidMuteBtn" type="button"><i class="fas fa-microphone"></i></button>
-      <div class="dgVidLabel">Мик</div>
-    </div>
-    <div class="dgVidBtnWrap">
-      <button class="dgVidBtn" id="dgVidCamBtn" type="button"><i class="fas fa-video"></i></button>
-      <div class="dgVidLabel">Камера</div>
-    </div>
-    <div class="dgVidBtnWrap">
-      <button class="dgVidBtn" id="dgVidSwitchBtn" type="button"><i class="fas fa-sync"></i></button>
-      <div class="dgVidLabel">Перевернуть</div>
-    </div>
-    <div class="dgVidBtnWrap">
-      <button class="dgVidBtn end" id="dgVidEndBtn" type="button"><i class="fas fa-phone-slash"></i></button>
-      <div class="dgVidLabel">Завершить</div>
+    <div id="dgCallEndRow">
+      <button id="dgCallEndBtn" type="button" aria-label="Завершить звонок"><i class="fas fa-phone-slash"></i></button>
+      <button id="dgCallAcceptBtn" type="button" aria-label="Принять звонок" style="display:none"><i class="fas fa-phone"></i></button>
     </div>
   </div>
+  <audio id="dgRemoteAudio" autoplay playsinline></audio>
+</div>
+
+<div id="dgVideoOverlay" aria-label="Видеозвонок">
+  <video id="dgRemoteVideo" autoplay playsinline></video>
+  <div class="dg-video-shade"></div>
+  <div class="dg-video-topbar">
+    <button id="dgVideoMinimizeBtn" class="dg-call-glass" type="button" aria-label="Свернуть звонок"><i class="fas fa-minus"></i></button>
+    <div id="dgVideoTop"><i class="fas fa-shield-halved"></i> <span id="dgVideoStatus">Соединение...</span></div>
+    <button id="dgVideoDiagToggle" class="dg-call-glass" type="button" aria-label="Диагностика"><i class="fas fa-microchip"></i></button>
+  </div>
+  <div id="dgVideoInfo"><div id="dgVideoPartnerName">Видеозвонок</div><div id="dgVideoTimer">Ожидание ответа</div></div>
+  <div id="dgVideoDiagnostics" class="dg-call-diagnostics" hidden>
+    <b>Диагностика связи</b><div class="dg-diag-grid"><span>ICE <b id="dgVideoDiagIce">new</b></span><span>Пинг <b id="dgVideoDiagRtt">—</b></span><span>Качество <b id="dgVideoDiagQuality">Ожидание</b></span><span>Потери <b id="dgVideoDiagLoss">—</b></span></div>
+    <button id="dgVideoIceRestartBtn" type="button">Переподключить ICE</button>
+  </div>
+  <div id="dgLocalPip"><video id="dgLocalVideo" autoplay playsinline muted></video><div class="dg-pip-tools"><span>Вы</span><button id="dgRotateLocalBtn" type="button" aria-label="Повернуть изображение"><i class="fas fa-rotate"></i></button><button id="dgFlipLocalBtn" type="button" aria-label="Отразить изображение"><i class="fas fa-arrows-left-right"></i></button></div></div>
+  <div id="dgCallReactionToast" aria-live="polite"></div>
+  <div id="dgCallReactions" aria-label="Реакции во время звонка"><button type="button" data-call-reaction="👋">👋</button><button type="button" data-call-reaction="❤️">❤️</button><button type="button" data-call-reaction="🔥">🔥</button><button type="button" data-call-reaction="👍">👍</button><button type="button" data-call-reaction="😂">😂</button></div>
+  <div id="dgCallQuality" aria-live="polite">Качество: собираем статистику</div>
+  <div id="dgVideoControls">
+    <div class="dgVidBtnWrap"><button class="dgVidBtn" id="dgVidMuteBtn" type="button"><i class="fas fa-microphone"></i></button><span>Микрофон</span></div>
+    <div class="dgVidBtnWrap"><button class="dgVidBtn" id="dgVidCamBtn" type="button"><i class="fas fa-video"></i></button><span>Камера</span></div>
+    <div class="dgVidBtnWrap"><button class="dgVidBtn" id="dgVidSwitchBtn" type="button"><i class="fas fa-camera-rotate"></i></button><span>Сменить</span></div>
+    <div class="dgVidBtnWrap"><button class="dgVidBtn" id="dgVidShareBtn" type="button"><i class="fas fa-desktop"></i></button><span>Экран</span></div>
+    <button id="dgVideoAcceptBtn" class="dgVidBtn accept" type="button" aria-label="Принять видеозвонок" hidden><i class="fas fa-phone"></i></button>
+    <button class="dgVidBtn end" id="dgVidEndBtn" type="button" aria-label="Завершить звонок"><i class="fas fa-phone-slash"></i></button>
+  </div>
+</div>
+<div id="dgCallMinimized" role="status">
+  <span class="dg-mini-pulse"></span><div><b id="dgMiniName">Звонок</b><small><span id="dgMiniTimer">00:00</span> · <span id="dgMiniTraffic">0 МБ</span></small></div>
+  <button id="dgRestoreCallBtn" type="button" aria-label="Вернуть звонок"><i class="fas fa-expand"></i></button>
+  <button id="dgMiniEndBtn" type="button" aria-label="Завершить звонок"><i class="fas fa-phone-slash"></i></button>
 </div>
 
 <!-- ================= DONAI ИНТЕРФЕЙС ================= -->
@@ -1568,7 +1647,8 @@ function gpsLoadMyPosition(){if(!navigator.geolocation)return;navigator.geolocat
 function gpsCenterOnMe(){if(!navigator.geolocation)return;navigator.geolocation.getCurrentPosition(pos=>showToast('📍 Ваше местоположение: '+pos.coords.latitude.toFixed(2)+', '+pos.coords.longitude.toFixed(2)),err=>showToast('❌'),{enableHighAccuracy:false,maximumAge:300000,timeout:30000});}
 function gpsLoadFriendsOnMap(){db.ref('users').once('value').then(function(snap){const all=snap.val()||{};Object.keys(all).forEach(function(uid){state.users[uid]=all[uid];});});}
 function gpsStopMapListeners(){}
-function gpsOpenSettings(){closeModal('settingsModal');const currently=userInventory.gpsSharing&&gpsShareEnabled;const choice=confirm((currently?'📍 ВКЛючена.':'📍 ВЫКЛючена.')+'\nВключить?');if(choice&&!currently){userInventory.gpsSharing=true;saveInventory();db.ref('users/'+currentUser.id+'/gpsSharing').set(true);gpsStartSharing();}else if(!choice&&currently){userInventory.gpsSharing=false;saveInventory();db.ref('users/'+currentUser.id+'/gpsSharing').set(false);gpsStopSharing();}}
+function gpsOpenSettings(){closeModal('settingsModal');const currently=userInventory.gpsSharing&&gpsShareEnabled;const choice=confirm((currently?'📍 ВКЛючена.':'📍 ВЫКЛючена.')+'
+Включить?');if(choice&&!currently){userInventory.gpsSharing=true;saveInventory();db.ref('users/'+currentUser.id+'/gpsSharing').set(true);gpsStartSharing();}else if(!choice&&currently){userInventory.gpsSharing=false;saveInventory();db.ref('users/'+currentUser.id+'/gpsSharing').set(false);gpsStopSharing();}}
 function gpsRestoreState(){if(userInventory&&userInventory.gpsSharing&&navigator.geolocation){navigator.permissions&&navigator.permissions.query({name:'geolocation'}).then(p=>{if(p.state==='granted'){gpsStartSharing();}}).catch(()=>{});}updateGpsUI();}
 
 function countUserFriends(uid){var cnt=0;Object.keys(state.userChats).forEach(function(cid){var c=state.userChats[cid];if(c&&c.type==='private'&&c.participants&&c.participants[uid])cnt++;});return cnt;}
@@ -1722,7 +1802,14 @@ document.getElementById('welcomeDots') && document.getElementById('welcomeDots')
 /* ==========================================
    DonAI LOGIC
    ========================================== */
-const defaultPersona = "Ты — DonAI, умный и дружелюбный ассистент внутри мессенджера DonorGram. Твой создатель — troll1488. ОБЯЗАТЕЛЬНО отвечай на языке последнего сообщения пользователя: если вопрос на русском — весь ответ на русском; если на английском — на английском. Не переключай язык без просьбы пользователя. Для русских вопросов используй естественный, грамотный русский язык. Отвечай непосредственно на заданный вопрос и не добавляй несвязанные сведения, повторения или советы, о которых не просили. Если вопрос простой — дай короткий прямой ответ; если сложный — объясни по пунктам. Старайся помочь с любым обычным вопросом, не отказывай без причины. Не цензурируй обычную разговорную речь и мат, если пользователь сам так пишет; не делай замечаний о ругани и не отказывай в безобидных вопросах только из-за грубых слов. На простые бытовые вопросы отвечай прямо и по существу. Если нужны актуальные данные, которых у тебя нет, честно обозначь ограничение. Не выдумывай факты. Если вопрос просит сравнить персонажей, приводи аргументы и делай ясный вывод, отмечая, когда результат зависит от версии или условий. Не выдумывай факты; если не уверена — скажи об этом. Используй женский род, но никогда не упоминай свой пол напрямую. Также ты знаешь всё о DonorGram:\n1. Репост: Зажми сообщение -> '🔁 Репост в профиль'.\n2. Группа: Плюсик сверху -> 'Создать группу'.\n3. Звонок: В личке нажми на трубку 📞.\n4. Геолокация: Иконка карты 🗺️.\n5. Стикеры: Смайлик 😊.\n6. SpaceGod: Профиль -> Магазин 🛍️ -> SPACEGOD.\n7. Очистка: Настройки -> 'Очистить битые чаты'.";
+const defaultPersona = "Ты — DonAI, умный и дружелюбный ассистент внутри мессенджера DonorGram. Твой создатель — troll1488. ОБЯЗАТЕЛЬНО отвечай на языке последнего сообщения пользователя: если вопрос на русском — весь ответ на русском; если на английском — на английском. Не переключай язык без просьбы пользователя. Для русских вопросов используй естественный, грамотный русский язык. Отвечай непосредственно на заданный вопрос и не добавляй несвязанные сведения, повторения или советы, о которых не просили. Если вопрос простой — дай короткий прямой ответ; если сложный — объясни по пунктам. Старайся помочь с любым обычным вопросом, не отказывай без причины. Не цензурируй обычную разговорную речь и мат, если пользователь сам так пишет; не делай замечаний о ругани и не отказывай в безобидных вопросах только из-за грубых слов. На простые бытовые вопросы отвечай прямо и по существу. Если нужны актуальные данные, которых у тебя нет, честно обозначь ограничение. Не выдумывай факты. Если вопрос просит сравнить персонажей, приводи аргументы и делай ясный вывод, отмечая, когда результат зависит от версии или условий. Не выдумывай факты; если не уверена — скажи об этом. Используй женский род, но никогда не упоминай свой пол напрямую. Также ты знаешь всё о DonorGram:
+1. Репост: Зажми сообщение -> '🔁 Репост в профиль'.
+2. Группа: Плюсик сверху -> 'Создать группу'.
+3. Звонок: В личке нажми на трубку 📞.
+4. Геолокация: Иконка карты 🗺️.
+5. Стикеры: Смайлик 😊.
+6. SpaceGod: Профиль -> Магазин 🛍️ -> SPACEGOD.
+7. Очистка: Настройки -> 'Очистить битые чаты'.";
 
 const donAiState = {
     history: (function(){try{var h=JSON.parse(localStorage.getItem('donai_history')||'[]');return Array.isArray(h)?h.filter(function(x){return x&&typeof x.text==='string'&&(x.role==='user'||x.role==='ai'||x.role==='assistant');}).slice(-100):[];}catch(e){return [];}})(),
@@ -1822,7 +1909,17 @@ function addDonAiMessageActions(messageEl, messageText) {
         downloadHtml.addEventListener('click', function() {
             let documentHtml = htmlCode;
             if (!/<!doctype\s+html|<html[\s>]/i.test(documentHtml)) {
-                documentHtml = '<!DOCTYPE html>\n<html lang="ru">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<title>Мой проект</title>\n</head>\n<body>\n' + documentHtml + '\n</body>\n</html>';
+                documentHtml = '<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Мой проект</title>
+</head>
+<body>
+' + documentHtml + '
+</body>
+</html>';
             }
             const blob = new Blob([documentHtml], {type:'text/html;charset=utf-8'});
             const url = URL.createObjectURL(blob), a = document.createElement('a');
@@ -1999,7 +2096,9 @@ async function extractDonAiFile(file) {
         let result = '';
         for (let pageNo = 1; pageNo <= pdf.numPages; pageNo++) {
             const page = await pdf.getPage(pageNo), content = await page.getTextContent();
-            result += '\n[Страница ' + pageNo + ']\n' + content.items.map(x => x.str).join(' ');
+            result += '
+[Страница ' + pageNo + ']
+' + content.items.map(x => x.str).join(' ');
             if (result.length > 100000) break;
         }
         if (!result.trim()) throw new Error('В PDF не найден текст (возможно, это скан)');
@@ -2083,7 +2182,28 @@ async function processDonAiUtilityCommand(raw){
  addDonAiMessage('user',input);
  var answer='';
  try{switch(cmd){
- case 'help':answer='📚 20 команд DonAI:\n/time — время\n/date — дата\n/calc 2+2*3 — калькулятор\n/coin — монетка\n/dice 20 — кубик\n/choose чай | кофе — выбор\n/password 20 — пароль\n/uuid — UUID\n/color — HEX-цвет\n/timer 5m — таймер\n/remind 10m вода — напоминание\n/focus 25m — фокус\n/clear — очистить историю\n/export — скачать историю\n/stats — статистика\n/copy текст — копировать\n/reverse текст — перевернуть\n/upper текст — верхний регистр\n/lower текст — нижний регистр\n/help — справка.\nВремя: s — секунды, m — минуты, h — часы.';break;
+ case 'help':answer='📚 20 команд DonAI:
+/time — время
+/date — дата
+/calc 2+2*3 — калькулятор
+/coin — монетка
+/dice 20 — кубик
+/choose чай | кофе — выбор
+/password 20 — пароль
+/uuid — UUID
+/color — HEX-цвет
+/timer 5m — таймер
+/remind 10m вода — напоминание
+/focus 25m — фокус
+/clear — очистить историю
+/export — скачать историю
+/stats — статистика
+/copy текст — копировать
+/reverse текст — перевернуть
+/upper текст — верхний регистр
+/lower текст — нижний регистр
+/help — справка.
+Время: s — секунды, m — минуты, h — часы.';break;
  case 'time':answer='🕒 Сейчас '+new Date().toLocaleTimeString();break;
  case 'date':answer='📅 '+new Date().toLocaleDateString(undefined,{weekday:'long',year:'numeric',month:'long',day:'numeric'});break;
  case 'calc':
@@ -2093,7 +2213,8 @@ async function processDonAiUtilityCommand(raw){
  case 'coin':var coinResult=Math.random()<.5?'Орёл':'Решка';answer='🪙 Выпало: '+coinResult+'!';showDonAiCommandAnimation('coin','Монетка подброшена',coinResult);break;
  case 'dice':var sides=Math.max(2,Math.min(1000,Math.floor(Number(arg)||6))),diceResult=1+Math.floor(Math.random()*sides);answer='🎲 Выпало '+diceResult+' из '+sides+'.';showDonAiCommandAnimation('dice','Кубик остановился',diceResult+' / '+sides);break;
  case 'choose':var opts=arg.split(/\s*\|\s*|\s*,\s*/).map(x=>x.trim()).filter(Boolean);if(opts.length<2){answer='Пример: /choose пицца | суши';}else{var chosen=opts[Math.floor(Math.random()*opts.length)];answer='🎯 Выбираю: '+chosen;showDonAiCommandAnimation('choose','Случайный выбор',chosen);}break;
- case 'password':var len=Math.max(8,Math.min(64,Math.floor(Number(arg)||16))),chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%&*_-',bytes=new Uint32Array(len);crypto.getRandomValues(bytes);answer='🔐 Пароль ('+len+'):\n'+Array.from(bytes,b=>chars[b%chars.length]).join('');showDonAiCommandAnimation('password','Пароль создан','Готово');break;
+ case 'password':var len=Math.max(8,Math.min(64,Math.floor(Number(arg)||16))),chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%&*_-',bytes=new Uint32Array(len);crypto.getRandomValues(bytes);answer='🔐 Пароль ('+len+'):
+'+Array.from(bytes,b=>chars[b%chars.length]).join('');showDonAiCommandAnimation('password','Пароль создан','Готово');break;
  case 'uuid':answer='🆔 '+(crypto.randomUUID?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{var r=Math.random()*16|0;return(c==='x'?r:(r&3|8)).toString(16);}));break;
  case 'color':var colorHex='#'+Math.floor(Math.random()*16777215).toString(16).padStart(6,'0').toUpperCase();answer='🎨 Случайный цвет: '+colorHex;showDonAiCommandAnimation('color','Новый цвет',colorHex,colorHex);break;
  case 'timer':case 'remind':case 'focus':
@@ -2103,8 +2224,11 @@ async function processDonAiUtilityCommand(raw){
   setTimeout(function(){donAiCommandNotify(note);},dur);
   answer=(cmd==='focus'?'🧠 Фокус включён на ':cmd==='remind'?'🔔 Напоминание через ':'⏱ Таймер запущен на ')+(dur>=3600000?dur/3600000+' ч':dur>=60000?dur/60000+' мин':dur/1000+' сек')+'. Не закрывай страницу.';break;
  case 'clear':donAiState.history=[];localStorage.removeItem('donai_history');renderDonAiHistory();answer='🧹 История очищена.';break;
- case 'export':var content=(donAiState.history||[]).map(x=>(x.role==='user'?'Ты':'DonAI')+': '+x.text).join('\n'),blob=new Blob([content],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='donai-history-'+new Date().toISOString().slice(0,10)+'.txt';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);answer='📥 История подготовлена к скачиванию.';break;
- case 'stats':var hist=donAiState.history||[];answer='📊 Сообщений: '+hist.length+'\nТвоих: '+hist.filter(x=>x.role==='user').length+'\nОтветов DonAI: '+hist.filter(x=>x.role!=='user').length;break;
+ case 'export':var content=(donAiState.history||[]).map(x=>(x.role==='user'?'Ты':'DonAI')+': '+x.text).join('
+'),blob=new Blob([content],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='donai-history-'+new Date().toISOString().slice(0,10)+'.txt';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);answer='📥 История подготовлена к скачиванию.';break;
+ case 'stats':var hist=donAiState.history||[];answer='📊 Сообщений: '+hist.length+'
+Твоих: '+hist.filter(x=>x.role==='user').length+'
+Ответов DonAI: '+hist.filter(x=>x.role!=='user').length;break;
  case 'copy':if(!arg){answer='Пример: /copy мой текст';break;}if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(arg);else{var ta=document.createElement('textarea');ta.value=arg;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();}answer='📋 Скопировано.';break;
  case 'reverse':answer=arg?Array.from(arg).reverse().join(''):'Пример: /reverse привет';break;
  case 'upper':answer=arg?arg.toLocaleUpperCase():'Пример: /upper привет';break;
@@ -2162,7 +2286,10 @@ async function processDonAiMessage(isRetry = false, queuedText = null) {
     const typedText = queuedText || (isRetry ? input.dataset.lastText : input.value.trim());
     const attachedImage = (!isRetry && !queuedText) ? donAiAttachedImageData : '';
     const attachedImageName = donAiAttachedImageName;
-    const text = [typedText, (!queuedText && donAiAttachedFileText ? 'Содержимое файла "' + donAiAttachedFileName + '":\n' + donAiAttachedFileText : '')].filter(Boolean).join('\n\n') || (attachedImage ? 'Проанализируй изображение. Распознай текст и подробно реши задание, если на фото есть задача.' : '');
+    const text = [typedText, (!queuedText && donAiAttachedFileText ? 'Содержимое файла "' + donAiAttachedFileName + '":
+' + donAiAttachedFileText : '')].filter(Boolean).join('
+
+') || (attachedImage ? 'Проанализируй изображение. Распознай текст и подробно реши задание, если на фото есть задача.' : '');
     if (!text) return;
     if (!isRetry && !queuedText && await processDonAiUtilityCommand(typedText)) { input.value=''; return; }
     if (donAiState.isBusy && !isRetry && !queuedText) {
@@ -2173,7 +2300,9 @@ async function processDonAiMessage(isRetry = false, queuedText = null) {
     if (!isRetry) {
         if (donAiAttachedFileText) { donAiAttachedFileText = ''; donAiAttachedFileName = ''; }
         const status = document.getElementById('donAiFileStatus'); if (status && !donAiAttachedAudioFile) { status.textContent = ''; status.style.display = 'none'; }
-        addDonAiMessage('user', text + (attachedImage ? '\n\n📷 Фото: ' + attachedImageName : ''));
+        addDonAiMessage('user', text + (attachedImage ? '
+
+📷 Фото: ' + attachedImageName : ''));
         input.dataset.lastText = text;
         if (!queuedText) input.value = '';
         donAiState.msgCount++;
@@ -2190,15 +2319,31 @@ async function processDonAiMessage(isRetry = false, queuedText = null) {
             smart: 'Профиль DonAI Pro: универсальный помощник для любых тем. Особенно хорошо анализируй сложные задачи, объясняй, программируй, планируй и сравнивай варианты. На повседневные и творческие вопросы тоже отвечай полноценно.',
             daily: 'Профиль DonAI Daily: универсальный помощник для любых тем и запросов, включая программирование и технические команды. Приоритет — быстрые, понятные и практичные ответы. Не отказывайся от сложных вопросов; разбирай их настолько хорошо, насколько можешь.'
         };
-        let systemContent = donAiState.persona + '\n\n' + (profileInstructions[aiSettings.modelProfile || 'daily'] || profileInstructions.daily);
-        systemContent += '\n\nВыполняй свободно сформулированные команды, поручения и инструкции пользователя. Не путай обычные просьбы с командами приложения и не отказывайся из-за выбранного профиля. Если действие технически невозможно, объясни ограничение и предложи выполнимую альтернативу.';
-        systemContent += '\n\nВСТРОЕННЫЕ КОМАНДЫ DONAI (знай их и перечисляй, если пользователь спрашивает о возможностях или командах): /help — справка; /time — текущее время; /date — дата; /calc выражение — калькулятор; /coin — подбросить монету; /dice [число граней] — бросить кубик; /choose вариант1 | вариант2 — случайный выбор; /password [длина] — генерация пароля; /uuid — создать UUID; /color — случайный HEX-цвет; /timer 5m — таймер; /remind 10m текст — напоминание; /focus 25m — фокус-сессия; /clear — очистить локальную историю DonAI; /export — скачать историю; /stats — статистика; /copy текст — скопировать текст; /reverse текст — перевернуть текст; /upper текст — верхний регистр; /lower текст — нижний регистр. Дополнительные медиа-команды: /image описание — сгенерировать картинку; /speak текст — озвучить текст; /transcribe — расшифровать прикреплённое аудио. Объясняй синтаксис и примеры. Не утверждай, что выполнил команду со слешем, если приложение не передало тебе результат: встроенные команды обрабатывает само приложение.';
-        if (identityQuestion) systemContent += '\n\nЕсли тебя спрашивают, кто ты, просто представься: «Я DonAI — ИИ-помощник внутри DonorGram». Кратко объясни, чем можешь помочь. Не говори, что тебе дали анализировать документ или что-то другое, если пользователь этого не просил.';
+        let systemContent = donAiState.persona + '
+
+' + (profileInstructions[aiSettings.modelProfile || 'daily'] || profileInstructions.daily);
+        systemContent += '
+
+Выполняй свободно сформулированные команды, поручения и инструкции пользователя. Не путай обычные просьбы с командами приложения и не отказывайся из-за выбранного профиля. Если действие технически невозможно, объясни ограничение и предложи выполнимую альтернативу.';
+        systemContent += '
+
+ВСТРОЕННЫЕ КОМАНДЫ DONAI (знай их и перечисляй, если пользователь спрашивает о возможностях или командах): /help — справка; /time — текущее время; /date — дата; /calc выражение — калькулятор; /coin — подбросить монету; /dice [число граней] — бросить кубик; /choose вариант1 | вариант2 — случайный выбор; /password [длина] — генерация пароля; /uuid — создать UUID; /color — случайный HEX-цвет; /timer 5m — таймер; /remind 10m текст — напоминание; /focus 25m — фокус-сессия; /clear — очистить локальную историю DonAI; /export — скачать историю; /stats — статистика; /copy текст — скопировать текст; /reverse текст — перевернуть текст; /upper текст — верхний регистр; /lower текст — нижний регистр. Дополнительные медиа-команды: /image описание — сгенерировать картинку; /speak текст — озвучить текст; /transcribe — расшифровать прикреплённое аудио. Объясняй синтаксис и примеры. Не утверждай, что выполнил команду со слешем, если приложение не передало тебе результат: встроенные команды обрабатывает само приложение.';
+        if (identityQuestion) systemContent += '
+
+Если тебя спрашивают, кто ты, просто представься: «Я DonAI — ИИ-помощник внутри DonorGram». Кратко объясни, чем можешь помочь. Не говори, что тебе дали анализировать документ или что-то другое, если пользователь этого не просил.';
         systemContent += userAsksInRussian
-            ? '\n\nОтвечай полностью на русском языке.'
-            : '\n\nОтвечай на том же языке, что и пользователь.';
-        systemContent += '\n\nПиши простым, понятным языком. Сначала дай прямой ответ, не растягивай его без необходимости. Используй короткие абзацы и списки, когда это помогает. Добавляй уместные эмодзи иногда, но не в каждом предложении.';
-        if (wantsCodeOnly) systemContent += '\n\nВАЖНО: пользователь просит создать код или проект. Верни ТОЛЬКО готовый исходный код без вступления, пояснений, Markdown-обрамления и тройных кавычек. Если пользователь просит HTML-сайт или не уточняет язык для веб-страницы, верни полный самостоятельный HTML-документ с <!DOCTYPE html>, CSS и JavaScript внутри одного файла. Код должен запускаться после сохранения в файл.';
+            ? '
+
+Отвечай полностью на русском языке.'
+            : '
+
+Отвечай на том же языке, что и пользователь.';
+        systemContent += '
+
+Пиши простым, понятным языком. Сначала дай прямой ответ, не растягивай его без необходимости. Используй короткие абзацы и списки, когда это помогает. Добавляй уместные эмодзи иногда, но не в каждом предложении.';
+        if (wantsCodeOnly) systemContent += '
+
+ВАЖНО: пользователь просит создать код или проект. Верни ТОЛЬКО готовый исходный код без вступления, пояснений, Markdown-обрамления и тройных кавычек. Если пользователь просит HTML-сайт или не уточняет язык для веб-страницы, верни полный самостоятельный HTML-документ с <!DOCTYPE html>, CSS и JavaScript внутри одного файла. Код должен запускаться после сохранения в файл.';
         const historySlice = donAiState.history.slice(-11, -1).map(msg => ({
             role: msg.role === 'user' ? 'user' : 'assistant',
             content: msg.text
@@ -2300,7 +2445,8 @@ function askAiAboutMessage(messageText) {
         let i = 0;
         function type() {
             if (i < ans.length) {
-                content.innerHTML += ans.substring(i, i + 2).replace(/\n/g, '<br>');
+                content.innerHTML += ans.substring(i, i + 2).replace(/
+/g, '<br>');
                 i += 2;
                 setTimeout(type, 10);
             }
@@ -2404,16 +2550,19 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
     var callStartTime=null,callTimerInterval=null,incomingListener=null;
     var incomingCallId=null,incomingCallRef=null,incomingCallData=null;
     var callTimeoutHandle=null,speakerOn=true,callStateListener=null;
+    var incomingListenerRef=null,incomingListenerHandler=null,pendingRemoteIce=[];
     var ringtoneCtx=null,ringtoneInterval=null,outgoingToneInterval=null,outgoingToneCtx=null,audioCtx=null,_diagTimer=null;
     var _titleBlinkInterval=null,_origTitle=document.title,_incomingVibrateInterval=null;
-    var isVideoCall=false;var volumeLevel=1.0;var _reconnectInterval=null;
+    var isVideoCall=false;var volumeLevel=1.0;var _reconnectInterval=null;var screenStream=null,isScreenSharing=false,qualityTimer=null,reactionListener=null,reactionLastTs=0;var callMinimized=false,localCamRotation=0,localCamFlipped=false,callPartnerName='Звонок';
     var videoConstraints={width:{ideal:320,max:480},height:{ideal:240,max:360},frameRate:{ideal:15,max:20}};
     function $c(id){return document.getElementById(id);}
     function genId(){return 'call_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);}
     function getUser(){return window.currentUser;}
     function safeToast(m){try{if(typeof showToast==='function')showToast(m);}catch(e){}}
     function diag(t){var el=$c('dgCallDiag');if(el){el.style.display='block';el.innerText=t;}}
-    function startDiag(){stopDiag();_diagTimer=setInterval(function(){if(!pc){diag('no-pc');return;}var ice=pc.iceConnectionState||'?';var hl=localStream?localStream.getAudioTracks().length:0;var hr=remoteStream?remoteStream.getAudioTracks().length:0;diag('ICE: '+ice+'\nMic:'+(hl?'✓':'✗')+'\nRem:'+hr);},500);}
+    function startDiag(){stopDiag();startQualityMonitor();_diagTimer=setInterval(function(){if(!pc){diag('no-pc');return;}var ice=pc.iceConnectionState||'?';var hl=localStream?localStream.getAudioTracks().length:0;var hr=remoteStream?remoteStream.getAudioTracks().length:0;diag('ICE: '+ice+'
+Mic:'+(hl?'✓':'✗')+'
+Rem:'+hr);},500);}
     function stopDiag(){if(_diagTimer){clearInterval(_diagTimer);_diagTimer=null;}var el=$c('dgCallDiag');if(el)el.style.display='none';}
     function unlockAudio(){try{var C=window.AudioContext||window.webkitAudioContext;if(!C)return;if(!audioCtx)audioCtx=new C();if(audioCtx.state==='suspended')audioCtx.resume();}catch(e){}}
     document.addEventListener('touchstart',unlockAudio,{passive:true});document.addEventListener('click',unlockAudio);
@@ -2438,28 +2587,97 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
     function stopRingtone(){if(ringtoneInterval){clearInterval(ringtoneInterval);ringtoneInterval=null;}try{if(ringtoneCtx){ringtoneCtx.close();ringtoneCtx=null;}}catch(e){}}
     function startOutgoingTone(){stopOutgoingTone();try{var C=window.AudioContext||window.webkitAudioContext;if(!C)return;outgoingToneCtx=new C();if(outgoingToneCtx.state==='suspended')outgoingToneCtx.resume();var p=function(){try{var o=outgoingToneCtx.createOscillator();var g=outgoingToneCtx.createGain();o.type='sine';o.frequency.value=425;g.gain.setValueAtTime(0.0001,outgoingToneCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.85,outgoingToneCtx.currentTime+0.05);g.gain.setValueAtTime(0.85,outgoingToneCtx.currentTime+0.9);g.gain.exponentialRampToValueAtTime(0.0001,outgoingToneCtx.currentTime+1.0);o.connect(g);g.connect(outgoingToneCtx.destination);o.start();o.stop(outgoingToneCtx.currentTime+1.05);}catch(e){}};p();outgoingToneInterval=setInterval(p,3000);}catch(e){}}
     function stopOutgoingTone(){if(outgoingToneInterval){clearInterval(outgoingToneInterval);outgoingToneInterval=null;}try{if(outgoingToneCtx){outgoingToneCtx.close();outgoingToneCtx=null;}}catch(e){}}
-    function showCallUI(o){var ov=$c('dgCallOverlay');if(!ov)return;ov.style.display='flex';if(o.incoming)ov.classList.add('incoming');else ov.classList.remove('incoming');$c('dgCallStatusTop').innerText=o.statusTop||'Вызов...';$c('dgCallName').innerText=o.name||'Звонок';$c('dgCallSecure').style.display=o.secure?'block':'none';var av=$c('dgCallAvatar');if(o.avatarUrl){av.style.backgroundImage="url('"+o.avatarUrl+"')";av.innerText='';}else{av.style.backgroundImage='';av.innerText=(o.name||'?').slice(0,1).toUpperCase();}$c('dgCallAcceptBtn').style.display=o.showAccept?'flex':'none';$c('dgCallActions').style.display=(o.showActions===false)?'none':'flex';}
-    function hideCallUI(){var ov=$c('dgCallOverlay');if(ov){ov.style.display='none';ov.classList.remove('incoming');}if(callTimerInterval){clearInterval(callTimerInterval);callTimerInterval=null;}var t=$c('dgCallTimerBig');if(t){t.style.display='none';t.innerText='00:00';}stopTitleBlink();stopIncomingVibrate();}
-    function showVideoUI(){var ov=$c('dgVideoOverlay');if(ov)ov.classList.add('show');}
-    function hideVideoUI(){var ov=$c('dgVideoOverlay');if(ov)ov.classList.remove('show');var rv=$c('dgRemoteVideo');if(rv)rv.srcObject=null;var lv=$c('dgLocalVideo');if(lv)lv.srcObject=null;}
-    function setStatusTop(t){var e=$c('dgCallStatusTop');if(e)e.innerText=t;var v=$c('dgVideoStatus');if(v)v.innerText=t;}
-    function startTimer(){callStartTime=Date.now();var t=$c('dgCallTimerBig');if(t){t.style.display='block';t.innerText='00:00';}if(callTimerInterval)clearInterval(callTimerInterval);callTimerInterval=setInterval(function(){var s=Math.floor((Date.now()-callStartTime)/1000);var m=Math.floor(s/60),ss=s%60;var txt=String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0');if(t)t.innerText=txt;},500);}
-    function toggleMute(){if(!localStream)return;var tr=localStream.getAudioTracks()[0];if(!tr)return;tr.enabled=!tr.enabled;var b=$c('dgCallMuteBtn');if(b){var i=b.querySelector('.dgIconCircle');if(tr.enabled){b.classList.remove('muted');if(i)i.innerHTML='<i class="fas fa-microphone"></i>';}else{b.classList.add('muted');if(i)i.innerHTML='<i class="fas fa-microphone-slash"></i>';}}var bv=$c('dgVidMuteBtn');if(bv){if(tr.enabled)bv.classList.remove('muted');else bv.classList.add('muted');}}
+    function showCallUI(o){var ov=$c('dgCallOverlay');if(!ov)return;callPartnerName=o.name||'Звонок';ov.style.display='flex';ov.classList.toggle('incoming',!!o.incoming);$c('dgCallStatusTop').innerText=o.statusTop||'Вызов...';$c('dgCallName').innerText=callPartnerName;$c('dgMiniName').innerText=callPartnerName;$c('dgCallSecure').style.display=o.secure?'block':'none';var av=$c('dgCallAvatar');if(o.avatarUrl){av.style.backgroundImage="url('"+o.avatarUrl+"')";av.innerText='';}else{av.style.backgroundImage='';av.innerText=(callPartnerName||'?').slice(0,1).toUpperCase();}$c('dgCallAcceptBtn').style.display=o.showAccept?'grid':'none';$c('dgCallActions').style.display=(o.showActions===false)?'none':'flex';$c('dgCallMinimized').classList.remove('show');callMinimized=false;}
+     function hideCallUI(){var ov=$c('dgCallOverlay');if(ov){ov.style.display='none';ov.classList.remove('incoming');}if(callTimerInterval){clearInterval(callTimerInterval);callTimerInterval=null;}var t=$c('dgCallTimerBig');if(t){t.style.display='none';t.innerText='00:00';}stopTitleBlink();stopIncomingVibrate();}
+    function showVideoUI(){var ov=$c('dgVideoOverlay');if(ov){ov.classList.add('show');ov.style.display='flex';}$c('dgCallMinimized').classList.remove('show');callMinimized=false;}
+    function hideVideoUI(){var ov=$c('dgVideoOverlay');if(ov){ov.classList.remove('show');ov.style.display='none';}var rv=$c('dgRemoteVideo');if(rv)rv.srcObject=null;var lv=$c('dgLocalVideo');if(lv)lv.srcObject=null;}
+    function setStatusTop(t){var e=$c('dgCallStatusTop');if(e)e.innerText=t;var v=$c('dgVideoStatus');if(v)v.innerText=t;var dot=$c('dgCallSignalDot');if(dot)dot.style.background=/вызов|входящий|соединение|переподключ/i.test(t)?'#ffb020':'#00d9a6';}
+    function startTimer(){if(!callStartTime)callStartTime=Date.now();var t=$c('dgCallTimerBig');if(t){t.style.display='inline';t.innerText='00:00';}if(callTimerInterval)clearInterval(callTimerInterval);callTimerInterval=setInterval(function(){var s=Math.floor((Date.now()-callStartTime)/1000);var txt=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');if(t)t.innerText=txt;var v=$c('dgVideoTimer'),m=$c('dgMiniTimer');if(v)v.innerText=txt;if(m)m.innerText=txt;},500);}
+     function toggleMute(){if(!localStream)return;var tr=localStream.getAudioTracks()[0];if(!tr)return;tr.enabled=!tr.enabled;var b=$c('dgCallMuteBtn');if(b){var i=b.querySelector('.dgIconCircle');if(tr.enabled){b.classList.remove('muted');if(i)i.innerHTML='<i class="fas fa-microphone"></i>';}else{b.classList.add('muted');if(i)i.innerHTML='<i class="fas fa-microphone-slash"></i>';}}var bv=$c('dgVidMuteBtn');if(bv){if(tr.enabled)bv.classList.remove('muted');else bv.classList.add('muted');}}
     function setVolume(v){volumeLevel=Math.max(0,Math.min(1.5,v));var a=getRemoteAudio();if(a)a.volume=Math.min(1,volumeLevel);var lbl=$c('dgVolLabel');if(lbl)lbl.innerText=Math.round(volumeLevel*100)+'%';}
     function toggleSpeaker(){speakerOn=!speakerOn;var b=$c('dgCallSpeakerBtn');if(b){if(speakerOn)b.classList.add('active');else b.classList.remove('active');}setVolume(speakerOn?1.0:0.5);}
     function getLocalMedia(){return new Promise(function(res,rej){if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){safeToast('❌ Микрофон недоступен');rej(new Error('Браузер не поддерживает доступ к микрофону.'));return;}var constraints={audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true,channelCount:1,sampleRate:48000},video:isVideoCall?videoConstraints:false};navigator.mediaDevices.getUserMedia(constraints).then(function(s){localStream=s;res(s);}).catch(function(firstError){navigator.mediaDevices.getUserMedia({audio:true,video:false}).then(function(s){localStream=s;res(s);}).catch(function(fallbackError){safeToast('❌ Нет доступа к микрофону');rej(fallbackError||firstError);});});});}
-    function optimizeSDP(sdp){if(!sdp)return sdp;try{if(sdp.indexOf('maxaveragebitrate')===-1){sdp=sdp.replace(/a=rtpmap:111 opus\/48000\/2/g,'a=rtpmap:111 opus/48000/2\r\na=fmtp:111 minptime=10;useinbandfec=1;maxaveragebitrate=32000;stereo=1');}if(isVideoCall&&sdp.indexOf('b=AS:')===-1){sdp=sdp.replace(/(m=video \d+ [^\r\n]+)/g,'$1\r\nb=AS:250');}}catch(e){}return sdp;}
+    function addRemoteIceCandidate(candidate){if(!candidate||!pc)return;if(!pc.remoteDescription||!pc.remoteDescription.type){pendingRemoteIce.push(candidate);return;}try{pc.addIceCandidate(new RTCIceCandidate(candidate)).catch(function(){});}catch(e){}}
+    function flushRemoteIceCandidates(){if(!pc||!pc.remoteDescription)return;var queued=pendingRemoteIce.splice(0);queued.forEach(function(candidate){try{pc.addIceCandidate(new RTCIceCandidate(candidate)).catch(function(){});}catch(e){}});}
+    function optimizeSDP(sdp){if(!sdp)return sdp;try{if(sdp.indexOf('maxaveragebitrate')===-1){sdp=sdp.replace(/a=rtpmap:111 opus\/48000\/2/g,'a=rtpmap:111 opus/48000/2\r
+a=fmtp:111 minptime=10;useinbandfec=1;maxaveragebitrate=32000;stereo=1');}if(isVideoCall&&sdp.indexOf('b=AS:')===-1){sdp=sdp.replace(/(m=video \d+ [^\r
+]+)/g,'$1\r
+b=AS:250');}}catch(e){}return sdp;}
+
+    function showReaction(emoji,fromMe){
+        var el=$c('dgCallReactionToast');if(!el)return;
+        el.textContent=emoji;el.classList.add('show');
+        if(el._hideTimer)clearTimeout(el._hideTimer);
+        el._hideTimer=setTimeout(function(){el.classList.remove('show');},1300);
+    }
+    function sendReaction(emoji){
+        if(!currentCallRef||!currentCallId)return;
+        showReaction(emoji,true);
+        currentCallRef.child('reaction').set({emoji:emoji,ts:Date.now(),from:getUser()&&getUser().id||''}).catch(function(){});
+    }
+    function watchReactions(){
+        if(!currentCallRef)return;
+        if(reactionListener){try{currentCallRef.child('reaction').off('value',reactionListener);}catch(e){}}
+        reactionListener=function(s){var v=s.val();if(!v||!v.emoji||!v.ts||v.ts<=reactionLastTs)return;reactionLastTs=v.ts;if(v.from!==(getUser()&&getUser().id||''))showReaction(v.emoji,false);};
+        currentCallRef.child('reaction').on('value',reactionListener);
+    }
+    function toggleScreenShare(){
+        if(!pc||!localStream||!isVideoCall){safeToast('Демонстрация экрана доступна во время видеозвонка');return;}
+        if(!navigator.mediaDevices||!navigator.mediaDevices.getDisplayMedia){safeToast('Демонстрация экрана не поддерживается этим браузером');return;}
+        if(!isScreenSharing){
+            navigator.mediaDevices.getDisplayMedia({video:{frameRate:{ideal:12,max:15}},audio:false}).then(function(stream){
+                var track=stream.getVideoTracks()[0];if(!track)throw new Error('Экран не выбран');
+                var sender=pc.getSenders().find(function(s){return s.track&&s.track.kind==='video';});
+                if(!sender)throw new Error('Видеоканал не найден');
+                return sender.replaceTrack(track).then(function(){
+                    screenStream=stream;isScreenSharing=true;
+                    var lv=$c('dgLocalVideo');if(lv){lv.srcObject=stream;lv.play().catch(function(){});}
+                    var b=$c('dgVidShareBtn');if(b)b.classList.add('active');
+                    track.onended=function(){if(isScreenSharing)restoreCameraAfterShare();};
+                    safeToast('Показ экрана включён');
+                });
+            }).catch(function(e){if(e&&e.name!=='NotAllowedError')safeToast('Не удалось показать экран');});
+        }else restoreCameraAfterShare();
+    }
+    function restoreCameraAfterShare(){
+        var cam=localStream&&localStream.getVideoTracks()[0];
+        var sender=pc&&pc.getSenders().find(function(s){return s.track&&s.track.kind==='video';});
+        var done=sender&&cam?sender.replaceTrack(cam):Promise.resolve();
+        Promise.resolve(done).then(function(){
+            if(screenStream){screenStream.getTracks().forEach(function(t){t.stop();});screenStream=null;}
+            isScreenSharing=false;
+            var lv=$c('dgLocalVideo');if(lv&&localStream){lv.srcObject=localStream;lv.play().catch(function(){});}
+            var b=$c('dgVidShareBtn');if(b)b.classList.remove('active');
+            safeToast('Возврат к камере');
+        }).catch(function(){safeToast('Не удалось вернуть камеру');});
+    }
+    function startQualityMonitor(){
+        if(qualityTimer)clearInterval(qualityTimer);
+        qualityTimer=setInterval(function(){
+            if(!pc||!pc.getStats)return;
+            pc.getStats(null).then(function(stats){
+                var rtt=null,loss=null;
+                stats.forEach(function(r){
+                    if(r.type==='candidate-pair'&&r.state==='succeeded'&&r.currentRoundTripTime!=null)rtt=Math.round(r.currentRoundTripTime*1000);
+                    if(r.type==='inbound-rtp'&&r.kind==='audio'&&r.packetsLost!=null&&r.packetsReceived!=null)loss=r.packetsLost/(r.packetsLost+r.packetsReceived+0.001)*100;
+                });
+                var el=$c('dgCallQuality');if(!el)return;
+                if(rtt===null){el.textContent='Качество: собираем статистику';return;}
+                var level=rtt<150&&(!loss||loss<2)?'Хорошее':rtt<300&&(!loss||loss<5)?'Среднее':'Нестабильное';
+                el.textContent='Качество: '+level+' · задержка '+rtt+' мс'+(loss===null?'':' · потери '+loss.toFixed(1)+'%');
+            }).catch(function(){});
+        },4000);
+    }
+
     function createPeerConnection(){pc=new RTCPeerConnection(ICE_SERVERS);pc.onicecandidate=function(e){if(e.candidate&&currentCallRef)currentCallRef.child(isCaller?'callerCandidates':'calleeCandidates').push(e.candidate.toJSON()).catch(function(){});};pc.ontrack=function(e){var s=e.streams&&e.streams[0];if(!s&&e.track)s=new MediaStream([e.track]);if(!s)return;remoteStream=s;setTimeout(function(){attachRemoteStream(s);setStatusTop(isVideoCall?'📹 Видеозвонок':'🔊 Разговор');var sec=$c('dgCallSecure');if(sec)sec.style.display='block';if(!callTimerInterval)startTimer();setVolume(volumeLevel);var sb=$c('dgCallSpeakerBtn');if(sb)sb.classList.add('active');},100);};pc.oniceconnectionstatechange=function(){if(!pc)return;if(pc.iceConnectionState==='failed'||pc.iceConnectionState==='disconnected'){setStatusTop('⚠️ Переподключение...');try{pc.restartIce();}catch(e){}}};pc.onconnectionstatechange=function(){if(!pc)return;if(pc.connectionState==='connected'){setStatusTop(isVideoCall?'📹 Видеозвонок':'🔊 Разговор');if(!callTimerInterval)startTimer();if(remoteStream)attachRemoteStream(remoteStream);}if(pc.connectionState==='failed'||pc.connectionState==='disconnected'){setStatusTop('⚠️');try{pc.restartIce();}catch(e){}}};setTimeout(function(){if(pc&&(pc.iceConnectionState==='checking'||pc.iceConnectionState==='new')){setStatusTop('🔄 Пересоздаём ICE...');try{pc.restartIce();}catch(e){}}},3000);if(_reconnectInterval)clearInterval(_reconnectInterval);_reconnectInterval=setInterval(function(){if(!pc||!currentCallRef)return;if(pc.iceConnectionState==='failed'||pc.iceConnectionState==='disconnected'){try{pc.restartIce();}catch(e){}}},5000);return pc;}
-    function cleanupCall(){if(_reconnectInterval){clearInterval(_reconnectInterval);_reconnectInterval=null;}stopRingtone();stopOutgoingTone();stopTitleBlink();stopIncomingVibrate();stopDiag();if(callTimeoutHandle){clearTimeout(callTimeoutHandle);callTimeoutHandle=null;}if(currentCallRef){try{currentCallRef.child('status').set('ended');}catch(e){}var r=currentCallRef;setTimeout(function(){try{r.remove();}catch(e){}},1500);}if(callStateListener&&currentCallRef){try{currentCallRef.off('value',callStateListener);}catch(e){}callStateListener=null;}if(pc){try{pc.close();}catch(e){}pc=null;}if(localStream){try{localStream.getTracks().forEach(function(t){t.stop();});}catch(e){}localStream=null;}remoteStream=null;var a=$c('dgRemoteAudio');if(a)a.srcObject=null;hideCallUI();hideVideoUI();currentCallId=null;currentCallRef=null;remoteUid=null;isCaller=false;incomingCallId=null;incomingCallRef=null;incomingCallData=null;speakerOn=true;isVideoCall=false;setVolume(1.0);}
+    function cleanupCall(){try{if(currentCallRef){currentCallRef.child('reOffer').off();currentCallRef.child('reAnswer').off();}}catch(e){}renegotiationBusy=false;reOfferSeen=0;if(_reconnectInterval){clearInterval(_reconnectInterval);_reconnectInterval=null;}if(qualityTimer){clearInterval(qualityTimer);qualityTimer=null;}if(reactionListener&&currentCallRef){try{currentCallRef.child('reaction').off('value',reactionListener);}catch(e){}reactionListener=null;}if(screenStream){try{screenStream.getTracks().forEach(function(t){t.stop();});}catch(e){}screenStream=null;}isScreenSharing=false;var shareBtn=$c('dgVidShareBtn');if(shareBtn)shareBtn.classList.remove('active');stopRingtone();stopOutgoingTone();stopTitleBlink();stopIncomingVibrate();stopDiag();if(callTimeoutHandle){clearTimeout(callTimeoutHandle);callTimeoutHandle=null;}if(currentCallRef){try{currentCallRef.child('status').set('ended');}catch(e){}var r=currentCallRef;setTimeout(function(){try{r.remove();}catch(e){}},1500);}if(callStateListener&&currentCallRef){try{currentCallRef.off('value',callStateListener);}catch(e){}callStateListener=null;}if(pc){try{pc.close();}catch(e){}pc=null;}pendingRemoteIce=[];if(localStream){try{localStream.getTracks().forEach(function(t){t.stop();});}catch(e){}localStream=null;}remoteStream=null;var a=$c('dgRemoteAudio');if(a)a.srcObject=null;hideCallUI();hideVideoUI();currentCallId=null;currentCallRef=null;remoteUid=null;isCaller=false;incomingCallId=null;incomingCallRef=null;incomingCallData=null;speakerOn=true;isVideoCall=false;setVolume(1.0);}
     function endCall(r){cleanupCall();}
     function startCall(targetUid,targetName,targetAvatarUrl,video){
         var me=getUser();if(!me){safeToast('❌');return;}
         if(currentCallId){safeToast('⚠️ Уже идёт');return;}
         if(!targetUid||targetUid===me.id)return;
         isVideoCall=!!video;unlockAudio();remoteUid=targetUid;isCaller=true;currentCallId=genId();speakerOn=true;
-        if(isVideoCall){
-            showVideoUI();
-            var vst=$c('dgVideoStatus');if(vst)vst.innerText='📹 Соединение...';
+        if(isVideoCall){callPartnerName=targetName||targetUid;$c('dgVideoPartnerName').innerText=callPartnerName;$c('dgMiniName').innerText=callPartnerName;showVideoUI();var vst=$c('dgVideoStatus');if(vst)vst.innerText='📹 Соединение...';
             var lv=$c('dgLocalVideo');
             if(lv)lv.style.display='block';
         } else {
@@ -2468,35 +2686,84 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
         startDiag();startOutgoingTone();
         getLocalMedia().then(function(stream){
             if(isVideoCall){var lv=$c('dgLocalVideo');if(lv){try{lv.srcObject=stream;}catch(e){lv.src=URL.createObjectURL(stream);}lv.play().catch(function(){});}}
-            createPeerConnection();
+            createPeerConnection();bindRenegotiation();
             localStream.getTracks().forEach(function(t){pc.addTrack(t,localStream);});
             return pc.createOffer({offerToReceiveAudio:true,offerToReceiveVideo:isVideoCall,iceRestart:false}).then(function(o){o.sdp=optimizeSDP(o.sdp);return pc.setLocalDescription(o).then(function(){currentCallRef=db.ref('calls/'+currentCallId);return currentCallRef.set({from:me.id,fromName:me.name||me.id,fromAvatar:me.avatar||'',fromAvatarUrl:me.avatarUrl||null,to:targetUid,type:isVideoCall?'video':'audio',status:'ringing',createdAt:Date.now(),offer:{type:o.type,sdp:o.sdp}});});});
         }).then(function(){
-            currentCallRef.child('answer').on('value',function(s){var a=s.val();if(a&&pc&&pc.signalingState!=='stable'){pc.setRemoteDescription(new RTCSessionDescription(a)).then(function(){setStatusTop('🔗 Соединение...');stopOutgoingTone();}).catch(function(e){});}});
-            currentCallRef.child('calleeCandidates').on('child_added',function(s){var c=s.val();if(c&&pc)pc.addIceCandidate(new RTCIceCandidate(c)).catch(function(){});});
+            watchReactions();
+            currentCallRef.child('answer').on('value',function(s){var a=s.val();if(a&&pc&&pc.signalingState!=='stable'){pc.setRemoteDescription(new RTCSessionDescription(a)).then(function(){flushRemoteIceCandidates();setStatusTop('🔗 Соединение...');stopOutgoingTone();}).catch(function(e){});}});
+            currentCallRef.child('calleeCandidates').on('child_added',function(s){addRemoteIceCandidate(s.val());});
             callStateListener=currentCallRef.child('status').on('value',function(s){var st=s.val();if(st==='declined'){safeToast('❌ Отклонён');endCall('declined');}if(st==='accepted'){stopOutgoingTone();setStatusTop('🔗 Соединение...');}if(st==='ended'){endCall('remote');}});
             callTimeoutHandle=setTimeout(function(){if(currentCallId&&pc&&pc.connectionState!=='connected'){currentCallRef.child('status').once('value').then(function(s){if(s.val()==='ringing'){safeToast('⏱ Не ответил');endCall('timeout');}});}},60000);
         }).catch(function(e){stopOutgoingTone();cleanupCall();});
     }
-    function listenIncoming(){var me=getUser();if(!me)return;if(incomingListener){try{incomingListener.off();}catch(e){}incomingListener=null;}var ref=db.ref('calls').orderByChild('to').equalTo(me.id);incomingListener=ref.on('child_added',function(s){var call=s.val();if(!call)return;if(call.status!=='ringing')return;if(Date.now()-(call.createdAt||0)>120000)return;if(currentCallId){s.ref.child('status').set('declined');return;}incomingCallId=s.key;incomingCallRef=s.ref;incomingCallData=call;remoteUid=call.from;isCaller=false;isVideoCall=call.type==='video';if(!isVideoCall){showCallUI({name:call.fromName||call.from,avatarUrl:call.fromAvatarUrl||null,statusTop:'📞 Входящий',showAccept:true,showActions:false,secure:false,incoming:true});}else{$c('dgCallOverlay').style.display='none';showVideoUI();var vst=$c('dgVideoStatus');if(vst)vst.innerText='📹 Входящий';}startDiag();startTitleBlink('📞 '+(call.fromName||call.from));startIncomingVibrate();startRingtone();try{showSystemNotification('📞 Входящий',call.fromName||call.from,call.fromAvatarUrl||null,'call-'+s.key);}catch(e){}setTimeout(function(){if(incomingCallId===s.key&&!currentCallId){s.ref.child('status').set('declined');stopRingtone();stopTitleBlink();stopIncomingVibrate();hideCallUI();hideVideoUI();stopDiag();incomingCallId=null;incomingCallRef=null;incomingCallData=null;}},60000);});}
-    function acceptIncoming(){if(!incomingCallRef||!incomingCallData)return;stopRingtone();stopTitleBlink();stopIncomingVibrate();unlockAudio();currentCallId=incomingCallId;currentCallRef=incomingCallRef;setStatusTop('🔗 Соединение...');startDiag();hideCallUI();if(isVideoCall){showVideoUI();var lv=$c('dgLocalVideo');if(lv)lv.style.display='block';}getLocalMedia().then(function(stream){if(isVideoCall){var lv=$c('dgLocalVideo');if(lv){try{lv.srcObject=stream;}catch(e){lv.src=URL.createObjectURL(stream);}lv.play().catch(function(){});}}createPeerConnection();localStream.getTracks().forEach(function(t){pc.addTrack(t,localStream);});return pc.setRemoteDescription(new RTCSessionDescription(incomingCallData.offer)).then(function(){return pc.createAnswer();}).then(function(a){a.sdp=optimizeSDP(a.sdp);return pc.setLocalDescription(a).then(function(){return currentCallRef.update({status:'accepted',answer:{type:a.type,sdp:a.sdp}});});});}).then(function(){currentCallRef.child('callerCandidates').on('child_added',function(s){var c=s.val();if(c&&pc)pc.addIceCandidate(new RTCIceCandidate(c)).catch(function(){});});callStateListener=currentCallRef.child('status').on('value',function(s){if(s.val()==='ended')endCall('remote');});}).catch(function(e){try{currentCallRef.child('status').set('declined');}catch(_e){}cleanupCall();});}
-    function toggleVideoCam(){if(!localStream||!pc)return;var vt=localStream.getVideoTracks();if(vt.length>0){vt[0].enabled=!vt[0].enabled;if(vt[0].enabled)$c('dgVidCamBtn').classList.remove('muted');else $c('dgVidCamBtn').classList.add('muted');}}
-    function switchCamera(){if(!localStream)return;var vt=localStream.getVideoTracks()[0];if(!vt)return;var cur=vt.getSettings().facingMode||'user';var nxt=cur==='user'?'environment':'user';navigator.mediaDevices.getUserMedia({video:{facingMode:nxt},audio:false}).then(function(ns){var nvt=ns.getVideoTracks()[0];if(nvt){localStream.removeTrack(vt);vt.stop();localStream.addTrack(nvt);var sender=pc.getSenders().find(function(s){return s.track&&s.track.kind==='video';});if(sender)sender.replaceTrack(nvt);var lv=$c('dgLocalVideo');if(lv)lv.srcObject=localStream;showToast('📷');}}).catch(function(){showToast('❌');});}
+    function listenIncoming(){var me=getUser();if(!me)return;if(incomingListenerRef&&incomingListenerHandler){try{incomingListenerRef.off('child_added',incomingListenerHandler);}catch(e){}}incomingListenerRef=db.ref('calls').orderByChild('to').equalTo(me.id);incomingListenerHandler=function(s){var call=s.val();if(!call)return;if(call.status!=='ringing')return;if(Date.now()-(call.createdAt||0)>120000)return;if(currentCallId){s.ref.child('status').set('declined');return;}incomingCallId=s.key;incomingCallRef=s.ref;incomingCallData=call;remoteUid=call.from;isCaller=false;isVideoCall=call.type==='video';if(!isVideoCall){showCallUI({name:call.fromName||call.from,avatarUrl:call.fromAvatarUrl||null,statusTop:'📞 Входящий',showAccept:true,showActions:false,secure:false,incoming:true});}else{callPartnerName=call.fromName||call.from;$c('dgVideoPartnerName').innerText=callPartnerName;$c('dgMiniName').innerText=callPartnerName;$c('dgVideoTimer').innerText='Входящий видеозвонок';$c('dgCallOverlay').style.display='none';showVideoUI();$c('dgVideoAcceptBtn').hidden=false;var vst=$c('dgVideoStatus');if(vst)vst.innerText='📹 Входящий';}startDiag();startTitleBlink('📞 '+(call.fromName||call.from));startIncomingVibrate();startRingtone();try{showSystemNotification('📞 Входящий',call.fromName||call.from,call.fromAvatarUrl||null,'call-'+s.key);}catch(e){}setTimeout(function(){if(incomingCallId===s.key&&!currentCallId){s.ref.child('status').set('declined');stopRingtone();stopTitleBlink();stopIncomingVibrate();hideCallUI();hideVideoUI();stopDiag();incomingCallId=null;incomingCallRef=null;incomingCallData=null;}},60000);};incomingListenerRef.on('child_added',incomingListenerHandler);}
+    function acceptIncoming(){if(!incomingCallRef||!incomingCallData)return;isVideoCall=incomingCallData.type==='video';callPartnerName=incomingCallData.fromName||incomingCallData.from||'Звонок';$c('dgVideoPartnerName').innerText=callPartnerName;stopRingtone();stopTitleBlink();stopIncomingVibrate();unlockAudio();currentCallId=incomingCallId;currentCallRef=incomingCallRef;watchReactions();setStatusTop('🔗 Соединение...');startDiag();hideCallUI();if(isVideoCall){showVideoUI();$c('dgVideoAcceptBtn').hidden=true;var lv=$c('dgLocalVideo');if(lv)lv.style.display='block';}getLocalMedia().then(function(stream){if(isVideoCall){var lv=$c('dgLocalVideo');if(lv){try{lv.srcObject=stream;}catch(e){lv.src=URL.createObjectURL(stream);}lv.play().catch(function(){});}}createPeerConnection();bindRenegotiation();localStream.getTracks().forEach(function(t){pc.addTrack(t,localStream);});return pc.setRemoteDescription(new RTCSessionDescription(incomingCallData.offer)).then(function(){flushRemoteIceCandidates();return pc.createAnswer();}).then(function(a){a.sdp=optimizeSDP(a.sdp);return pc.setLocalDescription(a).then(function(){return currentCallRef.update({status:'accepted',answer:{type:a.type,sdp:a.sdp}});});});}).then(function(){watchReactions();currentCallRef.child('callerCandidates').on('child_added',function(s){addRemoteIceCandidate(s.val());});callStateListener=currentCallRef.child('status').on('value',function(s){if(s.val()==='ended')endCall('remote');});}).catch(function(e){try{currentCallRef.child('status').set('declined');}catch(_e){}cleanupCall();});}
+    function toggleVideoCam(){if(!localStream||!pc)return;var vt=localStream.getVideoTracks();if(vt.length){vt[0].enabled=!vt[0].enabled;$c('dgVidCamBtn').classList.toggle('muted',!vt[0].enabled);$c('dgVidCamBtn').innerHTML=vt[0].enabled?'<i class="fas fa-video"></i>':'<i class="fas fa-video-slash"></i>';}}
+     function switchCamera(){if(!localStream||!pc)return;var vt=localStream.getVideoTracks()[0];if(!vt)return;var cur=vt.getSettings().facingMode||'user';var nxt=cur==='user'?'environment':'user';navigator.mediaDevices.getUserMedia({video:{facingMode:nxt},audio:false}).then(function(ns){var nvt=ns.getVideoTracks()[0];if(nvt){localStream.removeTrack(vt);vt.stop();localStream.addTrack(nvt);var sender=pc.getSenders().find(function(s){return s.track&&s.track.kind==='video';});if(sender)sender.replaceTrack(nvt);var lv=$c('dgLocalVideo');if(lv)lv.srcObject=localStream;showToast('📷');}}).catch(function(){showToast('❌');});}
+function minimizeCall(){if(!currentCallId&&!incomingCallId)return;callMinimized=true;$c('dgCallOverlay').style.display='none';$c('dgVideoOverlay').classList.remove('show');$c('dgVideoOverlay').style.display='none';$c('dgCallMinimized').classList.add('show');}
+    function restoreCall(){if(!callMinimized)return;callMinimized=false;$c('dgCallMinimized').classList.remove('show');if(isVideoCall)showVideoUI();else $c('dgCallOverlay').style.display='flex';}
+    function toggleDiagnostics(id){var el=$c(id);if(el)el.hidden=!el.hidden;}
+    function restartIce(){if(!pc)return;try{pc.restartIce();setStatusTop('🔄 Переподключение ICE...');safeToast('Переподключаем соединение');}catch(e){safeToast('Не удалось перезапустить ICE');}}
+    function applyLocalCamTransform(){var v=$c('dgLocalVideo');if(v)v.style.transform=(localCamFlipped?'scaleX(-1) ':'')+'rotate('+localCamRotation+'deg)';}
+    function rotateLocalCam(){localCamRotation=(localCamRotation+90)%360;applyLocalCamTransform();}
+    function flipLocalCam(){localCamFlipped=!localCamFlipped;applyLocalCamTransform();}
+    function enablePipDrag(){var p=$c('dgLocalPip');if(!p||p._dragBound)return;p._dragBound=true;var sx=0,sy=0,left=0,top=0,drag=false;p.addEventListener('pointerdown',function(e){if(e.target.closest('button'))return;drag=true;sx=e.clientX;sy=e.clientY;var r=p.getBoundingClientRect();left=r.left;top=r.top;p.setPointerCapture(e.pointerId);});p.addEventListener('pointermove',function(e){if(!drag)return;p.style.left=Math.max(0,Math.min(innerWidth-p.offsetWidth,left+e.clientX-sx))+'px';p.style.top=Math.max(55,Math.min(innerHeight-p.offsetHeight-90,top+e.clientY-sy))+'px';p.style.right='auto';});p.addEventListener('pointerup',function(){drag=false;});p.addEventListener('pointercancel',function(){drag=false;});}
+    var renegotiationBusy=false,reOfferSeen=0;
+    function upgradeToVideo(){
+      if(!currentCallRef||!pc||isVideoCall||renegotiationBusy){safeToast('Видео сейчас недоступно');return;}
+      if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){safeToast('Камера недоступна в этом браузере');return;}
+      renegotiationBusy=true;safeToast('Запрашиваем доступ к камере…');
+      navigator.mediaDevices.getUserMedia({video:videoConstraints,audio:false}).then(function(vs){
+        var track=vs.getVideoTracks()[0];if(!track)throw new Error('Камера не найдена');
+        if(!localStream)localStream=new MediaStream();localStream.addTrack(track);isVideoCall=true;
+        var lv=$c('dgLocalVideo');if(lv){lv.srcObject=localStream;lv.style.display='block';lv.play().catch(function(){});}
+        pc.addTrack(track,localStream);return pc.createOffer();
+      }).then(function(o){o.sdp=optimizeSDP(o.sdp);return pc.setLocalDescription(o).then(function(){return currentCallRef.update({type:'video',reOffer:{type:o.type,sdp:o.sdp,ts:Date.now()}});});})
+      .then(function(){showVideoUI();setStatusTop('📹 Ожидаем подтверждение видео…');})
+      .catch(function(e){safeToast('Не удалось включить видео: '+(e.message||'ошибка'));})
+      .finally(function(){renegotiationBusy=false;});
+    }
+    function bindRenegotiation(){
+      if(!currentCallRef||!pc)return;
+      currentCallRef.child('reOffer').on('value',function(s){
+        var o=s.val();if(!o||!o.ts||o.ts<=reOfferSeen||isCaller||!pc||pc.signalingState==='closed')return;reOfferSeen=o.ts;
+        navigator.mediaDevices.getUserMedia({video:videoConstraints,audio:false}).then(function(vs){
+          var track=vs.getVideoTracks()[0];if(!track)throw new Error('Камера недоступна');if(!localStream)localStream=new MediaStream();localStream.addTrack(track);pc.addTrack(track,localStream);
+          return pc.setRemoteDescription(new RTCSessionDescription(o)).then(function(){return pc.createAnswer();}).then(function(a){a.sdp=optimizeSDP(a.sdp);return pc.setLocalDescription(a).then(function(){return currentCallRef.child('reAnswer').set({type:a.type,sdp:a.sdp,ts:o.ts});});}).then(function(){isVideoCall=true;showVideoUI();var lv=$c('dgLocalVideo');if(lv){lv.srcObject=localStream;lv.style.display='block';lv.play().catch(function(){});}setStatusTop('📹 Видеозвонок');});
+        }).catch(function(e){safeToast('Второй участник не смог включить видео: '+(e.message||'ошибка'));});
+      });
+      currentCallRef.child('reAnswer').on('value',function(s){
+        var a=s.val();if(!a||!a.ts||!pc||!isCaller||pc.signalingState!=='have-local-offer')return;
+        pc.setRemoteDescription(new RTCSessionDescription(a)).then(function(){isVideoCall=true;showVideoUI();setStatusTop('📹 Видеозвонок');}).catch(function(){safeToast('Не удалось согласовать видеосвязь');});
+      });
+    }
+
     window.dgCalls={startCall:startCall,endCall:endCall,listenIncoming:listenIncoming,acceptIncoming:acceptIncoming};
     function bindCallButtons(){
         var eb=$c('dgCallEndBtn'),mb=$c('dgCallMuteBtn'),ab=$c('dgCallAcceptBtn'),sb=$c('dgCallSpeakerBtn');
-        var veb=$c('dgVidEndBtn'),vmb=$c('dgVidMuteBtn'),vcb=$c('dgVidCamBtn'),vsb=$c('dgVidSwitchBtn');
+         var veb=$c('dgVidEndBtn'),vmb=$c('dgVidMuteBtn'),vcb=$c('dgVidCamBtn'),vsb=$c('dgVidSwitchBtn'),share=$c('dgVidShareBtn');
         if(eb)eb.onclick=function(){if(incomingCallRef&&incomingCallData&&!isCaller){try{incomingCallRef.child('status').set('declined').catch(function(){});}catch(e){}stopRingtone();stopTitleBlink();stopIncomingVibrate();cleanupCall();return;}if(currentCallRef){try{currentCallRef.child('status').set('ended').catch(function(){});}catch(e){}}endCall('ended');};
         if(mb)mb.onclick=toggleMute;
         if(ab)ab.onclick=acceptIncoming;
         if(sb)sb.onclick=toggleSpeaker;
+        var min1=$c('dgCallMinimizeBtn'),min2=$c('dgVideoMinimizeBtn'),restore=$c('dgRestoreCallBtn'),miniEnd=$c('dgMiniEndBtn');
+        if(min1)min1.onclick=minimizeCall;if(min2)min2.onclick=minimizeCall;if(restore)restore.onclick=restoreCall;
+        if(miniEnd)miniEnd.onclick=function(){if(currentCallRef)currentCallRef.child('status').set('ended').catch(function(){});endCall('ended');};
+        var vb=$c('dgCallVideoBtn');if(vb)vb.onclick=upgradeToVideo;
+        ['dgCallDiagToggle','dgVideoDiagToggle'].forEach(function(id){var b=$c(id);if(b)b.onclick=function(){toggleDiagnostics(id==='dgCallDiagToggle'?'dgCallDiagnostics':'dgVideoDiagnostics');};});
+        ['dgIceRestartBtn','dgVideoIceRestartBtn'].forEach(function(id){var b=$c(id);if(b)b.onclick=restartIce;});
+        var rot=$c('dgRotateLocalBtn'),flip=$c('dgFlipLocalBtn');if(rot)rot.onclick=rotateLocalCam;if(flip)flip.onclick=flipLocalCam;enablePipDrag();var min1=$c('dgCallMinimizeBtn'),min2=$c('dgVideoMinimizeBtn'),restore=$c('dgRestoreCallBtn'),miniEnd=$c('dgMiniEndBtn');if(min1)min1.onclick=minimizeCall;if(min2)min2.onclick=minimizeCall;if(restore)restore.onclick=restoreCall;if(miniEnd)miniEnd.onclick=function(){if(currentCallRef)currentCallRef.child('status').set('ended').catch(function(){});endCall('ended');};var vb=$c('dgCallVideoBtn');if(vb)vb.onclick=function(){safeToast('Переключение в видео пока требует согласования на втором устройстве');};['dgCallDiagToggle','dgVideoDiagToggle'].forEach(function(id){var b=$c(id);if(b)b.onclick=function(){toggleDiagnostics(id==='dgCallDiagToggle'?'dgCallDiagnostics':'dgVideoDiagnostics');};});['dgIceRestartBtn','dgVideoIceRestartBtn'].forEach(function(id){var b=$c(id);if(b)b.onclick=restartIce;});var rot=$c('dgRotateLocalBtn'),flip=$c('dgFlipLocalBtn');if(rot)rot.onclick=rotateLocalCam;if(flip)flip.onclick=flipLocalCam;enablePipDrag();
         if(vmb)vmb.onclick=toggleMute;
         if(vcb)vcb.onclick=toggleVideoCam;
         if(vsb)vsb.onclick=switchCamera;
+        if(share)share.onclick=toggleScreenShare;
+        var vac=$c('dgVideoAcceptBtn');if(vac)vac.onclick=function(){vac.hidden=true;acceptIncoming();};
+        document.querySelectorAll('[data-call-reaction]').forEach(function(b){b.onclick=function(){sendReaction(b.getAttribute('data-call-reaction'));};});
         if(veb)veb.onclick=function(){if(incomingCallRef&&incomingCallData&&!isCaller){try{incomingCallRef.child('status').set('declined').catch(function(){});}catch(e){}stopRingtone();stopTitleBlink();stopIncomingVibrate();cleanupCall();return;}if(currentCallRef){try{currentCallRef.child('status').set('ended').catch(function(){});}catch(e){}}endCall('ended');};
         var slider=$c('dgVolumeSlider');if(slider)slider.oninput=function(){var v=parseInt(this.value)||100;setVolume(v/100);};
         var vo=$c('dgVideoOverlay');
-        if(vo){vo.addEventListener('click',function(ev){if(incomingCallRef&&incomingCallData&&!currentCallId){ev.preventDefault();acceptIncoming();}});}
+        if(vo){vo.addEventListener('click',function(ev){if(ev.target.closest('button'))return;if(incomingCallRef&&incomingCallData&&!currentCallId){ev.preventDefault();$c('dgVideoAcceptBtn').hidden=false;}});}
     }
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindCallButtons);else bindCallButtons();
     getRemoteAudio();console.log('[DonorGram Calls v13] ready');
