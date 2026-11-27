@@ -39,8 +39,6 @@ self.addEventListener("push", event => {
   const title = payload.title || "Входящий звонок";
   const options = {
     body: payload.body || "Вам звонят в DonorGram",
-    icon: "./icons/icon-192.png",
-    badge: "./icons/icon-192.png",
     tag: payload.callId ? "donorgram-call-" + payload.callId : "donorgram-call",
     renotify: true,
     requireInteraction: true,
