@@ -602,6 +602,61 @@ button,input,textarea,select{touch-action:manipulation}
 #dgVidShareBtn.active{background:#0b8f71}
 #dgCallQuality{font-size:11px;color:#aab4c3;text-align:center;margin-top:6px;min-height:14px}
 
+
+/* Zvonki-inspired call interface, adapted to DonorGram */
+#dgCallOverlay,#dgVideoOverlay{position:fixed;inset:0;z-index:99998;color:#fff;background:radial-gradient(ellipse at 50% 25%,#303b62 0%,#171c32 48%,#090c17 100%);display:none;flex-direction:column;justify-content:space-between;align-items:stretch;padding:calc(env(safe-area-inset-top) + 14px) 18px calc(env(safe-area-inset-bottom) + 20px);overflow:hidden}
+#dgCallOverlay{display:none}#dgVideoOverlay.show{display:flex}
+#dgCallTop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;flex:1;min-height:0}
+.dg-call-topbar,.dg-video-topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;position:relative;z-index:6}
+.dg-call-glass{width:42px;height:42px;border:1px solid rgba(255,255,255,.14);border-radius:14px;background:rgba(255,255,255,.1);color:white;font-size:16px;display:grid;place-items:center}
+.dg-call-status-pill{display:flex;align-items:center;gap:9px;padding:10px 14px;border:1px solid rgba(255,255,255,.1);border-radius:15px;background:rgba(0,0,0,.28);font-size:12px}
+#dgCallSignalDot{width:9px;height:9px;border-radius:50%;background:#ffb020;box-shadow:0 0 12px currentColor}
+#dgCallTimerBig{font:700 12px ui-monospace,monospace;color:#55e6bd}
+#dgCallAvatar{width:clamp(112px,28vw,152px);height:clamp(112px,28vw,152px);border-radius:50%;background:linear-gradient(135deg,#667eea,#00cba9);display:flex;align-items:center;justify-content:center;font-size:52px;font-weight:800;color:#fff;background-size:cover;background-position:center;box-shadow:0 0 0 10px rgba(255,255,255,.055),0 0 65px rgba(80,140,255,.32);animation:callPulse 2.4s infinite}
+#dgCallOverlay.incoming #dgCallAvatar{animation:incomingPulse 1.4s infinite}
+#dgCallName{font-size:clamp(23px,6vw,32px);font-weight:850;text-align:center;max-width:90%;overflow-wrap:anywhere}
+#dgCallSecure,.dg-call-subtitle{font-size:11px;color:#aab5d0;text-align:center}
+#dgCallSecure{color:#61e5b7}
+.dg-call-volume{width:min(280px,80vw);margin-top:16px;color:#c6cce0;font-size:11px}.dg-call-volume label{display:flex;justify-content:space-between;margin-bottom:8px}.dg-call-volume input{width:100%;accent-color:#00d9a6}
+.dg-call-bottom{width:100%;padding-bottom:8px;position:relative;z-index:5}
+#dgCallActions{display:flex;justify-content:center;gap:clamp(12px,5vw,28px);flex-wrap:wrap;margin-bottom:24px}
+.dgCallActBtn{display:flex;flex-direction:column;align-items:center;gap:7px;background:none;border:0;color:#dfe5f5;font-size:11px;min-width:66px}
+.dgCallActBtn .dgIconCircle{width:58px;height:58px;border-radius:20px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.08);display:grid;place-items:center;font-size:21px}
+.dgCallActBtn.active .dgIconCircle{background:#e8fff8;color:#102b2a}.dgCallActBtn.muted .dgIconCircle{background:#ffb020;color:#172033}
+#dgCallEndRow{display:flex;gap:30px;justify-content:center;align-items:center}
+#dgCallEndBtn,#dgCallAcceptBtn{width:70px;height:70px;border-radius:50%;border:0;color:white;font-size:25px;display:grid;place-items:center}
+#dgCallEndBtn{background:#f0445e}#dgCallAcceptBtn{background:#16c784;animation:incomingPulse 1.4s infinite}
+#dgRemoteAudio{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+#dgVideoOverlay{background:#05070d;padding:calc(env(safe-area-inset-top) + 12px) 14px calc(env(safe-area-inset-bottom) + 16px)}
+#dgRemoteVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#090b12}
+.dg-video-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.55),transparent 30%,transparent 58%,rgba(0,0,0,.75));pointer-events:none}
+.dg-video-topbar{z-index:4}#dgVideoTop{position:static;background:rgba(0,0,0,.42);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:10px 13px;font-size:12px;backdrop-filter:blur(12px)}
+#dgVideoInfo{position:relative;z-index:2;align-self:center;text-align:center;margin:auto auto 0;padding:12px 20px 20px;background:none;transform:none;top:auto;left:auto;color:white}
+#dgVideoPartnerName{font-size:23px;font-weight:800;text-shadow:0 2px 12px #000}#dgVideoTimer{font-size:12px;color:#d4d9e8;margin-top:5px}
+#dgLocalPip{position:absolute;right:16px;top:78px;width:clamp(92px,27vw,140px);height:clamp(132px,38vw,190px);z-index:5;border-radius:18px;overflow:hidden;border:2px solid rgba(255,255,255,.65);background:#151923;box-shadow:0 8px 30px rgba(0,0,0,.4);touch-action:none}
+#dgLocalVideo{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.dg-pip-tools{position:absolute;bottom:0;left:0;right:0;display:flex;align-items:center;justify-content:space-around;background:rgba(0,0,0,.55);padding:5px;color:white;font-size:10px}.dg-pip-tools button{border:0;background:transparent;color:white;padding:5px}
+#dgCallReactions{position:relative;z-index:4;align-self:center;display:flex;gap:8px;padding:7px 12px;border-radius:30px;background:rgba(0,0,0,.35);backdrop-filter:blur(12px)}
+#dgCallReactions button{border:0;background:transparent;font-size:21px;padding:3px;transition:transform .15s}#dgCallReactions button:active{transform:scale(1.3)}
+#dgCallReactionToast{position:absolute;z-index:6;left:50%;top:43%;transform:translate(-50%,-50%) scale(.6);opacity:0;font-size:58px;pointer-events:none;transition:all .2s}
+#dgCallReactionToast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+#dgCallQuality{position:relative;z-index:4;align-self:center;color:#e3e8f4;font-size:10px;padding:5px 10px;border-radius:12px;background:rgba(0,0,0,.3);margin-top:6px}
+#dgVideoControls{position:relative;z-index:5;display:flex;justify-content:center;align-items:center;gap:clamp(8px,3vw,18px);flex-wrap:wrap;padding:14px 5px 4px}
+#dgVideoControls .dgVidBtn{width:52px;height:52px;border-radius:18px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.16);color:white;font-size:19px;display:grid;place-items:center;backdrop-filter:blur(10px)}
+#dgVideoControls .dgVidBtn.muted{background:#ffb020;color:#1b2030}#dgVideoControls .dgVidBtn.active{background:#e8fff8;color:#102b2a}
+#dgVideoControls .dgVidBtn.end{background:#ef405b;width:64px;height:64px;border-radius:50%;font-size:23px}
+#dgVideoControls .dgVidBtn.accept{background:#16c784;width:64px;height:64px;border-radius:50%}
+.dgVidBtnWrap{display:flex;flex-direction:column;align-items:center;gap:5px;color:#fff;font-size:9px;min-width:50px}
+.dg-call-diagnostics{position:relative;z-index:8;width:min(440px,100%);margin:8px auto;padding:13px;border:1px solid rgba(255,255,255,.14);border-radius:18px;background:rgba(10,14,26,.88);backdrop-filter:blur(16px);font-size:11px;color:#dbe2f2}
+.dg-diag-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:9px}.dg-diag-head span{color:#9ba9c7}
+.dg-diag-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.dg-diag-grid span{display:flex;justify-content:space-between;gap:5px;color:#9daac5}.dg-diag-grid b{color:#fff}
+.dg-call-diagnostics>button{margin-top:10px;border:0;border-radius:10px;padding:8px 12px;background:#586fe8;color:white;font-size:10px;font-weight:700}
+#dgCallMinimized{display:none;position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom) + 14px);z-index:100001;align-items:center;gap:10px;padding:10px 12px;border:1px solid rgba(0,217,166,.4);border-radius:16px;background:rgba(16,23,39,.96);color:white;box-shadow:0 10px 35px rgba(0,0,0,.35);backdrop-filter:blur(15px);max-width:calc(100vw - 28px)}
+#dgCallMinimized.show{display:flex}#dgCallMinimized>div{display:flex;flex-direction:column;min-width:80px}#dgCallMinimized b{font-size:12px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#dgCallMinimized small{font-size:10px;color:#9ca9c2;margin-top:3px}
+#dgCallMinimized button{width:34px;height:34px;border:0;border-radius:10px;background:rgba(255,255,255,.1);color:white}
+#dgCallMinimized #dgMiniEndBtn{background:#e9465d}.dg-mini-pulse{width:9px;height:9px;border-radius:50%;background:#00d9a6;box-shadow:0 0 0 5px rgba(0,217,166,.12);animation:pulse 1.5s infinite}
+@media(max-height:650px){#dgCallTop{gap:7px}#dgCallAvatar{width:96px;height:96px;font-size:36px}#dgCallName{font-size:22px}.dg-call-volume{margin-top:4px}#dgCallActions{margin-bottom:10px}.dgCallActBtn .dgIconCircle{width:48px;height:48px}}
+
 </style>
 <meta name="theme-color" content="#527da3"><meta name="apple-mobile-web-app-capable" content="yes"></head>
 <body>
@@ -999,68 +1054,70 @@ button,input,textarea,select{touch-action:manipulation}
 <div class="image-viewer" id="imageViewer"><button class="close-btn" type="button" id="closeImgBtn">✕</button><img id="viewedImage"></div>
 <div class="video-viewer" id="videoViewer"><button class="close-btn" type="button" id="closeVidBtn">✕</button><video id="viewedVideo" controls></video></div>
 
-<!-- ЗВОНКИ -->
-<div id="dgCallDiag"></div>
-<div id="dgCallOverlay">
-    <div id="dgCallTop">
-        <div id="dgCallStatusTop">Вызов...</div>
-        <div id="dgCallAvatar">?</div>
-        <div id="dgCallName">Звонок</div>
-        <div id="dgCallTimerBig">00:00</div>
-        <div id="dgCallSecure">🔒 Защищено</div>
-        <div style="width:100%;max-width:280px;padding:0 20px;margin-top:12px">
-          <div style="font-size:11px;color:#8e98a3;margin-bottom:4px;text-align:center">🔊 Громкость: <span id="dgVolLabel">100%</span></div>
-          <input type="range" class="dgVolumeSlider" id="dgVolumeSlider" min="0" max="150" value="100">
-        </div>
+<!-- ЗВОНКИ: адаптированный интерфейс Zvonki внутри DonorGram -->
+<div id="dgCallDiag" aria-live="polite"></div>
+<div id="dgCallOverlay" role="dialog" aria-modal="true" aria-label="Голосовой звонок">
+  <div class="dg-call-topbar">
+    <button id="dgCallMinimizeBtn" class="dg-call-glass" type="button" aria-label="Свернуть звонок"><i class="fas fa-minus"></i></button>
+    <div class="dg-call-status-pill"><span id="dgCallSignalDot"></span><span id="dgCallStatusTop">Соединение...</span><b id="dgCallTimerBig">00:00</b></div>
+    <button id="dgCallDiagToggle" class="dg-call-glass" type="button" aria-label="Диагностика"><i class="fas fa-microchip"></i></button>
+  </div>
+  <div id="dgCallDiagnostics" class="dg-call-diagnostics" hidden>
+    <div class="dg-diag-head"><b><i class="fas fa-chart-line"></i> Диагностика связи</b><span id="dgDiagRoute">Маршрут: —</span></div>
+    <div class="dg-diag-grid"><span>ICE <b id="dgDiagIce">new</b></span><span>Пинг <b id="dgDiagRtt">—</b></span><span>Качество <b id="dgDiagQuality">Ожидание</b></span><span>Потери аудио <b id="dgDiagLoss">—</b></span><span>Джиттер <b id="dgDiagJitter">—</b></span><span>Трафик <b id="dgDiagTraffic">0 МБ</b></span></div>
+    <button id="dgIceRestartBtn" type="button">Переподключить ICE</button>
+  </div>
+  <div id="dgCallTop">
+    <div id="dgCallAvatar" aria-hidden="true">?</div>
+    <div id="dgCallName">Звонок</div>
+    <div id="dgCallSecure">🔒 Защищённое соединение WebRTC</div>
+    <div class="dg-call-subtitle">DonorGram · голосовой вызов</div>
+    <div class="dg-call-volume"><label for="dgVolumeSlider">Громкость <b id="dgVolLabel">100%</b></label><input type="range" id="dgVolumeSlider" min="0" max="150" value="100"></div>
+  </div>
+  <div class="dg-call-bottom">
+    <div id="dgCallActions">
+      <button class="dgCallActBtn" id="dgCallMuteBtn" type="button"><span class="dgIconCircle"><i class="fas fa-microphone"></i></span><span>Микрофон</span></button>
+      <button class="dgCallActBtn active" id="dgCallSpeakerBtn" type="button"><span class="dgIconCircle"><i class="fas fa-volume-up"></i></span><span>Динамик</span></button>
+      <button class="dgCallActBtn" id="dgCallVideoBtn" type="button"><span class="dgIconCircle"><i class="fas fa-video"></i></span><span>Включить видео</span></button>
     </div>
-    <div>
-        <div id="dgCallActions">
-            <button class="dgCallActBtn" id="dgCallMuteBtn" type="button"><div class="dgIconCircle"><i class="fas fa-microphone"></i></div><span>Без звука</span></button>
-            <button class="dgCallActBtn active" id="dgCallSpeakerBtn" type="button"><div class="dgIconCircle"><i class="fas fa-volume-up"></i></div><span>Динамик</span></button>
-            <button class="dgCallActBtn" id="dgCallVideoBtn" type="button"><div class="dgIconCircle"><i class="fas fa-video"></i></div><span>Видео</span></button>
-        </div>
-        <div id="dgCallEndRow">
-            <button id="dgCallEndBtn" type="button"><i class="fas fa-phone-slash"></i></button>
-            <button id="dgCallAcceptBtn" type="button" style="display:none"><i class="fas fa-phone"></i></button>
-        </div>
+    <div id="dgCallEndRow">
+      <button id="dgCallEndBtn" type="button" aria-label="Завершить звонок"><i class="fas fa-phone-slash"></i></button>
+      <button id="dgCallAcceptBtn" type="button" aria-label="Принять звонок" style="display:none"><i class="fas fa-phone"></i></button>
     </div>
-    <audio id="dgRemoteAudio" autoplay playsinline></audio>
+  </div>
+  <audio id="dgRemoteAudio" autoplay playsinline></audio>
 </div>
 
-<div id="dgVideoOverlay">
+<div id="dgVideoOverlay" aria-label="Видеозвонок">
   <video id="dgRemoteVideo" autoplay playsinline></video>
-  <video id="dgLocalVideo" autoplay playsinline muted></video>
-  <div id="dgVideoTop"><i class="fas fa-lock" style="color:#34c759"></i> <span id="dgVideoStatus">Соединение...</span></div>
+  <div class="dg-video-shade"></div>
+  <div class="dg-video-topbar">
+    <button id="dgVideoMinimizeBtn" class="dg-call-glass" type="button" aria-label="Свернуть звонок"><i class="fas fa-minus"></i></button>
+    <div id="dgVideoTop"><i class="fas fa-shield-halved"></i> <span id="dgVideoStatus">Соединение...</span></div>
+    <button id="dgVideoDiagToggle" class="dg-call-glass" type="button" aria-label="Диагностика"><i class="fas fa-microchip"></i></button>
+  </div>
+  <div id="dgVideoInfo"><div id="dgVideoPartnerName">Видеозвонок</div><div id="dgVideoTimer">Ожидание ответа</div></div>
+  <div id="dgVideoDiagnostics" class="dg-call-diagnostics" hidden>
+    <b>Диагностика связи</b><div class="dg-diag-grid"><span>ICE <b id="dgVideoDiagIce">new</b></span><span>Пинг <b id="dgVideoDiagRtt">—</b></span><span>Качество <b id="dgVideoDiagQuality">Ожидание</b></span><span>Потери <b id="dgVideoDiagLoss">—</b></span></div>
+    <button id="dgVideoIceRestartBtn" type="button">Переподключить ICE</button>
+  </div>
+  <div id="dgLocalPip"><video id="dgLocalVideo" autoplay playsinline muted></video><div class="dg-pip-tools"><span>Вы</span><button id="dgRotateLocalBtn" type="button" aria-label="Повернуть изображение"><i class="fas fa-rotate"></i></button><button id="dgFlipLocalBtn" type="button" aria-label="Отразить изображение"><i class="fas fa-arrows-left-right"></i></button></div></div>
   <div id="dgCallReactionToast" aria-live="polite"></div>
-  <div id="dgCallReactions">
-    <button type="button" data-call-reaction="👍" aria-label="Отправить лайк">👍</button>
-    <button type="button" data-call-reaction="❤️" aria-label="Отправить сердце">❤️</button>
-    <button type="button" data-call-reaction="😂" aria-label="Отправить смех">😂</button>
-    <button type="button" data-call-reaction="👏" aria-label="Отправить аплодисменты">👏</button>
-  </div>
-  <div id="dgCallQuality" aria-live="polite"></div>
+  <div id="dgCallReactions" aria-label="Реакции во время звонка"><button type="button" data-call-reaction="👋">👋</button><button type="button" data-call-reaction="❤️">❤️</button><button type="button" data-call-reaction="🔥">🔥</button><button type="button" data-call-reaction="👍">👍</button><button type="button" data-call-reaction="😂">😂</button></div>
+  <div id="dgCallQuality" aria-live="polite">Качество: собираем статистику</div>
   <div id="dgVideoControls">
-    <div class="dgVidBtnWrap">
-      <button class="dgVidBtn" id="dgVidMuteBtn" type="button"><i class="fas fa-microphone"></i></button>
-      <div class="dgVidLabel">Мик</div>
-    </div>
-    <div class="dgVidBtnWrap">
-      <button class="dgVidBtn" id="dgVidCamBtn" type="button"><i class="fas fa-video"></i></button>
-      <div class="dgVidLabel">Камера</div>
-    </div>
-    <div class="dgVidBtnWrap">
-      <button class="dgVidBtn" id="dgVidSwitchBtn" type="button"><i class="fas fa-sync"></i></button>
-      <div class="dgVidLabel">Камера</div>
-    </div>
-    <div class="dgVidBtnWrap">
-      <button class="dgVidBtn" id="dgVidShareBtn" type="button"><i class="fas fa-desktop"></i></button>
-      <div class="dgVidLabel">Экран</div>
-    </div>
-    <div class="dgVidBtnWrap">
-      <button class="dgVidBtn end" id="dgVidEndBtn" type="button"><i class="fas fa-phone-slash"></i></button>
-      <div class="dgVidLabel">Завершить</div>
-    </div>
+    <div class="dgVidBtnWrap"><button class="dgVidBtn" id="dgVidMuteBtn" type="button"><i class="fas fa-microphone"></i></button><span>Микрофон</span></div>
+    <div class="dgVidBtnWrap"><button class="dgVidBtn" id="dgVidCamBtn" type="button"><i class="fas fa-video"></i></button><span>Камера</span></div>
+    <div class="dgVidBtnWrap"><button class="dgVidBtn" id="dgVidSwitchBtn" type="button"><i class="fas fa-camera-rotate"></i></button><span>Сменить</span></div>
+    <div class="dgVidBtnWrap"><button class="dgVidBtn" id="dgVidShareBtn" type="button"><i class="fas fa-desktop"></i></button><span>Экран</span></div>
+    <button id="dgVideoAcceptBtn" class="dgVidBtn accept" type="button" aria-label="Принять видеозвонок" hidden><i class="fas fa-phone"></i></button>
+    <button class="dgVidBtn end" id="dgVidEndBtn" type="button" aria-label="Завершить звонок"><i class="fas fa-phone-slash"></i></button>
   </div>
+</div>
+<div id="dgCallMinimized" role="status">
+  <span class="dg-mini-pulse"></span><div><b id="dgMiniName">Звонок</b><small><span id="dgMiniTimer">00:00</span> · <span id="dgMiniTraffic">0 МБ</span></small></div>
+  <button id="dgRestoreCallBtn" type="button" aria-label="Вернуть звонок"><i class="fas fa-expand"></i></button>
+  <button id="dgMiniEndBtn" type="button" aria-label="Завершить звонок"><i class="fas fa-phone-slash"></i></button>
 </div>
 
 <!-- ================= DONAI ИНТЕРФЕЙС ================= -->
