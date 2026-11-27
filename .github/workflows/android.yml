@@ -35,7 +35,7 @@ jobs:
         run: npm install
 
       - name: Check JavaScript syntax
-        run: node --check offline-ai.js
+        run: node --check offline-ai.js && npm run check:inline-js
 
       - name: Bundle local web assets
         run: npm run build:web
