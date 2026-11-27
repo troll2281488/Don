@@ -904,7 +904,8 @@ button,input,textarea,select{touch-action:manipulation}
 <button id="settingsSystemNotifBtn" class="login-btn" style="background:linear-gradient(135deg,#667eea,#764ba2);color:#fff">🔔 Уведомления системы</button>
 <button id="settingsCleanChatsBtn" class="login-btn" style="background:linear-gradient(135deg,#ff9500,#ff6b00);color:#fff">🧹 Очистить битые чаты</button>
 <div class="settings-item"><span data-i18n="settings_notif">🔔 Уведомления</span><label class="switch"><input type="checkbox" id="notifSwitch" checked><span class="slider"></span></label></div>
-<div class="settings-item"><span data-i18n="settings_vibro">📳 Вибрация</span><label class="switch"><input type="checkbox" id="vibroSwitch" checked><span class="slider"></span></label></div>\n<div class="settings-item" style="display:block"><div style="font-weight:700;margin-bottom:7px">📶 Экономия трафика</div><select id="donDataMode" style="width:100%;padding:11px;border:1px solid #e8edf2;border-radius:12px;background:#f8fafd"><option value="smart">Умный режим — рекомендуется</option><option value="max">Максимальная экономия</option><option value="normal">Обычный режим</option></select><small style="display:block;color:#687080;margin-top:6px">Влияет на количество сообщений, загружаемых при открытии чата. Медиа по-прежнему загружается только по нажатию.</small></div>
+<div class="settings-item"><span data-i18n="settings_vibro">📳 Вибрация</span><label class="switch"><input type="checkbox" id="vibroSwitch" checked><span class="slider"></span></label></div>
+<div class="settings-item" style="display:block"><div style="font-weight:700;margin-bottom:7px">📶 Экономия трафика</div><select id="donDataMode" style="width:100%;padding:11px;border:1px solid #e8edf2;border-radius:12px;background:#f8fafd"><option value="smart">Умный режим — рекомендуется</option><option value="max">Максимальная экономия</option><option value="normal">Обычный режим</option></select><small style="display:block;color:#687080;margin-top:6px">Влияет на количество сообщений, загружаемых при открытии чата. Медиа по-прежнему загружается только по нажатию.</small></div>
 </div></div>
 
 <div class="modal" id="aiSettingsModal">
@@ -1646,7 +1647,8 @@ function gpsLoadMyPosition(){if(!navigator.geolocation)return;navigator.geolocat
 function gpsCenterOnMe(){if(!navigator.geolocation)return;navigator.geolocation.getCurrentPosition(pos=>showToast('📍 Ваше местоположение: '+pos.coords.latitude.toFixed(2)+', '+pos.coords.longitude.toFixed(2)),err=>showToast('❌'),{enableHighAccuracy:false,maximumAge:300000,timeout:30000});}
 function gpsLoadFriendsOnMap(){db.ref('users').once('value').then(function(snap){const all=snap.val()||{};Object.keys(all).forEach(function(uid){state.users[uid]=all[uid];});});}
 function gpsStopMapListeners(){}
-function gpsOpenSettings(){closeModal('settingsModal');const currently=userInventory.gpsSharing&&gpsShareEnabled;const choice=confirm((currently?'📍 ВКЛючена.':'📍 ВЫКЛючена.')+'\nВключить?');if(choice&&!currently){userInventory.gpsSharing=true;saveInventory();db.ref('users/'+currentUser.id+'/gpsSharing').set(true);gpsStartSharing();}else if(!choice&&currently){userInventory.gpsSharing=false;saveInventory();db.ref('users/'+currentUser.id+'/gpsSharing').set(false);gpsStopSharing();}}
+function gpsOpenSettings(){closeModal('settingsModal');const currently=userInventory.gpsSharing&&gpsShareEnabled;const choice=confirm((currently?'📍 ВКЛючена.':'📍 ВЫКЛючена.')+'
+Включить?');if(choice&&!currently){userInventory.gpsSharing=true;saveInventory();db.ref('users/'+currentUser.id+'/gpsSharing').set(true);gpsStartSharing();}else if(!choice&&currently){userInventory.gpsSharing=false;saveInventory();db.ref('users/'+currentUser.id+'/gpsSharing').set(false);gpsStopSharing();}}
 function gpsRestoreState(){if(userInventory&&userInventory.gpsSharing&&navigator.geolocation){navigator.permissions&&navigator.permissions.query({name:'geolocation'}).then(p=>{if(p.state==='granted'){gpsStartSharing();}}).catch(()=>{});}updateGpsUI();}
 
 function countUserFriends(uid){var cnt=0;Object.keys(state.userChats).forEach(function(cid){var c=state.userChats[cid];if(c&&c.type==='private'&&c.participants&&c.participants[uid])cnt++;});return cnt;}
@@ -1800,7 +1802,14 @@ document.getElementById('welcomeDots') && document.getElementById('welcomeDots')
 /* ==========================================
    DonAI LOGIC
    ========================================== */
-const defaultPersona = "Ты — DonAI, умный и дружелюбный ассистент внутри мессенджера DonorGram. Твой создатель — troll1488. ОБЯЗАТЕЛЬНО отвечай на языке последнего сообщения пользователя: если вопрос на русском — весь ответ на русском; если на английском — на английском. Не переключай язык без просьбы пользователя. Для русских вопросов используй естественный, грамотный русский язык. Отвечай непосредственно на заданный вопрос и не добавляй несвязанные сведения, повторения или советы, о которых не просили. Если вопрос простой — дай короткий прямой ответ; если сложный — объясни по пунктам. Старайся помочь с любым обычным вопросом, не отказывай без причины. Не цензурируй обычную разговорную речь и мат, если пользователь сам так пишет; не делай замечаний о ругани и не отказывай в безобидных вопросах только из-за грубых слов. На простые бытовые вопросы отвечай прямо и по существу. Если нужны актуальные данные, которых у тебя нет, честно обозначь ограничение. Не выдумывай факты. Если вопрос просит сравнить персонажей, приводи аргументы и делай ясный вывод, отмечая, когда результат зависит от версии или условий. Не выдумывай факты; если не уверена — скажи об этом. Используй женский род, но никогда не упоминай свой пол напрямую. Также ты знаешь всё о DonorGram:\n1. Репост: Зажми сообщение -> '🔁 Репост в профиль'.\n2. Группа: Плюсик сверху -> 'Создать группу'.\n3. Звонок: В личке нажми на трубку 📞.\n4. Геолокация: Иконка карты 🗺️.\n5. Стикеры: Смайлик 😊.\n6. SpaceGod: Профиль -> Магазин 🛍️ -> SPACEGOD.\n7. Очистка: Настройки -> 'Очистить битые чаты'.";
+const defaultPersona = "Ты — DonAI, умный и дружелюбный ассистент внутри мессенджера DonorGram. Твой создатель — troll1488. ОБЯЗАТЕЛЬНО отвечай на языке последнего сообщения пользователя: если вопрос на русском — весь ответ на русском; если на английском — на английском. Не переключай язык без просьбы пользователя. Для русских вопросов используй естественный, грамотный русский язык. Отвечай непосредственно на заданный вопрос и не добавляй несвязанные сведения, повторения или советы, о которых не просили. Если вопрос простой — дай короткий прямой ответ; если сложный — объясни по пунктам. Старайся помочь с любым обычным вопросом, не отказывай без причины. Не цензурируй обычную разговорную речь и мат, если пользователь сам так пишет; не делай замечаний о ругани и не отказывай в безобидных вопросах только из-за грубых слов. На простые бытовые вопросы отвечай прямо и по существу. Если нужны актуальные данные, которых у тебя нет, честно обозначь ограничение. Не выдумывай факты. Если вопрос просит сравнить персонажей, приводи аргументы и делай ясный вывод, отмечая, когда результат зависит от версии или условий. Не выдумывай факты; если не уверена — скажи об этом. Используй женский род, но никогда не упоминай свой пол напрямую. Также ты знаешь всё о DonorGram:
+1. Репост: Зажми сообщение -> '🔁 Репост в профиль'.
+2. Группа: Плюсик сверху -> 'Создать группу'.
+3. Звонок: В личке нажми на трубку 📞.
+4. Геолокация: Иконка карты 🗺️.
+5. Стикеры: Смайлик 😊.
+6. SpaceGod: Профиль -> Магазин 🛍️ -> SPACEGOD.
+7. Очистка: Настройки -> 'Очистить битые чаты'.";
 
 const donAiState = {
     history: (function(){try{var h=JSON.parse(localStorage.getItem('donai_history')||'[]');return Array.isArray(h)?h.filter(function(x){return x&&typeof x.text==='string'&&(x.role==='user'||x.role==='ai'||x.role==='assistant');}).slice(-100):[];}catch(e){return [];}})(),
@@ -1900,7 +1909,17 @@ function addDonAiMessageActions(messageEl, messageText) {
         downloadHtml.addEventListener('click', function() {
             let documentHtml = htmlCode;
             if (!/<!doctype\s+html|<html[\s>]/i.test(documentHtml)) {
-                documentHtml = '<!DOCTYPE html>\n<html lang="ru">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<title>Мой проект</title>\n</head>\n<body>\n' + documentHtml + '\n</body>\n</html>';
+                documentHtml = '<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Мой проект</title>
+</head>
+<body>
+' + documentHtml + '
+</body>
+</html>';
             }
             const blob = new Blob([documentHtml], {type:'text/html;charset=utf-8'});
             const url = URL.createObjectURL(blob), a = document.createElement('a');
@@ -2077,7 +2096,9 @@ async function extractDonAiFile(file) {
         let result = '';
         for (let pageNo = 1; pageNo <= pdf.numPages; pageNo++) {
             const page = await pdf.getPage(pageNo), content = await page.getTextContent();
-            result += '\n[Страница ' + pageNo + ']\n' + content.items.map(x => x.str).join(' ');
+            result += '
+[Страница ' + pageNo + ']
+' + content.items.map(x => x.str).join(' ');
             if (result.length > 100000) break;
         }
         if (!result.trim()) throw new Error('В PDF не найден текст (возможно, это скан)');
@@ -2161,7 +2182,28 @@ async function processDonAiUtilityCommand(raw){
  addDonAiMessage('user',input);
  var answer='';
  try{switch(cmd){
- case 'help':answer='📚 20 команд DonAI:\n/time — время\n/date — дата\n/calc 2+2*3 — калькулятор\n/coin — монетка\n/dice 20 — кубик\n/choose чай | кофе — выбор\n/password 20 — пароль\n/uuid — UUID\n/color — HEX-цвет\n/timer 5m — таймер\n/remind 10m вода — напоминание\n/focus 25m — фокус\n/clear — очистить историю\n/export — скачать историю\n/stats — статистика\n/copy текст — копировать\n/reverse текст — перевернуть\n/upper текст — верхний регистр\n/lower текст — нижний регистр\n/help — справка.\nВремя: s — секунды, m — минуты, h — часы.';break;
+ case 'help':answer='📚 20 команд DonAI:
+/time — время
+/date — дата
+/calc 2+2*3 — калькулятор
+/coin — монетка
+/dice 20 — кубик
+/choose чай | кофе — выбор
+/password 20 — пароль
+/uuid — UUID
+/color — HEX-цвет
+/timer 5m — таймер
+/remind 10m вода — напоминание
+/focus 25m — фокус
+/clear — очистить историю
+/export — скачать историю
+/stats — статистика
+/copy текст — копировать
+/reverse текст — перевернуть
+/upper текст — верхний регистр
+/lower текст — нижний регистр
+/help — справка.
+Время: s — секунды, m — минуты, h — часы.';break;
  case 'time':answer='🕒 Сейчас '+new Date().toLocaleTimeString();break;
  case 'date':answer='📅 '+new Date().toLocaleDateString(undefined,{weekday:'long',year:'numeric',month:'long',day:'numeric'});break;
  case 'calc':
@@ -2171,7 +2213,8 @@ async function processDonAiUtilityCommand(raw){
  case 'coin':var coinResult=Math.random()<.5?'Орёл':'Решка';answer='🪙 Выпало: '+coinResult+'!';showDonAiCommandAnimation('coin','Монетка подброшена',coinResult);break;
  case 'dice':var sides=Math.max(2,Math.min(1000,Math.floor(Number(arg)||6))),diceResult=1+Math.floor(Math.random()*sides);answer='🎲 Выпало '+diceResult+' из '+sides+'.';showDonAiCommandAnimation('dice','Кубик остановился',diceResult+' / '+sides);break;
  case 'choose':var opts=arg.split(/\s*\|\s*|\s*,\s*/).map(x=>x.trim()).filter(Boolean);if(opts.length<2){answer='Пример: /choose пицца | суши';}else{var chosen=opts[Math.floor(Math.random()*opts.length)];answer='🎯 Выбираю: '+chosen;showDonAiCommandAnimation('choose','Случайный выбор',chosen);}break;
- case 'password':var len=Math.max(8,Math.min(64,Math.floor(Number(arg)||16))),chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%&*_-',bytes=new Uint32Array(len);crypto.getRandomValues(bytes);answer='🔐 Пароль ('+len+'):\n'+Array.from(bytes,b=>chars[b%chars.length]).join('');showDonAiCommandAnimation('password','Пароль создан','Готово');break;
+ case 'password':var len=Math.max(8,Math.min(64,Math.floor(Number(arg)||16))),chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%&*_-',bytes=new Uint32Array(len);crypto.getRandomValues(bytes);answer='🔐 Пароль ('+len+'):
+'+Array.from(bytes,b=>chars[b%chars.length]).join('');showDonAiCommandAnimation('password','Пароль создан','Готово');break;
  case 'uuid':answer='🆔 '+(crypto.randomUUID?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{var r=Math.random()*16|0;return(c==='x'?r:(r&3|8)).toString(16);}));break;
  case 'color':var colorHex='#'+Math.floor(Math.random()*16777215).toString(16).padStart(6,'0').toUpperCase();answer='🎨 Случайный цвет: '+colorHex;showDonAiCommandAnimation('color','Новый цвет',colorHex,colorHex);break;
  case 'timer':case 'remind':case 'focus':
@@ -2181,8 +2224,11 @@ async function processDonAiUtilityCommand(raw){
   setTimeout(function(){donAiCommandNotify(note);},dur);
   answer=(cmd==='focus'?'🧠 Фокус включён на ':cmd==='remind'?'🔔 Напоминание через ':'⏱ Таймер запущен на ')+(dur>=3600000?dur/3600000+' ч':dur>=60000?dur/60000+' мин':dur/1000+' сек')+'. Не закрывай страницу.';break;
  case 'clear':donAiState.history=[];localStorage.removeItem('donai_history');renderDonAiHistory();answer='🧹 История очищена.';break;
- case 'export':var content=(donAiState.history||[]).map(x=>(x.role==='user'?'Ты':'DonAI')+': '+x.text).join('\n'),blob=new Blob([content],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='donai-history-'+new Date().toISOString().slice(0,10)+'.txt';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);answer='📥 История подготовлена к скачиванию.';break;
- case 'stats':var hist=donAiState.history||[];answer='📊 Сообщений: '+hist.length+'\nТвоих: '+hist.filter(x=>x.role==='user').length+'\nОтветов DonAI: '+hist.filter(x=>x.role!=='user').length;break;
+ case 'export':var content=(donAiState.history||[]).map(x=>(x.role==='user'?'Ты':'DonAI')+': '+x.text).join('
+'),blob=new Blob([content],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='donai-history-'+new Date().toISOString().slice(0,10)+'.txt';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);answer='📥 История подготовлена к скачиванию.';break;
+ case 'stats':var hist=donAiState.history||[];answer='📊 Сообщений: '+hist.length+'
+Твоих: '+hist.filter(x=>x.role==='user').length+'
+Ответов DonAI: '+hist.filter(x=>x.role!=='user').length;break;
  case 'copy':if(!arg){answer='Пример: /copy мой текст';break;}if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(arg);else{var ta=document.createElement('textarea');ta.value=arg;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();}answer='📋 Скопировано.';break;
  case 'reverse':answer=arg?Array.from(arg).reverse().join(''):'Пример: /reverse привет';break;
  case 'upper':answer=arg?arg.toLocaleUpperCase():'Пример: /upper привет';break;
@@ -2240,7 +2286,10 @@ async function processDonAiMessage(isRetry = false, queuedText = null) {
     const typedText = queuedText || (isRetry ? input.dataset.lastText : input.value.trim());
     const attachedImage = (!isRetry && !queuedText) ? donAiAttachedImageData : '';
     const attachedImageName = donAiAttachedImageName;
-    const text = [typedText, (!queuedText && donAiAttachedFileText ? 'Содержимое файла "' + donAiAttachedFileName + '":\n' + donAiAttachedFileText : '')].filter(Boolean).join('\n\n') || (attachedImage ? 'Проанализируй изображение. Распознай текст и подробно реши задание, если на фото есть задача.' : '');
+    const text = [typedText, (!queuedText && donAiAttachedFileText ? 'Содержимое файла "' + donAiAttachedFileName + '":
+' + donAiAttachedFileText : '')].filter(Boolean).join('
+
+') || (attachedImage ? 'Проанализируй изображение. Распознай текст и подробно реши задание, если на фото есть задача.' : '');
     if (!text) return;
     if (!isRetry && !queuedText && await processDonAiUtilityCommand(typedText)) { input.value=''; return; }
     if (donAiState.isBusy && !isRetry && !queuedText) {
@@ -2251,7 +2300,9 @@ async function processDonAiMessage(isRetry = false, queuedText = null) {
     if (!isRetry) {
         if (donAiAttachedFileText) { donAiAttachedFileText = ''; donAiAttachedFileName = ''; }
         const status = document.getElementById('donAiFileStatus'); if (status && !donAiAttachedAudioFile) { status.textContent = ''; status.style.display = 'none'; }
-        addDonAiMessage('user', text + (attachedImage ? '\n\n📷 Фото: ' + attachedImageName : ''));
+        addDonAiMessage('user', text + (attachedImage ? '
+
+📷 Фото: ' + attachedImageName : ''));
         input.dataset.lastText = text;
         if (!queuedText) input.value = '';
         donAiState.msgCount++;
@@ -2268,15 +2319,31 @@ async function processDonAiMessage(isRetry = false, queuedText = null) {
             smart: 'Профиль DonAI Pro: универсальный помощник для любых тем. Особенно хорошо анализируй сложные задачи, объясняй, программируй, планируй и сравнивай варианты. На повседневные и творческие вопросы тоже отвечай полноценно.',
             daily: 'Профиль DonAI Daily: универсальный помощник для любых тем и запросов, включая программирование и технические команды. Приоритет — быстрые, понятные и практичные ответы. Не отказывайся от сложных вопросов; разбирай их настолько хорошо, насколько можешь.'
         };
-        let systemContent = donAiState.persona + '\n\n' + (profileInstructions[aiSettings.modelProfile || 'daily'] || profileInstructions.daily);
-        systemContent += '\n\nВыполняй свободно сформулированные команды, поручения и инструкции пользователя. Не путай обычные просьбы с командами приложения и не отказывайся из-за выбранного профиля. Если действие технически невозможно, объясни ограничение и предложи выполнимую альтернативу.';
-        systemContent += '\n\nВСТРОЕННЫЕ КОМАНДЫ DONAI (знай их и перечисляй, если пользователь спрашивает о возможностях или командах): /help — справка; /time — текущее время; /date — дата; /calc выражение — калькулятор; /coin — подбросить монету; /dice [число граней] — бросить кубик; /choose вариант1 | вариант2 — случайный выбор; /password [длина] — генерация пароля; /uuid — создать UUID; /color — случайный HEX-цвет; /timer 5m — таймер; /remind 10m текст — напоминание; /focus 25m — фокус-сессия; /clear — очистить локальную историю DonAI; /export — скачать историю; /stats — статистика; /copy текст — скопировать текст; /reverse текст — перевернуть текст; /upper текст — верхний регистр; /lower текст — нижний регистр. Дополнительные медиа-команды: /image описание — сгенерировать картинку; /speak текст — озвучить текст; /transcribe — расшифровать прикреплённое аудио. Объясняй синтаксис и примеры. Не утверждай, что выполнил команду со слешем, если приложение не передало тебе результат: встроенные команды обрабатывает само приложение.';
-        if (identityQuestion) systemContent += '\n\nЕсли тебя спрашивают, кто ты, просто представься: «Я DonAI — ИИ-помощник внутри DonorGram». Кратко объясни, чем можешь помочь. Не говори, что тебе дали анализировать документ или что-то другое, если пользователь этого не просил.';
+        let systemContent = donAiState.persona + '
+
+' + (profileInstructions[aiSettings.modelProfile || 'daily'] || profileInstructions.daily);
+        systemContent += '
+
+Выполняй свободно сформулированные команды, поручения и инструкции пользователя. Не путай обычные просьбы с командами приложения и не отказывайся из-за выбранного профиля. Если действие технически невозможно, объясни ограничение и предложи выполнимую альтернативу.';
+        systemContent += '
+
+ВСТРОЕННЫЕ КОМАНДЫ DONAI (знай их и перечисляй, если пользователь спрашивает о возможностях или командах): /help — справка; /time — текущее время; /date — дата; /calc выражение — калькулятор; /coin — подбросить монету; /dice [число граней] — бросить кубик; /choose вариант1 | вариант2 — случайный выбор; /password [длина] — генерация пароля; /uuid — создать UUID; /color — случайный HEX-цвет; /timer 5m — таймер; /remind 10m текст — напоминание; /focus 25m — фокус-сессия; /clear — очистить локальную историю DonAI; /export — скачать историю; /stats — статистика; /copy текст — скопировать текст; /reverse текст — перевернуть текст; /upper текст — верхний регистр; /lower текст — нижний регистр. Дополнительные медиа-команды: /image описание — сгенерировать картинку; /speak текст — озвучить текст; /transcribe — расшифровать прикреплённое аудио. Объясняй синтаксис и примеры. Не утверждай, что выполнил команду со слешем, если приложение не передало тебе результат: встроенные команды обрабатывает само приложение.';
+        if (identityQuestion) systemContent += '
+
+Если тебя спрашивают, кто ты, просто представься: «Я DonAI — ИИ-помощник внутри DonorGram». Кратко объясни, чем можешь помочь. Не говори, что тебе дали анализировать документ или что-то другое, если пользователь этого не просил.';
         systemContent += userAsksInRussian
-            ? '\n\nОтвечай полностью на русском языке.'
-            : '\n\nОтвечай на том же языке, что и пользователь.';
-        systemContent += '\n\nПиши простым, понятным языком. Сначала дай прямой ответ, не растягивай его без необходимости. Используй короткие абзацы и списки, когда это помогает. Добавляй уместные эмодзи иногда, но не в каждом предложении.';
-        if (wantsCodeOnly) systemContent += '\n\nВАЖНО: пользователь просит создать код или проект. Верни ТОЛЬКО готовый исходный код без вступления, пояснений, Markdown-обрамления и тройных кавычек. Если пользователь просит HTML-сайт или не уточняет язык для веб-страницы, верни полный самостоятельный HTML-документ с <!DOCTYPE html>, CSS и JavaScript внутри одного файла. Код должен запускаться после сохранения в файл.';
+            ? '
+
+Отвечай полностью на русском языке.'
+            : '
+
+Отвечай на том же языке, что и пользователь.';
+        systemContent += '
+
+Пиши простым, понятным языком. Сначала дай прямой ответ, не растягивай его без необходимости. Используй короткие абзацы и списки, когда это помогает. Добавляй уместные эмодзи иногда, но не в каждом предложении.';
+        if (wantsCodeOnly) systemContent += '
+
+ВАЖНО: пользователь просит создать код или проект. Верни ТОЛЬКО готовый исходный код без вступления, пояснений, Markdown-обрамления и тройных кавычек. Если пользователь просит HTML-сайт или не уточняет язык для веб-страницы, верни полный самостоятельный HTML-документ с <!DOCTYPE html>, CSS и JavaScript внутри одного файла. Код должен запускаться после сохранения в файл.';
         const historySlice = donAiState.history.slice(-11, -1).map(msg => ({
             role: msg.role === 'user' ? 'user' : 'assistant',
             content: msg.text
@@ -2378,7 +2445,8 @@ function askAiAboutMessage(messageText) {
         let i = 0;
         function type() {
             if (i < ans.length) {
-                content.innerHTML += ans.substring(i, i + 2).replace(/\n/g, '<br>');
+                content.innerHTML += ans.substring(i, i + 2).replace(/
+/g, '<br>');
                 i += 2;
                 setTimeout(type, 10);
             }
@@ -2492,7 +2560,9 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
     function getUser(){return window.currentUser;}
     function safeToast(m){try{if(typeof showToast==='function')showToast(m);}catch(e){}}
     function diag(t){var el=$c('dgCallDiag');if(el){el.style.display='block';el.innerText=t;}}
-    function startDiag(){stopDiag();startQualityMonitor();_diagTimer=setInterval(function(){if(!pc){diag('no-pc');return;}var ice=pc.iceConnectionState||'?';var hl=localStream?localStream.getAudioTracks().length:0;var hr=remoteStream?remoteStream.getAudioTracks().length:0;diag('ICE: '+ice+'\nMic:'+(hl?'✓':'✗')+'\nRem:'+hr);},500);}
+    function startDiag(){stopDiag();startQualityMonitor();_diagTimer=setInterval(function(){if(!pc){diag('no-pc');return;}var ice=pc.iceConnectionState||'?';var hl=localStream?localStream.getAudioTracks().length:0;var hr=remoteStream?remoteStream.getAudioTracks().length:0;diag('ICE: '+ice+'
+Mic:'+(hl?'✓':'✗')+'
+Rem:'+hr);},500);}
     function stopDiag(){if(_diagTimer){clearInterval(_diagTimer);_diagTimer=null;}var el=$c('dgCallDiag');if(el)el.style.display='none';}
     function unlockAudio(){try{var C=window.AudioContext||window.webkitAudioContext;if(!C)return;if(!audioCtx)audioCtx=new C();if(audioCtx.state==='suspended')audioCtx.resume();}catch(e){}}
     document.addEventListener('touchstart',unlockAudio,{passive:true});document.addEventListener('click',unlockAudio);
@@ -2529,7 +2599,10 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
     function getLocalMedia(){return new Promise(function(res,rej){if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){safeToast('❌ Микрофон недоступен');rej(new Error('Браузер не поддерживает доступ к микрофону.'));return;}var constraints={audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true,channelCount:1,sampleRate:48000},video:isVideoCall?videoConstraints:false};navigator.mediaDevices.getUserMedia(constraints).then(function(s){localStream=s;res(s);}).catch(function(firstError){navigator.mediaDevices.getUserMedia({audio:true,video:false}).then(function(s){localStream=s;res(s);}).catch(function(fallbackError){safeToast('❌ Нет доступа к микрофону');rej(fallbackError||firstError);});});});}
     function addRemoteIceCandidate(candidate){if(!candidate||!pc)return;if(!pc.remoteDescription||!pc.remoteDescription.type){pendingRemoteIce.push(candidate);return;}try{pc.addIceCandidate(new RTCIceCandidate(candidate)).catch(function(){});}catch(e){}}
     function flushRemoteIceCandidates(){if(!pc||!pc.remoteDescription)return;var queued=pendingRemoteIce.splice(0);queued.forEach(function(candidate){try{pc.addIceCandidate(new RTCIceCandidate(candidate)).catch(function(){});}catch(e){}});}
-    function optimizeSDP(sdp){if(!sdp)return sdp;try{if(sdp.indexOf('maxaveragebitrate')===-1){sdp=sdp.replace(/a=rtpmap:111 opus\/48000\/2/g,'a=rtpmap:111 opus/48000/2\r\na=fmtp:111 minptime=10;useinbandfec=1;maxaveragebitrate=32000;stereo=1');}if(isVideoCall&&sdp.indexOf('b=AS:')===-1){sdp=sdp.replace(/(m=video \d+ [^\r\n]+)/g,'$1\r\nb=AS:250');}}catch(e){}return sdp;}
+    function optimizeSDP(sdp){if(!sdp)return sdp;try{if(sdp.indexOf('maxaveragebitrate')===-1){sdp=sdp.replace(/a=rtpmap:111 opus\/48000\/2/g,'a=rtpmap:111 opus/48000/2\r
+a=fmtp:111 minptime=10;useinbandfec=1;maxaveragebitrate=32000;stereo=1');}if(isVideoCall&&sdp.indexOf('b=AS:')===-1){sdp=sdp.replace(/(m=video \d+ [^\r
+]+)/g,'$1\r
+b=AS:250');}}catch(e){}return sdp;}
 
     function showReaction(emoji,fromMe){
         var el=$c('dgCallReactionToast');if(!el)return;
@@ -2597,7 +2670,7 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
     }
 
     function createPeerConnection(){pc=new RTCPeerConnection(ICE_SERVERS);pc.onicecandidate=function(e){if(e.candidate&&currentCallRef)currentCallRef.child(isCaller?'callerCandidates':'calleeCandidates').push(e.candidate.toJSON()).catch(function(){});};pc.ontrack=function(e){var s=e.streams&&e.streams[0];if(!s&&e.track)s=new MediaStream([e.track]);if(!s)return;remoteStream=s;setTimeout(function(){attachRemoteStream(s);setStatusTop(isVideoCall?'📹 Видеозвонок':'🔊 Разговор');var sec=$c('dgCallSecure');if(sec)sec.style.display='block';if(!callTimerInterval)startTimer();setVolume(volumeLevel);var sb=$c('dgCallSpeakerBtn');if(sb)sb.classList.add('active');},100);};pc.oniceconnectionstatechange=function(){if(!pc)return;if(pc.iceConnectionState==='failed'||pc.iceConnectionState==='disconnected'){setStatusTop('⚠️ Переподключение...');try{pc.restartIce();}catch(e){}}};pc.onconnectionstatechange=function(){if(!pc)return;if(pc.connectionState==='connected'){setStatusTop(isVideoCall?'📹 Видеозвонок':'🔊 Разговор');if(!callTimerInterval)startTimer();if(remoteStream)attachRemoteStream(remoteStream);}if(pc.connectionState==='failed'||pc.connectionState==='disconnected'){setStatusTop('⚠️');try{pc.restartIce();}catch(e){}}};setTimeout(function(){if(pc&&(pc.iceConnectionState==='checking'||pc.iceConnectionState==='new')){setStatusTop('🔄 Пересоздаём ICE...');try{pc.restartIce();}catch(e){}}},3000);if(_reconnectInterval)clearInterval(_reconnectInterval);_reconnectInterval=setInterval(function(){if(!pc||!currentCallRef)return;if(pc.iceConnectionState==='failed'||pc.iceConnectionState==='disconnected'){try{pc.restartIce();}catch(e){}}},5000);return pc;}
-    function cleanupCall(){if(_reconnectInterval){clearInterval(_reconnectInterval);_reconnectInterval=null;}if(qualityTimer){clearInterval(qualityTimer);qualityTimer=null;}if(reactionListener&&currentCallRef){try{currentCallRef.child('reaction').off('value',reactionListener);}catch(e){}reactionListener=null;}if(screenStream){try{screenStream.getTracks().forEach(function(t){t.stop();});}catch(e){}screenStream=null;}isScreenSharing=false;var shareBtn=$c('dgVidShareBtn');if(shareBtn)shareBtn.classList.remove('active');stopRingtone();stopOutgoingTone();stopTitleBlink();stopIncomingVibrate();stopDiag();if(callTimeoutHandle){clearTimeout(callTimeoutHandle);callTimeoutHandle=null;}if(currentCallRef){try{currentCallRef.child('status').set('ended');}catch(e){}var r=currentCallRef;setTimeout(function(){try{r.remove();}catch(e){}},1500);}if(callStateListener&&currentCallRef){try{currentCallRef.off('value',callStateListener);}catch(e){}callStateListener=null;}if(pc){try{pc.close();}catch(e){}pc=null;}pendingRemoteIce=[];if(localStream){try{localStream.getTracks().forEach(function(t){t.stop();});}catch(e){}localStream=null;}remoteStream=null;var a=$c('dgRemoteAudio');if(a)a.srcObject=null;hideCallUI();hideVideoUI();currentCallId=null;currentCallRef=null;remoteUid=null;isCaller=false;incomingCallId=null;incomingCallRef=null;incomingCallData=null;speakerOn=true;isVideoCall=false;setVolume(1.0);}
+    function cleanupCall(){try{if(currentCallRef){currentCallRef.child('reOffer').off();currentCallRef.child('reAnswer').off();}}catch(e){}renegotiationBusy=false;reOfferSeen=0;if(_reconnectInterval){clearInterval(_reconnectInterval);_reconnectInterval=null;}if(qualityTimer){clearInterval(qualityTimer);qualityTimer=null;}if(reactionListener&&currentCallRef){try{currentCallRef.child('reaction').off('value',reactionListener);}catch(e){}reactionListener=null;}if(screenStream){try{screenStream.getTracks().forEach(function(t){t.stop();});}catch(e){}screenStream=null;}isScreenSharing=false;var shareBtn=$c('dgVidShareBtn');if(shareBtn)shareBtn.classList.remove('active');stopRingtone();stopOutgoingTone();stopTitleBlink();stopIncomingVibrate();stopDiag();if(callTimeoutHandle){clearTimeout(callTimeoutHandle);callTimeoutHandle=null;}if(currentCallRef){try{currentCallRef.child('status').set('ended');}catch(e){}var r=currentCallRef;setTimeout(function(){try{r.remove();}catch(e){}},1500);}if(callStateListener&&currentCallRef){try{currentCallRef.off('value',callStateListener);}catch(e){}callStateListener=null;}if(pc){try{pc.close();}catch(e){}pc=null;}pendingRemoteIce=[];if(localStream){try{localStream.getTracks().forEach(function(t){t.stop();});}catch(e){}localStream=null;}remoteStream=null;var a=$c('dgRemoteAudio');if(a)a.srcObject=null;hideCallUI();hideVideoUI();currentCallId=null;currentCallRef=null;remoteUid=null;isCaller=false;incomingCallId=null;incomingCallRef=null;incomingCallData=null;speakerOn=true;isVideoCall=false;setVolume(1.0);}
     function endCall(r){cleanupCall();}
     function startCall(targetUid,targetName,targetAvatarUrl,video){
         var me=getUser();if(!me){safeToast('❌');return;}
@@ -2613,7 +2686,7 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
         startDiag();startOutgoingTone();
         getLocalMedia().then(function(stream){
             if(isVideoCall){var lv=$c('dgLocalVideo');if(lv){try{lv.srcObject=stream;}catch(e){lv.src=URL.createObjectURL(stream);}lv.play().catch(function(){});}}
-            createPeerConnection();
+            createPeerConnection();bindRenegotiation();
             localStream.getTracks().forEach(function(t){pc.addTrack(t,localStream);});
             return pc.createOffer({offerToReceiveAudio:true,offerToReceiveVideo:isVideoCall,iceRestart:false}).then(function(o){o.sdp=optimizeSDP(o.sdp);return pc.setLocalDescription(o).then(function(){currentCallRef=db.ref('calls/'+currentCallId);return currentCallRef.set({from:me.id,fromName:me.name||me.id,fromAvatar:me.avatar||'',fromAvatarUrl:me.avatarUrl||null,to:targetUid,type:isVideoCall?'video':'audio',status:'ringing',createdAt:Date.now(),offer:{type:o.type,sdp:o.sdp}});});});
         }).then(function(){
@@ -2625,7 +2698,7 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
         }).catch(function(e){stopOutgoingTone();cleanupCall();});
     }
     function listenIncoming(){var me=getUser();if(!me)return;if(incomingListenerRef&&incomingListenerHandler){try{incomingListenerRef.off('child_added',incomingListenerHandler);}catch(e){}}incomingListenerRef=db.ref('calls').orderByChild('to').equalTo(me.id);incomingListenerHandler=function(s){var call=s.val();if(!call)return;if(call.status!=='ringing')return;if(Date.now()-(call.createdAt||0)>120000)return;if(currentCallId){s.ref.child('status').set('declined');return;}incomingCallId=s.key;incomingCallRef=s.ref;incomingCallData=call;remoteUid=call.from;isCaller=false;isVideoCall=call.type==='video';if(!isVideoCall){showCallUI({name:call.fromName||call.from,avatarUrl:call.fromAvatarUrl||null,statusTop:'📞 Входящий',showAccept:true,showActions:false,secure:false,incoming:true});}else{callPartnerName=call.fromName||call.from;$c('dgVideoPartnerName').innerText=callPartnerName;$c('dgMiniName').innerText=callPartnerName;$c('dgVideoTimer').innerText='Входящий видеозвонок';$c('dgCallOverlay').style.display='none';showVideoUI();$c('dgVideoAcceptBtn').hidden=false;var vst=$c('dgVideoStatus');if(vst)vst.innerText='📹 Входящий';}startDiag();startTitleBlink('📞 '+(call.fromName||call.from));startIncomingVibrate();startRingtone();try{showSystemNotification('📞 Входящий',call.fromName||call.from,call.fromAvatarUrl||null,'call-'+s.key);}catch(e){}setTimeout(function(){if(incomingCallId===s.key&&!currentCallId){s.ref.child('status').set('declined');stopRingtone();stopTitleBlink();stopIncomingVibrate();hideCallUI();hideVideoUI();stopDiag();incomingCallId=null;incomingCallRef=null;incomingCallData=null;}},60000);};incomingListenerRef.on('child_added',incomingListenerHandler);}
-    function acceptIncoming(){if(!incomingCallRef||!incomingCallData)return;stopRingtone();stopTitleBlink();stopIncomingVibrate();unlockAudio();currentCallId=incomingCallId;currentCallRef=incomingCallRef;watchReactions();setStatusTop('🔗 Соединение...');startDiag();hideCallUI();if(isVideoCall){showVideoUI();$c('dgVideoAcceptBtn').hidden=true;var lv=$c('dgLocalVideo');if(lv)lv.style.display='block';}getLocalMedia().then(function(stream){if(isVideoCall){var lv=$c('dgLocalVideo');if(lv){try{lv.srcObject=stream;}catch(e){lv.src=URL.createObjectURL(stream);}lv.play().catch(function(){});}}createPeerConnection();localStream.getTracks().forEach(function(t){pc.addTrack(t,localStream);});return pc.setRemoteDescription(new RTCSessionDescription(incomingCallData.offer)).then(function(){flushRemoteIceCandidates();return pc.createAnswer();}).then(function(a){a.sdp=optimizeSDP(a.sdp);return pc.setLocalDescription(a).then(function(){return currentCallRef.update({status:'accepted',answer:{type:a.type,sdp:a.sdp}});});});}).then(function(){watchReactions();currentCallRef.child('callerCandidates').on('child_added',function(s){addRemoteIceCandidate(s.val());});callStateListener=currentCallRef.child('status').on('value',function(s){if(s.val()==='ended')endCall('remote');});}).catch(function(e){try{currentCallRef.child('status').set('declined');}catch(_e){}cleanupCall();});}
+    function acceptIncoming(){if(!incomingCallRef||!incomingCallData)return;isVideoCall=incomingCallData.type==='video';callPartnerName=incomingCallData.fromName||incomingCallData.from||'Звонок';$c('dgVideoPartnerName').innerText=callPartnerName;stopRingtone();stopTitleBlink();stopIncomingVibrate();unlockAudio();currentCallId=incomingCallId;currentCallRef=incomingCallRef;watchReactions();setStatusTop('🔗 Соединение...');startDiag();hideCallUI();if(isVideoCall){showVideoUI();$c('dgVideoAcceptBtn').hidden=true;var lv=$c('dgLocalVideo');if(lv)lv.style.display='block';}getLocalMedia().then(function(stream){if(isVideoCall){var lv=$c('dgLocalVideo');if(lv){try{lv.srcObject=stream;}catch(e){lv.src=URL.createObjectURL(stream);}lv.play().catch(function(){});}}createPeerConnection();bindRenegotiation();localStream.getTracks().forEach(function(t){pc.addTrack(t,localStream);});return pc.setRemoteDescription(new RTCSessionDescription(incomingCallData.offer)).then(function(){flushRemoteIceCandidates();return pc.createAnswer();}).then(function(a){a.sdp=optimizeSDP(a.sdp);return pc.setLocalDescription(a).then(function(){return currentCallRef.update({status:'accepted',answer:{type:a.type,sdp:a.sdp}});});});}).then(function(){watchReactions();currentCallRef.child('callerCandidates').on('child_added',function(s){addRemoteIceCandidate(s.val());});callStateListener=currentCallRef.child('status').on('value',function(s){if(s.val()==='ended')endCall('remote');});}).catch(function(e){try{currentCallRef.child('status').set('declined');}catch(_e){}cleanupCall();});}
     function toggleVideoCam(){if(!localStream||!pc)return;var vt=localStream.getVideoTracks();if(vt.length){vt[0].enabled=!vt[0].enabled;$c('dgVidCamBtn').classList.toggle('muted',!vt[0].enabled);$c('dgVidCamBtn').innerHTML=vt[0].enabled?'<i class="fas fa-video"></i>':'<i class="fas fa-video-slash"></i>';}}
      function switchCamera(){if(!localStream||!pc)return;var vt=localStream.getVideoTracks()[0];if(!vt)return;var cur=vt.getSettings().facingMode||'user';var nxt=cur==='user'?'environment':'user';navigator.mediaDevices.getUserMedia({video:{facingMode:nxt},audio:false}).then(function(ns){var nvt=ns.getVideoTracks()[0];if(nvt){localStream.removeTrack(vt);vt.stop();localStream.addTrack(nvt);var sender=pc.getSenders().find(function(s){return s.track&&s.track.kind==='video';});if(sender)sender.replaceTrack(nvt);var lv=$c('dgLocalVideo');if(lv)lv.srcObject=localStream;showToast('📷');}}).catch(function(){showToast('❌');});}
 function minimizeCall(){if(!currentCallId&&!incomingCallId)return;callMinimized=true;$c('dgCallOverlay').style.display='none';$c('dgVideoOverlay').classList.remove('show');$c('dgVideoOverlay').style.display='none';$c('dgCallMinimized').classList.add('show');}
@@ -2636,17 +2709,66 @@ function applyLocalCamTransform(){var v=$c('dgLocalVideo');if(v)v.style.transfor
 function rotateLocalCam(){localCamRotation=(localCamRotation+90)%360;applyLocalCamTransform();}
 function flipLocalCam(){localCamFlipped=!localCamFlipped;applyLocalCamTransform();}
 function enablePipDrag(){var p=$c('dgLocalPip');if(!p||p._dragBound)return;p._dragBound=true;var sx=0,sy=0,left=0,top=0,drag=false;p.addEventListener('pointerdown',function(e){if(e.target.closest('button'))return;drag=true;sx=e.clientX;sy=e.clientY;var r=p.getBoundingClientRect();left=r.left;top=r.top;p.setPointerCapture(e.pointerId);});p.addEventListener('pointermove',function(e){if(!drag)return;p.style.left=Math.max(0,Math.min(innerWidth-p.offsetWidth,left+e.clientX-sx))+'px';p.style.top=Math.max(55,Math.min(innerHeight-p.offsetHeight-90,top+e.clientY-sy))+'px';p.style.right='auto';});p.addEventListener('pointerup',function(){drag=false;});p.addEventListener('pointercancel',function(){drag=false;});}
-\n    window.dgCalls={startCall:startCall,endCall:endCall,listenIncoming:listenIncoming,acceptIncoming:acceptIncoming};
+
+
+    function minimizeCall(){if(!currentCallId&&!incomingCallId)return;callMinimized=true;$c('dgCallOverlay').style.display='none';$c('dgVideoOverlay').classList.remove('show');$c('dgVideoOverlay').style.display='none';$c('dgCallMinimized').classList.add('show');}
+    function restoreCall(){if(!callMinimized)return;callMinimized=false;$c('dgCallMinimized').classList.remove('show');if(isVideoCall)showVideoUI();else $c('dgCallOverlay').style.display='flex';}
+    function toggleDiagnostics(id){var el=$c(id);if(el)el.hidden=!el.hidden;}
+    function restartIce(){if(!pc)return;try{pc.restartIce();setStatusTop('🔄 Переподключение ICE...');safeToast('Переподключаем соединение');}catch(e){safeToast('Не удалось перезапустить ICE');}}
+    function applyLocalCamTransform(){var v=$c('dgLocalVideo');if(v)v.style.transform=(localCamFlipped?'scaleX(-1) ':'')+'rotate('+localCamRotation+'deg)';}
+    function rotateLocalCam(){localCamRotation=(localCamRotation+90)%360;applyLocalCamTransform();}
+    function flipLocalCam(){localCamFlipped=!localCamFlipped;applyLocalCamTransform();}
+    function enablePipDrag(){var p=$c('dgLocalPip');if(!p||p._dragBound)return;p._dragBound=true;var sx=0,sy=0,left=0,top=0,drag=false;p.addEventListener('pointerdown',function(e){if(e.target.closest('button'))return;drag=true;sx=e.clientX;sy=e.clientY;var r=p.getBoundingClientRect();left=r.left;top=r.top;p.setPointerCapture(e.pointerId);});p.addEventListener('pointermove',function(e){if(!drag)return;p.style.left=Math.max(0,Math.min(innerWidth-p.offsetWidth,left+e.clientX-sx))+'px';p.style.top=Math.max(55,Math.min(innerHeight-p.offsetHeight-90,top+e.clientY-sy))+'px';p.style.right='auto';});p.addEventListener('pointerup',function(){drag=false;});p.addEventListener('pointercancel',function(){drag=false;});}
+    var renegotiationBusy=false,reOfferSeen=0;
+    function upgradeToVideo(){
+      if(!currentCallRef||!pc||isVideoCall||renegotiationBusy){safeToast('Видео сейчас недоступно');return;}
+      if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){safeToast('Камера недоступна в этом браузере');return;}
+      renegotiationBusy=true;safeToast('Запрашиваем доступ к камере…');
+      navigator.mediaDevices.getUserMedia({video:videoConstraints,audio:false}).then(function(vs){
+        var track=vs.getVideoTracks()[0];if(!track)throw new Error('Камера не найдена');
+        if(!localStream)localStream=new MediaStream();localStream.addTrack(track);isVideoCall=true;
+        var lv=$c('dgLocalVideo');if(lv){lv.srcObject=localStream;lv.style.display='block';lv.play().catch(function(){});}
+        pc.addTrack(track,localStream);return pc.createOffer();
+      }).then(function(o){o.sdp=optimizeSDP(o.sdp);return pc.setLocalDescription(o).then(function(){return currentCallRef.update({type:'video',reOffer:{type:o.type,sdp:o.sdp,ts:Date.now()}});});})
+      .then(function(){showVideoUI();setStatusTop('📹 Ожидаем подтверждение видео…');})
+      .catch(function(e){safeToast('Не удалось включить видео: '+(e.message||'ошибка'));})
+      .finally(function(){renegotiationBusy=false;});
+    }
+    function bindRenegotiation(){
+      if(!currentCallRef||!pc)return;
+      currentCallRef.child('reOffer').on('value',function(s){
+        var o=s.val();if(!o||!o.ts||o.ts<=reOfferSeen||isCaller||!pc||pc.signalingState==='closed')return;reOfferSeen=o.ts;
+        navigator.mediaDevices.getUserMedia({video:videoConstraints,audio:false}).then(function(vs){
+          var track=vs.getVideoTracks()[0];if(!track)throw new Error('Камера недоступна');if(!localStream)localStream=new MediaStream();localStream.addTrack(track);pc.addTrack(track,localStream);
+          return pc.setRemoteDescription(new RTCSessionDescription(o)).then(function(){return pc.createAnswer();}).then(function(a){a.sdp=optimizeSDP(a.sdp);return pc.setLocalDescription(a).then(function(){return currentCallRef.child('reAnswer').set({type:a.type,sdp:a.sdp,ts:o.ts});});}).then(function(){isVideoCall=true;showVideoUI();var lv=$c('dgLocalVideo');if(lv){lv.srcObject=localStream;lv.style.display='block';lv.play().catch(function(){});}setStatusTop('📹 Видеозвонок');});
+        }).catch(function(e){safeToast('Второй участник не смог включить видео: '+(e.message||'ошибка'));});
+      });
+      currentCallRef.child('reAnswer').on('value',function(s){
+        var a=s.val();if(!a||!a.ts||!pc||!isCaller||pc.signalingState!=='have-local-offer')return;
+        pc.setRemoteDescription(new RTCSessionDescription(a)).then(function(){isVideoCall=true;showVideoUI();setStatusTop('📹 Видеозвонок');}).catch(function(){safeToast('Не удалось согласовать видеосвязь');});
+      });
+    }
+
+    window.dgCalls={startCall:startCall,endCall:endCall,listenIncoming:listenIncoming,acceptIncoming:acceptIncoming};
     function bindCallButtons(){
-        var eb=$c('dgCallEndBtn'),mb=$c('dgCallMuteBtn'),ab=$c('dgCallAcceptBtn'),sb=$c('dgCallSpeakerBtn');\n         var veb=$c('dgVidEndBtn'),vmb=$c('dgVidMuteBtn'),vcb=$c('dgVidCamBtn'),vsb=$c('dgVidSwitchBtn'),share=$c('dgVidShareBtn');
+        var eb=$c('dgCallEndBtn'),mb=$c('dgCallMuteBtn'),ab=$c('dgCallAcceptBtn'),sb=$c('dgCallSpeakerBtn');
+         var veb=$c('dgVidEndBtn'),vmb=$c('dgVidMuteBtn'),vcb=$c('dgVidCamBtn'),vsb=$c('dgVidSwitchBtn'),share=$c('dgVidShareBtn');
         if(eb)eb.onclick=function(){if(incomingCallRef&&incomingCallData&&!isCaller){try{incomingCallRef.child('status').set('declined').catch(function(){});}catch(e){}stopRingtone();stopTitleBlink();stopIncomingVibrate();cleanupCall();return;}if(currentCallRef){try{currentCallRef.child('status').set('ended').catch(function(){});}catch(e){}}endCall('ended');};
         if(mb)mb.onclick=toggleMute;
         if(ab)ab.onclick=acceptIncoming;
-        if(sb)sb.onclick=toggleSpeaker;var min1=$c('dgCallMinimizeBtn'),min2=$c('dgVideoMinimizeBtn'),restore=$c('dgRestoreCallBtn'),miniEnd=$c('dgMiniEndBtn');if(min1)min1.onclick=minimizeCall;if(min2)min2.onclick=minimizeCall;if(restore)restore.onclick=restoreCall;if(miniEnd)miniEnd.onclick=function(){if(currentCallRef)currentCallRef.child('status').set('ended').catch(function(){});endCall('ended');};var vb=$c('dgCallVideoBtn');if(vb)vb.onclick=function(){safeToast('Переключение в видео пока требует согласования на втором устройстве');};['dgCallDiagToggle','dgVideoDiagToggle'].forEach(function(id){var b=$c(id);if(b)b.onclick=function(){toggleDiagnostics(id==='dgCallDiagToggle'?'dgCallDiagnostics':'dgVideoDiagnostics');};});['dgIceRestartBtn','dgVideoIceRestartBtn'].forEach(function(id){var b=$c(id);if(b)b.onclick=restartIce;});var rot=$c('dgRotateLocalBtn'),flip=$c('dgFlipLocalBtn');if(rot)rot.onclick=rotateLocalCam;if(flip)flip.onclick=flipLocalCam;enablePipDrag();
+        if(sb)sb.onclick=toggleSpeaker;
+        var min1=$c('dgCallMinimizeBtn'),min2=$c('dgVideoMinimizeBtn'),restore=$c('dgRestoreCallBtn'),miniEnd=$c('dgMiniEndBtn');
+        if(min1)min1.onclick=minimizeCall;if(min2)min2.onclick=minimizeCall;if(restore)restore.onclick=restoreCall;
+        if(miniEnd)miniEnd.onclick=function(){if(currentCallRef)currentCallRef.child('status').set('ended').catch(function(){});endCall('ended');};
+        var vb=$c('dgCallVideoBtn');if(vb)vb.onclick=upgradeToVideo;
+        ['dgCallDiagToggle','dgVideoDiagToggle'].forEach(function(id){var b=$c(id);if(b)b.onclick=function(){toggleDiagnostics(id==='dgCallDiagToggle'?'dgCallDiagnostics':'dgVideoDiagnostics');};});
+        ['dgIceRestartBtn','dgVideoIceRestartBtn'].forEach(function(id){var b=$c(id);if(b)b.onclick=restartIce;});
+        var rot=$c('dgRotateLocalBtn'),flip=$c('dgFlipLocalBtn');if(rot)rot.onclick=rotateLocalCam;if(flip)flip.onclick=flipLocalCam;enablePipDrag();var min1=$c('dgCallMinimizeBtn'),min2=$c('dgVideoMinimizeBtn'),restore=$c('dgRestoreCallBtn'),miniEnd=$c('dgMiniEndBtn');if(min1)min1.onclick=minimizeCall;if(min2)min2.onclick=minimizeCall;if(restore)restore.onclick=restoreCall;if(miniEnd)miniEnd.onclick=function(){if(currentCallRef)currentCallRef.child('status').set('ended').catch(function(){});endCall('ended');};var vb=$c('dgCallVideoBtn');if(vb)vb.onclick=function(){safeToast('Переключение в видео пока требует согласования на втором устройстве');};['dgCallDiagToggle','dgVideoDiagToggle'].forEach(function(id){var b=$c(id);if(b)b.onclick=function(){toggleDiagnostics(id==='dgCallDiagToggle'?'dgCallDiagnostics':'dgVideoDiagnostics');};});['dgIceRestartBtn','dgVideoIceRestartBtn'].forEach(function(id){var b=$c(id);if(b)b.onclick=restartIce;});var rot=$c('dgRotateLocalBtn'),flip=$c('dgFlipLocalBtn');if(rot)rot.onclick=rotateLocalCam;if(flip)flip.onclick=flipLocalCam;enablePipDrag();
         if(vmb)vmb.onclick=toggleMute;
         if(vcb)vcb.onclick=toggleVideoCam;
         if(vsb)vsb.onclick=switchCamera;
         if(share)share.onclick=toggleScreenShare;
+        var vac=$c('dgVideoAcceptBtn');if(vac)vac.onclick=function(){vac.hidden=true;acceptIncoming();};
         document.querySelectorAll('[data-call-reaction]').forEach(function(b){b.onclick=function(){sendReaction(b.getAttribute('data-call-reaction'));};});
         if(veb)veb.onclick=function(){if(incomingCallRef&&incomingCallData&&!isCaller){try{incomingCallRef.child('status').set('declined').catch(function(){});}catch(e){}stopRingtone();stopTitleBlink();stopIncomingVibrate();cleanupCall();return;}if(currentCallRef){try{currentCallRef.child('status').set('ended').catch(function(){});}catch(e){}}endCall('ended');};
         var slider=$c('dgVolumeSlider');if(slider)slider.oninput=function(){var v=parseInt(this.value)||100;setVolume(v/100);};
