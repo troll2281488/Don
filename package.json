@@ -6,7 +6,8 @@
   "scripts": {
     "build:web": "node scripts/build-web.mjs",
     "cap:sync": "cap sync android",
-    "android:debug": "cd android && ./gradlew assembleDebug"
+    "android:debug": "cd android && ./gradlew assembleDebug",
+    "check:inline-js": "node scripts/check-inline-js.mjs"
   },
   "dependencies": {
     "@capacitor/android": "6.2.0",
