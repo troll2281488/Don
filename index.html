@@ -2379,8 +2379,7 @@ function askAiAboutMessage(messageText) {
         let i = 0;
         function type() {
             if (i < ans.length) {
-                content.innerHTML += ans.substring(i, i + 2).replace(/
-/g, '<br>');
+                content.innerHTML += ans.substring(i, i + 2).replace(/\n/g, '<br>');
                 i += 2;
                 setTimeout(type, 10);
             }
