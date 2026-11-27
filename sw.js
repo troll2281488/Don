@@ -1,5 +1,5 @@
 /* DonorGram service worker: GitHub Pages-safe offline shell and static asset cache. */
-const CACHE_NAME = "donorgram-v19";
+const CACHE_NAME = "donorgram-v20";
 const APP_SHELL = ["./", "./index.html"];
 const STATIC_DESTINATIONS = new Set(["script", "style", "image", "font", "worker"]);
 
@@ -19,6 +19,49 @@ self.addEventListener("activate", event => {
         .map(key => caches.delete(key))))
       .then(() => self.clients.claim())
   );
+});
+
+
+/*
+ * Push display bridge for incoming calls.
+ * A trusted sender must deliver a payload containing { type:"incoming_call",
+ * title, body, callId }. The app still validates the call against Firebase
+ * after the user opens it; notification payloads are never treated as auth.
+ */
+self.addEventListener("push", event => {
+  let payload = {};
+  try {
+    payload = event.data ? event.data.json() : {};
+  } catch (_) {
+    try { payload = { body: event.data ? event.data.text() : "" }; } catch (_) {}
+  }
+  if (payload.type !== "incoming_call") return;
+  const title = payload.title || "Входящий звонок";
+  const options = {
+    body: payload.body || "Вам звонят в DonorGram",
+    icon: "./icons/icon-192.png",
+    badge: "./icons/icon-192.png",
+    tag: payload.callId ? "donorgram-call-" + payload.callId : "donorgram-call",
+    renotify: true,
+    requireInteraction: true,
+    data: { callId: payload.callId || null, url: "./" }
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener("notificationclick", event => {
+  event.notification.close();
+  const target = new URL((event.notification.data && event.notification.data.url) || "./", self.location.origin).href;
+  event.waitUntil((async () => {
+    const clientsList = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    for (const client of clientsList) {
+      if (client.url.startsWith(self.location.origin) && "focus" in client) {
+        await client.focus();
+        return;
+      }
+    }
+    if (self.clients.openWindow) await self.clients.openWindow(target);
+  })());
 });
 
 self.addEventListener("fetch", event => {
