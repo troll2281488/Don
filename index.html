@@ -593,6 +593,15 @@ button,input,textarea,select{touch-action:manipulation}
 .gps-popup-actions button.secondary{background:#eef2ff;color:#4658b8}
 .gps-status-bar{min-height:42px;flex-wrap:wrap}
 
+
+/* Zvonki call controls */
+#dgCallReactions{display:flex;gap:8px;justify-content:center;align-items:center;margin:10px auto 4px;flex-wrap:wrap}
+#dgCallReactions button{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.10);color:#fff;border-radius:20px;padding:7px 10px;font-size:18px}
+#dgCallReactionToast{position:absolute;left:50%;top:24%;transform:translate(-50%,-50%);font-size:clamp(38px,10vw,64px);pointer-events:none;opacity:0;transition:opacity .15s}
+#dgCallReactionToast.show{opacity:1}
+#dgVidShareBtn.active{background:#0b8f71}
+#dgCallQuality{font-size:11px;color:#aab4c3;text-align:center;margin-top:6px;min-height:14px}
+
 </style>
 <meta name="theme-color" content="#527da3"><meta name="apple-mobile-web-app-capable" content="yes"></head>
 <body>
@@ -1022,6 +1031,14 @@ button,input,textarea,select{touch-action:manipulation}
   <video id="dgRemoteVideo" autoplay playsinline></video>
   <video id="dgLocalVideo" autoplay playsinline muted></video>
   <div id="dgVideoTop"><i class="fas fa-lock" style="color:#34c759"></i> <span id="dgVideoStatus">Соединение...</span></div>
+  <div id="dgCallReactionToast" aria-live="polite"></div>
+  <div id="dgCallReactions">
+    <button type="button" data-call-reaction="👍" aria-label="Отправить лайк">👍</button>
+    <button type="button" data-call-reaction="❤️" aria-label="Отправить сердце">❤️</button>
+    <button type="button" data-call-reaction="😂" aria-label="Отправить смех">😂</button>
+    <button type="button" data-call-reaction="👏" aria-label="Отправить аплодисменты">👏</button>
+  </div>
+  <div id="dgCallQuality" aria-live="polite"></div>
   <div id="dgVideoControls">
     <div class="dgVidBtnWrap">
       <button class="dgVidBtn" id="dgVidMuteBtn" type="button"><i class="fas fa-microphone"></i></button>
@@ -1033,7 +1050,11 @@ button,input,textarea,select{touch-action:manipulation}
     </div>
     <div class="dgVidBtnWrap">
       <button class="dgVidBtn" id="dgVidSwitchBtn" type="button"><i class="fas fa-sync"></i></button>
-      <div class="dgVidLabel">Перевернуть</div>
+      <div class="dgVidLabel">Камера</div>
+    </div>
+    <div class="dgVidBtnWrap">
+      <button class="dgVidBtn" id="dgVidShareBtn" type="button"><i class="fas fa-desktop"></i></button>
+      <div class="dgVidLabel">Экран</div>
     </div>
     <div class="dgVidBtnWrap">
       <button class="dgVidBtn end" id="dgVidEndBtn" type="button"><i class="fas fa-phone-slash"></i></button>
@@ -2407,14 +2428,14 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
     var incomingListenerRef=null,incomingListenerHandler=null,pendingRemoteIce=[];
     var ringtoneCtx=null,ringtoneInterval=null,outgoingToneInterval=null,outgoingToneCtx=null,audioCtx=null,_diagTimer=null;
     var _titleBlinkInterval=null,_origTitle=document.title,_incomingVibrateInterval=null;
-    var isVideoCall=false;var volumeLevel=1.0;var _reconnectInterval=null;
+    var isVideoCall=false;var volumeLevel=1.0;var _reconnectInterval=null;var screenStream=null,isScreenSharing=false,qualityTimer=null,reactionListener=null,reactionLastTs=0;
     var videoConstraints={width:{ideal:320,max:480},height:{ideal:240,max:360},frameRate:{ideal:15,max:20}};
     function $c(id){return document.getElementById(id);}
     function genId(){return 'call_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);}
     function getUser(){return window.currentUser;}
     function safeToast(m){try{if(typeof showToast==='function')showToast(m);}catch(e){}}
     function diag(t){var el=$c('dgCallDiag');if(el){el.style.display='block';el.innerText=t;}}
-    function startDiag(){stopDiag();_diagTimer=setInterval(function(){if(!pc){diag('no-pc');return;}var ice=pc.iceConnectionState||'?';var hl=localStream?localStream.getAudioTracks().length:0;var hr=remoteStream?remoteStream.getAudioTracks().length:0;diag('ICE: '+ice+'\nMic:'+(hl?'✓':'✗')+'\nRem:'+hr);},500);}
+    function startDiag(){stopDiag();startQualityMonitor();_diagTimer=setInterval(function(){if(!pc){diag('no-pc');return;}var ice=pc.iceConnectionState||'?';var hl=localStream?localStream.getAudioTracks().length:0;var hr=remoteStream?remoteStream.getAudioTracks().length:0;diag('ICE: '+ice+'\nMic:'+(hl?'✓':'✗')+'\nRem:'+hr);},500);}
     function stopDiag(){if(_diagTimer){clearInterval(_diagTimer);_diagTimer=null;}var el=$c('dgCallDiag');if(el)el.style.display='none';}
     function unlockAudio(){try{var C=window.AudioContext||window.webkitAudioContext;if(!C)return;if(!audioCtx)audioCtx=new C();if(audioCtx.state==='suspended')audioCtx.resume();}catch(e){}}
     document.addEventListener('touchstart',unlockAudio,{passive:true});document.addEventListener('click',unlockAudio);
@@ -2452,8 +2473,74 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
     function addRemoteIceCandidate(candidate){if(!candidate||!pc)return;if(!pc.remoteDescription||!pc.remoteDescription.type){pendingRemoteIce.push(candidate);return;}try{pc.addIceCandidate(new RTCIceCandidate(candidate)).catch(function(){});}catch(e){}}
     function flushRemoteIceCandidates(){if(!pc||!pc.remoteDescription)return;var queued=pendingRemoteIce.splice(0);queued.forEach(function(candidate){try{pc.addIceCandidate(new RTCIceCandidate(candidate)).catch(function(){});}catch(e){}});}
     function optimizeSDP(sdp){if(!sdp)return sdp;try{if(sdp.indexOf('maxaveragebitrate')===-1){sdp=sdp.replace(/a=rtpmap:111 opus\/48000\/2/g,'a=rtpmap:111 opus/48000/2\r\na=fmtp:111 minptime=10;useinbandfec=1;maxaveragebitrate=32000;stereo=1');}if(isVideoCall&&sdp.indexOf('b=AS:')===-1){sdp=sdp.replace(/(m=video \d+ [^\r\n]+)/g,'$1\r\nb=AS:250');}}catch(e){}return sdp;}
+
+    function showReaction(emoji,fromMe){
+        var el=$c('dgCallReactionToast');if(!el)return;
+        el.textContent=emoji;el.classList.add('show');
+        if(el._hideTimer)clearTimeout(el._hideTimer);
+        el._hideTimer=setTimeout(function(){el.classList.remove('show');},1300);
+    }
+    function sendReaction(emoji){
+        if(!currentCallRef||!currentCallId)return;
+        showReaction(emoji,true);
+        currentCallRef.child('reaction').set({emoji:emoji,ts:Date.now(),from:getUser()&&getUser().id||''}).catch(function(){});
+    }
+    function watchReactions(){
+        if(!currentCallRef)return;
+        if(reactionListener){try{currentCallRef.child('reaction').off('value',reactionListener);}catch(e){}}
+        reactionListener=function(s){var v=s.val();if(!v||!v.emoji||!v.ts||v.ts<=reactionLastTs)return;reactionLastTs=v.ts;if(v.from!==(getUser()&&getUser().id||''))showReaction(v.emoji,false);};
+        currentCallRef.child('reaction').on('value',reactionListener);
+    }
+    function toggleScreenShare(){
+        if(!pc||!localStream||!isVideoCall){safeToast('Демонстрация экрана доступна во время видеозвонка');return;}
+        if(!navigator.mediaDevices||!navigator.mediaDevices.getDisplayMedia){safeToast('Демонстрация экрана не поддерживается этим браузером');return;}
+        if(!isScreenSharing){
+            navigator.mediaDevices.getDisplayMedia({video:{frameRate:{ideal:12,max:15}},audio:false}).then(function(stream){
+                var track=stream.getVideoTracks()[0];if(!track)throw new Error('Экран не выбран');
+                var sender=pc.getSenders().find(function(s){return s.track&&s.track.kind==='video';});
+                if(!sender)throw new Error('Видеоканал не найден');
+                return sender.replaceTrack(track).then(function(){
+                    screenStream=stream;isScreenSharing=true;
+                    var lv=$c('dgLocalVideo');if(lv){lv.srcObject=stream;lv.play().catch(function(){});}
+                    var b=$c('dgVidShareBtn');if(b)b.classList.add('active');
+                    track.onended=function(){if(isScreenSharing)restoreCameraAfterShare();};
+                    safeToast('Показ экрана включён');
+                });
+            }).catch(function(e){if(e&&e.name!=='NotAllowedError')safeToast('Не удалось показать экран');});
+        }else restoreCameraAfterShare();
+    }
+    function restoreCameraAfterShare(){
+        var cam=localStream&&localStream.getVideoTracks()[0];
+        var sender=pc&&pc.getSenders().find(function(s){return s.track&&s.track.kind==='video';});
+        var done=sender&&cam?sender.replaceTrack(cam):Promise.resolve();
+        Promise.resolve(done).then(function(){
+            if(screenStream){screenStream.getTracks().forEach(function(t){t.stop();});screenStream=null;}
+            isScreenSharing=false;
+            var lv=$c('dgLocalVideo');if(lv&&localStream){lv.srcObject=localStream;lv.play().catch(function(){});}
+            var b=$c('dgVidShareBtn');if(b)b.classList.remove('active');
+            safeToast('Возврат к камере');
+        }).catch(function(){safeToast('Не удалось вернуть камеру');});
+    }
+    function startQualityMonitor(){
+        if(qualityTimer)clearInterval(qualityTimer);
+        qualityTimer=setInterval(function(){
+            if(!pc||!pc.getStats)return;
+            pc.getStats(null).then(function(stats){
+                var rtt=null,loss=null;
+                stats.forEach(function(r){
+                    if(r.type==='candidate-pair'&&r.state==='succeeded'&&r.currentRoundTripTime!=null)rtt=Math.round(r.currentRoundTripTime*1000);
+                    if(r.type==='inbound-rtp'&&r.kind==='audio'&&r.packetsLost!=null&&r.packetsReceived!=null)loss=r.packetsLost/(r.packetsLost+r.packetsReceived+0.001)*100;
+                });
+                var el=$c('dgCallQuality');if(!el)return;
+                if(rtt===null){el.textContent='Качество: собираем статистику';return;}
+                var level=rtt<150&&(!loss||loss<2)?'Хорошее':rtt<300&&(!loss||loss<5)?'Среднее':'Нестабильное';
+                el.textContent='Качество: '+level+' · задержка '+rtt+' мс'+(loss===null?'':' · потери '+loss.toFixed(1)+'%');
+            }).catch(function(){});
+        },4000);
+    }
+
     function createPeerConnection(){pc=new RTCPeerConnection(ICE_SERVERS);pc.onicecandidate=function(e){if(e.candidate&&currentCallRef)currentCallRef.child(isCaller?'callerCandidates':'calleeCandidates').push(e.candidate.toJSON()).catch(function(){});};pc.ontrack=function(e){var s=e.streams&&e.streams[0];if(!s&&e.track)s=new MediaStream([e.track]);if(!s)return;remoteStream=s;setTimeout(function(){attachRemoteStream(s);setStatusTop(isVideoCall?'📹 Видеозвонок':'🔊 Разговор');var sec=$c('dgCallSecure');if(sec)sec.style.display='block';if(!callTimerInterval)startTimer();setVolume(volumeLevel);var sb=$c('dgCallSpeakerBtn');if(sb)sb.classList.add('active');},100);};pc.oniceconnectionstatechange=function(){if(!pc)return;if(pc.iceConnectionState==='failed'||pc.iceConnectionState==='disconnected'){setStatusTop('⚠️ Переподключение...');try{pc.restartIce();}catch(e){}}};pc.onconnectionstatechange=function(){if(!pc)return;if(pc.connectionState==='connected'){setStatusTop(isVideoCall?'📹 Видеозвонок':'🔊 Разговор');if(!callTimerInterval)startTimer();if(remoteStream)attachRemoteStream(remoteStream);}if(pc.connectionState==='failed'||pc.connectionState==='disconnected'){setStatusTop('⚠️');try{pc.restartIce();}catch(e){}}};setTimeout(function(){if(pc&&(pc.iceConnectionState==='checking'||pc.iceConnectionState==='new')){setStatusTop('🔄 Пересоздаём ICE...');try{pc.restartIce();}catch(e){}}},3000);if(_reconnectInterval)clearInterval(_reconnectInterval);_reconnectInterval=setInterval(function(){if(!pc||!currentCallRef)return;if(pc.iceConnectionState==='failed'||pc.iceConnectionState==='disconnected'){try{pc.restartIce();}catch(e){}}},5000);return pc;}
-    function cleanupCall(){if(_reconnectInterval){clearInterval(_reconnectInterval);_reconnectInterval=null;}stopRingtone();stopOutgoingTone();stopTitleBlink();stopIncomingVibrate();stopDiag();if(callTimeoutHandle){clearTimeout(callTimeoutHandle);callTimeoutHandle=null;}if(currentCallRef){try{currentCallRef.child('status').set('ended');}catch(e){}var r=currentCallRef;setTimeout(function(){try{r.remove();}catch(e){}},1500);}if(callStateListener&&currentCallRef){try{currentCallRef.off('value',callStateListener);}catch(e){}callStateListener=null;}if(pc){try{pc.close();}catch(e){}pc=null;}pendingRemoteIce=[];if(localStream){try{localStream.getTracks().forEach(function(t){t.stop();});}catch(e){}localStream=null;}remoteStream=null;var a=$c('dgRemoteAudio');if(a)a.srcObject=null;hideCallUI();hideVideoUI();currentCallId=null;currentCallRef=null;remoteUid=null;isCaller=false;incomingCallId=null;incomingCallRef=null;incomingCallData=null;speakerOn=true;isVideoCall=false;setVolume(1.0);}
+    function cleanupCall(){if(_reconnectInterval){clearInterval(_reconnectInterval);_reconnectInterval=null;}if(qualityTimer){clearInterval(qualityTimer);qualityTimer=null;}if(reactionListener&&currentCallRef){try{currentCallRef.child('reaction').off('value',reactionListener);}catch(e){}reactionListener=null;}if(screenStream){try{screenStream.getTracks().forEach(function(t){t.stop();});}catch(e){}screenStream=null;}isScreenSharing=false;var shareBtn=$c('dgVidShareBtn');if(shareBtn)shareBtn.classList.remove('active');stopRingtone();stopOutgoingTone();stopTitleBlink();stopIncomingVibrate();stopDiag();if(callTimeoutHandle){clearTimeout(callTimeoutHandle);callTimeoutHandle=null;}if(currentCallRef){try{currentCallRef.child('status').set('ended');}catch(e){}var r=currentCallRef;setTimeout(function(){try{r.remove();}catch(e){}},1500);}if(callStateListener&&currentCallRef){try{currentCallRef.off('value',callStateListener);}catch(e){}callStateListener=null;}if(pc){try{pc.close();}catch(e){}pc=null;}pendingRemoteIce=[];if(localStream){try{localStream.getTracks().forEach(function(t){t.stop();});}catch(e){}localStream=null;}remoteStream=null;var a=$c('dgRemoteAudio');if(a)a.srcObject=null;hideCallUI();hideVideoUI();currentCallId=null;currentCallRef=null;remoteUid=null;isCaller=false;incomingCallId=null;incomingCallRef=null;incomingCallData=null;speakerOn=true;isVideoCall=false;setVolume(1.0);}
     function endCall(r){cleanupCall();}
     function startCall(targetUid,targetName,targetAvatarUrl,video){
         var me=getUser();if(!me){safeToast('❌');return;}
@@ -2475,6 +2562,7 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
             localStream.getTracks().forEach(function(t){pc.addTrack(t,localStream);});
             return pc.createOffer({offerToReceiveAudio:true,offerToReceiveVideo:isVideoCall,iceRestart:false}).then(function(o){o.sdp=optimizeSDP(o.sdp);return pc.setLocalDescription(o).then(function(){currentCallRef=db.ref('calls/'+currentCallId);return currentCallRef.set({from:me.id,fromName:me.name||me.id,fromAvatar:me.avatar||'',fromAvatarUrl:me.avatarUrl||null,to:targetUid,type:isVideoCall?'video':'audio',status:'ringing',createdAt:Date.now(),offer:{type:o.type,sdp:o.sdp}});});});
         }).then(function(){
+            watchReactions();
             currentCallRef.child('answer').on('value',function(s){var a=s.val();if(a&&pc&&pc.signalingState!=='stable'){pc.setRemoteDescription(new RTCSessionDescription(a)).then(function(){flushRemoteIceCandidates();setStatusTop('🔗 Соединение...');stopOutgoingTone();}).catch(function(e){});}});
             currentCallRef.child('calleeCandidates').on('child_added',function(s){addRemoteIceCandidate(s.val());});
             callStateListener=currentCallRef.child('status').on('value',function(s){var st=s.val();if(st==='declined'){safeToast('❌ Отклонён');endCall('declined');}if(st==='accepted'){stopOutgoingTone();setStatusTop('🔗 Соединение...');}if(st==='ended'){endCall('remote');}});
@@ -2482,13 +2570,13 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
         }).catch(function(e){stopOutgoingTone();cleanupCall();});
     }
     function listenIncoming(){var me=getUser();if(!me)return;if(incomingListenerRef&&incomingListenerHandler){try{incomingListenerRef.off('child_added',incomingListenerHandler);}catch(e){}}incomingListenerRef=db.ref('calls').orderByChild('to').equalTo(me.id);incomingListenerHandler=function(s){var call=s.val();if(!call)return;if(call.status!=='ringing')return;if(Date.now()-(call.createdAt||0)>120000)return;if(currentCallId){s.ref.child('status').set('declined');return;}incomingCallId=s.key;incomingCallRef=s.ref;incomingCallData=call;remoteUid=call.from;isCaller=false;isVideoCall=call.type==='video';if(!isVideoCall){showCallUI({name:call.fromName||call.from,avatarUrl:call.fromAvatarUrl||null,statusTop:'📞 Входящий',showAccept:true,showActions:false,secure:false,incoming:true});}else{$c('dgCallOverlay').style.display='none';showVideoUI();var vst=$c('dgVideoStatus');if(vst)vst.innerText='📹 Входящий';}startDiag();startTitleBlink('📞 '+(call.fromName||call.from));startIncomingVibrate();startRingtone();try{showSystemNotification('📞 Входящий',call.fromName||call.from,call.fromAvatarUrl||null,'call-'+s.key);}catch(e){}setTimeout(function(){if(incomingCallId===s.key&&!currentCallId){s.ref.child('status').set('declined');stopRingtone();stopTitleBlink();stopIncomingVibrate();hideCallUI();hideVideoUI();stopDiag();incomingCallId=null;incomingCallRef=null;incomingCallData=null;}},60000);};incomingListenerRef.on('child_added',incomingListenerHandler);}
-    function acceptIncoming(){if(!incomingCallRef||!incomingCallData)return;stopRingtone();stopTitleBlink();stopIncomingVibrate();unlockAudio();currentCallId=incomingCallId;currentCallRef=incomingCallRef;setStatusTop('🔗 Соединение...');startDiag();hideCallUI();if(isVideoCall){showVideoUI();var lv=$c('dgLocalVideo');if(lv)lv.style.display='block';}getLocalMedia().then(function(stream){if(isVideoCall){var lv=$c('dgLocalVideo');if(lv){try{lv.srcObject=stream;}catch(e){lv.src=URL.createObjectURL(stream);}lv.play().catch(function(){});}}createPeerConnection();localStream.getTracks().forEach(function(t){pc.addTrack(t,localStream);});return pc.setRemoteDescription(new RTCSessionDescription(incomingCallData.offer)).then(function(){flushRemoteIceCandidates();return pc.createAnswer();}).then(function(a){a.sdp=optimizeSDP(a.sdp);return pc.setLocalDescription(a).then(function(){return currentCallRef.update({status:'accepted',answer:{type:a.type,sdp:a.sdp}});});});}).then(function(){currentCallRef.child('callerCandidates').on('child_added',function(s){addRemoteIceCandidate(s.val());});callStateListener=currentCallRef.child('status').on('value',function(s){if(s.val()==='ended')endCall('remote');});}).catch(function(e){try{currentCallRef.child('status').set('declined');}catch(_e){}cleanupCall();});}
+    function acceptIncoming(){if(!incomingCallRef||!incomingCallData)return;watchReactions();stopRingtone();stopTitleBlink();stopIncomingVibrate();unlockAudio();currentCallId=incomingCallId;currentCallRef=incomingCallRef;setStatusTop('🔗 Соединение...');startDiag();hideCallUI();if(isVideoCall){showVideoUI();var lv=$c('dgLocalVideo');if(lv)lv.style.display='block';}getLocalMedia().then(function(stream){if(isVideoCall){var lv=$c('dgLocalVideo');if(lv){try{lv.srcObject=stream;}catch(e){lv.src=URL.createObjectURL(stream);}lv.play().catch(function(){});}}createPeerConnection();localStream.getTracks().forEach(function(t){pc.addTrack(t,localStream);});return pc.setRemoteDescription(new RTCSessionDescription(incomingCallData.offer)).then(function(){flushRemoteIceCandidates();return pc.createAnswer();}).then(function(a){a.sdp=optimizeSDP(a.sdp);return pc.setLocalDescription(a).then(function(){return currentCallRef.update({status:'accepted',answer:{type:a.type,sdp:a.sdp}});});});}).then(function(){watchReactions();currentCallRef.child('callerCandidates').on('child_added',function(s){addRemoteIceCandidate(s.val());});callStateListener=currentCallRef.child('status').on('value',function(s){if(s.val()==='ended')endCall('remote');});}).catch(function(e){try{currentCallRef.child('status').set('declined');}catch(_e){}cleanupCall();});}
     function toggleVideoCam(){if(!localStream||!pc)return;var vt=localStream.getVideoTracks();if(vt.length>0){vt[0].enabled=!vt[0].enabled;if(vt[0].enabled)$c('dgVidCamBtn').classList.remove('muted');else $c('dgVidCamBtn').classList.add('muted');}}
     function switchCamera(){if(!localStream)return;var vt=localStream.getVideoTracks()[0];if(!vt)return;var cur=vt.getSettings().facingMode||'user';var nxt=cur==='user'?'environment':'user';navigator.mediaDevices.getUserMedia({video:{facingMode:nxt},audio:false}).then(function(ns){var nvt=ns.getVideoTracks()[0];if(nvt){localStream.removeTrack(vt);vt.stop();localStream.addTrack(nvt);var sender=pc.getSenders().find(function(s){return s.track&&s.track.kind==='video';});if(sender)sender.replaceTrack(nvt);var lv=$c('dgLocalVideo');if(lv)lv.srcObject=localStream;showToast('📷');}}).catch(function(){showToast('❌');});}
     window.dgCalls={startCall:startCall,endCall:endCall,listenIncoming:listenIncoming,acceptIncoming:acceptIncoming};
     function bindCallButtons(){
         var eb=$c('dgCallEndBtn'),mb=$c('dgCallMuteBtn'),ab=$c('dgCallAcceptBtn'),sb=$c('dgCallSpeakerBtn');
-        var veb=$c('dgVidEndBtn'),vmb=$c('dgVidMuteBtn'),vcb=$c('dgVidCamBtn'),vsb=$c('dgVidSwitchBtn');
+        var veb=$c('dgVidEndBtn'),vmb=$c('dgVidMuteBtn'),vcb=$c('dgVidCamBtn'),vsb=$c('dgVidSwitchBtn'),share=$c('dgVidShareBtn');
         if(eb)eb.onclick=function(){if(incomingCallRef&&incomingCallData&&!isCaller){try{incomingCallRef.child('status').set('declined').catch(function(){});}catch(e){}stopRingtone();stopTitleBlink();stopIncomingVibrate();cleanupCall();return;}if(currentCallRef){try{currentCallRef.child('status').set('ended').catch(function(){});}catch(e){}}endCall('ended');};
         if(mb)mb.onclick=toggleMute;
         if(ab)ab.onclick=acceptIncoming;
@@ -2496,6 +2584,8 @@ document.getElementById('donAiClearBtn').addEventListener('click', () => {
         if(vmb)vmb.onclick=toggleMute;
         if(vcb)vcb.onclick=toggleVideoCam;
         if(vsb)vsb.onclick=switchCamera;
+        if(share)share.onclick=toggleScreenShare;
+        document.querySelectorAll('[data-call-reaction]').forEach(function(b){b.onclick=function(){sendReaction(b.getAttribute('data-call-reaction'));};});
         if(veb)veb.onclick=function(){if(incomingCallRef&&incomingCallData&&!isCaller){try{incomingCallRef.child('status').set('declined').catch(function(){});}catch(e){}stopRingtone();stopTitleBlink();stopIncomingVibrate();cleanupCall();return;}if(currentCallRef){try{currentCallRef.child('status').set('ended').catch(function(){});}catch(e){}}endCall('ended');};
         var slider=$c('dgVolumeSlider');if(slider)slider.oninput=function(){var v=parseInt(this.value)||100;setVolume(v/100);};
         var vo=$c('dgVideoOverlay');
